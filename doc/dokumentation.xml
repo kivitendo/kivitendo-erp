@@ -824,6 +824,14 @@ tar xvzf kivitendo-erp-*.tgz</programlisting>
           </listitem>
 
           <listitem>
+            <para><literal>authentication/http_basic</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>authentication/http_headers</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>authentication/ldap</literal></para>
           </listitem>
 
@@ -1208,19 +1216,6 @@ FcgidMaxRequestLen 10485760
       </sect2>
 
       <sect2>
-       <title>Authentifizierung mittels HTTP Basic Authentication</title>
-
-       <para>
-        Kivitendo unterstützt, dass Benutzerauthentifizierung über den Webserver mittels des »Basic«-HTTP-Authentifizierungs-Schema erfolgt
-        (siehe <ulink url="https://tools.ietf.org/html/rfc7617">RFC 7617</ulink>). Dazu ist es aber nötig, dass der dabei vom Client
-        mitgeschickte Header <constant>Authorization</constant> vom Webserver an Kivitendo über die Umgebungsvariable
-        <constant>HTTP_AUTHORIZATION</constant> weitergegeben wird, was standardmäßig nicht der Fall ist. Für Apache kann dies über die
-        folgende Konfigurationsoption aktiviert werden:
-       </para>
-
-       <programlisting>SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1</programlisting>
-      </sect2>
-      <sect2>
        <title>Aktivierung von mod_rewrite/directory_match für git basierte Installationen</title>
 
        <para>
@@ -1246,7 +1241,7 @@ FcgidMaxRequestLen 10485760
 
         <para>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
         von kivitendo nur über https-verschlüsselten Verbindungen, sowie
-        weiteren Zusatzmassnahmen, wie beispielsweise Basic Authenticate. Die
+        weiteren Zusatzmassnahmen, wie beispielsweise Basic Authentication. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <ulink
         url="https://www.kivitendo.de/redmine/boards/1/topics/142">Foreneintrag
@@ -1629,8 +1624,8 @@ password: supipass8
         Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
         abgelegt werden.</para>
 
-        <para>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter gegen die Authentifizierungsdatenbank oder gegen einen oder
-        mehrere LDAP-Server überprüft werden.</para>
+        <para>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter gegen verschiedene Authentifizierungsmethoden geprüft
+        werden. Dazu zählen die Authentifizierungsdatenbank, LDAP-Server sowie verschiedene Arten von HTTP-Header-basierten Methoden.</para>
 
         <para>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
         kivitendo die Authentifizierungsdatenbank erreichen kann, wird in der
@@ -1712,128 +1707,234 @@ password: supipass8
       <sect2 id="Passwortüberprüfung">
         <title>Passwortüberprüfung</title>
 
-        <para>kivitendo unterstützt Passwortüberprüfung auf zwei Arten: gegen
-        die Authentifizierungsdatenbank und gegen externe LDAP- oder
-        Active-Directory-Server. Welche davon benutzt wird, regelt der
-        Parameter <varname>module</varname> im Abschnitt
-        <varname>[authentication]</varname>.</para>
+        <para>kivitendo unterstützt verschiedene Module für die Passwortüberprüfung. Welche benutzt wird, regelt der Parameter
+        <varname>module</varname> im Abschnitt <varname>[authentication]</varname>.</para>
 
         <para>Dieser Parameter listet die zu verwendenden Authentifizierungsmodule auf. Es muss mindestens ein Modul angegeben werden, es
         können aber auch mehrere angegeben werden. Weiterhin ist es möglich, das LDAP-Modul mehrfach zu verwenden und für jede Verwendung
         eine unterschiedliche Konfiguration zu nutzen, z.B. um einen Fallback-Server anzugeben, der benutzt wird, sofern der Hauptserver
         nicht erreichbar ist.</para>
 
-        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank geprüft werden, so muss der Parameter
-        <varname>module</varname> das Modul <literal>DB</literal> enthalten. Sofern das Modul in der Liste enthalten ist, egal an welcher
-        Position, können sowohl der Administrator als auch die Benutzer selber ihre Passwörter in kivitendo ändern.</para>
+        <para>Verfügbare Module sind:</para>
 
-        <para>Wenn Passwörter gegen einen oder mehrere externe LDAP- oder Active-Directory-Server geprüft werden, so muss der Parameter
-        <varname>module</varname> den Wert <literal>LDAP</literal> enthalten. In diesem Fall müssen zusätzliche Informationen über den
-        LDAP-Server im Abschnitt <literal>[authentication/ldap]</literal> angegeben werden. Das Modul kann auch mehrfach angegeben werden,
-        wobei jedes Modul eine eigene Konfiguration bekommen sollte. Der Name der Konfiguration wird dabei mit einem Doppelpunkt getrennt an
-        den Modulnamen angehängt (<literal>LDAP:Name-der-Konfiguration</literal>). Der entsprechende Abschnitt in der Konfigurationsdatei
-        lautet dann <literal>[authentication/Name-der-Konfiguration]</literal>.</para>
+        <itemizedlist>
+          <listitem><para><literal>DB</literal>: in Authentifizierungsdatenbank integrierte Benutzerverwaltung</para></listitem>
 
-        <para>Die verfügbaren Parameter für die LDAP-Konfiguration lauten:</para>
+          <listitem><para><literal>ldap</literal>: Bind mit User-Objekten gegen einen oder mehrere LDAP-Server</para></listitem>
 
-        <variablelist>
-          <varlistentry>
-            <term><literal>host</literal></term>
+          <listitem><para><literal>http_headers</literal>: überlässt Authenfizierung vorgelagerten Proxy-Servern &aml; übernimmt Usernamen
+          aus mitgeschickten HTTP-Headern</para></listitem>
+        </itemizedlist>
 
-            <listitem>
-              <para>Der Rechnername oder die IP-Adresse des LDAP- oder
-              Active-Directory-Servers. Diese Angabe ist zwingend
-              erforderlich.</para>
-            </listitem>
-          </varlistentry>
+        <sect3 id="Passwortüberprüfung_DB">
+          <title>Authentifizierungsdatenbank</title>
 
-          <varlistentry>
-            <term><literal>port</literal></term>
+          <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank geprüft werden, so muss der Parameter
+          <varname>module</varname> das Modul <literal>DB</literal> enthalten. Sofern das Modul in der Liste enthalten ist, egal an welcher
+          Position, können sowohl der Administrator als auch die Benutzer selber ihre Passwörter in kivitendo ändern.</para>
+        </sect3>
 
-            <listitem>
-              <para>Die Portnummer des LDAP-Servers; meist 389.</para>
-            </listitem>
-          </varlistentry>
+        <sect3 id="Passwortüberprüfung_LDAP">
+          <title>LDAP-Server</title>
 
-          <varlistentry>
-            <term><literal>tls</literal></term>
+          <para>Wenn Passwörter gegen einen oder mehrere externe LDAP- oder Active-Directory-Server geprüft werden, so muss der Parameter
+          <varname>module</varname> den Wert <literal>LDAP</literal> enthalten. In diesem Fall müssen zusätzliche Informationen über den
+          LDAP-Server im Abschnitt <literal>[authentication/ldap]</literal> angegeben werden. Das Modul kann auch mehrfach angegeben werden,
+          wobei jedes Modul eine eigene Konfiguration bekommen sollte. Der Name der Konfiguration wird dabei mit einem Doppelpunkt getrennt an
+          den Modulnamen angehängt (<literal>LDAP:Name-der-Konfiguration</literal>). Der entsprechende Abschnitt in der Konfigurationsdatei
+          lautet dann <literal>[authentication/Name-der-Konfiguration]</literal>.</para>
 
-            <listitem>
-              <para>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
-              Wert auf ‘<literal>1</literal>’ setzen, andernfalls auf
-              ‘<literal>0</literal>’ belassen</para>
-            </listitem>
-          </varlistentry>
+          <para>Die verfügbaren Parameter für die LDAP-Konfiguration lauten:</para>
 
-          <varlistentry>
-            <term><literal>verify</literal></term>
+          <variablelist>
+            <varlistentry>
+              <term><literal>host</literal></term>
 
-            <listitem>
-              <para>Wenn Verbindungsverschlüsselung gewünscht und der Parameter <parameter>tls</parameter> gesetzt ist, so gibt dieser
-              Parameter an, ob das Serverzertifikat auf Gültigkeit geprüft wird. Mögliche Werte sind <literal>require</literal> (Zertifikat
-              wird überprüft und muss gültig sei; dies ist der Standard) und <literal>none</literal> (Zertifikat wird nicht
-              überpfüft).</para>
-            </listitem>
-          </varlistentry>
+              <listitem>
+                <para>Der Rechnername oder die IP-Adresse des LDAP- oder
+                Active-Directory-Servers. Diese Angabe ist zwingend
+                erforderlich.</para>
+              </listitem>
+            </varlistentry>
 
-          <varlistentry>
-            <term><literal>attribute</literal></term>
+            <varlistentry>
+              <term><literal>port</literal></term>
 
-            <listitem>
-              <para>Das LDAP-Attribut, in dem der Benutzername steht, den der
-              Benutzer eingegeben hat. Für Active-Directory-Server ist dies
-              meist ‘<literal>sAMAccountName</literal>’, für andere
-              LDAP-Server hingegen ‘<literal>uid</literal>’. Diese Angabe ist
-              zwingend erforderlich.</para>
-            </listitem>
-          </varlistentry>
+              <listitem>
+                <para>Die Portnummer des LDAP-Servers; meist 389.</para>
+              </listitem>
+            </varlistentry>
 
-          <varlistentry>
-            <term><literal>base_dn</literal></term>
+            <varlistentry>
+              <term><literal>tls</literal></term>
 
-            <listitem>
-              <para>Der Abschnitt des LDAP-Baumes, der durchsucht werden soll.
-              Diese Angabe ist zwingend erforderlich.</para>
-            </listitem>
-          </varlistentry>
+              <listitem>
+                <para>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
+                Wert auf ‘<literal>1</literal>’ setzen, andernfalls auf
+                ‘<literal>0</literal>’ belassen</para>
+              </listitem>
+            </varlistentry>
 
-          <varlistentry>
-            <term><literal>filter</literal></term>
+            <varlistentry>
+              <term><literal>verify</literal></term>
 
-            <listitem>
-              <para>Ein optionaler LDAP-Filter. Enthält dieser Filter das Wort
-              <literal>&lt;%login%&gt;</literal>, so wird dieses durch den vom
-              Benutzer eingegebenen Benutzernamen ersetzt. Andernfalls wird
-              der LDAP-Baum nach einem Element durchsucht, bei dem das oben
-              angegebene Attribut mit dem Benutzernamen identisch ist.</para>
-            </listitem>
-          </varlistentry>
+              <listitem>
+                <para>Wenn Verbindungsverschlüsselung gewünscht und der Parameter <parameter>tls</parameter> gesetzt ist, so gibt dieser
+                Parameter an, ob das Serverzertifikat auf Gültigkeit geprüft wird. Mögliche Werte sind <literal>require</literal> (Zertifikat
+                wird überprüft und muss gültig sei; dies ist der Standard) und <literal>none</literal> (Zertifikat wird nicht
+                überpfüft).</para>
+              </listitem>
+            </varlistentry>
 
-          <varlistentry>
-            <term><literal>bind_dn</literal> und
-            <literal>bind_password</literal></term>
+            <varlistentry>
+              <term><literal>attribute</literal></term>
 
-            <listitem>
-              <para>Wenn der LDAP-Server eine Anmeldung erfordert, bevor er
-              durchsucht werden kann (z.B. ist dies bei
-              Active-Directory-Servern der Fall), so kann diese hier angegeben
-              werden. Für Active-Directory-Server kann als
-              ‘<literal>bind_dn</literal>’ entweder eine komplette LDAP-DN wie
-              z.B. ‘<literal>cn=Martin
-              Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der
-              volle Name des Benutzers eingegeben werden; in diesem Beispiel
-              also ‘<literal>Martin Mustermann</literal>’.</para>
-            </listitem>
-          </varlistentry>
+              <listitem>
+                <para>Das LDAP-Attribut, in dem der Benutzername steht, den der
+                Benutzer eingegeben hat. Für Active-Directory-Server ist dies
+                meist ‘<literal>sAMAccountName</literal>’, für andere
+                LDAP-Server hingegen ‘<literal>uid</literal>’. Diese Angabe ist
+                zwingend erforderlich.</para>
+              </listitem>
+            </varlistentry>
 
-          <varlistentry>
-            <term><literal>timeout</literal></term>
+            <varlistentry>
+              <term><literal>base_dn</literal></term>
 
-            <listitem>
-              <para>Timeout beim Verbindungsversuch, bevor der Server als nicht erreichbar gilt; Standardwert: 10</para>
-            </listitem>
-          </varlistentry>
-        </variablelist>
+              <listitem>
+                <para>Der Abschnitt des LDAP-Baumes, der durchsucht werden soll.
+                Diese Angabe ist zwingend erforderlich.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>filter</literal></term>
+
+              <listitem>
+                <para>Ein optionaler LDAP-Filter. Enthält dieser Filter das Wort
+                <literal>&lt;%login%&gt;</literal>, so wird dieses durch den vom
+                Benutzer eingegebenen Benutzernamen ersetzt. Andernfalls wird
+                der LDAP-Baum nach einem Element durchsucht, bei dem das oben
+                angegebene Attribut mit dem Benutzernamen identisch ist.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>bind_dn</literal> und
+              <literal>bind_password</literal></term>
+
+              <listitem>
+                <para>Wenn der LDAP-Server eine Anmeldung erfordert, bevor er
+                durchsucht werden kann (z.B. ist dies bei
+                Active-Directory-Servern der Fall), so kann diese hier angegeben
+                werden. Für Active-Directory-Server kann als
+                ‘<literal>bind_dn</literal>’ entweder eine komplette LDAP-DN wie
+                z.B. ‘<literal>cn=Martin
+                Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der
+                volle Name des Benutzers eingegeben werden; in diesem Beispiel
+                also ‘<literal>Martin Mustermann</literal>’.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>timeout</literal></term>
+
+              <listitem>
+                <para>Timeout beim Verbindungsversuch, bevor der Server als nicht erreichbar gilt; Standardwert: 10</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="Passwortüberprüfung_HTTPHeaders">
+          <title>HTTP-Header: Username in Header</title>
+
+          <para>
+            Diese Methode der Authentifizierung überlässt einem vorgelagerten Webserver oder Proxyserver die Authentifizierung. Dazu können
+            SSO-Systeme wie z.B. Authelia oder Authentik zum Einsatz kommen. Die vorgelagerten Server übermitteln dann den Usernamen der
+            authentifizierten Person in einem speziellen HTTP-Header, der an kivitendo durchgereicht wird. Damit kivitendo nicht von
+            beliebigen Quellen aus mit so einem Usernamen aufgerufen werden kann, verlangt kivitendo weiterhin, dass in einem weiteren
+            Header ein Shared Secret übertragen wird. Dieses Secret wird vom Administrator vergeben und sollte nicht weitergegeben werden.
+          </para>
+
+          <para>
+            Über einen weiteren Header wird wiederum gesteuert, an welchem Mandanten die Anmeldung erfolgt. Dies geschieht über die
+            Datenbank-ID des Mandanten.
+          </para>
+
+          <para>
+            Um diese Methode zu aktivieren, muss das Authentifizierungsmodul auf <literal>HTTPHeaders</literal> gestellt werden. Zusätzlich
+            muss im Abschnitt <literal>authentication/http_headers</literal> der Parameter <literal>enabled=1</literal> und im Abschnitt
+            <literal>authentication/http_basic</literal> der Parameter <literal>enabled=0</literal> gesetzt werden. Die folgenden Parameter
+            müssen anschließend im Abschnitt <literal>authentication/http_headers</literal> konfiguriert werden:
+          </para>
+
+          <variablelist>
+            <varlistentry>
+              <term><literal>client_id_header</literal></term>
+
+              <listitem>
+                <para>Name des Headers, in dem das vorgelagerte System die Datenbank-ID des Mandanten überträgt.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>user_header</literal></term>
+
+              <listitem>
+                <para>Name des Headers, in dem das vorgelagerte System den Namen des authentifizierten Users überträgt.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>secret_header</literal></term>
+
+              <listitem>
+                <para>Name des Headers, in dem das vorgelagerte System das Shared Secret.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><literal>secret</literal></term>
+
+              <listitem>
+                <para>Wert des Shared Secrets selber, der vom vorgelagerten System übertragen werden muss, damit die Werte als gültig
+                angesehen werden.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="Passwortüberprüfung_HTTPBasic">
+          <title>HTTP-Header: Basic Authorization</title>
+
+          <para>
+            Diese Methode der Authentifizierung überlässt dem Webserver (meist Apache) die Authentifizierung mittels der standardisierten
+            HTTP Basic Authentication (RFC 7617). Dazu muss der Webserver so konfiguriert werden, dass er für alle kivitendo-Requests vom
+            Webbrowser Authentifizierung verlangt. Zusätzlich muss er veranlasst werden, den angegebenen Usernamen auch an kivitendo zu
+            übermitteln. Dies könnte beispielhaft wie folgt aussehen:
+          </para>
+
+          <programlisting>&lt;Directory /path/to/kivitendo-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+
+  # Require authentication from local user file:
+  AuthType Basic
+  AuthName "kivitendo"
+  AuthUserFile /etc/apache2/htpasswd.kivitendo
+  Require valid-user
+
+  # Pass name of authorized user to kivitendo:
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+&lt;/Directory&gt;</programlisting>
+
+           <para>
+             Um diese Methode zu aktivieren, muss das Authentifizierungsmodul auf <literal>HTTPHeaders</literal> gestellt werden. Zusätzlich
+             muss im Abschnitt <literal>authentication/http_basic</literal> der Parameter <literal>enabled=1</literal> und im Abschnitt
+             <literal>authentication/http_headers</literal> der Parameter <literal>enabled=0</literal> gesetzt werden.
+           </para>
+        </sect3>
       </sect2>
 
       <sect2 id="Name-des-Session-Cookies">
