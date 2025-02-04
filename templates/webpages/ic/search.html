@@ -38,12 +38,10 @@
           <input name="l_assembly" id="l_assembly" class="checkbox" type="checkbox" value="Y" checked>
           <label for="l_assembly">[% 'Assembly' | $T8 %]</label>
         </td>
-        [%- IF INSTANCE_CONF.get_feature_experimental_assortment %]
         <td>
           <input name="l_assortment" id="l_assortment" class="checkbox" type="checkbox" value="Y" checked>
           <label for="l_assortment">[% 'Assortment' | $T8 %]</label>
         </td>
-        [%- END %]
        </tr></table></td>
       </tr>
       <tr>

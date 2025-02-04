@@ -99,10 +99,8 @@
       <td>[% L.input_tag("defaults.assemblynumber", SELF.defaults.assemblynumber, size="15", class="wi-normal") %]</td>
     </tr>
     <tr>
-      [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
       <th>[% LxERP.t8('Assortment') %]</th>
       <td>[% L.input_tag("defaults.assortmentnumber", SELF.defaults.assortmentnumber, size="15", class="wi-normal") %]</td>
-      [% END %]
     </tr>
   </tbody>
 </table>

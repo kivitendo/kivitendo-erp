@@ -565,10 +565,6 @@
    <td align="right">[% LxERP.t8('new order controller') %]</td>
    <td>[% L.yes_no_tag('defaults.feature_experimental_order', SELF.defaults.feature_experimental_order) %]</td>
   </tr>
-  <tr>
-   <td align="right">[% LxERP.t8('Assortment') %]</td>
-   <td>[% L.yes_no_tag('defaults.feature_experimental_assortment', SELF.defaults.feature_experimental_assortment) %]</td>
-  </tr>
  <tr><td class="listheading" colspan="4">[% 'Displayable Name Preferences' | $T8 %]</td></tr>
  [% FOREACH module=SELF.displayable_name_specs_by_module.keys.sort %]
  [%- SET spec=SELF.displayable_name_specs_by_module.$module -%]

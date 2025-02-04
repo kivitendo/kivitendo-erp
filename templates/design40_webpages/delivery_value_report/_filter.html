@@ -74,9 +74,7 @@
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.part,     value='part',     label=LxERP.t8('Part')) %]
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.service,  value='service',  label=LxERP.t8('Service')) %]
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assembly, value='assembly', label=LxERP.t8('Assembly')) %]
-       [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
-         [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
-       [% END %]
+       [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
      </td>
     </tr>
 	</tbody>
