@@ -1557,7 +1557,6 @@ $self->{texts} = {
   'Employees with read access to the project\'s invoices' => 'Angestellte mit Leserechten auf die Projektrechnungen',
   'Empty selection for warehouse will not be added, even if the old bin is still visible (use back and forth to edit again).' => 'Leere Lager-Auswahl wird ignoriert, selbst wenn noch ein Lagerplatz ausgewählt ist. Alle Daten können durch zurück und vorwärts korrigiert werden.',
   'Empty transaction!'          => 'Buchung ist leer!',
-  'Enable Assortment as new article type' => 'Sortiment als neuen Artikeltyp aktivieren',
   'Enabled Quick Searched'      => 'Aktivierte Schnellsuchen',
   'Enabled modules'             => 'Aktivierte Module',
   'End'                         => 'Ende',

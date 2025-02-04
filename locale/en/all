@@ -1555,7 +1555,6 @@ $self->{texts} = {
   'Employees with read access to the project\'s invoices' => '',
   'Empty selection for warehouse will not be added, even if the old bin is still visible (use back and forth to edit again).' => '',
   'Empty transaction!'          => '',
-  'Enable Assortment as new article type' => '',
   'Enabled Quick Searched'      => '',
   'Enabled modules'             => '',
   'End'                         => '',

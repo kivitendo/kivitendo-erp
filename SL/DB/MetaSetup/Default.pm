@@ -110,7 +110,6 @@ __PACKAGE__->meta->columns(
   feature_datev                             => { type => 'boolean', default => 'true', not_null => 1 },
   feature_erfolgsrechnung                   => { type => 'boolean', default => 'false', not_null => 1 },
   feature_eurechnung                        => { type => 'boolean', default => 'true', not_null => 1 },
-  feature_experimental_assortment           => { type => 'boolean', default => 'true', not_null => 1 },
   feature_experimental_order                => { type => 'boolean', default => 'true', not_null => 1 },
   feature_ustva                             => { type => 'boolean', default => 'true', not_null => 1 },
   fuzzy_skonto                              => { type => 'boolean', default => 'true' },
