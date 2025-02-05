@@ -78,7 +78,7 @@ sub column_defs {
 
     vendor_id    => { text => $::locale->text('Vendor'),
                            sub => sub { $_[0]->vendor_id ? SL::DB::Manager::Vendor->find_by(id => $_[0]->vendor_id)->name                   : undef },
-                      obj_link => sub { my $id = $_[0]->vendor_id; return $id ? "controller.pl?action=CustomerVendor/edit&id=$id&db=vendor" : undef }}
+                      obj_link => sub { my $id = $_[0]->vendor_id; return $id ? "controller.pl?action=CustomerVendor/edit&id=$id&db=vendor" : undef }},
 
     ap_id        => { text => $::locale->text('Purchase Invoice'),
                            sub => sub { $_[0]->ap_id ? SL::DB::Manager::PurchaseInvoice->find_by(id => $_[0]->ap_id)->invnumber : undef },
