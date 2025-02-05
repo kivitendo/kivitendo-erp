@@ -264,7 +264,7 @@ sub setup_oe_orders_action_bar {
         ],
         action => [
           t8('New sales order'),
-          submit    => [ '#form', { action => 'edit' } ],
+          submit    => [ '#form', { action => 'Order/edit_collective' } ],
           checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
         ],
         action => [
