@@ -123,6 +123,18 @@ sub check_oe_conversion_to_sales_invoice_allowed {
   return 0;
 }
 
+sub new_sales_order {
+  $main::lxdebug->enter_sub();
+
+  check_oe_access();
+
+  my $c = SL::Controller::Order->new;
+  $c->action_edit_collective();
+
+  $main::lxdebug->leave_sub();
+  $::dispatcher->end_request;
+}
+
 sub convert_to_delivery_orders {
   # collect order ids
   my @multi_ids = map {
@@ -264,7 +276,7 @@ sub setup_oe_orders_action_bar {
         ],
         action => [
           t8('New sales order'),
-          submit    => [ '#form', { action => 'edit' } ],
+          submit    => [ '#form', { action => 'new_sales_order' } ],
           checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
         ],
         action => [
