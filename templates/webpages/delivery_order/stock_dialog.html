@@ -54,7 +54,12 @@
 
   <hr size="3" noshade>
 
-  <p>[% L.button_tag('kivi.DeliveryOrder.save_updated_stock()', LxERP.t8('Save')) %]</p>
+  <p>
+    [% L.button_tag('kivi.DeliveryOrder.save_updated_stock(true)', LxERP.t8('Save and Close')) %]
+    [%- IF next_button %]
+      [% L.button_tag("kivi.DeliveryOrder.next_stock_in_out_dialog($row_ui_id)", LxERP.t8('Save and Next')) %]
+    [%- END %]
+  </p>
 
   [%- END %]
  </form>
