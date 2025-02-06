@@ -99,18 +99,18 @@ namespace('kivi.DeliveryOrder', function(ns) {
   };
 
   ns.stock_in_out_dialog_row_by_id = function(id) {
-    var row = $("#row_table_id").find("tbody.row_entry.listrow").eq(id).find("tr").first().find("td").first();
-    return row;
+    var $row = $("#row_table_id .row_entry").eq(id).find("tr").first().find("td").first();
+    return $row;
   };
 
   ns.next_stock_in_out_dialog = function(id) {
     ns.save_updated_stock(false);
 
-    var row = ns.stock_in_out_dialog_row_by_id(id);
+    var $row = ns.stock_in_out_dialog_row_by_id(id);
     var in_out = $("#stock_in_out_dialog").find("[name$=in_out]").val();
 
-    if (row["length"] != 0)
-      ns.open_stock_in_out_dialog(row, in_out);
+    if ($row.length != 0)
+      ns.open_stock_in_out_dialog($row, in_out);
   };
 
   ns.open_stock_in_out_dialog = function(clicked, in_out) {
@@ -118,10 +118,10 @@ namespace('kivi.DeliveryOrder', function(ns) {
     var id = $row.find('[name="orderitem_ids[+]"]').val();
     $row.uniqueId();
 
-    var pos = $(clicked).parents("tr").first().children().find('[name="position"]').first().text();
+    var pos = $(clicked).parents('.row_entry').find('tr td div[name="position"]').text();
 
-    var next_row = ns.stock_in_out_dialog_row_by_id(pos);
-    var next_button = (next_row["length"] != 0);
+    var $next_row = ns.stock_in_out_dialog_row_by_id(pos);
+    var next_button = ($next_row.length != 0);
 
     kivi.popup_dialog({
       id: "stock_in_out_dialog",
