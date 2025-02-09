@@ -1,6 +1,6 @@
 # @tag: inventory_add_used_for
 # @description: benutzt für erzeugnis parts.id
-# @depends: release_3_9_1
+# @depends: release_3_9_1 inventory_add_used_for_assembly
 
 package SL::DBUpgrade2::inventory_add_used_for;
 
