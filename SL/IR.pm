@@ -95,7 +95,7 @@ sub _post_invoice {
   my $ic_cvar_configs = CVar->get_configs(module => 'IC',
                                           dbh    => $dbh);
 
-  my ($query, $sth, @values, $project_id);
+  my ($query, $sth, @values, $project_id, $ph);
   my ($allocated, $taxrate, $taxamount, $taxdiff, $item);
   my ($amount, $linetotal, $last_inventory_accno_tax_id_key, $last_expense_accno_tax_id_key);
   my ($netamount, $invoicediff, $expensediff) = (0, 0, 0);
@@ -269,7 +269,7 @@ sub _post_invoice {
 
         # trigger hack
         #    SL::DB::Manager::SomeClass->get_all(where => [ … ], limit => 1)
-        my $ph = SL::DB::Manager::PartsPriceHistory->get_all(where => [ part_id => $a->id ], sort_by => 'id DESC', limit => 1)->[0];
+        $ph = SL::DB::Manager::PartsPriceHistory->get_all(where => [ part_id => $a->id ], sort_by => 'id DESC', limit => 1)->[0];
         $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
       }
 
@@ -432,7 +432,7 @@ sub _post_invoice {
       my $part_price_factor = $a->price_factor_id ? $a->price_factor->factor : 1;
       my $new_lastcost      = abs($fxsellprice * $form->{exchangerate} / $basefactor / $price_factor * $part_price_factor);
       if ( abs($a->lastcost - $new_lastcost) >= 0.009 ) {
-        my $ph = SL::DB::Manager::PartsPriceHistory->get_all(part_id => $a->id);
+        $ph = SL::DB::Manager::PartsPriceHistory->get_all(part_id => $a->id);
         $a->update_attributes(lastcost => $new_lastcost);
         $a->set_lastcost_assemblies_and_assortiments;
 
