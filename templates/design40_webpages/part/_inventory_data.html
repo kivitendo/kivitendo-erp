@@ -89,7 +89,10 @@
       <td>[% row.base.part.unit | html %]</td>
       <td>[% row.in ? row.in.bin.full_description : '-' | html %]</td>
       <td>[% row.base.chargenumber | html %]</td>
-      <td>[% row.base.comment | html %]</td>
+      <td>[% IF row.base.used_for_assembly_id %]
+            <a href="controller.pl?action=Part/edit&part.id=[% row.base.used_for_assembly_id %]">[% HTML.escape(row.base.comment) %]</a>
+          [% ELSE %]  [%  row.base.comment | html %]  [% END %]
+      </td>
     </tr>
     [% END %]
   <tbody>
