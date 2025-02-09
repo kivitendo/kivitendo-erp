@@ -203,6 +203,7 @@ sub allocate {
       part_description => $part->displayable_name,
       to_allocate_qty  => $qty,
       missing_qty      => $rest_qty,
+      part             => $part,
     );
   } else {
     if ($params{constraints}) {
@@ -373,6 +374,7 @@ sub produce_assembly {
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
       comment      => t8('Used for assembly #1 #2', $part->partnumber, $part->description),
+      used_for_assembly_id => $part->id,
     );
   }
 
