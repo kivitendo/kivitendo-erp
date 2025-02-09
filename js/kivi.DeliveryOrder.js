@@ -757,17 +757,12 @@ namespace('kivi.DeliveryOrder', function(ns) {
     var id   = $('#id').val();
     var type = $('#type').val();
 
-    var number_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order') {
-      number_info = $('#order_ordnumber').val();
-    } else if ($('#type').val() == 'sales_quotation' || $('#type').val() == 'request_quotation') {
-      number_info = $('#order_quonumber').val();
-    }
+    var number_info = $('#order_donumber').val();
 
     var name_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
+    if ($('#order_customer_id_name').val()) {
       name_info = $('#order_customer_id_name').val();
-    } else if ($('#type').val() == 'purchase_order' || $('#type').val() == 'request_quotation') {
+    } else if ($('#order_vendor_id_name').val()) {
       name_info = $('#order_vendor_id_name').val();
     }
 
@@ -775,7 +770,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     if (number_info !== '') { info += ' (' + number_info + ')' }
     if (name_info   !== '') { info += ' (' + name_info + ')' }
 
-    if (!$('#follow_up_rowcount').lenght) {
+    if (!$('#follow_up_rowcount').length) {
       $('<input type="hidden" name="follow_up_rowcount"        id="follow_up_rowcount">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_id_1"      id="follow_up_trans_id_1">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_type_1"    id="follow_up_trans_type_1">').appendTo('#order_form');
