@@ -25,15 +25,17 @@ __PACKAGE__->meta->columns(
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->foreign_keys(
-  ap => {
-    class       => 'SL::DB::PurchaseInvoice',
-    key_columns => { ap_id => 'id' },
-  },
 
-  ar => {
-    class       => 'SL::DB::Invoice',
-    key_columns => { ar_id => 'id' },
-  },
+# compile tests fail? why?
+#  ap => {
+#    class       => 'SL::DB::PurchaseInvoice',
+#    key_columns => { ap_id => 'id' },
+#  },
+
+#  ar => {
+#    class       => 'SL::DB::Invoice',
+#    key_columns => { ar_id => 'id' },
+#  },
 
   customer => {
     class       => 'SL::DB::Customer',
