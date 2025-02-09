@@ -373,6 +373,7 @@ sub produce_assembly {
       shippingdate => $shippingdate,
       employee     => SL::DB::Manager::Employee->current,
       comment      => t8('Used for assembly #1 #2', $part->partnumber, $part->description),
+      used_for_assembly_id => $part->id,
     );
   }
 
