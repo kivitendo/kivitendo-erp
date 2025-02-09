@@ -203,6 +203,7 @@ sub allocate {
       part_description => $part->displayable_name,
       to_allocate_qty  => $qty,
       missing_qty      => $rest_qty,
+      part             => $part,
     );
   } else {
     if ($params{constraints}) {
