@@ -96,7 +96,7 @@
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
-      \Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+      \Ifstr{<%p_discount%>}{0}{}{{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}}%
       <%linetotal%>\tabularnewline
     <%end number%>%
     }%
