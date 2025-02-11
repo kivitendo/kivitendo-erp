@@ -566,6 +566,7 @@ sub ap_transactions {
     qq|  countries.$country_description_key as country, | .
     qq|  pt.description AS payment_terms, | .
     qq|  department.description AS department, | .
+    qq|  payment_approved.itime::DATE AS payment_approved, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
@@ -588,7 +589,8 @@ sub ap_transactions {
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
     qq|LEFT JOIN countries ON (v.country_id = countries.id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
-    qq|LEFT JOIN department ON (department.id = a.department_id)|;
+    qq|LEFT JOIN department ON (department.id = a.department_id)| .
+    qq|LEFT JOIN payment_approved ON (payment_approved.ap_id = a.id)|;
 
   my $where = '';
 
