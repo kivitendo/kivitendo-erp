@@ -232,6 +232,12 @@
       <th>[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]</td>
     </tr>
+    [% IF invoice_obj.find_payment_approved %]
+      <tr>
+        <th>[% 'Payment Approved' | $T8 %]</th>
+        <td>[% invoice_obj.find_payment_approved.itime_as_date | html %] [% invoice_obj.find_payment_approved.employee.name | html %]</td>
+      </tr>
+    [% END %]
   </tbody>
 </table>
 
