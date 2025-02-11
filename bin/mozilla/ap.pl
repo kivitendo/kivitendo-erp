@@ -1200,7 +1200,7 @@ sub ap_transactions {
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate transaction_description notes intnotes employee globalprojectnumber department
-       vendornumber country ustid taxzone payment_terms charts debit_chart direct_debit
+       vendornumber country ustid taxzone payment_terms payment_approved charts debit_chart direct_debit
        insertdate items);
 
   my @hidden_variables = map { "l_${_}" } @columns;
@@ -1237,6 +1237,7 @@ sub ap_transactions {
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
     'taxzone'                 => { 'text' => $locale->text('Tax rate'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
+    'payment_approved'        => { 'text' => $locale->text('Payment Approved'), },
     'charts'                  => { 'text' => $locale->text('Chart'), },
     'debit_chart'             => { 'text' => $locale->text('Debit Account'), },
     'direct_debit'            => { 'text' => $locale->text('direct debit'), },
