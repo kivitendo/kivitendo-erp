@@ -171,6 +171,11 @@
       <td>[% L.yes_no_tag('defaults.check_bt_duplicates_endtoend', SELF.defaults.check_bt_duplicates_endtoend) %]</td>
       <td>[% LxERP.t8("If set to yes and an end-to-end id can be extracted from the transaction this will be used to detect duplicates instead of the transaction purpose.") %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8('Approve SEPA Transfer for AR') %]</th>
+      <td>[% L.yes_no_tag('defaults.payment_approval', SELF.defaults.payment_approval) %]</td>
+      <td>[% LxERP.t8("If set to yes all SEPA Transfers for AR needs to be approved first.") %]</td>
+    </tr>
   </tbody>
 </table>
 
