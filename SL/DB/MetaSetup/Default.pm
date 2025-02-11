@@ -152,6 +152,7 @@ __PACKAGE__->meta->columns(
   parts_listing_image                       => { type => 'boolean', default => 'true' },
   parts_show_image                          => { type => 'boolean', default => 'true' },
   partsgroup_required                       => { type => 'boolean', default => 'false', not_null => 1 },
+  payment_approval                          => { type => 'boolean', default => 'false' },
   payments_changeable                       => { type => 'integer', default => '0', not_null => 1 },
   pdonumber                                 => { type => 'text' },
   pocnumber                                 => { type => 'text' },
