@@ -53,10 +53,18 @@ sub bank_transfer_add {
   my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
   my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
 
+  my $only_approved  = $vc eq 'vendor' && $::instance_conf->get_payment_approval ? 1 : undef;
+
   foreach my $invoice (@{ $invoices }) {
     my $prefix                    = $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
     $prefix                      .= ' ' unless $prefix =~ m/ $/;
     $invoice->{reference_prefix}  = $prefix;
+
+    # add PaymentApproved info for ap. set approved for strict approved payments only
+    $invoice->{payment_approved} = $vc eq 'vendor' ? SL::DB::Manager::PaymentApproved->find_by(ap_id => $invoice->{id}) : undef;
+    $invoice->{approved}         =   !$only_approved ? 1
+                                   :  $only_approved && ref $invoice->{payment_approved} eq 'SL::DB::PaymentApproved' ? 1
+                                   :  undef;
 
     # add c_vendor_id or v_vendor_id as a prefix if a entry exists
     next unless $invoice->{vc_vc_id};
@@ -64,6 +72,7 @@ sub bank_transfer_add {
     my $prefix_vc_number             = $translations{ $invoice->{language_id} } || $translations{default} || $vc_no;
     $prefix_vc_number               .= ' ' unless $prefix_vc_number =~ m/ $/;
     $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
+
   }
 
   setup_sepa_add_transfer_action_bar();
@@ -100,7 +109,8 @@ sub bank_transfer_create {
   }
 
   my $arap_id        = $vc eq 'customer' ? 'ar_id' : 'ap_id';
-  my $invoices       = SL::SEPA->retrieve_open_invoices(vc => $vc);
+  my $only_approved  = $vc eq 'vendor' && $::instance_conf->get_payment_approval ? 1 : undef;
+  my $invoices       = SL::SEPA->retrieve_open_invoices(vc => $vc, payment_approval => $only_approved);
 
   # Load all open invoices (again), but grep out the ones that were selected with checkboxes beforehand ($_->selected).
   # At this stage we again have all the invoice information, including dropdown with payment_type options.
