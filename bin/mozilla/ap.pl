@@ -716,6 +716,14 @@ sub block_or_unblock_sepa_transfer {
   $::form->redirect($::form->{unblock_sepa} ? t8('Bank transfer via SEPA is unblocked') : t8('Bank transfer via SEPA is blocked'));
 }
 
+sub approve_payment {
+  $::auth->assert('ap_transactions');
+
+  SL::DB::PaymentApproved->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
+
+  $::form->redirect(t8('Payment approved'));
+}
+
 sub show_draft {
   $::form->{transdate} = DateTime->today_local->to_kivitendo if !$::form->{transdate};
   $::form->{gldate}    = $::form->{transdate} if !$::form->{gldate};
@@ -1554,10 +1562,11 @@ sub setup_ap_display_form_action_bar {
   my $may_edit_create         = $::auth->assert('ap_transactions', 1);
 
   my $has_sepa_exports;
-  my $is_sepa_blocked;
+  my ($is_sepa_blocked, $is_payment_approved);
   if ($::form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $::form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+    $is_payment_approved = 1 if ($invoice->find_payment_approved()->[0]);
     $is_sepa_blocked  = !!$invoice->is_sepa_blocked;
   }
 
@@ -1639,6 +1648,14 @@ sub setup_ap_display_form_action_bar {
           submit   => [ '#form', { action => "block_or_unblock_sepa_transfer", unblock_sepa => !!$is_sepa_blocked } ],
           disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
                     : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
+        ],
+        action => [ t8('Approve Payment'),
+          submit   => [ '#form', { action => "approve_payment", } ],
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    : $is_payment_approved ? t8('This transaction is already approved.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction.')
                     :                     undef,
         ],
         action => [ t8('Mark as paid'),
