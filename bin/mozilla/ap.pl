@@ -721,7 +721,7 @@ sub approve_payment {
 
   SL::DB::PaymentApproved->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
 
-  $::form->redirect(t8('Payment approved'));
+  $::form->redirect(t8('Payment Approved'));
 }
 
 sub show_draft {
