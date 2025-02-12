@@ -14,6 +14,15 @@ sub action_reload {
   $self->js->render;
 }
 
+sub action_test_page {
+  my ($self) = @_;
+
+  flash('error', 'This is an error message');
+  flash('warning', 'This is a warning message');
+  flash('info', 'This is an info message');
+
+  $self->render('flash/test_page');
+}
 1;
 
 __END__
@@ -28,6 +37,11 @@ SL::Controller::Flash - Flash actions
 
 This controller contains actions that can be used to reload and control client
 side flash messages
+
+=head1 TEST
+
+The function C<action_test_page> renders a functional test page with flash messages
+for Error, Warning and Information. See Developer Tools, Flash-Test.
 
 =head1 BUGS
 
