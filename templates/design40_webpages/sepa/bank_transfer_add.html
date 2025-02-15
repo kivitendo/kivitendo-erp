@@ -30,10 +30,10 @@
       title_key='displayable_name',
       with_empty=0,
       class='wi-wide',
-  ) %]
+  ) %] <br/>
+<p>[% L.checkbox_tag('combine_payments', value => 1, checked => combine_payments, label=LxERP.t8('Combine Payments')) %]</p>
 </div><!-- /.select-item -->
 </div><!-- /.wrapper -->
-
 <table class="tbl-list">
   <thead>
     <tr>

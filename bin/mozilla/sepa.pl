@@ -87,6 +87,7 @@ sub bank_transfer_add {
                                    { 'INVOICES'           => $invoices,
                                      'BANK_ACCOUNTS'      => $bank_accounts,
                                      'vc'                 => $vc,
+                                     'combine_payments'   => $::instance_conf->get_sepa_combine_payments,
                                    });
 
   $main::lxdebug->leave_sub();
