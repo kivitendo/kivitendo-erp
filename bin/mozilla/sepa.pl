@@ -56,7 +56,12 @@ sub bank_transfer_add {
   my $only_approved  = $vc eq 'vendor' && $::instance_conf->get_payment_approval ? 1 : undef;
 
   foreach my $invoice (@{ $invoices }) {
+    # credit notes ->
+    if ($invoice->{open_amount} < 0) {
+      $invoice->{credit_note} = 1;
+    }
     my $prefix                    = $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
+    $prefix                       = $::locale->text('Credit Note') if $invoice->{credit_note};
     $prefix                      .= ' ' unless $prefix =~ m/ $/;
     $invoice->{reference_prefix}  = $prefix;
 
