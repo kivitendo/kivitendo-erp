@@ -54,7 +54,7 @@
   </thead>
   <tbody>
     [% FOREACH invoice = INVOICES %]
-      <tr[% IF (!invoice.vc_bank_info_ok && invoice.checked) || invoice.is_sepa_blocked || !invoice.approved %] class="listrow_error"[% END %]>
+      <tr[% IF (!invoice.vc_bank_info_ok && invoice.checked) || invoice.is_sepa_blocked || !invoice.approved %] class="listrow_error"[% END %][% IF invoice.credit_note %]  class="listrow_ok"[% END %]>
         <td>
           <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
@@ -78,6 +78,8 @@
                  SET show_vc_bank_info_footnote = '1';
                END; -%]
           </a>
+         [% ELSIF invoice.credit_note %]
+          [% 'Credit Note' | $T8 %]
          [% END %]
         </td>
         <td>
