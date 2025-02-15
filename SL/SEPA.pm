@@ -28,9 +28,9 @@ sub retrieve_open_invoices {
   my $vc_vc_id = $params{vc} eq 'customer' ? 'c_vendor_id' : 'v_customer_id';
 
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
-
   my $is_sepa_blocked = $params{vc} eq 'customer' ? 'FALSE' : "${arap}.is_sepa_blocked";
   my $only_approved   = $params{payment_approval} ? ' AND ap.id IN (SELECT ap_id from payment_approved) ' : undef;
+  my $p_credit_notes  = $params{vc} eq 'vendor' && $::instance_conf->get_sepa_subtract_credit_notes  ? " OR  (${arap}.amount < 0 AND ${arap}.amount <> ${arap}.paid) " : undef;
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
@@ -61,7 +61,9 @@ sub retrieve_open_invoices {
 
        LEFT JOIN payment_terms pt ON (${arap}.payment_id = pt.id)
 
-       WHERE (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
+       WHERE (  (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
+                $p_credit_notes
+             )
        $only_approved
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
