@@ -310,6 +310,7 @@ namespace('kivi.SalesPurchase', function(ns) {
       media:        'email',
       ordnumber:    $('#ordnumber').val(),
       cusordnumber: $('#cusordnumber').val(),
+      transaction_description: $('#transaction_description').val(),
       rowcount:     $('#rowcount').val(),
       quonumber:    $('#quonumber').val(),
       type:         $('#type').val(),

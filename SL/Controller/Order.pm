@@ -487,6 +487,7 @@ sub action_save_and_show_email_dialog {
   $form->{language_id}      = $self->order->language->id                  if $self->order->language;
   $form->{format}           = 'pdf';
   $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
+  $form->{transaction_description} = $self->order->transaction_description;
 
   my $email_form;
   $email_form->{to} =
