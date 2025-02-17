@@ -20,8 +20,8 @@
       </tr>
       <tr>
         <th>[% LxERP.t8('SEPA Subtract Vendor Credit Notes') %]</th>
-        <td>[% L.yes_no_tag('defaults.sepa_export_xml', SELF.defaults.sepa_export_xml) %]</td>
-        <td class="longdesc">[% LxERP.t8('If enabled also Vendor Credit Notes will be fetched for the SEPA Export and can be subtracted from other open invoices for the vendor.') %]</td>
+        <td>[% L.yes_no_tag('defaults.sepa_subtract_credit_notes', SELF.defaults.sepa_subtract_credit_notes) %]</td>
+        <td class="longdesc">[% LxERP.t8('If enabled and Payments cannot be edited manually (see Tab Posting Configuration) and a default transit chart is defined (see Tab Default Accounts) Purchase Credit Notes will be also fetched for the SEPA Export and can be subtracted from other open invoices for the vendor.') %]</td>
       </tr>
     [% 'Bank' | $T8 %]
       <tr>
