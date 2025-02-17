@@ -15,13 +15,8 @@
 
       [%- FOREACH row = orders %]
       <tr class="listrow[% loop.count % 2 %]">
-        [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
-          <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.escape(row.id) %]'>
+        <td>[% IF row.id %]<a href='controller.pl?action=Order/edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.escape(row.id) %]'>
               [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
-        [%- ELSE -%]
-          <td>[% IF row.id %]<a href='oe.pl?action=edit&type=[% IF FORM.db == "customer" %]sales_quotation[% ELSE %]request_quotation[% END %]&vc=[% FORM.db %]&id=[% HTML.escape(row.id) %]'>
-              [% END %][% HTML.escape(row.quonumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
-        [%- END -%]
         <td>[% row.transdate.to_kivitendo | html %]</td>
         <td class="numeric">[%- LxERP.format_amount(row.amount, 2) %]</td>
         <td>[% row.reqdate.to_kivitendo | html %]</td>

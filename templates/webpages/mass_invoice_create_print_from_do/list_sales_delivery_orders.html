@@ -36,11 +36,7 @@
       <td>[% L.checkbox_tag('id[]', value=sales_delivery_order.id, "data-checkall"=1) %]</td>
       <td>[% HTML.escape(sales_delivery_order.transdate_as_date) %]</td>
       <td>[% L.link(SELF.url_for(controller="controller.pl", action="DeliveryOrder/edit", id=sales_delivery_order.id), sales_delivery_order.donumber) %]</td>
-      [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
-        <td>[% L.link(SELF.url_for(controller="controller.pl", action="Order/edit", type="sales_order", id=sales_delivery_order.sales_order.id), sales_delivery_order.ordnumber) %]</td>
-      [%- ELSE -%]
-        <td>[% L.link(SELF.url_for(controller="oe.pl", action="edit", type="sales_order", id=sales_delivery_order.sales_order.id), sales_delivery_order.ordnumber) %]</td>
-      [%- END -%]
+      <td>[% L.link(SELF.url_for(controller="controller.pl", action="Order/edit", type="sales_order", id=sales_delivery_order.sales_order.id), sales_delivery_order.ordnumber) %]</td>
       <td>[% HTML.escape(sales_delivery_order.customer.name) %]</td>
      </tr>
      [%- END %]

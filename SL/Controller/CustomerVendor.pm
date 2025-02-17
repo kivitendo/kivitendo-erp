@@ -379,7 +379,7 @@ sub _transaction {
   my $db = $self->is_vendor() ? 'vendor' : 'customer';
   my $action = 'add';
 
-  if ($::instance_conf->get_feature_experimental_order && 'oe.pl' eq $script) {
+  if ('oe.pl' eq $script) {
     $script = 'controller.pl';
     $action = 'Order/' . $action;
   }
