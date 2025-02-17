@@ -226,22 +226,20 @@
        <td>[% L.input_tag("part.order_qty_as_number", SELF.part.order_qty_as_number, size=10,
          class="wi-small reformat_number numeric") %]</td>
       </tr>
-      [% IF SELF.all_warehouses.size %]
+      [% SET wh_bin_select_html = P.warehouse.wh_bin_select('warehouse',
+                                    wh_name='part.warehouse_id',
+                                    wh_default=SELF.part.warehouse.id,
+                                    bin_name='part.bin_id',
+                                    bin_default=SELF.part.bin.id,
+                                    with_empty=1,
+                                    class='wi-lightwide'
+                                  ) %]
+      [% IF wh_bin_select_html %]
       <tr>
-        <th>[% 'Default Warehouse' | $T8 %]</th>
-        <td>[% L.select_tag('part.warehouse_id', SELF.all_warehouses, default=SELF.part.warehouse.id, title_key='description', with_empty=1, class='wi-lightwide') %]</td>
+       <th>[% 'Default Bin' | $T8 %]</th>
+       <td>[% wh_bin_select_html %]</td>
       </tr>
-      [% END %]
-      <tr>
-        <th>[% 'Default Bin' | $T8 %]</th>
-        <td class="wi-lightwide">
-          <span id="bin" class="condensed">
-            [% IF SELF.part.warehouse.id %]
-            [% L.select_tag('part.bin_id', SELF.part.warehouse.bins_sorted_naturally, default=SELF.part.bin.id, title_key='description', with_empty=0, class='wi-lightwide') %]
-            [% END %]
-          </span>
-        </td>
-      </tr>
+      [%- END %]
       <tr>
         <th><label for="part_has_sernumber">[% 'Has serial number' | $T8 %]</label></th>
         <td>[% L.checkbox_tag('part.has_sernumber', checked = SELF.part.has_sernumber, for_submit=1) %]</td>
