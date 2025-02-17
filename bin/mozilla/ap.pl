@@ -125,7 +125,7 @@ sub load_zugferd {
     if $::form->{record_template_id};
   $template_ap ||= SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}])
     if $::form->{form_defaults}->{vendor_id};
-  if ($template_ap) {
+  if ($template_ap and $template_ap->items->[0]) {
     $::form->{id} = $template_ap->id;
     # set default values for items
     my $template_item = $template_ap->items->[0];
