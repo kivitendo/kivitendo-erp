@@ -1805,7 +1805,7 @@ sub save {
       scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
       token => $::form->{form_validity_token}
     },
-    delete_custom_shipto       => $self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty,
+    delete_custom_shipto       => $self->order->custom_shipto && ($self->is_custom_shipto_to_delete || $self->order->custom_shipto->is_empty),
     items_to_delete            => $items_to_delete,
   );
 

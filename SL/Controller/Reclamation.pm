@@ -1559,7 +1559,7 @@ sub save {
 
   SL::Model::Record->save($self->reclamation,
                           with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE(), token => $::form->{form_validity_token} },
-                          delete_custom_shipto => $self->is_custom_shipto_to_delete || $self->reclamation->custom_shipto->is_empty,
+                          delete_custom_shipto => $self->reclamation->custom_shipto && ($self->is_custom_shipto_to_delete || $self->reclamation->custom_shipto->is_empty),
                           items_to_delete      => $items_to_delete,
   );
 
