@@ -14,7 +14,6 @@ __PACKAGE__->meta->columns(
   ar_id                        => { type => 'integer' },
   chart_id                     => { type => 'integer', not_null => 1 },
   collected_payment            => { type => 'boolean', default => 'false' },
-  customer_id                  => { type => 'integer' },
   end_to_end_id                => { type => 'varchar', length => 35 },
   executed                     => { type => 'boolean', default => 'false' },
   execution_date               => { type => 'date' },
@@ -33,7 +32,6 @@ __PACKAGE__->meta->columns(
   vc_iban                      => { type => 'varchar', length => 100 },
   vc_mandate_date_of_signature => { type => 'date' },
   vc_mandator_id               => { type => 'text' },
-  vendor_id                    => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -54,19 +52,9 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { chart_id => 'id' },
   },
 
-  customer => {
-    class       => 'SL::DB::Customer',
-    key_columns => { customer_id => 'id' },
-  },
-
   sepa_export => {
     class       => 'SL::DB::SepaExport',
     key_columns => { sepa_export_id => 'id' },
-  },
-
-  vendor => {
-    class       => 'SL::DB::Vendor',
-    key_columns => { vendor_id => 'id' },
   },
 );
 
