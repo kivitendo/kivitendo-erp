@@ -12,6 +12,10 @@
   <td>[%- L.input_tag("object.iban", SELF.object.iban, style=style, "data-validate"="required", "data-title"=LxERP.t8("IBAN")) %]</td>
  </tr>
  <tr>
+  <th align="right">[% LxERP.t8('QR-IBAN (Swiss)') %]</th>
+  <td>[% L.input_tag("object.qr_iban", SELF.object.qr_iban, style=style) %]</td>
+ </tr>
+ <tr>
   <th align="right">[% LxERP.t8('Bank') %]</th>
   <td>[%- L.input_tag("object.bank", SELF.object.bank, style=style) %]</td>
  </tr>
