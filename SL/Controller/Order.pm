@@ -479,14 +479,14 @@ sub action_save_and_show_email_dialog {
     )->render($self);
 
   my $form = Form->new;
-  $form->{$self->nr_key()}  = $self->order->number;
-  $form->{cusordnumber}     = $self->order->cusordnumber;
-  $form->{formname}         = $self->type;
-  $form->{type}             = $self->type;
-  $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
-  $form->{language_id}      = $self->order->language->id                  if $self->order->language;
-  $form->{format}           = 'pdf';
-  $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
+  $form->{$self->nr_key()}         = $self->order->number;
+  $form->{cusordnumber}            = $self->order->cusordnumber;
+  $form->{formname}                = $self->type;
+  $form->{type}                    = $self->type;
+  $form->{language}                = '_' . $self->order->language->template_code if $self->order->language;
+  $form->{language_id}             = $self->order->language->id                  if $self->order->language;
+  $form->{format}                  = 'pdf';
+  $form->{cp_id}                   = $self->order->contact->cp_id if $self->order->contact;
   $form->{transaction_description} = $self->order->transaction_description;
 
   my $email_form;
