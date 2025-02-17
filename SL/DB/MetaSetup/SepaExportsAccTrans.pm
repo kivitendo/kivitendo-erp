@@ -17,7 +17,7 @@ __PACKAGE__->meta->columns(
   sepa_exports_id => { type => 'integer', not_null => 1 },
 );
 
-__PACKAGE__->meta->primary_key_columns([ 'sepa_exports_id', 'acc_trans_id', 'ar_id', 'ap_id' ]);
+__PACKAGE__->meta->primary_key_columns([ 'sepa_exports_id', 'acc_trans_id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
