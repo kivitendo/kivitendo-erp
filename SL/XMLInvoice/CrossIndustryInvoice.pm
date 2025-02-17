@@ -5,7 +5,6 @@ use warnings;
 
 use parent qw(SL::XMLInvoice::Base);
 
-use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
 
 =head1 NAME
 
@@ -51,6 +50,7 @@ returned by the C<items()> method.
 =head1 AUTHOR
 
   Johannes Grassler <info@computer-grassler.de>
+  Werner Hahn <wh@futureworldsearch.net>
 
 =cut
 
@@ -73,37 +73,71 @@ sub check_signature {
   return 0;
 }
 
+sub namespaces {
+  my ($self, $dom) = @_;
+  my $rootnode = $dom->documentElement;
+  my @nodes = $rootnode->findnodes('namespace::*');
+  my %namespaces = map { $_->getData => $_->getLocalName} @nodes;
+  return \%namespaces;
+}
+
 # XML XPath expressions for global metadata
 sub scalar_xpaths {
+  my ($self) = @_;
+
+  my $rsm = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100'};
+  my $ram = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100'};
+  my $udt = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100'};
+  $ram .= ":" if $ram;
+  $rsm .= ":" if $rsm;
+  $udt .= ":" if $udt;
+
   return {
-    currency => '//ram:InvoiceCurrencyCode',
-    direct_debit => '//ram:SpecifiedTradeSettlementPaymentMeans/ram:TypeCode',
-    duedate => '//ram:DueDateDateTime/udt:DateTimeString',
-    gross_total => '//ram:DuePayableAmount',
-    iban => '//ram:SpecifiedTradeSettlementPaymentMeans/ram:PayeePartyCreditorFinancialAccount/ram:IBANID',
-    invnumber => '//rsm:ExchangedDocument/ram:ID',
-    net_total => '//ram:SpecifiedTradeSettlementHeaderMonetarySummation' . '//ram:TaxBasisTotalAmount',
-    transdate => '//ram:IssueDateTime/udt:DateTimeString',
-    taxnumber => '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="FC"]',
-    type => '//rsm:ExchangedDocument/ram:TypeCode',
-    ustid => '//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="VA"]',
-    vendor_name => '//ram:SellerTradeParty/ram:Name',
+    currency     => '//' . $ram . 'InvoiceCurrencyCode',
+    direct_debit => '//' . $ram . 'SpecifiedTradeSettlementPaymentMeans/' . $ram . 'TypeCode',
+    duedate      => '//' . $ram . 'DueDateDateTime/' . $udt . 'DateTimeString',
+    gross_total  => '//' . $ram . 'DuePayableAmount',
+    iban         => '//' . $ram . 'SpecifiedTradeSettlementPaymentMeans/' . $ram . 'PayeePartyCreditorFinancialAccount/' . $ram . 'IBANID',
+    invnumber    => '//' . $rsm . 'ExchangedDocument/' . $ram . 'ID',
+    net_total    => '//' . $ram . 'SpecifiedTradeSettlementHeaderMonetarySummation' . '//' . $ram . 'TaxBasisTotalAmount',
+    transdate    => '//' . $ram . 'IssueDateTime/' . $udt . 'DateTimeString',
+    taxnumber    => '//' . $ram . 'SellerTradeParty/' . $ram . 'SpecifiedTaxRegistration/' . $ram . 'ID[@schemeID="FC"]',
+    type         => '//' . $rsm . 'ExchangedDocument/' . $ram . 'TypeCode',
+    ustid        => '//' . $ram . 'SellerTradeParty/' . $ram . 'SpecifiedTaxRegistration/' . $ram . 'ID[@schemeID="VA"]',
+    vendor_name  => '//' . $ram . 'SellerTradeParty/' . $ram . 'Name',
   };
 }
 
 sub item_xpaths {
+  my ($self) = @_;
+  my $rsm = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100'};
+  my $ram = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100'};
+  my $udt = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100'};
+  $ram .= ":" if $ram;
+  $rsm .= ":" if $rsm;
+  $udt .= ":" if $udt;
   return {
-    'currency' => undef, # Only global currency in CrossIndustryInvoice
-    'price' => './ram:SpecifiedLineTradeAgreement/ram:NetPriceProductTradePrice',
-    'description' => './ram:SpecifiedTradeProduct/ram:Name',
-    'quantity' => './ram:SpecifiedLineTradeDelivery/ram:BilledQuantity',
-    'subtotal' => './ram:SpecifiedLineTradeSettlement/ram:SpecifiedTradeSettlementLineMonetarySummation/ram:LineTotalAmount',
-    'tax_rate' => './ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:RateApplicablePercent',
-    'tax_scheme' => './ram:SpecifiedLineTradeSettlement/ram:ApplicableTradeTax/ram:TypeCode',
-    'vendor_partno' => './ram:SpecifiedTradeProduct/ram:SellerAssignedID',
+    'currency'      => undef, # Only global currency in CrossIndustryInvoice
+    'price'         => './' . $ram . 'SpecifiedLineTradeAgreement/' . $ram . 'NetPriceProductTradePrice',
+    'description'   => './' . $ram . 'SpecifiedTradeProduct/' . $ram . 'Name',
+    'quantity'      => './' . $ram . 'SpecifiedLineTradeDelivery/' . $ram . 'BilledQuantity',
+    'subtotal'      => './' . $ram . 'SpecifiedLineTradeSettlement/' . $ram . 'SpecifiedTradeSettlementLineMonetarySummation/' . $ram . 'LineTotalAmount',
+    'tax_rate'      => './' . $ram . 'SpecifiedLineTradeSettlement/' . $ram . 'ApplicableTradeTax/' . $ram . 'RateApplicablePercent',
+    'tax_scheme'    => './' . $ram . 'SpecifiedLineTradeSettlement/' . $ram . 'ApplicableTradeTax/' . $ram . 'TypeCode',
+    'vendor_partno' => './' . $ram . 'SpecifiedTradeProduct/' . $ram . 'SellerAssignedID',
   };
 }
 
+sub items_xpath {
+  my ($self) = @_;
+  my $rsm = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100'};
+  my $ram = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100'};
+  my $udt = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100'};
+  $ram .= ":" if $ram;
+  $rsm .= ":" if $rsm;
+  $udt .= ":" if $udt;
+  return '//' . $ram . 'IncludedSupplyChainTradeLineItem';
+}
 
 # Metadata accessor method
 sub metadata {
@@ -143,6 +177,10 @@ sub parse_xml {
   $self->{_metadata} = {};
   $self->{_items} = ();
 
+  my $ram = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100'};
+  $ram .= ":" if $ram;
+  my $udt = $self->{namespaces}->{'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100'};
+  #foreach my $namespace (@{$self->{namespaces}}(
   # Retrieve scalar metadata from DOM
   foreach my $key ( keys %{$self->scalar_xpaths} ) {
     my $xpath = ${$self->scalar_xpaths}{$key};
@@ -152,6 +190,10 @@ sub parse_xml {
       next;
     }
     my $value = $self->{dom}->findnodes($xpath);
+    unless ($udt) {
+      $value = $self->{dom}->findnodes('//' . $ram . 'DueDateDateTime','DateTimeString') if $key eq 'duedate';
+      $value = $self->{dom}->findnodes('//' . $ram . 'IssueDateTime','DateTimeString') if $key eq 'transdate';
+    }
     if ( $value ) {
       # Get rid of extraneous white space
       $value = $value->string_value;
@@ -163,7 +205,6 @@ sub parse_xml {
     }
   }
 
-
   # Convert payment code metadata field to Boolean
   # See https://service.unece.org/trade/untdid/d16b/tred/tred4461.htm for other valid codes.
   ${$self->{_metadata}}{'direct_debit'} = ${$self->{_metadata}}{'direct_debit'} == 59 ? 1 : 0;
@@ -171,7 +212,7 @@ sub parse_xml {
   my @items;
   $self->{_items} = \@items;
 
-  foreach my $item ( $self->{dom}->findnodes(ITEMS_XPATH) ) {
+  foreach my $item ( $self->{dom}->findnodes($self->items_xpath) ) {
     my %line_item;
     foreach my $key ( keys %{$self->item_xpaths} ) {
       my $xpath = ${$self->item_xpaths}{$key};
