@@ -484,6 +484,11 @@
    </td>
    <td>[% 'Generic email send address for this record type.' | $T8 %]</td>
   </tr>
+  <tr>
+    <th>[% LxERP.t8('Email Subject Transaction Description') %]</th>
+    <td> [% L.yes_no_tag('defaults.email_subject_transaction_description', SELF.defaults.email_subject_transaction_description) %] </td>
+    <td class="long-desc"> [% LxERP.t8('Include the transaction description in the preset email subject.') %] </td>
+  </tr>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>

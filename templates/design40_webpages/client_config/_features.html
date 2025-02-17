@@ -215,6 +215,11 @@
          [% L.input_tag('defaults.email_sender_dunning', SELF.defaults.email_sender_dunning, class='wi-wide') %]
        <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
       </tr>
+      <tr>
+        <th>[% LxERP.t8('Email Subject Transaction Description') %]</th>
+        <td> [% L.yes_no_tag('defaults.email_subject_transaction_description', SELF.defaults.email_subject_transaction_description) %] </td>
+        <td class="long-desc"> [% LxERP.t8('Include the transaction description in the preset email subject.') %] </td>
+      </tr>
         <tr>
         <th class="caption" colspan="3">[% LxERP.t8("SEPA") %]</th>
       </tr>
