@@ -3464,6 +3464,7 @@ $self->{texts} = {
   'Save and Further Invoice for Advance Payment' => '',
   'Save and Invoice'            => '',
   'Save and Invoice for Advance Payment' => '',
+  'Save and Next'               => '',
   'Save and Order'              => '',
   'Save and Purchase Delivery Order' => '',
   'Save and Purchase Delivery Order with item selection' => '',
