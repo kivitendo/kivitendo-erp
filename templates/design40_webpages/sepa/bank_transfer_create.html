@@ -90,6 +90,11 @@
     </tr>
   </thead>
   <tbody>
+  [% IF combine_payments && combine_payments.size %]
+    [% 'Option' | $T8 %] [% 'Combine Payments' | $T8 %]
+    <input type="hidden" name="combine_payments" value="1">
+    [% PROCESS "sepa/collective_payments.html" %]
+  [% ELSE %]
     [% FOREACH bank_transfer = BANK_TRANSFERS %]
       <tr>
         <td>
@@ -119,6 +124,7 @@
         <td>[% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.recommended_execution_date) %]</td>
       </tr>
     [% END %]
+  [% END %]
   </tbody>
 </table>
 
