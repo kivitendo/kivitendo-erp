@@ -8,5 +8,5 @@ CREATE TABLE sepa_exports_acc_trans (
         ap_id            INTEGER          REFERENCES ap(id),
         itime            TIMESTAMP        DEFAULT now(),
         mtime            TIMESTAMP,
-        PRIMARY KEY (sepa_exports_id, acc_trans_id);
+        PRIMARY KEY (sepa_exports_id, acc_trans_id));
 
