@@ -8,11 +8,13 @@ use POSIX qw(strftime);
 use Data::Dumper;
 use SL::DBUtils;
 use SL::DB::Invoice;
+use SL::DB::SepaExportsAccTrans;
 use SL::DB::PurchaseInvoice;
 use SL::DB;
 use SL::Locale::String qw(t8);
 use DateTime;
 use Carp;
+use List::Util qw(sum);
 
 sub retrieve_open_invoices {
   $main::lxdebug->enter_sub();
@@ -130,11 +132,13 @@ sub _create_export {
     qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
                                       amount,      requested_execution_date, reference,   end_to_end_id,
                                       our_iban,    our_bic,                  vc_iban,     vc_bic,
-                                      skonto_amount, payment_type ${c_mandate})
+                                      skonto_amount, payment_type ${c_mandate},
+                                      collected_payment, is_combined_payment, ${vc}_id                )
        VALUES                        (?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
-                                      ?,           ? ${p_mandate})|;
+                                      ?,           ? ${p_mandate},
+                                      ?,           ?,                        ?                        )|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
 
   my $q_reference =
@@ -153,9 +157,33 @@ sub _create_export {
        WHERE id = ?|;
   my $h_reference = prepare_query($form, $dbh, $q_reference);
 
-  my @now         = localtime;
+  # toter code
+  # my @now         = localtime;
 
-  foreach my $transfer (@{ $params{bank_transfers} }) {
+  # if collective bank transfers, distinct end to end id for all transactions and no payment type
+  # and no reference to an invoice, but to a vendor_id
+  my %vc_id_end_to_end;
+  foreach my $transfer (@{ $params{collective_bank_transfers} }) {
+
+    die "Invalid state, need a valid combined payment reference" unless $transfer->{reference}; # catch for h_reference
+
+    $vc_id_end_to_end{$transfer->{vc_id}} = strftime "KIVITENDOSUPERMONIKA%Y%m%d%H%M%S", localtime;
+    $transfer->{is_combined_payment}      = 1;
+    $transfer->{payment_type}             = 'without_skonto';
+  }
+  # check all credit notes add amount and subtract easy ...
+  my $credit_note_amount = 0;
+  $credit_note_amount    = sum map { $_->{amount} } grep { $_->{credit_note} } @{ $params{bank_transfers} };
+  foreach my $transfer (@{ $params{bank_transfers} }, @{ $params{collective_bank_transfers} }) {
+
+    # credit note amount is negative
+    if ($transfer->{credit_note} || $credit_note_amount < 0) {
+      my %params = (transfer => $transfer, sepa_export_id => $export_id);
+      $self->_check_and_book_credit_note(transfer => $transfer, sepa_export_id => $export_id, current_credit_note_amount => $credit_note_amount);
+
+      $credit_note_amount += $transfer->{amount} unless $transfer->{credit_note};
+      next;
+    }
     if (!$transfer->{reference}) {
       do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{"${arap}_id"})) x 3);
 
@@ -168,7 +196,9 @@ sub _create_export {
     $h_item_id->execute() || $::form->dberror($q_item_id);
     my ($item_id)      = $h_item_id->fetchrow_array();
 
-    my $end_to_end_id  = strftime "KIVITENDO%Y%m%d%H%M%S", localtime;
+    my $end_to_end_id  =  $transfer->{collected_payment} || $transfer->{is_combined_payment}
+                         ? $vc_id_end_to_end{$transfer->{vc_id}}
+                         : strftime "KIVITENDO%Y%m%d%H%M%S", localtime;
     my $item_id_len    = length "$item_id";
     my $num_zeroes     = 35 - $item_id_len - length $end_to_end_id;
     $end_to_end_id    .= '0' x $num_zeroes if (0 < $num_zeroes);
@@ -194,6 +224,10 @@ sub _create_export {
 
     push @values, $transfer->{vc_mandator_id}, conv_date($transfer->{vc_mandate_date_of_signature}) if $params{vc} eq 'customer';
 
+    push @values, $transfer->{collected_payment}   ? 1 : 0;
+    push @values, $transfer->{is_combined_payment} ? 1 : 0;
+    push @values, $transfer->{vc_id};
+
     do_statement($form, $h_insert, $q_insert, @values);
   }
 
@@ -218,12 +252,13 @@ sub retrieve_export {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  my ($joins, $columns);
+  # TOTER Code?
+  #my ($joins, $columns);
 
-  if ($params{details}) {
-    $columns = ', arap.invoice';
-    $joins   = "LEFT JOIN ${arap} arap ON (se.${arap}_id = arap.id)";
-  }
+  #if ($params{details}) {
+  #  $columns = ', arap.invoice';
+  #  $joins   = "LEFT JOIN ${arap} arap ON (se.${arap}_id = arap.id)";
+  #}
 
   my $query =
     qq|SELECT se.*,
@@ -242,7 +277,7 @@ sub retrieve_export {
     if ($params{details}) {
       $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description ${mandator_id}|;
       $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
-                    LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
+                    LEFT JOIN ${vc} vc     ON (sei.${vc}_id   = vc.id)
                     LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
     }
 

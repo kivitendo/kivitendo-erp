@@ -187,7 +187,21 @@ sub bank_transfer_create {
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
     setup_sepa_create_transfer_action_bar(is_vendor => $vc eq 'vendor');
-
+    use Data::Dumper;
+    # 1. combine all known payments
+    my %combine_payments;
+    if ($form->{combine_payments}) {
+      foreach my $bt (@bank_transfers) {
+        # next if credit_note
+        $combine_payments{$bt->{vc_id}}{amount}    += $bt->{amount};
+        # $combine_payments{$bt->{vc_id}}{reference} .= $combine_payments{$bt->{vc_id}}{reference} ? ' ' . $bt->{reference} : $bt->{reference};
+        $combine_payments{$bt->{vc_id}}{reference} .= !$combine_payments{$bt->{vc_id}}{reference} ? $bt->{invnumber} : ' / ' . $bt->{invnumber};
+        # maybe set recommended execution date?
+        # $combine_payments{$bt->{vc_id}}{recommended_execution_date} =  $bt->{recommended_execution_date} ? $bt->{recommended_execution_date} : '' ;
+        # mark bt as collective transfer
+        $bt->{collective_transfer} = 1;
+        }
+    }
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',
                                      { 'BANK_TRANSFERS'     => \@bank_transfers,
@@ -197,10 +211,16 @@ sub bank_transfer_create {
                                        'error_message'      => $error_message,
                                        'vc'                 => $vc,
                                        'total_trans'        => $total_trans,
+                                       'combine_payments'   => \%combine_payments,
                                      });
 
   } else {
-    foreach my $bank_transfer (@bank_transfers) {
+    #  convert user number 3.002,34 to database 3000.33420
+    my @collective_bank_transfers = map  { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
+                                        @{ $form->{collective_bank_transfers} || [] };
+
+
+    foreach my $bank_transfer (@bank_transfers, @collective_bank_transfers) {
       foreach (@bank_columns) {
         $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{vc_id} }->{$_};
         $bank_transfer->{"our_${_}"} = $bank_account->{$_};
@@ -211,6 +231,7 @@ sub bank_transfer_create {
 
     my $id = SL::SEPA->create_export('employee'       => $::myconfig{login},
                                      'bank_transfers' => \@bank_transfers,
+                                     'collective_bank_transfers' => \@collective_bank_transfers,
                                      'vc'             => $vc);
 
     $form->header();
@@ -576,6 +597,10 @@ sub bank_transfer_download_sepa_xml {
     );
 
   foreach my $item (@items) {
+
+    # do not offer collected_payment
+    next if $item->{collected_payment};
+
     my $requested_execution_date;
     my $mandator_id;
     if ($item->{requested_execution_date}) {
