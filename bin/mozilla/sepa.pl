@@ -153,9 +153,11 @@ sub bank_transfer_create {
         $type->{selected} = 1;
       } else {
         $type->{selected} = 0;
-      };
-    };
-  };
+      }
+    }
+    $bt->{credit_note} = 1 if $bt->{amount} < 0;
+    die t8('Cannot select Credit Notes without combining payments.') if $bt->{credit_note} && !$form->{combine_payments};
+  }
 
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
@@ -163,6 +165,9 @@ sub bank_transfer_create {
 
   my $total_trans = sum map { $_->{open_amount} } @bank_transfers;
 
+  if ($total_trans < 0) {
+    $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'));
+  }
   my ($vc_bank_info);
   my $error_message;
 
@@ -422,7 +427,9 @@ sub bank_transfer_edit {
     $form->error($locale->text('That export does not exist.'));
   }
 
-  my $show_post_payments_button = any { !$_->{export_closed} && !$_->{executed} } @{ $export->{items} };
+  my $show_post_payments_button =  SL::DB::Default->get->payments_changeable == 0 ? undef # maybe yes, if sepa bank has no booking bank account
+                                 : any { !$_->{export_closed} && !$_->{executed} && !$_->{is_combined_payment} } @{ $export->{items} };
+
   my $has_executed              = any { $_->{executed}                          } @{ $export->{items} };
 
   setup_sepa_edit_transfer_action_bar(

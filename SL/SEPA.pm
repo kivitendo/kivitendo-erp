@@ -32,7 +32,12 @@ sub retrieve_open_invoices {
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
   my $is_sepa_blocked = $params{vc} eq 'customer' ? 'FALSE' : "${arap}.is_sepa_blocked";
   my $only_approved   = $params{payment_approval} ? ' AND ap.id IN (SELECT ap_id from payment_approved) ' : undef;
-  my $p_credit_notes  = $params{vc} eq 'vendor' && $::instance_conf->get_sepa_subtract_credit_notes  ? " OR  (${arap}.amount < 0 AND ${arap}.amount <> ${arap}.paid) " : undef;
+
+  # has to be ON and don't edit payments manually (UNDO SEPA Export if needed at all)
+  my $p_credit_notes  = $params{vc} eq 'vendor' && $::instance_conf->get_sepa_subtract_credit_notes
+                                                && SL::DB::Default->get->payments_changeable == 0
+                        ? " OR (${arap}.amount < 0 AND ${arap}.amount <> ${arap}.paid) " : undef;
+
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
@@ -234,6 +239,97 @@ sub _create_export {
   $h_item_id->finish();
 
   return $export_id;
+}
+
+# TODO allow credit_notes higher amount than invoice amount AND skonto bookings (see Payment-Helper _skonto..)
+sub _check_and_book_credit_note {
+  my $self     = shift;
+  my %params   = @_;
+  Common::check_params(\%params, qw(transfer sepa_export_id current_credit_note_amount));
+  my $transfer = delete $params{transfer};
+  my $current_credit_note_amount = $params{current_credit_note_amount};
+
+  die "Need ap_id, amount from transfer" unless $transfer->{ap_id} && $transfer->{amount};
+
+  # todo check option overbook credit notes
+  my $amount         =  $transfer->{credit_note} ? $transfer->{amount}   # full amount
+                      : abs($current_credit_note_amount) <= $transfer->{amount} ? $current_credit_note_amount
+                      : $transfer->{amount};
+
+  my $transdate      = DateTime->now();
+  my $sepa_export_id = $params{sepa_export_id};
+
+  my $transit_chart = SL::DB::Manager::Chart->find_by(id => SL::DB::Default->get->transit_items_chart_id);
+  my $invoice       = SL::DB::Manager::PurchaseInvoice->find_by(id => $transfer->{ap_id});
+
+  # sanity checks
+  die "Invalid state, expected a credit note" if $transfer->{credit_note} && $invoice->invoice_type !~ m/credit_note/;
+  die "Not a valid Chart account"             unless ref $transit_chart eq 'SL::DB::Chart';
+
+  # acc_trans logic chart_links
+  #     credit_notes          | purchase_credit_note
+  #  -1397.11000 | AR         |     504.74000 |  AP
+  #   1397.11000 | AR_paid    |    -504.74000 |  AP_paid
+  #   purchase_invoice        | sales_invoice
+  #   -100       | AP         |   100         | AR
+  #   100        | AP_paid    |  -100         | AR_paid
+
+  my $mult = $invoice->is_sales ? -1 : 1; # multiplier for getting the sign right if no credit note is involved
+  $mult =  1 if ( $invoice->is_sales && $invoice->type eq 'credit_note');
+  $mult = -1 if (!$invoice->is_sales && $invoice->invoice_type eq 'purchase_credit_note');
+
+  my $paid_sign  = $invoice->invoice_type =~ m/credit_note/ ? -1 :  1;  # arap.paid is always negative for credit_note
+
+  # positive for purchase invoice and sales credit note
+  my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                  chart_id   => $transit_chart->id,
+                                                  chart_link => $transit_chart->link,
+                                                  amount     => abs($amount) * $mult,
+                                                  transdate  => $transdate,
+                                                  source     => $invoice->invnumber, # $is_credit_note ?  $invoice_no : $credit_note_no,
+                                                  memo       => t8('Automatically assigned with SEPA Export: #1', $sepa_export_id),
+                                                  taxkey     => 0,
+                                                  tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+  # positive for purchase credit note and sales invoice
+  my $arap_booking= SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                chart_id   => $invoice->reference_account->id,
+                                                chart_link => $invoice->reference_account->link,
+                                                amount     => abs($amount) * $mult * -1,
+                                                transdate  => $transdate,
+                                                source     => '',
+                                                taxkey     => 0,
+                                                tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+  $new_acc_trans->save;
+  $arap_booking->save;
+  $invoice->update_attributes(paid => $invoice->paid + (abs($amount) * $paid_sign), datepaid => $transdate);
+
+  # link both acc_trans transactions
+  my $type    = $invoice->is_sales ? 'ar' : 'ap';
+  my $id_type = $invoice->is_sales ? 'ar_id' : 'ap_id';
+  my  %props_acc = (
+                     acc_trans_id    => $new_acc_trans->acc_trans_id,
+                     sepa_exports_id => $sepa_export_id,
+                     $id_type        => $invoice->id,
+                   );
+  SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+      %props_acc = (
+                     acc_trans_id    => $arap_booking->acc_trans_id,
+                     sepa_exports_id => $sepa_export_id,
+                     $id_type        => $invoice->id,
+
+                   );
+  SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+
+  # Record a record link from the sepa export to the invoice
+  my %props = (
+      from_table => 'sepa_export',
+      from_id    => $sepa_export_id,
+      to_table   => $id_type,
+      to_id      => $invoice->id,
+  );
+  SL::DB::RecordLink->new(%props)->save;
+
+  return;
 }
 
 sub retrieve_export {
