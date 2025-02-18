@@ -58,13 +58,13 @@
     [% FOREACH item = export.items %]
       <tr>
         <td>
-          [% IF (show_post_payments_button && !item.executed) || (!show_post_payments_button && item.executed) %]
+          [% IF (show_post_payments_button && !item.executed && !item.is_combined_payment && !item.collected_payment ) || (!show_post_payments_button && item.executed) %]
             [% L.hidden_tag("items[+].id", item.id) %]
             [% L.hidden_tag("items[].sepa_export_id", item.sepa_export_id) %]
             [% L.checkbox_tag("ids[]", value=item.id) %]
           [% END %]
         </td>
-        <td><a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a></td>
+        <td><a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>[% IF item.is_combined_payment %][% 'Combined Payment' | $T8 %] [% END %]</td>
         <td>[% HTML.escape(item.vc_name) %]</td>
         <td>[% HTML.escape(item.our_iban) %]</td>
         <td>[% HTML.escape(item.our_bic) %]</td>
