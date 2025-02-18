@@ -144,6 +144,7 @@ use SL::DB::Secret;
 use SL::DB::SepaExport;
 use SL::DB::SepaExportItem;
 use SL::DB::SepaExportMessageId;
+use SL::DB::SepaExportsAccTrans;
 use SL::DB::Shipto;
 use SL::DB::Shop;
 use SL::DB::ShopImage;
