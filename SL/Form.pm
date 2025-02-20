@@ -1628,7 +1628,7 @@ sub set_payment_options {
 
   $self->{payment_terms} =  $self->{payment_terms} || ($is_invoice ? $terms->description_long_invoice : undef) || $terms->description_long;
 
-  $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g;
+  $self->{payment_terms} =~ s/<%netto_date%>/$self->{netto_date}/g if ($is_invoice);
   $self->{payment_terms} =~ s/<%skonto_date%>/$self->{skonto_date}/g;
   $self->{payment_terms} =~ s/<%currency%>/$self->{currency}/g;
   $self->{payment_terms} =~ s/<%terms_netto%>/$self->{terms_netto}/g;
