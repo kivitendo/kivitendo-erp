@@ -12,6 +12,11 @@ Kleinere neue Features und Detailverbesserungen:
 
   - SSO (Single-Sign-On) Unterstützung über entsprechende HTTP-Header.
     Für Details s.a. Doku und ggf. API-Doku im POD-Style
+  - In Langtexten von Zahlungsbedingungen werden die Variablen
+    <%netto_date%> und <%skonto_date> nur noch in Rechnungen ersetzt.
+    Die Variablen sind ausschließlich für Rechnungen gedacht, wurden
+    bisher allerdings in allen anderen Belegtypen durch ein nicht
+    spezifiziertes Datum ersetzt.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
