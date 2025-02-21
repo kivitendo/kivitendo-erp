@@ -10,8 +10,8 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
-- SSO (Single-Sign-On) Unterstützung über entsprechende HTTP-Header.
-  Für Details s.a. Doku und ggf. API-Doku im POD-Style
+  - SSO (Single-Sign-On) Unterstützung über entsprechende HTTP-Header.
+    Für Details s.a. Doku und ggf. API-Doku im POD-Style
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
