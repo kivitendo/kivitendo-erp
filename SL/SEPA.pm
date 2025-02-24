@@ -280,7 +280,7 @@ sub _check_and_book_credit_note {
   $mult = -1 if (!$invoice->is_sales && $invoice->invoice_type eq 'purchase_credit_note');
 
   my $paid_sign  = $invoice->invoice_type =~ m/credit_note/ ? -1 :  1;  # arap.paid is always negative for credit_note
-
+  my @new_acc_ids;
   # positive for purchase invoice and sales credit note
   my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                   chart_id   => $transit_chart->id,
@@ -302,24 +302,48 @@ sub _check_and_book_credit_note {
                                                 tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
   $new_acc_trans->save;
   $arap_booking->save;
+
+  push @new_acc_ids, $new_acc_trans->acc_trans_id;
+  push @new_acc_ids, $arap_booking->acc_trans_id;
+
   $invoice->update_attributes(paid => $invoice->paid + (abs($amount) * $paid_sign), datepaid => $transdate);
+  if ($transfer->{skonto_amount}) {
+    my @skonto_bookings = $invoice->_skonto_charts_and_tax_correction(sepa_export_id => $sepa_export_id,
+                                                                      amount         => abs($transfer->{skonto_amount}),
+                                                                      transdate_obj  => $transdate);
 
-  # link both acc_trans transactions
-  my $type    = $invoice->is_sales ? 'ar' : 'ap';
+    $invoice->update_attributes(paid => $invoice->paid + (abs($transfer->{skonto_amount}) * $paid_sign), datepaid => $transdate);
+    # create an acc_trans entry for each result of $self->skonto_charts
+    foreach my $skonto_booking ( @skonto_bookings ) {
+      next unless $skonto_booking->{'chart_id'};
+      next unless $skonto_booking->{'skonto_amount'} != 0;
+      my $amount = $skonto_booking->{skonto_amount};
+      $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                   chart_id   => $skonto_booking->{'chart_id'},
+                                                   chart_link => SL::DB::Manager::Chart->find_by(id => $skonto_booking->{'chart_id'})->link,
+                                                   amount     => $amount * $mult,
+                                                   transdate  => $transdate,
+                                                   source     => $params{source},
+                                                   taxkey     => 0,
+                                                   tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+
+      $new_acc_trans->save;
+      push @new_acc_ids, $new_acc_trans->acc_trans_id;
+
+    }
+  }
+
+  # link both acc_trans transactions and maybe skonto booking acc_trans_ids
   my $id_type = $invoice->is_sales ? 'ar_id' : 'ap_id';
-  my  %props_acc = (
-                     acc_trans_id    => $new_acc_trans->acc_trans_id,
-                     sepa_exports_id => $sepa_export_id,
-                     $id_type        => $invoice->id,
-                   );
-  SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
-      %props_acc = (
-                     acc_trans_id    => $arap_booking->acc_trans_id,
-                     sepa_exports_id => $sepa_export_id,
-                     $id_type        => $invoice->id,
 
-                   );
-  SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+  foreach my $acc_trans_id (@new_acc_ids) {
+    my  %props_acc = (
+                       acc_trans_id    => $acc_trans_id,
+                       sepa_exports_id => $sepa_export_id,
+                       $id_type        => $invoice->id,
+                     );
+    SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+  }
 
   # Record a record link from the sepa export to the invoice
   my %props = (
