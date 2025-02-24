@@ -197,15 +197,10 @@ sub bank_transfer_create {
     my %combine_payments;
     if ($form->{combine_payments}) {
       foreach my $bt (@bank_transfers) {
-        # next if credit_note
         $combine_payments{$bt->{vc_id}}{amount}    += $bt->{amount};
-        # $combine_payments{$bt->{vc_id}}{reference} .= $combine_payments{$bt->{vc_id}}{reference} ? ' ' . $bt->{reference} : $bt->{reference};
-        $combine_payments{$bt->{vc_id}}{reference} .= !$combine_payments{$bt->{vc_id}}{reference} ? $bt->{invnumber} : ' / ' . $bt->{invnumber};
-        # maybe set recommended execution date?
-        # $combine_payments{$bt->{vc_id}}{recommended_execution_date} =  $bt->{recommended_execution_date} ? $bt->{recommended_execution_date} : '' ;
-        # mark bt as collective transfer
+        $combine_payments{$bt->{vc_id}}{reference} .= !$combine_payments{$bt->{vc_id}}{reference} ? $bt->{vc_vc_id} . ': ' . $bt->{invnumber} : ' / ' . $bt->{invnumber};
         $bt->{collective_transfer} = 1;
-        }
+      }
     }
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',
