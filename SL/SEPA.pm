@@ -176,17 +176,19 @@ sub _create_export {
     $transfer->{is_combined_payment}      = 1;
     $transfer->{payment_type}             = 'without_skonto';
   }
-  # check all credit notes add amount and subtract easy ...
-  my $credit_note_amount = 0;
-  $credit_note_amount    = sum map { $_->{amount} } grep { $_->{credit_note} } @{ $params{bank_transfers} };
+  # sum all credit notes for vc_id for later subtraction
+  my %vc_cn_amount;
+  foreach my $transfer (@{ $params{bank_transfers} }) {
+    next unless $transfer->{credit_note};
+    $vc_cn_amount{$transfer->{vc_id}} += $transfer->{amount};
+  }
   foreach my $transfer (@{ $params{bank_transfers} }, @{ $params{collective_bank_transfers} }) {
 
     # credit note amount is negative
-    if ($transfer->{credit_note} || $credit_note_amount < 0) {
+    if ($transfer->{credit_note} || $vc_cn_amount{$transfer->{vc_id}} < 0) {
       my %params = (transfer => $transfer, sepa_export_id => $export_id);
-      $self->_check_and_book_credit_note(transfer => $transfer, sepa_export_id => $export_id, current_credit_note_amount => $credit_note_amount);
-
-      $credit_note_amount += $transfer->{amount} unless $transfer->{credit_note};
+      $self->_check_and_book_credit_note(transfer => $transfer, sepa_export_id => $export_id, current_credit_note_amount => $vc_cn_amount{$transfer->{vc_id}});
+      $vc_cn_amount{$transfer->{vc_id}} += $transfer->{amount} unless $transfer->{credit_note};
       next;
     }
     if (!$transfer->{reference}) {
@@ -252,8 +254,7 @@ sub _check_and_book_credit_note {
 
   die "Need ap_id, amount from transfer" unless $transfer->{ap_id} && $transfer->{amount};
 
-  # todo check option overbook credit notes
-  my $amount         =  $transfer->{credit_note} ? $transfer->{amount}   # full amount
+  my $amount         =  $transfer->{credit_note} ? $transfer->{amount}   # full amount for credit notes
                       : abs($current_credit_note_amount) <= $transfer->{amount} ? $current_credit_note_amount
                       : $transfer->{amount};
 
