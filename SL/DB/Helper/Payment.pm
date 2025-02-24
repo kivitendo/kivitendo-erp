@@ -594,7 +594,7 @@ sub _skonto_charts_and_tax_correction {
   my $amount = $params{amount} || $self->skonto_amount;
 
   croak "no amount passed to skonto_charts"                    unless abs(_round($amount)) >= 0.01;
-  croak "no banktransaction.id passed to skonto_charts"        unless $params{bt_id};
+  croak "no banktransaction|sepa.id passed to skonto_charts"   unless $params{bt_id} || $params{sepa_export_id};
   croak "no banktransaction.transdate passed to skonto_charts" unless ref $params{transdate_obj} eq 'DateTime';
 
   $params{memo}   //= '';
@@ -675,23 +675,42 @@ sub _skonto_charts_and_tax_correction {
          tax_id => 0,
       )->post;
 
-    # add a stable link acc_trans_id to bank_transactions.id
-    foreach my $transaction (@{ $current_transaction->transactions }) {
-      my %props_acc = (
-           acc_trans_id        => $transaction->acc_trans_id,
-           bank_transaction_id => $params{bt_id},
-           gl                  => $current_transaction->id,
+    my (%props_rl, %props_acc);
+    if ($params{bt_id}) {
+      # add a stable link acc_trans_id to bank_transactions.id
+      foreach my $transaction (@{ $current_transaction->transactions }) {
+        %props_acc = (
+             acc_trans_id        => $transaction->acc_trans_id,
+             bank_transaction_id => $params{bt_id},
+             gl                  => $current_transaction->id,
+        );
+        SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+      }
+      # Record a record link from banktransactions to gl
+      %props_rl = (
+           from_table => 'bank_transactions',
+           from_id    => $params{bt_id},
+           to_table   => 'gl',
+           to_id      => $current_transaction->id,
       );
-      SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
-    }
-    # Record a record link from banktransactions to gl
-    my %props_rl = (
-         from_table => 'bank_transactions',
-         from_id    => $params{bt_id},
-         to_table   => 'gl',
-         to_id      => $current_transaction->id,
-    );
-    SL::DB::RecordLink->new(%props_rl)->save;
+      SL::DB::RecordLink->new(%props_rl)->save;
+    } elsif ($params{sepa_export_id}) {
+      %props_acc = (
+                    gl_id           => $current_transaction->id,
+                    sepa_exports_id => $params{sepa_export_id},
+                    acc_trans_id    => $current_transaction->transactions->[0]->acc_trans_id,
+                   );
+      SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+      %props_rl = (
+                   from_table => 'sepa_export',
+                   from_id    => $params{sepa_export_id},
+                   to_table   => 'gl',
+                   to_id      => $current_transaction->id,
+                  );
+      SL::DB::RecordLink->new(%props_rl)->save;
+
+    } else { die "Invalid state"; }
+
     # Record a record link from arap to gl
     # linked gl booking will appear in tab linked records
     # this is just a link for convenience
