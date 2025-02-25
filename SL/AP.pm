@@ -101,10 +101,10 @@ sub _post_transaction {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
 
       $query =
-        qq|INSERT INTO ap (id, invnumber, employee_id,currency_id, taxzone_id) | .
-        qq|VALUES (?, ?, (SELECT e.id FROM employee e WHERE e.login = ?),
+        qq|INSERT INTO ap (id, invnumber, employee_id, buyer_id, currency_id, taxzone_id) | .
+        qq|VALUES (?, ?, ?, ?),
                       (SELECT id FROM currencies WHERE name = ?), (SELECT taxzone_id FROM vendor WHERE id = ?) )|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $::myconfig{login}, $form->{currency}, $form->{vendor_id});
+      do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $form->{employee_id}, $form->{buyer_id},  $form->{currency}, $form->{vendor_id});
 
     }
   }
@@ -165,7 +165,7 @@ sub _post_transaction {
                 amount = ?, duedate = ?, deliverydate = ?, tax_point = ?, paid = ?, netamount = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
                 globalproject_id = ?, direct_debit = ?, payment_id = ?, transaction_description = ?, intnotes = ?,
-                qrbill_data = ?
+                qrbill_data = ?, employee_id = ?, buyer_id = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
@@ -179,6 +179,7 @@ sub _post_transaction {
                   conv_i($form->{payment_id}), $form->{transaction_description},
                   $form->{intnotes},
                   $form->{qrbill_data_encoded} ? uri_unescape($form->{qrbill_data_encoded}) : undef,
+                  $form->{employee_id}, $form->{buyer_id},
                   $form->{id});
     do_query($form, $dbh, $query, @values);
 
