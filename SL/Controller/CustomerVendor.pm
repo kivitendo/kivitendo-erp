@@ -101,7 +101,10 @@ sub action_add {
   if ($self->{cv}->is_customer) {
     $self->{cv}->assign_attributes(hourly_rate => $::instance_conf->get_customer_hourly_rate);
     $self->{cv}->salesman_id(SL::DB::Manager::Employee->current->id) if !$::auth->assert('customer_vendor_all_edit', 1);
+  } elsif ($self->{cv}->is_vendor) {
+    $self->{cv}->buyer_id(SL::DB::Manager::Employee->current->id) if !$::auth->assert('customer_vendor_all_edit', 1);
   }
+
 
   $self->render(
     'customer_vendor/form',
@@ -1188,7 +1191,9 @@ sub _pre_render {
       $self->{all_salesman_customers} = [];
     }
   } else {
+    # TODO vc weiche? get_vertreter dead code since 3.6?
     $self->{all_salesmen} = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $self->{cv}->salesman_id,  deleted => 0 ] ]);
+    $self->{all_buyer}    = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $self->{cv}->buyer_id,  deleted => 0 ] ]);
   }
 
   $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id       => $self->{cv}->payment_id,
