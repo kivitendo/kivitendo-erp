@@ -251,9 +251,7 @@
         <th>[% 'Buyer' | $T8 %]</th>
         <td>[% L.select_tag('order.buyer_id',
           SELF.all_employees,
-          default=( SELF.order.buyer_id        ? SELF.order.buyer_id
-                  : SELF.order.vendor.buyer_id ? SELF.order.vendor.buyer_id
-                  : SELF.current_employee_id),
+          default=( SELF.order.buyer_id ? SELF.order.buyer_id : SELF.current_employee_id),
           class='wi-normal',
           title_key='safe_name') %]</td>
       </tr>
