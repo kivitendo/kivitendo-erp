@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('reclamations');
 __PACKAGE__->meta->columns(
   amount                  => { type => 'numeric', precision => 15, scale => 5 },
   billing_address_id      => { type => 'integer' },
+  buyer_id                => { type => 'integer' },
   closed                  => { type => 'boolean', default => 'false', not_null => 1 },
   contact_id              => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
@@ -53,6 +54,11 @@ __PACKAGE__->meta->foreign_keys(
   billing_address => {
     class       => 'SL::DB::AdditionalBillingAddress',
     key_columns => { billing_address_id => 'id' },
+  },
+
+  buyer => {
+    class       => 'SL::DB::Employee',
+    key_columns => { buyer_id => 'id' },
   },
 
   contact => {
