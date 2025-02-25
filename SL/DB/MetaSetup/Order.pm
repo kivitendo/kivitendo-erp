@@ -25,7 +25,6 @@ __PACKAGE__->meta->columns(
   delivery_vendor_id           => { type => 'integer' },
   department_id                => { type => 'integer' },
   employee_id                  => { type => 'integer' },
-  end_customer_id              => { type => 'integer' },
   exchangerate                 => { type => 'numeric', precision => 15, scale => 5 },
   expected_billing_date        => { type => 'date' },
   globalproject_id             => { type => 'integer' },
@@ -113,11 +112,6 @@ __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
-  },
-
-  end_customer => {
-    class       => 'SL::DB::Customer',
-    key_columns => { end_customer_id => 'id' },
   },
 
   globalproject => {

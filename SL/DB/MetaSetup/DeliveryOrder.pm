@@ -21,7 +21,6 @@ __PACKAGE__->meta->columns(
   department_id              => { type => 'integer' },
   donumber                   => { type => 'text', not_null => 1 },
   employee_id                => { type => 'integer' },
-  end_customer_id            => { type => 'integer' },
   globalproject_id           => { type => 'integer' },
   id                         => { type => 'integer', not_null => 1, sequence => 'id' },
   intnotes                   => { type => 'text' },
@@ -90,11 +89,6 @@ __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
     key_columns => { employee_id => 'id' },
-  },
-
-  end_customer => {
-    class       => 'SL::DB::Customer',
-    key_columns => { end_customer_id => 'id' },
   },
 
   globalproject => {
