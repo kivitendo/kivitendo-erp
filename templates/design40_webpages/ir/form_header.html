@@ -237,7 +237,11 @@
     <tbody>
       <tr>
         <th>[% 'Employee' | $T8 %]</th>
-        <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name', class='wi-wide') %]</td>
+        <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name', class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Buyer' | $T8 %]</th>
+        <td>[% L.select_tag('buyer_id', ALL_EMPLOYEES, default = buyer_id, title_key = 'safe_name', class='wi-mediumsmall') %]</td>
       </tr>
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
