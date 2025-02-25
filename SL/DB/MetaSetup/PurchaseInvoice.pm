@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('ap');
 
 __PACKAGE__->meta->columns(
   amount                  => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
+  buyer_id                => { type => 'integer' },
   cp_id                   => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
   datepaid                => { type => 'date' },
@@ -56,6 +57,11 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  buyer => {
+    class       => 'SL::DB::Employee',
+    key_columns => { buyer_id => 'id' },
+  },
+
   contact => {
     class       => 'SL::DB::Contact',
     key_columns => { cp_id => 'cp_id' },
