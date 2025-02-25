@@ -808,6 +808,7 @@ sub invoice {
   my $vc = $form->{vc};
   if (($form->{"previous_${vc}_id"} || $form->{"${vc}_id"}) != $form->{"${vc}_id"}) {
     $::form->{salesman_id} = SL::DB::Manager::Employee->current->id if exists $::form->{salesman_id};
+    $::form->{old_buyer_id} = $::form->{buyer_id};
 
     IS->get_customer(\%myconfig, $form) if $vc eq 'customer';
     IR->get_vendor(\%myconfig, $form)   if $vc eq 'vendor';
