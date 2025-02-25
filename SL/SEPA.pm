@@ -458,8 +458,66 @@ sub undo_export {
   croak "Not a valid SEPA Export id: $params{id}" unless $sepa_export;
   croak "Cannot undo closed exports."             if $sepa_export->closed;
   croak "Cannot undo executed exports."           if $sepa_export->executed;
+  # everything in one transaction
+  my $rez = $sepa_export->db->with_transaction(sub {
 
-  die "Could not undo $sepa_export->id" if !$sepa_export->delete();
+    # check if we have combined sepa exports
+    my %trans_ids;
+    foreach my $sepa_acc_trans (@{ $sepa_export->find_sepa_exports_acc_trans }) {
+      # save trans_id and type
+      die "no type" unless ($sepa_acc_trans->ar_id || $sepa_acc_trans->ap_id || $sepa_acc_trans->gl_id);
+      my $acc_trans = SL::DB::Manager::AccTransaction->get_all(where => [acc_trans_id => $sepa_acc_trans->acc_trans_id]);
+      $trans_ids{$sepa_acc_trans->ar_id} = 'ar' if $sepa_acc_trans->ar_id;
+      $trans_ids{$sepa_acc_trans->ap_id} = 'ap' if $sepa_acc_trans->ap_id;
+      $trans_ids{$sepa_acc_trans->gl_id} = 'gl' if $sepa_acc_trans->gl_id;
+      # 2. all good -> ready to delete acc_trans and connection table
+      $sepa_acc_trans->delete;
+      $_->delete for @{ $acc_trans };
+    }
+    # 3. update arap.paid (may not be 0, yet)
+    #    or in case of gl, delete whole entry
+    while (my ($trans_id, $type) = each %trans_ids) {
+      if ($type eq 'gl') {
+        SL::DB::Manager::GLTransaction->delete_all(where => [ id => $trans_id ]);
+        next;
+      }
+      die ("invalid type") unless $type =~ m/^(ar|ap)$/;
+
+      # recalc and set paid via database query
+      my $query = qq|UPDATE $type SET paid =
+                      (SELECT COALESCE(abs(sum(amount)),0) FROM acc_trans
+                       WHERE trans_id = ?
+                       AND (chart_link ilike '%paid%'
+                            OR chart_id IN (SELECT fxgain_accno_id from defaults)
+                            OR chart_id IN (SELECT fxloss_accno_id from defaults)
+                           )
+                      )
+                      WHERE id = ?|;
+
+      die if (do_query($::form, $sepa_export->db->dbh, $query, $trans_id, $trans_id) == -1);
+
+      # undo datepaid if no payment exists
+      $query = qq|UPDATE $type SET datepaid = null WHERE ID = ? AND paid = 0|;
+      die if (do_query($::form, $sepa_export->db->dbh, $query, $trans_id) == -1);
+    }
+    # 4. and delete all (if any) record links
+    my $rl = SL::DB::Manager::RecordLink->delete_all(where => [ from_id => $sepa_export->id, from_table => 'sepa_export' ]);
+
+    # 5. finally reset  this sepa export
+    die "Could not undo $sepa_export->id" if !$sepa_export->delete();
+    # 6. and add a log entry in history_erp
+    SL::DB::History->new(
+      trans_id    => $params{id},
+      snumbers    => 'sepa_export_unlink_' . $params{id},
+      employee_id => SL::DB::Manager::Employee->current->id,
+      what_done   => 'sepa_export',
+      addition    => 'UNLINKED',
+    )->save();
+
+    1;
+
+  }) || die t8('error while unlinking sepa export #1 : ', $sepa_export->id) . $sepa_export->db->error . "\n";
+
 
   $main::lxdebug->leave_sub();
 }
