@@ -482,6 +482,13 @@ sub form_header {
 
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
+  my $current_employee   = SL::DB::Manager::Employee->current;
+
+  $::form->{employee_id} ||= $current_employee->id;
+  $::form->{buyer_id}    ||= $current_employee->id;
+
+  $form->{ALL_EMPLOYEES}  = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+
   my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 
   my (%charts, %bank_accounts);
@@ -782,8 +789,9 @@ sub update {
 
     my $vendor = SL::DB::Vendor->load_cached($form->{vendor_id});
 
-    # reset payment to new vendor
+    # reset payment to new vendor and reset buyer
     $form->{payment_id} = $vendor->payment_id;
+    $form->{buyer_id}   = $vendor->buyer_id;
 
     if (($form->{rowcount} == 1) && ($form->{amount_1} == 0)) {
       my $last_used_ap_chart = $vendor->last_used_ap_chart;
@@ -961,6 +969,7 @@ sub post {
   }
 
   # if old vendor ne vendor redo form
+  # copy paste dead code from ar.pl -> customer???
   if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
     &update;
     $::dispatcher->end_request;
@@ -1430,6 +1439,7 @@ sub add_from_purchase_order {
   $::form->{title}                   = "Add";
   $::form->{vc}                      = 'vendor';
   $::form->{vendor_id}               = $order->customervendor->id;
+  $::form->{buyer_id}                = $order->buyer_id;
   $::form->{vendor}                  = $order->vendor->name;
   $::form->{convert_from_oe_id}      = $order->id;
   $::form->{globalproject_id}        = $order->globalproject_id;
