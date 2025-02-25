@@ -313,6 +313,7 @@ sub add {
 
     # set initial payment terms
     $form->{payment_id} = $vendor->payment_id;
+    $form->{buyer_id}   = $vendor->buyer_id;
 
     my $last_used_ap_chart = $vendor->last_used_ap_chart;
     $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
