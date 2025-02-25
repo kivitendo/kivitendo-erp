@@ -243,6 +243,7 @@ my @different_record_values = qw(
   cp_id contact_id
   cusordnumber cv_record_number
   invnumber record_number
+  buyer_id
 );
 my @different_record_item_values = qw(
   id trans_id reclamation_id itime mtime
