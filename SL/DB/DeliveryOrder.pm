@@ -200,6 +200,7 @@ sub new_from {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
     qw(
       billing_address_id
+      buyer_id
       cp_id
       currency_id
       cusordnumber
@@ -231,6 +232,7 @@ sub new_from {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
     qw(
       billing_address_id
+      buyer_id
       currency_id
       customer_id
       delivery_term_id
@@ -257,6 +259,7 @@ sub new_from {
     map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
     qw(
       billing_address_id
+      buyer_id
       cp_id
       currency_id
       cusordnumber
