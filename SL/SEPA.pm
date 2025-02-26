@@ -329,7 +329,16 @@ sub _check_and_book_credit_note {
 
       $new_acc_trans->save;
       push @new_acc_ids, $new_acc_trans->acc_trans_id;
-
+      $arap_booking= SL::DB::AccTransaction->new(trans_id   => $invoice->id,
+                                                 chart_id   => $invoice->reference_account->id,
+                                                 chart_link => $invoice->reference_account->link,
+                                                 amount     => $amount * $mult * -1,
+                                                 transdate  => $transdate,
+                                                 source     => '', #$params{source},
+                                                 taxkey     => 0,
+                                                 tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+      $arap_booking->save;
+      push @new_acc_ids, $arap_booking->acc_trans_id;
     }
   }
 
