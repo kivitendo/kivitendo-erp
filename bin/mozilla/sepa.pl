@@ -198,7 +198,11 @@ sub bank_transfer_create {
     if ($form->{combine_payments}) {
       foreach my $bt (@bank_transfers) {
         $combine_payments{$bt->{vc_id}}{amount}    += $bt->{amount};
-        $combine_payments{$bt->{vc_id}}{reference} .= !$combine_payments{$bt->{vc_id}}{reference} ? $bt->{vc_vc_id} . ': ' . $bt->{invnumber} : ' / ' . $bt->{invnumber};
+        $combine_payments{$bt->{vc_id}}{reference} .=  !$combine_payments{$bt->{vc_id}}{reference} && $bt->{vc_vc_id}
+                                                      ? $bt->{vc_vc_id} . ': ' . $bt->{invnumber}
+                                                      : !$combine_payments{$bt->{vc_id}}{reference}
+                                                      ? $bt->{invnumber}
+                                                      : ' / ' . $bt->{invnumber};
         $bt->{collective_transfer} = 1;
       }
     }
