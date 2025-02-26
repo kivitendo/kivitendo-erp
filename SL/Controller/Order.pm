@@ -2059,6 +2059,22 @@ sub parse_phone_note {
   return $phone_note;
 }
 
+sub check_if_periodic_invoices_contact_matches_customer {
+  my ($self) = @_;
+
+  return if !$self->order->is_type(SL::DB::Order::SALES_ORDER_TYPE());
+
+  my $cfg = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $self->order->id);
+  return if !$cfg || !$cfg->email_recipient_contact_id;
+
+  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $cfg->email_recipient_contact_id);
+  return if !$contact;
+
+  if ($contact->cp_cv_id != $self->order->customer_id) {
+    $cfg->update_attributes(email_recipient_contact_id => undef);
+  }
+}
+
 # save the order
 #
 # And delete items that are deleted in the form.
@@ -2151,6 +2167,8 @@ sub save {
       $imap_client->create_folder_for_record(record => $self->order);
     }
   }
+
+  $self->check_if_periodic_invoices_contact_matches_customer;
 
   delete $::form->{form_validity_token};
 }
