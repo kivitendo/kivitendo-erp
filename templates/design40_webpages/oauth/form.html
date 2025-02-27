@@ -1,0 +1,39 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post" id="form">
+[% L.hidden_tag("id", SELF.config.id) %]
+
+<div class="wrapper">
+
+[% L.hidden_tag("config.verifier", SELF.config.verifier) %]
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr><th>reg</th><td>microsoft</td></tr>
+    <tr><th>authflow</th><td>authcode</td></tr>
+    <tr>
+      <th>[% 'E-Mail' | $T8 %]</th>
+      <td>[% L.input_tag("config.email", SELF.config.email, "data-validate"="required", "data-title"=LxERP.t8("E-Mail")) %]</td>
+    </tr>
+    <tr><th>debug: verifier</th><td>[% SELF.config.verifier %]</td></tr>
+    <tr><th>debug: challenge</th><td>[% SELF.config.challenge %]</td></tr>
+    <tr><th>Rufen Sie diesen Link auf:</th><td>[% L.link(SELF.config.authorize_link, HTML.escape(SELF.config.authorize_link)) %]</td></tr>
+    <tr><th>Kopieren Sie den Wert des GET-Parameters code aus der URL (Den Text zwischen ?code= und &session...)</th><td>[% L.textarea_tag("config.authcode", SELF.config.code, cols=80, rows=8) %]</td></tr>
+    <tr><th></th><td>[% SELF.config.message %]</td></tr>
+  </tbody>
+</table>
+
+
+
+
+
+
+
+</div><!-- /.wrapper -->
+</form>
