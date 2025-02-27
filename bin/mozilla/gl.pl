@@ -104,6 +104,15 @@ sub load_record_template {
 
   # Clean the current $::form before rebuilding it from the template.
   my $form_defaults = delete $::form->{form_defaults};
+
+
+  # check sign for bank_transactions source and switch sign if necessary
+  my $switch_sign;
+  if ($form_defaults->{bt_id}) {
+    my @wrong_sign  = grep { $_->{chart_id} == $form_defaults->{bt_chart_id} } @{ $template->items };
+    $switch_sign    = ($wrong_sign[0]->{amount2} && $form_defaults->{amount_1_signed} > 0) ? 1 : 0;
+  }
+
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
 
   my $dummy_form = {};
@@ -122,6 +131,8 @@ sub load_record_template {
   my $row = 0;
   foreach my $item (@{ $template->items }) {
     $row++;
+    $item->amount1($item->amount1 * 1 ? 0 : 1) if $switch_sign;
+    $item->amount2($item->amount2 * 1 ? 0 : 1) if $switch_sign;
 
     my $active_taxkey = $item->chart->get_active_taxkey;
     my $taxes         = SL::DB::Manager::Tax->get_all(
@@ -149,6 +160,7 @@ sub load_record_template {
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
+  flash('info', $::locale->text("Debit and Credit have been switched.")) if $switch_sign;
 
   $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
 
