@@ -307,7 +307,8 @@ sub _check_and_book_credit_note {
   push @new_acc_ids, $arap_booking->acc_trans_id;
 
   $invoice->update_attributes(paid => $invoice->paid + (abs($amount) * $paid_sign), datepaid => $transdate);
-  if ($transfer->{skonto_amount}) {
+
+  if ($transfer->{payment_type} ne 'without_skonto' && $transfer->{skonto_amount}) {
     my @skonto_bookings = $invoice->_skonto_charts_and_tax_correction(sepa_export_id => $sepa_export_id,
                                                                       amount         => abs($transfer->{skonto_amount}),
                                                                       transdate_obj  => $transdate);
