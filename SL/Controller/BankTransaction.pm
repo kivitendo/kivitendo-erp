@@ -1194,6 +1194,7 @@ sub load_gl_record_template_url {
     action                               => 'load_record_template',
     id                                   => $template->id,
     'form_defaults.amount_1'             => abs($self->transaction->not_assigned_amount), # always positive
+    'form_defaults.amount_1_signed'      => $self->transaction->not_assigned_amount,
     'form_defaults.transdate'            => $self->transaction->transdate_as_date,
     'form_defaults.callback'             => $self->callback,
     'form_defaults.bt_id'                => $self->transaction->id,
