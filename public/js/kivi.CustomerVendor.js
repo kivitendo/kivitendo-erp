@@ -453,6 +453,33 @@ namespace('kivi.CustomerVendor', function(ns) {
       if (ui.panel.attr('id') == 'price_rules') { load_price_rules(); }
       return 1;
     });
+  }; 
+
+  ns.tickets_init = function () {
+    const load_tickets = function () {
+      kivi.inline_report_load_into_container(
+        'controller.pl',
+        '#tickets',
+        { action:         'TicketSystem/ajax_list',
+          id:             $('#cv_id').val(),
+          db:             $('#db').val(),
+          callback:       $('#callback').val(),
+          include_closed: $('#include_closed').is(':checked') + 0,
+          sort_by:        $('#sort_by').val(),
+          sort_dir:       $('#sort_dir').val(),
+        }
+      );
+    };
+
+    $("#customer_vendor_tabs").on('tabsbeforeactivate', function (event, ui){
+      if (ui.newPanel.attr('id') == 'tickets') { load_tickets(); }
+      return 1;
+    });
+
+    $("#customer_vendor_tabs").on('tabscreate', function (event, ui){
+      if (ui.panel.attr('id') == 'tickets') { load_tickets(); }
+      return 1;
+    });
   }
 
   this.check_cv = function(cv_id, input_element_id, cv_type) {
@@ -515,5 +542,6 @@ namespace('kivi.CustomerVendor', function(ns) {
   $(function(){
     ns.init();
     ns.price_list_and_price_rules_init();
+    ns.tickets_init();
   });
 });
