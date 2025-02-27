@@ -258,6 +258,8 @@ sub _check_and_book_credit_note {
                       : abs($current_credit_note_amount) <= $transfer->{amount} ? $current_credit_note_amount
                       : $transfer->{amount};
 
+  $amount            = abs($amount);
+  #my $mc = Math::Currency->new( $amount );
   my $transdate      = DateTime->now();
   my $sepa_export_id = $params{sepa_export_id};
 
@@ -307,23 +309,21 @@ sub _check_and_book_credit_note {
   push @new_acc_ids, $new_acc_trans->acc_trans_id;
   push @new_acc_ids, $arap_booking->acc_trans_id;
 
-  $invoice->update_attributes(paid => $invoice->paid + (abs($amount) * $paid_sign), datepaid => $transdate);
 
   if ($transfer->{payment_type} ne 'without_skonto' && $transfer->{skonto_amount}) {
     my @skonto_bookings = $invoice->_skonto_charts_and_tax_correction(sepa_export_id => $sepa_export_id,
                                                                       amount         => abs($transfer->{skonto_amount}),
                                                                       transdate_obj  => $transdate);
-
-    $invoice->update_attributes(paid => $invoice->paid + (abs($transfer->{skonto_amount}) * $paid_sign), datepaid => $transdate);
+    $amount += abs($transfer->{skonto_amount});
     # create an acc_trans entry for each result of $self->skonto_charts
     foreach my $skonto_booking ( @skonto_bookings ) {
       next unless $skonto_booking->{'chart_id'};
       next unless $skonto_booking->{'skonto_amount'} != 0;
-      my $amount = $skonto_booking->{skonto_amount};
+      my $skonto_amount = $skonto_booking->{skonto_amount};
       $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                    chart_id   => $skonto_booking->{'chart_id'},
                                                    chart_link => SL::DB::Manager::Chart->find_by(id => $skonto_booking->{'chart_id'})->link,
-                                                   amount     => $amount * $mult,
+                                                   amount     => $skonto_amount * $mult,
                                                    transdate  => $transdate,
                                                    source     => $params{source},
                                                    taxkey     => 0,
@@ -334,7 +334,7 @@ sub _check_and_book_credit_note {
       $arap_booking= SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                  chart_id   => $invoice->reference_account->id,
                                                  chart_link => $invoice->reference_account->link,
-                                                 amount     => $amount * $mult * -1,
+                                                 amount     => $skonto_amount * $mult * -1,
                                                  transdate  => $transdate,
                                                  source     => '', #$params{source},
                                                  taxkey     => 0,
@@ -343,6 +343,8 @@ sub _check_and_book_credit_note {
       push @new_acc_ids, $arap_booking->acc_trans_id;
     }
   }
+  # only one time update paid amount + skonto_amount
+  $invoice->update_attributes(paid => $invoice->paid + _round((abs($amount) * $paid_sign)), datepaid => $transdate);
 
   # link both acc_trans transactions and maybe skonto booking acc_trans_ids
   my $id_type = $invoice->is_sales ? 'ar_id' : 'ap_id';
@@ -805,6 +807,12 @@ sub send_concatinated_sepa_pdfs {
   $::locale->with_raw_io(\*STDOUT, sub { print $out });
 
   $main::lxdebug->leave_sub();
+}
+
+sub _round {
+  my $value = shift;
+  my $num_dec = 2;
+  return $::form->round_amount($value, 2);
 }
 
 1;
