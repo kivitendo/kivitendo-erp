@@ -1,3 +1,7 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
 [% FOREACH bank_transfer = BANK_TRANSFERS %]
   [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
     <tr>
