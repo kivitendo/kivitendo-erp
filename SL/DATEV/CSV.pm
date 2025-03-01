@@ -138,7 +138,13 @@ my @kivitendo_to_datev = (
                               formatter       => sub { my ($input) = @_; return substr($input, 0, 60) },
                             },  # pos 14
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'customernumber',
+                              csv_header_name => 'Kundennummer',
+                              max_length      => 50,
+                              type            => 'Text',
+                              default         => '',
+                              input_check     => sub { return 1 unless $::instance_conf->get_datev_export_format eq 'cp1252';
+                                                       my ($text) = @_; check_encoding($text); },
                             },
                             {
                               kivi_datev_name => 'not yet implemented',
