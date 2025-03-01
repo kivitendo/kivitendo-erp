@@ -898,6 +898,7 @@ sub generate_datev_lines {
     my $datum          = "";
     my $waehrung       = "";
     my $buchungstext   = "";
+    my $customernumber = "";
     my $belegfeld2     = "";
     my $datevautomatik = 0;
     my $taxkey         = 0;
@@ -946,6 +947,9 @@ sub generate_datev_lines {
 
       if ($transaction->[$haben]->{'name'} ne "") {
         $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
+      }
+            if ($transaction->[$haben]->{'vcnumber'} ne "") {
+        $datev_data{customernumber} = $transaction->[$haben]->{'vcnumber'};
       }
       if (($transaction->[$haben]->{'ustid'} // '') ne "") {
         $datev_data{ustid} = SL::VATIDNr->normalize($transaction->[$haben]->{'ustid'});
