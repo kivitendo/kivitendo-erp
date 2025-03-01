@@ -755,7 +755,10 @@ sub update {
       # calculate tax exactly the same way as AP in post_transaction via form->calculate_tax
       my $tmpnetamount;
       ($tmpnetamount,$form->{"tax_$i"}) = $form->calculate_tax($form->{"amount_$i"},$rate,$form->{taxincluded},2);
-      $totaltax += $form->{"tax_$i"};
+
+      my $tax = SL::DB::Manager::Tax->find_by(id => $taxkey);
+      $totaltax += ($tax->reverse_charge_chart_id) ? 0 : $form->{"tax_$i"};
+
       map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
       $count++;
     }
