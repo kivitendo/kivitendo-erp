@@ -8,6 +8,86 @@
 
 [% SELF = SELF.order_controller %]
 
+
+<div id="payment_options_dialog" style="display:none">
+  <div style="display: grid; grid-template-columns: 1fr; row-gap: 30px;">
+    <div
+      class="pos_button control-panel"
+      onclick="kivi.POS.open_payment_dialog('cash')"
+      >
+      [% "Cash" | $T8 %]
+    </div>
+    <div
+      class="pos_button control-panel"
+      onclick="kivi.POS.open_payment_dialog('terminal')"
+      >
+      [% "Card" | $T8 %]
+    </div>
+    <div
+      class="pos_button control-panel"
+      onclick="kivi.POS.open_payment_dialog('cash_and_terminal')"
+      >
+      [% "Cash" | $T8 %] [% "and" | $T8 %] [% "Card" | $T8 %]
+    </div>
+  </div>
+</div>
+
+<div id="payment_dialog" style="display:none">
+  <div style="font-size:15pt">
+    <table>
+      <tr>
+        <th>[% 'Amount' | $T8 %]</th>
+        <td><span id='payment_amount_id'></span> [% SELF.order.currency.name | html %]</td>
+      </tr>
+      <tr id="cash_value_row">
+        <th>[% 'Cash' | $T8 %]</th>
+        <td>[% L.input_tag('payment.cash_value', '', class='wi-mediumsmall numeric reformat_number', style='font-size:15pt') %] [% SELF.order.currency.name | html %]</td>
+      </tr>
+      <tr id="terminal_value_row">
+        <th>[% 'Card' | $T8 %]</th>
+        <td>[% L.input_tag('payment.terminal_value', '', class='wi-mediumsmall numeric reformat_number', style='font-size:15pt') %] [% SELF.order.currency.name | html %]</td>
+      </tr>
+    </table>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr; row-gap: 30px;">
+    <div
+      class="pos_button control-panel"
+      onclick="kivi.POS.do_payment()"
+      >
+      [% "Paid" | $T8 %]
+    </div>
+    <div
+      class="pos_button control-panel"
+      onclick="kivi.POS.back_payment_dialog();"
+      >
+      [% "Back" | $T8 %]
+    </div>
+  </div>
+</div>
+
+<div id="paid_dialog" style="display:none">
+  <form method="post" id="paid_form" action="javascript:kivi.POS.open_new_order()">
+    <div style="font-size:15pt">
+      <table>
+        <tr id='paid_change_row'>
+          <th>[% 'Change' | $T8 %]</th>
+          <td><span id='paid_change_id'></span> [% SELF.order.currency.name | html %]</td>
+        </tr>
+      </table>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr; row-gap: 30px;">
+      <div
+        class="pos_button control-panel"
+        onclick="kivi.POS.open_new_order();"
+        >
+        [% "New" | $T8 %]
+      </div>
+    </div>
+    <!-- for enter to submit the form -->
+    [% L.submit_tag('paid_form_submit', LxERP.t8('Apply'), style="display:none") %]
+  </form>
+</div>
+
 <form method="post" action="controller.pl" id="order_form">
   [% L.hidden_tag('id',                   SELF.order.id) %]
   [% L.hidden_tag('type',                 SELF.order.type) %]
@@ -392,7 +472,12 @@
             >
             [% "Parked Receipts" | $T8 %]
           </div>
-          <div class="pos_button control-panel">Bezahlen</div>
+          <div
+            class="pos_button control-panel"
+            onclick="kivi.POS.open_payment_option_dialog()"
+            >
+            [% "Pay" | $T8 %]
+          </div>
           <div class="pos_button control-panel">Abbrechen</div>
           <div
             class="pos_button control-panel"

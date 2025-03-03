@@ -18,6 +18,7 @@ use SL::DB::PointOfSale;
 use SL::DBUtils qw(do_query);
 use SL::Locale::String qw(t8);
 use SL::Helper::Flash qw(flash_later);
+use SL::Helper::DateTime;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -314,6 +315,117 @@ sub action_to_invoice {
     action => 'add',
     point_of_sale_id => $::form->{point_of_sale_id},
   );
+}
+
+sub action_do_payment {
+  my ($self) = @_;
+
+  my $order = $self->order;
+  $order->calculate_prices_and_taxes();
+
+  my $amount = $self->order->amount;
+
+  my $terminal_amount = 0;
+  if ($::form->{payment}->{terminal}) {
+    $terminal_amount = $::form->{payment}->{terminal};
+    if ($terminal_amount > $amount) {
+      die t8("Can't withdraw from card.");
+    }
+  }
+
+  my $cash_payment = 0;
+  my $cash_change = 0;
+  my $cash_amount = 0;
+  if ($::form->{payment}->{cash}) {
+    $cash_payment = $::form->{payment}->{cash};
+    if ($cash_payment + $terminal_amount > $amount) {
+      $cash_change = $cash_payment + $terminal_amount - $amount;
+      $cash_amount = $cash_payment - $cash_change;
+    } else {
+      $cash_amount = $cash_payment;
+    }
+  }
+
+  if ($cash_amount + $terminal_amount < $amount) {
+    die t8("The amount entered is to small.");
+  }
+
+  my $delivery_order = SL::Model::Record->new_from_workflow(
+    $order,
+    SALES_DELIVERY_ORDER_TYPE(),
+    {
+      no_linked_records => 1, # order is not saved
+    }
+  );
+
+  my $point_of_sale = SL::DB::Manager::PointOfSale->find_by(
+    id => $::form->{point_of_sale_id}
+  ) or die t8("Could not find POS with id '#1'", $::form->{point_of_sale_id});
+
+  SL::DB->client->with_transaction(sub {
+    SL::Model::Record->save(
+      $delivery_order,
+      with_validity_token        => {
+        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
+        token => delete $::form->{form_validity_token}
+      },
+    );
+
+    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
+      $delivery_order
+    );
+
+    # save created delivery_order_stock_entries
+    # they will be used in _do_stock_transfer
+    $delivery_order->save(cascade => 1);
+
+    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
+      $delivery_order, 'out', 1
+    );
+
+    my $invoice = SL::Model::Record->new_from_workflow(
+      $delivery_order,
+      INVOICE_TYPE()
+    );
+
+    $invoice->post();
+
+    if ($cash_amount) {
+      $invoice->pay_invoice(
+        chart_id  => $point_of_sale->cash_chart_id,
+        amount    => $cash_amount,
+        transdate => DateTime->now->to_kivitendo,
+        source    => t8('POS cash payment'),
+        memo      => $point_of_sale->name,
+      );
+    }
+
+    if ($terminal_amount) {
+      $invoice->pay_invoice(
+        chart_id  => $point_of_sale->ec_terminal->transfer_chart_id,
+        amount    => $terminal_amount,
+        transdate => DateTime->now->to_kivitendo,
+        source    => t8('POS terminal payment'),
+        memo      => $point_of_sale->ec_terminal->name,
+      );
+    }
+
+    # TODO: TSE
+
+    1;
+  }) || do {
+    die t8("Creating receipt failed: #1", SL::DB->client->error);
+  };
+
+
+  # TODO: Print receipt
+
+  return $self->js
+    ->run(
+      'kivi.POS.open_paid_dialog',
+      $cash_change && $::form->format_amount(undef, $cash_change, 2)
+    )
+    ->render();
 }
 
 #
