@@ -160,4 +160,101 @@ namespace('kivi.POS', function(ns) {
   ns.open_order_informations_dialog = function() {
     document.getElementById('order_informations').showModal();
   }
+
+  ns.open_payment_option_dialog = function() {
+    if (!kivi.Order.check_cv()) return;
+    if (!ns.check_items()) return;
+
+    kivi.popup_dialog({
+      id: 'payment_options_dialog',
+      dialog: {
+        title: kivi.t8('Payment options'),
+        width:  400,
+        height: 300
+      }
+    });
+
+  }
+
+  ns.open_payment_dialog = function(type) {
+    // show amount to pay
+    let amount = $('#amount_id').html() ;
+    $('#payment_amount_id').html(amount);
+
+    $('#payment_cash_value').val(null);
+    $('#payment_terminal_value').val(null);
+    if (type == 'cash') {
+      $('#cash_value_row').show();
+      $('#terminal_value_row').hide();
+    } else if (type == 'terminal') {
+      $('#payment_terminal_value').val(amount);
+      $('#cash_value_row').hide();
+      $('#terminal_value_row').show();
+    } else if (type == 'cash_and_terminal') {
+      $('#cash_value_row').show();
+      $('#terminal_value_row').show();
+    }
+
+    $('#payment_options_dialog').dialog('close');
+    kivi.popup_dialog({
+      id: 'payment_dialog',
+      load: function() { kivi.reinit_widgets(); },
+      dialog: {
+        title: kivi.t8('Payment'),
+        width:  400,
+        height: 300
+      }
+    });
+  }
+
+  ns.back_payment_dialog = function() {
+    $('#payment_dialog').dialog('close');
+    kivi.POS.open_payment_option_dialog();
+  }
+
+  ns.do_payment = function() {
+    let cash_value = kivi.parse_amount($('#payment_cash_value').val());
+    let terminal_value = kivi.parse_amount($('#payment_terminal_value').val());
+    let amount_value = kivi.parse_amount($('#amount_id').html());
+
+    if (cash_value + terminal_value < amount_value) {
+      alert(kivi.t8("The amount entered is to small."));
+      return
+    }
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'POS/do_payment' },
+              { name: 'payment.cash', value: cash_value },
+              { name: 'payment.terminal', value: terminal_value });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
+  ns.open_paid_dialog = function(change) {
+    $('#payment_dialog').dialog('close');
+
+    if (change) {
+      $('#paid_change_row').show();
+      $('#paid_change_id').html(change)
+    } else {
+      $('#paid_change_row').hide();
+    }
+
+    kivi.popup_dialog({
+      id: 'paid_dialog',
+      dialog: {
+        title: kivi.t8('Paid'),
+        close: kivi.POS.open_new_order,
+        width:  400,
+        height: 300
+      }
+    });
+  }
+
+  ns.open_new_order = function() {
+    let pos_id = $('#point_of_sale_id').val();
+    console.log('pos_id', pos_id);
+    window.location.replace(`controller.pl?action=POS/add&point_of_sale_id=${pos_id}`);
+  }
+
 });
