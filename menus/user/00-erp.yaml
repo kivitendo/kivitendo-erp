@@ -737,7 +737,7 @@
   params:
     action: search
 - id: cash
-  name: Cash
+  name: Payment Transactions
   icon: cash
   order: 600
 - parent: cash
