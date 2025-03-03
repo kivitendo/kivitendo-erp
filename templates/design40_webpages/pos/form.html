@@ -22,7 +22,7 @@
 
   [% INCLUDE 'common/flash.html' %]
 
-  <div id="order_informations" style="display:none">
+  <dialog id="order_informations">
     <div id="tables_left" style="float:left;">
       <table style="width:40%">
         <caption>[% 'Customer & Order Information' | $T8 %]</caption>
@@ -243,12 +243,12 @@
       <div
         class="pos_button control-panel input-panel"
         style="min-width:300px"
-        onClick="$('#order_informations').dialog('close');"
+        onClick="document.getElementById('order_informations').close();"
         >
         [% 'Close' | $T8 %]
       </div>
     </div>
-  </div><!-- end order_informations -->
+  </dialog><!-- end order_informations -->
 
   <div class="wrapper">
     <div class="pos_wrapper">
