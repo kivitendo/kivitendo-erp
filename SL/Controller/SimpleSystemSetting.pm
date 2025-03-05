@@ -490,7 +490,7 @@ sub create_or_update {
 sub render_form {
   my ($self, %params) = @_;
 
-  my $sub_form_template = SL::System::Process->exe_dir . '/templates/webpages/simple_system_setting/_' . $self->type . '_form.html';
+  my $sub_form_template = SL::System::Process->exe_dir . '/templates/design40_webpages/simple_system_setting/_' . $self->type . '_form.html';
 
   $self->setup_render_form_action_bar;
   $self->render(
