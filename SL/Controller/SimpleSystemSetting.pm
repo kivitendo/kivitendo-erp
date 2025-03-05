@@ -88,6 +88,19 @@ my %supported_types = (
     },
   },
 
+  ec_terminal => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_ec_terminal_form")
+    class  => 'ECterminal',
+    titles => {
+      list => t8('EC Terminals'),
+      add  => t8('Add EC terminal'),
+      edit => t8('Edit EC terminal'),
+    },
+    list_attributes => [
+      { method => 'name',      title => t8('name') },
+    ],
+  },
+
   greeting => {
     class  => 'Greeting',
     auth   => 'config',
@@ -145,6 +158,19 @@ my %supported_types = (
     list_attributes => [
       { method => 'partsgroup', title => t8('Description') },
       { method => 'obsolete',   title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
+    ],
+  },
+
+  point_of_sale => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_point_of_sale_form")
+    class  => 'PointOfSale',
+    titles => {
+      list => t8('Points of sale'),
+      add  => t8('Add point of sale'),
+      edit => t8('Edit point of sale'),
+    },
+    list_attributes => [
+      { method => 'name',      title => t8('name') },
     ],
   },
 
@@ -207,6 +233,18 @@ my %supported_types = (
       add  => t8('Add project type'),
       edit => t8('Edit project type'),
     },
+  },
+
+  receipt_printer => {
+    class  => 'ReceiptPrinter',
+    titles => {
+      list => t8('Receipt printers'),
+      add  => t8('Add receipt printer'),
+      edit => t8('Edit receipt printer'),
+    },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
+    ],
   },
 
   requirement_spec_acceptance_status => {
@@ -298,6 +336,18 @@ my %supported_types = (
     },
     list_attributes => [
       { title => t8('Article'), formatter => sub { $_[0]->part->displayable_name } },
+    ],
+  },
+
+  tse_terminal=> {
+    class  => 'TSEterminal',
+    titles => {
+      list => t8('TSE terminals'),
+      add  => t8('Add TSE terminal'),
+      edit => t8('Edit TSE terminal'),
+    },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
     ],
   },
 
@@ -473,6 +523,30 @@ sub setup_language {
 
   $self->{numberformats} = [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ];
   $self->{dateformats}   = [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ];
+}
+
+sub setup_point_of_sale {
+  my ($self) = @_;
+  use SL::DB::Chart;
+  use SL::DB::Project;
+  use SL::DB::ECterminal;
+  use SL::DB::TSEterminal;
+  use SL::DB::ReceiptPrinter;
+  use SL::DB::Printer;
+
+  $self->{Charts}          = SL::DB::Manager::Chart->get_all();
+  $self->{Projects}        = SL::DB::Manager::Project->get_all();
+  $self->{ECterminals}     = SL::DB::Manager::ECterminal->get_all();
+  $self->{TSEterminals}    = SL::DB::Manager::TSEterminal->get_all();
+  $self->{ReceiptPrinters} = SL::DB::Manager::ReceiptPrinter->get_all();
+  $self->{Printers}        = SL::DB::Manager::Printer->get_all();
+}
+
+sub setup_ec_terminal {
+  my ($self) = @_;
+  use SL::DB::Chart;
+
+  $self->{Charts}          = SL::DB::Manager::Chart->get_all();
 }
 
 #

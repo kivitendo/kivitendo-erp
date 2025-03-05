@@ -1,0 +1,23 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Name") %] </th>
+        <td> [% L.input_tag("object.name", SELF.object.name, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("IP adress") %] </th>
+        <td> [% L.input_tag("object.ip_address", SELF.object.ip_address, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Transfer Chart") %] </th>
+        <td> [% L.select_tag("object.transfer_chart_id", SELF.Charts, default=SELF.object.transfer_chart_id, title_key='description', class='wi-wider') %] </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

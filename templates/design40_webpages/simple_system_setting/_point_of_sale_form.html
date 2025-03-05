@@ -1,0 +1,92 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+
+<div class="wrapper">
+  [% IF ( SELF.Charts.size
+       && SELF.Projects.size
+       && SELF.ECterminals.size
+       && SELF.TSEterminals.size
+       && SELF.Printers.size
+       && SELF.ReceiptPrinters.size
+  ) %]
+  <table class="tbl-horizontal">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Name") %] </th>
+        <td> [% L.input_tag("object.name", SELF.object.name, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Cash Chart") %] </th>
+        <td> [% L.select_tag("object.cash_chart_id", SELF.Charts, default=SELF.object.chart_id, title_key='description', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Project") %] </th>
+        <td> [% L.select_tag("object.project_id", SELF.Projects, default=SELF.object.project_id, title_key='description', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("EC Terminal") %] </th>
+        <td> [% L.select_tag("object.ec_terminal_id", SELF.ECterminals, default=SELF.object.ec_terminal_id, title_key='name', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("TSE Terminal") %] </th>
+        <td> [% L.select_tag("object.tse_terminal_id", SELF.TSEterminals, default=SELF.object.tse_terminal_id, title_key='name', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Receipt") %] [% LxERP.t8("Printer") %]</th>
+        <td> [% L.select_tag("object.receipt_printer_id", SELF.ReceiptPrinters, default=SELF.object.receipt_printer_id, title_key='name', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Delivery Order") %] [% LxERP.t8("Printer") %]</th>
+        <td> [% L.select_tag("object.delivery_order_printer_id", SELF.Printers, default=SELF.object.delivery_order_printer_id, title_key='printer_description', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Delivery Order") %] [% LxERP.t8("Template") %]</th>
+        <td> [% L.input_tag("object.delivery_order_template", SELF.object.delivery_order_template, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Delivery Order") %] [% LxERP.t8("Copies") %]</th>
+        <td> [% L.input_tag("object.delivery_order_copies", SELF.object.delivery_order_copies, class='wi-wider', type="number", "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Invoice") %] [% LxERP.t8("Printer") %]</th>
+        <td> [% L.select_tag("object.invoice_printer_id", SELF.Printers, default=SELF.object.invoice_printer_id, title_key='printer_description', class='wi-wider') %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Invoice") %] [% LxERP.t8("Template") %]</th>
+        <td> [% L.input_tag("object.invoice_template", SELF.object.invoice_template, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Invoice") %] [% LxERP.t8("Copies") %]</th>
+        <td> [% L.input_tag("object.invoice_copies", SELF.object.invoice_copies, class='wi-wider', type="number", "data-validate"="required") %] </td>
+      </tr>
+    </tbody>
+  </table>
+  [% ELSE %]
+    [% IF !(SELF.Charts.size) %]
+      [% 'No charts, create one first.' | $T8 %]
+      <br>
+    [% END %]
+    [% IF !(SELF.Projects.size) %]
+      [% 'No projects, create one first.' | $T8 %]
+      <br>
+    [% END %]
+    [% IF !(SELF.ECterminals.size) %]
+      [% 'No ec terminal, create one first.' | $T8 %]
+      <br>
+    [% END %]
+    [% IF !(SELF.TSEterminals.size) %]
+      [% 'No tse terminal, create one first.' | $T8 %]
+      <br>
+    [% END %]
+    [% IF !(SELF.Printers.size) %]
+      [% 'No printer, create one first.' | $T8 %]
+      <br>
+    [% END %]
+    [% IF !(SELF.ReceiptPrinters.size) %]
+      [% 'No receipt printer, create one first.' | $T8 %]
+      <br>
+    [% END %]
+  [% END %]
+</div>

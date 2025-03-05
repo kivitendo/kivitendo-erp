@@ -5,3 +5,36 @@
   order: 2370
   params:
     action: POS/add
+
+- parent: system
+  id: system_pos
+  order: 2360
+  name: POS
+- parent: system_pos
+  id: pos_receipt_printer
+  order: 100
+  name: Receipt Printers
+  params:
+    action: SimpleSystemSetting/list
+    type: receipt_printer
+- parent: system_pos
+  id: pos_ec_terminal
+  order: 200
+  name: EC Terminals
+  params:
+    action: SimpleSystemSetting/list
+    type: ec_terminal
+- parent: system_pos
+  id: pos_tse_terminal
+  order: 300
+  name: TSE Terminals
+  params:
+    action: SimpleSystemSetting/list
+    type: tse_terminal
+- parent: system_pos
+  id: pos_points_of_sale
+  order: 400
+  name: Points Of Sale
+  params:
+    action: SimpleSystemSetting/list
+    type: point_of_sale
