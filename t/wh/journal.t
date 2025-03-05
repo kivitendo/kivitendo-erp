@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use lib 't';
 
@@ -36,9 +36,24 @@ sub init  {
     shippingdate => DateTime->now,
   );
 
+  local $::instance_conf->data->{transfer_default_ignore_onhand} = 1;
+
   SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
   SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
   SL::DB::Inventory->new(%args, trans_type => $tt_assembled, qty => 1)->save;
+
+  local $::instance_conf->data->{transfer_default_ignore_onhand} = 0;
+  $::locale                 = Locale->new('en');
+  my $die_message;
+  eval {
+    SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
+
+    1;
+  } or do {
+    $die_message = $@;
+  };
+
+  ok($die_message =~ m/Cannot transfer -1 qty.*/, 'catch negative stock');
 
   qty                           => { type => 'numeric', precision => 25, scale => 5 },
   shippingdate                  => { type => 'date', not_null => 1 },
