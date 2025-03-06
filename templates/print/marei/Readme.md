@@ -1,6 +1,9 @@
 # Bemerkungen zum Vorlagensatz
 ### © 2020–2021 by Marei Peischl (peiTeX TeXnical Solutions)
 
+Über die in diesem Dokument hinausgehende Konfigurationsoptionen des Paketes *kiviletter.sty* sind dokumentiert unter
+https://peitex.de/materialien/2023-08-04_kivitendo/kiviletter-doc.pdf
+
 ## Quickstart (wo kann was angepasst werden?):
 
   * insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
