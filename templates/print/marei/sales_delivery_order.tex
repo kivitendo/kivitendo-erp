@@ -76,7 +76,7 @@
       <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
       <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
       <%foreach si_number%>%
-      <%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%>}<%si_qty%>~<%si_unit%><%end si_chargenumber%><%end if%>%
+      <%if si_chargenumber%>\ExtraDescription{\charge: <%si_chargenumber%> <%if si_bestbefore%> \mhd: <%si_bestbefore%><%end if%> <%si_qty%>~<%si_unit%>}<%end si_chargenumber%>%
       <%end si_number%>%
       &
       <%qty%> <%unit%>%
