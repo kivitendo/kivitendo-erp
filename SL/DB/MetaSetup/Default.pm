@@ -97,6 +97,7 @@ __PACKAGE__->meta->columns(
   email_sender_sales_delivery_order         => { type => 'text', default => '' },
   email_sender_sales_order                  => { type => 'text', default => '' },
   email_sender_sales_quotation              => { type => 'text', default => '' },
+  email_subject_transaction_description     => { type => 'boolean', default => 'false' },
   expense_accno_id                          => { type => 'integer' },
   fa_bufa_nr                                => { type => 'text' },
   fa_dauerfrist                             => { type => 'text' },

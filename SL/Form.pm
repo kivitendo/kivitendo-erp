@@ -1211,6 +1211,9 @@ sub generate_email_subject {
   $main::lxdebug->enter_sub();
   my ($self) = @_;
 
+  my $defaults = SL::DB::Default->get;
+
+  my $sep = ' / ';
   my $subject = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix  = $self->get_number_prefix_for_type();
 
@@ -1219,7 +1222,11 @@ sub generate_email_subject {
   }
 
   if ($self->{cusordnumber}) {
-    $subject = $self->get_cusordnumber_translation() . ' ' . $self->{cusordnumber} . ' / ' . $subject;
+    $subject = $self->get_cusordnumber_translation() . ' ' . $self->{cusordnumber} . $sep . $subject;
+  }
+
+  if ($defaults->email_subject_transaction_description) {
+    $subject .=  $sep . $self->{transaction_description} if $self->{transaction_description};
   }
 
   $main::lxdebug->leave_sub();
