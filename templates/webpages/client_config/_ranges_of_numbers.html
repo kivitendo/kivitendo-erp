@@ -63,10 +63,8 @@
   <tr>
    <td align="right" nowrap>[% LxERP.t8('Last Sales Delivery Order Number') %]</td>
    <td>[% L.input_tag("defaults.sdonumber", SELF.defaults.sdonumber, size="15") %]</td>
-   [%- IF INSTANCE_CONF.get_feature_experimental_assortment %]
    <td align="right" nowrap>[% LxERP.t8('Last Assortment Number') %]</td>
    <td>[% L.input_tag("defaults.assortmentnumber", SELF.defaults.assortmentnumber, size="15") %]</td>
-   [%- END -%]
   </tr>
 
   <tr>

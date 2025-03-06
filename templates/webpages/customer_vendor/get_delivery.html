@@ -27,11 +27,7 @@
             <tr class="listrow[% loop.count % 2 %]">
               <td>[% HTML.escape(row.shiptoname) UNLESS loop.prev.shiptoname == row.shiptoname %]&nbsp;</td>
               <td>[% IF row.id %]<a href='[% row.script %].pl?action=edit&id=[% HTML.escape(row.id) %]'>[% END %][% HTML.escape(row.invnumber)   || '&nbsp;' %][% IF row.id %]</a>[% END %]</td>
-              [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
-                <td>[% IF row.oe_id %]<a href='controller.pl?action=Order/edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
-              [%- ELSE -%]
-                <td>[% IF row.oe_id %]<a href='oe.pl?action=edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&vc=customer&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
-              [%- END -%]
+              <td>[% IF row.oe_id %]<a href='controller.pl?action=Order/edit&type=[% IF SELF.is_customer %]sales_order[% ELSE %]purchase_order[% END %]&id=[% HTML.escape(row.oe_id) %]'>[% END %][% HTML.escape(row.ordnumber)   || '&nbsp;' %][% IF row.oe_id %]</a>[% END %]</td>
               <td>[% HTML.escape(row.transdate)   || '&nbsp;' %]</td>
               <td>[% HTML.escape(row.description) || '&nbsp;' %]</td>
               <td>[% LxERP.format_amount(HTML.escape(row.qty), 2) || '&nbsp;' %]</td>

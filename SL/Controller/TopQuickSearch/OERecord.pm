@@ -64,22 +64,12 @@ sub redirect_to_search {
 }
 
 sub redirect_to_object {
-  if ($::instance_conf->get_feature_experimental_order) {
-    SL::Controller::Base->new->url_for(
-      controller => 'Order',
-      action     => 'edit',
-      type       => $_[0]->type,
-      id         => $_[1],
-    );
-  } else {
-    SL::Controller::Base->new->url_for(
-      controller => 'oe.pl',
-      action     => 'edit',
-      type       => $_[0]->type,
-      vc         => $_[0]->vc,
-      id         => $_[1],
-    );
-  }
+  SL::Controller::Base->new->url_for(
+    controller => 'Order',
+    action     => 'edit',
+    type       => $_[0]->type,
+    id         => $_[1],
+  );
 }
 
 sub type {

@@ -173,7 +173,6 @@
         [% L.input_tag('longdescription_dialog_size_percentage', longdescription_dialog_size_percentage, size = 5) %]
       </td>
      </tr>
-     [%- IF INSTANCE_CONF.get_feature_experimental_order -%]
      <tr>
       <th align="right">[% 'Scrollbar height percentage for form postion area (0 means no scrollbar)' | $T8 %]</th>
       <td>
@@ -200,7 +199,6 @@
         [% L.yes_no_tag('positions_show_update_button', positions_show_update_button) %]
       </td>
      </tr>
-     [%- END -%]
 
      <tr>
       <th align="right">[% 'Show custom variable search inputs' | $T8 %]</th>

@@ -18,9 +18,7 @@
       <tr valign="top" class="listrow">
         <td class="tooltipster-html" title="[%- 'Create a new part' | $T8 -%]">
           [% SET type_options = [[ 'part', LxERP.t8('Part') ], [ 'assembly', LxERP.t8('Assembly') ], [ 'service', LxERP.t8('Service') ] ] %]
-          [%- IF INSTANCE_CONF.get_feature_experimental_assortment %]
-            [%- type_options.push([ 'assortment', LxERP.t8('Assortment')]) %]
-          [%- END %]
+          [%- type_options.push([ 'assortment', LxERP.t8('Assortment')]) %]
           [% L.select_tag('add_item.create_part_type', type_options) %]
           [% L.button_tag('kivi.Reclamation.create_part()', LxERP.t8('+')) %]
         </td>

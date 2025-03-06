@@ -1,14 +1,14 @@
 - parent: ar
-  id: ar_add_sales_order_intake_experimental
+  id: ar_add_sales_order_intake
   name: Add Sales Order Intake
   icon: sales_order_add
   order: 290
-  access: sales_order_edit & client/feature_experimental_order & client/show_sales_order_intake
+  access: sales_order_edit & client/show_sales_order_intake
   params:
     action: Order/add
     type: sales_order_intake
 - parent: ar
-  id: ar_add_sales_order_experimental
+  id: ar_add_sales_order
   name: Add Sales Order Confirmation
 - parent: ar_reports
   id: ar_reports_sales_order_intakes
