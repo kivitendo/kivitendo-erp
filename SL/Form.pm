@@ -992,6 +992,35 @@ sub send_email {
       }
 
     } else {
+
+      if ($self->{attachment_policy} eq 'merge_file') {
+        my $id = $::form->{id} ? $::form->{id} : undef;
+        my $latest_documents  = SL::DB::Manager::File->get_all(query =>
+                                [
+                                  object_id   => $id,
+                                  file_type   => 'document',
+                                  mime_type   => 'application/pdf',
+                                  source      => 'uploaded',
+                                  or          => [
+                                                   object_type => 'gl_transaction',
+                                                   object_type => 'purchase_invoice',
+                                                   object_type => 'invoice',
+                                                   object_type => 'credit_note',
+                                                 ],
+                                ],
+                                  sort_by   => 'itime DESC');
+        # if uploaded documents exists, add ALL pdf files for later merging
+        if (scalar @{ $latest_documents } > 1) {
+          my $files;
+          foreach my $latest_document (@{ $latest_documents }) {
+            die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
+            push @{ $files }, $self->{tmpfile};
+            push @{ $files }, $latest_document->file_versions_sorted->[-1]->get_system_location;
+          }
+          SL::Helper::CreatePDF->merge_pdfs(file_names => $files, out_path => $self->{tmpfile});
+        }
+
+      }
       push @{ $mail->{attachments} }, { path => $self->{tmpfile},
                                         id   => $self->{print_file_id},
                                         type => "application/pdf",
