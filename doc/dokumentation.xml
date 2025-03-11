@@ -1603,6 +1603,34 @@ password: supipass8
             </programlisting>
         </para>
         </sect2>
+        <sect2 id="Hintergrund-Job InventoryClearAll">
+          <title>InventoryClearAll</title>
+          <para>Besteht die Anforderung, vor einer Inventur sämtliche Lagerplätze mittels Korrekturbuchungen auf Bestand 0 zu bringen, so kann dies mit dem Hintergrund-Job <literal>InventoryClearAll</literal> erledigt werden.</para>
+          <note>Damit diese Korrekturbuchungen nur einmalig auf Nutzerwunsch ausgeführt werden und nicht ausversehen periodisch das Lager leer räumen, muss die Variable <literal>correction_date</literal> auf das aktuelle Datum gesetzt sein. Die Korrekturbuchungen können nicht ohne Weiteres rückgängig gemacht werden.
+          Nachdem der Job im Menü System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen erfasst wurde, kann er einmalig ausgeführt werden, indem beim Bearbeiten der Button <literal>Speichern und Ausführen</literal> gewählt wird.</note>
+          <para>Im Feld Daten werden folgende Variablen akzeptiert:</para>
+          <itemizedlist>
+            <listitem>
+              <para><literal>correction_date:</literal> Das aktuelle Datum in der Form <literal>YYYY-MM-DD</literal>, sonst läuft der Job nicht</para>
+            </listitem>
+            <listitem>
+              <para><literal>comment:</literal> (optional) Wird in den Korrekturbuchungen als Kommentar gesetzt. Falls kein Wert gegeben ist, wird der Kommentar <literal>vor Inventur</literal> gesetzt</para>
+            </listitem>
+            <listitem>
+              <para><literal>dry_run:</literal> (optional) Falls <literal>dry_run: 1</literal> gesetzt ist, werden keine Korrekturbuchungen ausgeführt, die notwenigen Korrekturbuchungen werden lediglich im Ergebnis des Jobs angezeigt</para>
+            </listitem>
+            <listitem>
+              <para><literal>warehouse:</literal> (optional) Schränkt die Korrekturbuchungen auf ein bestimmtes Lager ein; andernfalls werden Korrekturbuchungen für alle Lager ausgeführt</para>
+            </listitem>
+          </itemizedlist>
+          <para>Ein Konfigurationsbeispiel ist:</para>
+          <programlisting>
+correction_date: 2025-03-11
+comment: vor Inventur
+dry_run: 1
+# warehouse: Stahllager Industriepark Gallin
+          </programlisting>
+        </sect2>
      </sect1>
 
     <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
