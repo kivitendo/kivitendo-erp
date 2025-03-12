@@ -44,8 +44,13 @@ sub action_select_pos {
 sub action_add {
   my ($self) = @_;
 
+  my $point_of_sale;
   if (!$::form->{point_of_sale_id}) {
     return $self->action_select_pos();
+  } else {
+    $point_of_sale = SL::DB::Manager::PointOfSale->find_by(
+      id => $::form->{point_of_sale_id}
+    ) or die t8("Could not find POS with id '#1'", $::form->{point_of_sale_id});
   }
 
   $::form->{type} = SALES_ORDER_TYPE();
@@ -55,6 +60,9 @@ sub action_add {
   }
 
   $self->order(SL::Model::Record->update_after_new($self->order));
+  $self->order->transaction_description(
+    t8("POS: #1", $point_of_sale->name)
+  ) unless $self->order->transaction_description;
 
   $self->order_controller->pre_render();
   $self->pre_render();
