@@ -1631,6 +1631,24 @@ dry_run: 1
 # warehouse: Stahllager Industriepark Gallin
           </programlisting>
         </sect2>
+        <sect2 id="Hintergrund-Job CloseQuotations">
+          <title>CloseQuotations</title>
+          <para>Gibt es viele alte offene Preisanfragen im Einkauf und Angebote im Verkauf, so können diese komfortabel mit dem Hintergrund-Job <literal>CloseQuotations</literal> geschlossen werden.</para>
+          <para>Im Feld Daten werden folgende Variablen akzeptiert:</para>
+          <itemizedlist>
+            <listitem>
+              <para><literal>dry_run:</literal> (optional) Falls <literal>dry_run: 1</literal> gesetzt ist, werden keine Belege geschlossen, die Nummern der betroffenen Belege werden lediglich im Ergebnis des Jobs angezeigt</para>
+            </listitem>
+            <listitem>
+              <para><literal>years:</literal> (optional) Anzahl der Jahre, die offene Preisanfragen und Angebote alt sein müssen, damit sie geschlossen werden. Standardwert: <literal>years: 1</literal> (ein Jahr)</para>
+            </listitem>
+          </itemizedlist>
+          <para>Ein Konfigurationsbeispiel ist:</para>
+          <programlisting>
+dry_run: 1
+years: 1
+          </programlisting>
+        </sect2>
      </sect1>
 
     <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
