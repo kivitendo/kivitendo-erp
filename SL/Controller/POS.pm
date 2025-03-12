@@ -13,6 +13,7 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::TaxZone;
 use SL::DB::Currency;
+use SL::DB::PointOfSale;
 
 use SL::DBUtils qw(do_query);
 use SL::Locale::String qw(t8);
@@ -25,10 +26,27 @@ use Rose::Object::MakeMethods::Generic
    ) ]
 );
 
+sub action_select_pos {
+  my ($self) = @_;
+
+  my $points_of_sale = SL::DB::Manager::PointOfSale->get_all();
+
+  $self->render(
+    'pos/select_pos_form',
+    title => t8('Point Of Sale'),
+    POINTS_OF_SALE => $points_of_sale,
+  );
+}
+
 # add a new point of sale order
 # it's a sales order with a diffrent form
 sub action_add {
   my ($self) = @_;
+
+  if (!$::form->{point_of_sale_id}) {
+    return $self->action_select_pos();
+  }
+
   $::form->{type} = SALES_ORDER_TYPE();
 
   if ($::form->{id}) {
@@ -47,7 +65,6 @@ sub action_add {
   $self->render(
     'pos/form',
     title => t8('Point Of Sale'),
-    %{$self->{template_args}}
   );
 }
 
@@ -179,6 +196,7 @@ SQL
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 
@@ -242,6 +260,7 @@ sub action_to_delivery_order {
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 
@@ -293,6 +312,7 @@ sub action_to_invoice {
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 

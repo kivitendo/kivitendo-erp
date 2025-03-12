@@ -1,0 +1,24 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE HTML %]
+
+<h1>[% FORM.title %]</h1>
+
+[% IF (POINTS_OF_SALE.size) %]
+
+<form method="post" action="controller.pl?action=POS/add" id="pos_form">
+  [% INCLUDE 'common/flash.html' %]
+  <div class="wrapper">
+    [% L.select_tag("point_of_sale_id", POINTS_OF_SALE, title_key='name', class='wi-wider') %]
+
+    [% L.submit_tag('select_pos', LxERP.t8('Select')) %]
+  </div>
+</form>
+
+[% ELSE %]
+  <div class="wrapper">
+    [% 'No points of sales, create one first.' | $T8 %]
+  </div>
+[% END %]
