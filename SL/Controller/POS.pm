@@ -177,8 +177,8 @@ sub action_parking_receipt {
 
   SL::DB->client->with_transaction( sub {
     SL::Model::Record->save($order,
-      with_validity_token        => {
-        scope => SL::DB::ValidityToken::SCOPE_DELIVERY_ORDER_SAVE(),
+      with_validity_token => {
+        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
         token => delete $::form->{form_validity_token}
       },
     );
@@ -234,7 +234,7 @@ sub action_to_delivery_order {
   SL::DB->client->with_transaction(sub {
     SL::Model::Record->save(
       $delivery_order,
-      with_validity_token        => {
+      with_validity_token => {
         scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
         token => delete $::form->{form_validity_token}
       },
@@ -280,7 +280,7 @@ sub action_to_invoice {
   SL::DB->client->with_transaction(sub {
     SL::Model::Record->save(
       $delivery_order,
-      with_validity_token        => {
+      with_validity_token => {
         scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
         token => delete $::form->{form_validity_token}
       },
@@ -365,7 +365,7 @@ sub action_do_payment {
   SL::DB->client->with_transaction(sub {
     SL::Model::Record->save(
       $delivery_order,
-      with_validity_token        => {
+      with_validity_token => {
         scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
         token => delete $::form->{form_validity_token}
       },
