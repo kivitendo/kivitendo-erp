@@ -478,7 +478,11 @@
             >
             [% "Pay" | $T8 %]
           </div>
-          <div class="pos_button control-panel">Abbrechen</div>
+          <div class="pos_button control-panel"
+            onClick='kivi.POS.open_new_order()'
+            >
+            [% 'Abort' | $T8 %]
+          </div>
           <div
             class="pos_button control-panel"
             onClick='kivi.POS.open_order_informations_dialog()'
