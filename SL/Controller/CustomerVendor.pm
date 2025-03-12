@@ -121,6 +121,56 @@ sub action_edit {
   );
 }
 
+sub action_customer_vendor_picker_search {
+  my ($self) = @_;
+
+  # first see if this is customer or vendor picking
+  my $model;
+  if ($::form->{type} eq 'customer') {
+     $model   = $self->customer_models;
+  } elsif ($::form->{type} eq 'vendor')  {
+     $model   = $self->vendor_models;
+  } else {
+     die "unknown type $::form->{type}";
+  }
+
+  my $search_term = $model->filtered->laundered->{all_substr_multi__ilike};
+
+  my $html = $self->render(
+    'customer_vendor/customer_vendor_picker_search',
+    { layout => 0 },
+    search_term => $search_term
+  );
+  return $html;
+}
+
+sub action_customer_vendor_picker_result {
+  my ($self) = @_;
+
+  my ($model, $matches);
+
+  # first see if this is customer or vendor picking
+  if ($::form->{type} eq 'customer') {
+     $model   = $self->customer_models;
+  } elsif ($::form->{type} eq 'vendor')  {
+     $model   = $self->vendor_models;
+  } else {
+     die "unknown type $::form->{type}";
+  }
+
+  if ($::form->{no_paginate}) {
+    $model->disable_plugin('paginated');
+  }
+  $matches = $model->get;
+
+  $self->render(
+    'customer_vendor/_customer_vendor_picker_result',
+    { layout => 0 },
+    MATCHES => $matches,
+    MODEL => $model,
+  );
+}
+
 sub action_show {
   my ($self) = @_;
 

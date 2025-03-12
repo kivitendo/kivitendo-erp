@@ -407,6 +407,13 @@ namespace('kivi.CustomerVendor', function(ns) {
         self.state = self.STATES.UNDEFINED;
       }
     },
+    open_dialog: function() {
+      this.dialog = new ns.PickerPopup(this);
+    },
+    close_dialog: function() {
+      this.dialog.close_dialog();
+      this.dialog = undefined;
+    },
     init: function() {
       var self = this;
       this.$dummy.autocomplete({
@@ -446,6 +453,9 @@ namespace('kivi.CustomerVendor', function(ns) {
         window.clearTimeout(self.timer);
         self.timer = window.setTimeout(function() { self.annotate_state() }, 100);
       });
+      var popup_button = $('<span>').addClass('cvpcv_popup_button');
+      this.$dummy.after(popup_button);
+      popup_button.click(function() { self.open_dialog(); });
     },
     run_action: function(code, args) {
       if (typeof code === 'function')
@@ -460,6 +470,101 @@ namespace('kivi.CustomerVendor', function(ns) {
   ns.Picker.prototype.STATES = {
     PICKED:    ns.Picker.prototype.CLASSES.PICKED,
     UNDEFINED: ns.Picker.prototype.CLASSES.UNDEFINED
+  };
+
+  ns.PickerPopup = function(pp) {
+    this.timer = undefined;
+    this.pp    = pp;
+    this.open_dialog();
+  };
+
+  ns.PickerPopup.prototype = {
+    open_dialog: function() {
+      var self = this;
+      kivi.popup_dialog({
+        url: 'controller.pl?action=CustomerVendor/customer_vendor_picker_search',
+        data: $.extend({
+          real_id: self.pp.real_id,
+        }, self.pp.ajax_data(this.pp.$dummy.val())),
+        id: 'customer_vendor_selection',
+        dialog: {
+          title: this.pp.o.cv_type === 'customer' ?
+            kivi.t8('Customer picker')
+          : kivi.t8('Vendor picker'),
+          width: 800,
+          height: 800,
+        },
+        load: function() { self.init_search(); }
+      });
+      window.clearTimeout(this.timer);
+      return true;
+    },
+    init_search: function() {
+      var self = this;
+      $('#customer_vendor_picker_filter').keypress(function(e) { self.result_timer(e); }).focus();
+      $('#no_paginate').change(function() { self.update_results(); });
+      this.update_results();
+    },
+    update_results: function() {
+      var self = this;
+      $.ajax({
+        url: 'controller.pl?action=CustomerVendor/customer_vendor_picker_result',
+        data: $.extend({
+          no_paginate: $('#no_paginate').prop('checked') ? 1 : 0,
+        }, self.pp.ajax_data(function(){
+          var val = $('#customer_vendor_picker_filter').val();
+          return val === undefined ? '' : val;
+        })),
+        success: function(data){
+          $('#customer_vendor_picker_result').html(data);
+          self.init_results();
+        }
+      });
+    },
+    init_results: function() {
+      var self = this;
+      $('div.customer_vendor_picker_match').each(function(){
+        $(this).click(function(){
+          console.log(self);
+          self.pp.set_item({
+            id:   $(this).children('input.customer_vendor_picker_id').val(),
+            name: $(this).children('input.customer_vendor_picker_name').val(),
+            type: self.pp.o.cv_type,
+          });
+          self.close_dialog();
+          self.pp.$dummy.focus();
+          return true;
+        });
+      });
+      $('#customer_vendor_selection').keydown(function(e){
+        if (e.which == KEY.ESCAPE) {
+          self.close_dialog();
+          self.pp.$dummy.focus();
+        }
+      });
+    },
+    result_timer: function(event) {
+      var self = this;
+      if (!$('no_paginate').prop('checked')) {
+        if (event.keyCode == KEY.PAGE_UP) {
+          $('#customer_vendor_picker_result a.paginate-prev').click();
+          return;
+        }
+        if (event.keyCode == KEY.PAGE_DOWN) {
+          $('#customer_vendor_picker_result a.paginate-next').click();
+          return;
+        }
+      }
+      window.clearTimeout(this.timer);
+      if (event.which == KEY.ENTER) {
+        self.update_results();
+      } else {
+        this.timer = window.setTimeout(function() { self.update_results(); }, 100);
+      }
+    },
+    close_dialog: function() {
+      $('#customer_vendor_selection').dialog('close');
+    }
   };
 
   ns.reinit_widgets = function() {

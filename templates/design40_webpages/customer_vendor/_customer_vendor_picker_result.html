@@ -1,0 +1,42 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+
+[% BLOCK cv_block %]
+<div class="customer_vendor_picker_match [% FORM.no_paginate ? 'cvpcv_line' : 'cvpcv_block' %]">
+  <input type="hidden" class="customer_vendor_picker_id" value="[% match.id | html %]">
+  <input type="hidden" class="customer_vendor_picker_name" value="[% match.name | html %]">
+
+  <table>
+    <tr>
+      <th>[% 'Name' | $T8 %]:</th>
+      <td>[% match.name | html %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Street' | $T8 %]:</th>
+      <td>[% match.street | html %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Zipcode' | $T8 %] [% 'City' | $T8 %]:</th>
+      <td>[% match.zipcode | html %] [% match.city | html %]</td>
+    </tr>
+    <tr>
+      <th>[% 'E-mail' | $T8 %]:</th>
+      <td>[% match.email | html %]</td>
+    </tr>
+  </table>
+</div>
+[% END %]
+
+[% FOREACH match = MATCHES %]
+  [% PROCESS cv_block %]
+[% END %]
+
+<div style="clear:both"></div>
+
+[% L.paginate_controls(target='#customer_vendor_picker_result', selector='#customer_vendor_picker_result', models=MODEL) %]
+<script type='text/javascript'>
+  $('#'+$('#customer_vendor_picker_real_id').val()).data("customer_vendor_picker").dialog.init_results();
+</script>
