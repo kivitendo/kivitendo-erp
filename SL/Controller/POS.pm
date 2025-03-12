@@ -197,6 +197,7 @@ SQL
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 
@@ -260,6 +261,7 @@ sub action_to_delivery_order {
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 
@@ -311,6 +313,7 @@ sub action_to_invoice {
 
   $self->redirect_to(
     action => 'add',
+    point_of_sale_id => $::form->{point_of_sale_id},
   );
 }
 
