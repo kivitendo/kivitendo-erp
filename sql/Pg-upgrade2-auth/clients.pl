@@ -330,7 +330,7 @@ sub run {
 
   return $self->_do_convert if !@errors;
 
-  flash('error', @errors);
+  flash('error', $_) for @errors;
 
   print $::form->parse_html_template('dbupgrade/auth/clients', { SELF => $self });
 
