@@ -198,7 +198,7 @@ sub _save {
 
   my @errors = $self->{cv}->validate;
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->_pre_render();
     $self->render(
       'customer_vendor/form',

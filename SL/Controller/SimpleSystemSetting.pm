@@ -426,7 +426,7 @@ sub create_or_update {
   push @errors, $self->object->validate if $self->object->can('validate');
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     return $self->render_form(title => $self->config->{titles}->{$is_new ? 'add' : 'edit'});
   }
 

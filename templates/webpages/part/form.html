@@ -5,10 +5,6 @@
 [%- USE P %]
 <h1>[% FORM.title %] [% IF SELF.part.id %]: [% HTML.escape(SELF.part.displayable_name) %][% END %]</h1>
 
-[% INCLUDE 'common/flash.html' %]
-
- <form method="post" id="ic" name="ic" action="controller.pl">
-
   [% L.hidden_tag('part.part_type'   , SELF.part.part_type) %]
   [% L.hidden_tag('part.id'          , SELF.part.id) %]
   [% L.hidden_tag('last_modification', SELF.part.last_modification) %]

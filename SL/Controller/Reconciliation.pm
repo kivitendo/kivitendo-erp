@@ -108,7 +108,7 @@ sub action_reconcile {
 
   if (@errors) {
     unshift(@errors, (t8('Could not reconcile chosen elements!')));
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->action_reconciliation;
     return;
   }
