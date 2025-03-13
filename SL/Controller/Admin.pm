@@ -254,7 +254,7 @@ sub action_save_client {
   my @errors = $self->client->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->edit_client_form(title => $is_new ? t8('Create a new client') : t8('Edit Client'));
     return;
   }
@@ -330,7 +330,7 @@ sub action_save_group {
   my @errors = $self->group->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->edit_group_form(title => $is_new ? t8('Create a new user group') : t8('Edit User Group'));
     return;
   }
@@ -385,7 +385,7 @@ sub action_save_printer {
   my @errors = $self->printer->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->edit_printer_form(title => $is_new ? t8('Create a new printer') : t8('Edit Printer'));
     return;
   }
@@ -440,7 +440,7 @@ sub action_do_create_dataset {
   push @errors, $superuser{error}               if !$superuser{have_privileges} && $superuser{error};
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     return $self->create_dataset_form(superuser => \%superuser);
   }
 
@@ -472,7 +472,7 @@ sub action_do_delete_dataset {
   push @errors, t8("Dataset missing!") if !$::form->{db};
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     return $self->delete_dataset_form;
   }
 

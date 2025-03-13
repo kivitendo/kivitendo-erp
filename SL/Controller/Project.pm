@@ -271,7 +271,7 @@ sub create_or_update {
   my @errors = $self->project->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->display_form(title    => $is_new ? $::locale->text('Create a new project') : $::locale->text('Edit project'),
                         callback => $::form->{callback},
                         keep_cvars => 1);

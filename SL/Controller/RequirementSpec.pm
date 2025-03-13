@@ -424,7 +424,7 @@ sub create_or_update {
   if (@errors) {
     return $self->js->error(@errors)->render if $::request->is_ajax;
 
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->render('requirement_spec/new', title => $title);
     return;
   }
@@ -455,7 +455,7 @@ sub create_or_update {
     return $self->js->error(@errors)->render if $::request->is_ajax;
 
     $self->requirement_spec->id(undef) if $is_new;
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     return $self->render('requirement_spec/new', title => $title);
   }
 
