@@ -185,8 +185,9 @@ sub action_ajax_rename {
         unlink($sessionfile);
         1;
       } or do {
-        $self->js->flash(       'error', t8('internal error (see details)'))
-                 ->flash_detail('error', $@)->render;
+        $self->js
+          ->flash('error', t8('internal error (see details)'), $@)
+          ->render;
         return;
       }
     }
@@ -199,8 +200,9 @@ sub action_ajax_rename {
       $result = $file->rename($::form->{to});
       1;
     } or do {
-      $self->js->flash(       'error', t8('internal error (see details)'))
-               ->flash_detail('error', $@)->render;
+      $self->js
+        ->flash('error', t8('internal error (see details)'), $@)
+        ->render;
       return;
     };
 
@@ -297,8 +299,9 @@ sub action_ajax_files_uploaded {
         }
         1;
       } or do {
-        $self->js->flash(       'error', t8('internal error (see details)'))
-                 ->flash_detail('error', $@)->render;
+        $self->js
+          ->flash('error', t8('internal error (see details)'), $@)
+          ->render;
         return;
       }
     }
@@ -513,8 +516,9 @@ sub _mk_render {
     1;
   } or do {
     if ($json ){
-      $self->js->flash(       'error', t8('internal error (see details)'))
-               ->flash_detail('error', $@)->render;
+      $self->js
+        ->flash('error', t8('internal error (see details)'), $@)
+        ->render;
     } else {
       $self->render('generic/error', { layout => 0 }, label_error => $@);
     }
