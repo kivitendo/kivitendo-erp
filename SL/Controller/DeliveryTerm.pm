@@ -102,7 +102,7 @@ sub create_or_update {
   my @errors = $self->{delivery_term}->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->render('delivery_term/form', title => $is_new ? $::locale->text('Create a new delivery term') : $::locale->text('Edit delivery term'));
     return;
   }
