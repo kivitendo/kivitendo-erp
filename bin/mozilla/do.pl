@@ -56,7 +56,7 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
 
-use SL::Helper::Flash qw(flash flash_later render_flash);
+use SL::Helper::Flash qw(flash flash_later);
 
 use strict;
 
