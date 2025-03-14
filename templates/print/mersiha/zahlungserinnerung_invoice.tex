@@ -15,6 +15,15 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
+\setkomavar{info0}[\vorgangsbez]    {<%transaction_description%>}
+\setkomavar{info1}[\rechnungsdatum] {<%invdate%>}
+\setkomavar{info2}[\kundennummer]   {<%customernumber%>}
+\setkomavar{info3}[\projektnummer]  {<%globalprojectnumber%>}
+\setkomavar{info4}[\mahnung{}~\nr]  {<%dunning_id%>}
+\setkomavar{info5}[\ansprechpartner]{<%employee_name%>}
+\setkomavar{info6}[\textTelefon]    {<%employee_tel%>}
+\setkomavar{info7}[\textEmail]      {<%employee_email%>}
+
 \setkomavar*{date}{\rechnungsdatum}
 \setkomavar{date}{<%invdate%>}
 \setkomavar{customer}{<%customernumber%>}

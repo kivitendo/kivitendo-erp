@@ -15,6 +15,14 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\gutschrift}{<%invnumber%>}{<%invdate%>}
 
+\setkomavar{info0}[\vorgangsbez]    {<%transaction_description%>}
+\setkomavar{info1}[\datum]          {<%invdate%>}
+\setkomavar{info2}[\fuerRechnung]   {<%invnumber_for_credit_note%>}
+\setkomavar{info3}[\kundennummer]   {<%customernumber%>}
+\setkomavar{info4}[\ansprechpartner]{<%employee_name%>}
+\setkomavar{info5}[\textTelefon]    {<%employee_tel%>}
+\setkomavar{info6}[\textEmail]      {<%employee_email%>}
+
 \setkomavar*{date}{\datum}
 \setkomavar{date}{<%invdate%>}
 \setkomavar{customer}{<%customernumber%>}
