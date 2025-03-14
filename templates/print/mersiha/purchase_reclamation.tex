@@ -29,10 +29,7 @@ $( USE LxERP )$
 %\setkomavar{info6}[\textTelefon]        {$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
 %\setkomavar{info7}[\textEmail]          {$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 
-\setkomavar{title}{%
-  \ekreklamation~
-  \nr~$( KiviLatex.filter(reclamation.record_number) )$%
-}
+\setkomavar{title}{\ekreklamation~\nr~$( KiviLatex.filter(reclamation.record_number) )$}
 
 %TODO(Tamino): look at shipto
 $( IF (reclamation.shipto_id) )$%

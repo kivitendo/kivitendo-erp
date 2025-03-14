@@ -22,10 +22,7 @@
 \setkomavar{info5}[\textTelefon]    {<%employee_tel%>}
 \setkomavar{info6}[\textEmail]      {<%employee_email%>}
 
-\setkomavar{title}{%
-  \mahnung
-  <%if dunning_id%>~\nr~<%dunning_id%><%end if%>%
-}
+\setkomavar{title}{\mahnung<%if dunning_id%>~\nr~<%dunning_id%><%end if%>%}
 
 \begin{document}
 
