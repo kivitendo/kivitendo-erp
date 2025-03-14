@@ -1,0 +1,195 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+\documentclass{scrartcl}
+
+\usepackage[reqspeclogo,$( IF !rspec.version )$draftlogo$( ELSE )$secondpagelogo$( END )$]{kivitendo}
+$( KiviLatex.required_packages_for_html )$
+
+\kivitendobgsettings
+
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{0pt}
+
+\renewcommand{\kivitendosecondfoot}{%
+  \parbox{12cm}{%
+    \defaultfont\scriptsize%
+    $( KiviLatex.filter(rspec.displayable_name) )$\\
+    $( !rspec.version ? "Arbeitskopie ohne Version" : "Version " _ rspec.version.version_number _ " vom " _ rspec.version.itime.to_kivitendo(precision='minute') )$
+
+    \vspace*{0.2cm}%
+    Seite \thepage%
+  }%
+}
+
+\reqspecsectionstyle
+
+\begin{document}
+
+%% Titelseite
+
+\setlongtables
+\defaultfont
+
+\begin{picture}(0,0)
+  \put(3.5,-5){%
+    \begin{minipage}[t][6cm]{12cm}
+      \Large
+      \textcolor{kivitendodarkred}{$( KiviLatex.filter(rspec.type.description) )$}
+
+      \huge
+      $( KiviLatex.filter(rspec.customer.name) )$
+
+      \vspace*{0.5cm}
+      \Large
+      $( KiviLatex.filter(rspec.title) )$
+      \normalsize
+      %$( IF rspec.version )$
+
+      Version $( KiviLatex.filter(rspec.version.version_number) )$
+      %$( END )$
+    \end{minipage}%
+  }
+\end{picture}
+
+%% Inhaltsverzeichnis
+
+%\newpage
+
+%\tableofcontents
+
+%%%% Deaktiviertes Beispiel, wie benutzerdefinierte Variablen ausgegeben werden können: %%%%
+%% \newpage
+%%
+%% \section{Benutzerdefinierte Variablen}
+%%
+%% %$ ( FOREACH cvar = rspec.cvars_by_config ) $
+%% Name: $ ( KiviLatex.filter(cvar.config.name) ) $
+%%
+%% Wert:% $ ( IF cvar.config.type == 'htmlfield' ) $
+%% $ ( KiviLatex.filter_html(cvar.value_as_text) ) $
+%% % $ ( ELSE ) $
+%% $ ( KiviLatex.filter(cvar.value_as_text) ) $
+%% % $ ( END ) $
+%%
+%% %$ ( END ) $
+%%%% ENDE Beispiel für benutzerdefinierte Variablen %%%%
+
+%% Versionen
+\newpage
+
+\section{Versionen}
+
+\vspace*{0.7cm}
+
+%$( SET working_copy     = rspec.working_copy_id ? rspec.working_copy : rspec )$
+%$( SET versioned_copies = rspec.version ? working_copy.versioned_copies_sorted(max_version_number = rspec.version.version_number) : working_copy.versioned_copies_sorted )$
+%$( IF !versioned_copies.size )$
+Bisher wurden noch keine Versionen angelegt.
+%$( ELSE )$
+\begin{longtable}{|p{2cm}|p{2cm}|p{12cm}|}
+  \hline
+  \multicolumn{1}{|r}{\small Version}                                                                                &
+  \multicolumn{1}{|r|}{\small Datum}                                                                                 &
+  \small Beschreibung                                                                                                  \\
+  \hline
+  %$( FOREACH versioned_copy = versioned_copies )$
+  \multicolumn{1}{|r}{\small $( KiviLatex.filter(versioned_copy.version.version_number) )$}                          &
+  \multicolumn{1}{|r|}{\small $( KiviLatex.filter(versioned_copy.version.itime.to_kivitendo(precision='minute')) )$} &
+  \small $( KiviLatex.filter(versioned_copy.version.description) )$                                                    \\
+  %$( END )$
+  \hline
+\end{longtable}
+%$( END )$
+
+%$( BLOCK picture_outputter )$
+%  $( SET width_cm = (picture.picture_width / 150.0) * 2.54 )$
+%  $( SET width_cm = width_cm < 16.4 ? width_cm : 16.4 )$
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=$( width_cm )$cm,keepaspectratio]{$( picture.print_file_name )$}
+
+  \mbox{Abbildung $( picture.number )$: $( KiviLatex.filter(picture.description ? picture.description : picture.picture_file_name) )$}
+\end{figure}
+%$( END )$
+
+%$( BLOCK text_block_outputter )$
+%  $( SET text_blocks = rspec.text_blocks_sorted(output_position=output_position) )$
+%  $( IF text_blocks.size )$
+
+\newpage
+
+\section{$( heading )$}
+
+%    $( FOREACH text_block = text_blocks )$
+
+\subsection{$( KiviLatex.filter(text_block.title) )$}
+
+$( KiviLatex.filter_html(text_block.text_as_restricted_html) )$
+
+%      $( FOREACH picture = text_block.pictures_sorted.as_list )$
+$( PROCESS picture_outputter picture=picture )$
+%      $( END )$
+
+%    $( END )$
+%  $( END )$
+%$( END )$
+
+%% Textblöcke davor
+$( PROCESS text_block_outputter output_position=0 heading='Allgemeines' )$
+
+%% Abschnitte und Funktionsblöcke
+\newpage
+
+\section{Spezifikation}
+
+\setlength{\LTpre}{-0.3cm}
+
+
+%$( FOREACH top_item = rspec.sections_sorted )$
+
+\subsection{Abschnitt $( KiviLatex.filter(top_item.fb_number) )$: $( KiviLatex.filter(top_item.title) )$}
+
+%  $( IF top_item.description )$
+$( KiviLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '').replace('\n+\Z', '')) )$
+
+\vspace{0.5cm}
+%  $( END )$
+%  $( FOREACH item = top_item.children_sorted )$
+\parbox[t]{1.0cm}{\textcolor{kivitendodarkred}{$>>>$}}%
+\parbox[t]{15.0cm}{%
+  \begin{longtable}{p{2.8cm}p{11.7cm}}
+    Funktionsblock & $( KiviLatex.filter(item.fb_number) )$                                       \\
+    Beschreibung   & $( KiviLatex.filter_html(item.description_as_restricted_html) )$             \\
+    Abhängigkeiten & $( KiviLatex.filter(item.presenter.requirement_spec_item_dependency_list) )$
+  \end{longtable}}
+
+%    $( FOREACH sub_item = item.children_sorted )$
+\hspace*{1.15cm}\rule{15.2cm}{0.2pt}\\
+\hspace*{1.0cm}%
+\parbox[t]{15.0cm}{%
+  \begin{longtable}{p{2.8cm}p{11.7cm}}
+    Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$                                       \\
+    Beschreibung        & $( KiviLatex.filter_html(sub_item.description_as_restricted_html) )$             \\
+    Abhängigkeiten      & $( KiviLatex.filter(sub_item.presenter.requirement_spec_item_dependency_list) )$
+  \end{longtable}}
+
+%    $( END )$
+
+%    $( UNLESS loop.last )$
+\vspace{0.2cm}
+\hrule
+\vspace{0.4cm}
+
+%    $( END )$
+
+%  $( END )$
+%
+%$( END )$
+
+%% Textblöcke dahinter
+$( PROCESS text_block_outputter output_position=1 heading='Weitere Punkte' )$
+
+
+\end{document}

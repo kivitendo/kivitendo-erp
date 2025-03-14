@@ -1,0 +1,69 @@
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{xstring}
+\begin{document}
+
+\begin{Form}
+  \large
+  Certification of the entry of the object of an intra-Community supply into another EU Member State (Entry Certificate)
+
+  \vspace{0.4cm}
+
+  {\color{purple} Please sign below and send back to fax-number/mail-address:
+    \begin{center} <%employee_fax%> / <%employee_email%> \end{center}}
+
+  \normalsize
+  \vspace{0.4cm}
+  <%name%>, <%street%>, <%zipcode%> <%city%>, <%country%>\hspace*{\fill}\\
+  \TextField[name=department, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Name and address of the customer of the intra-Community supply, e-mail address if applicable)}
+
+
+  \vspace{0.4cm}
+  I as the customer hereby certify my receipt / the entry \textsuperscript{1)} of the following object of an intra-Community supply\\
+
+  \TextField[name=qty, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Quantity of the object of the supply)}\\
+
+  \TextField[name=desc, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Standard commercial description – in the case of vehicles, including vehicle identification number)}\\
+
+  in\\
+
+  \uline{ \StrGobbleLeft{<%reqdate%>}{3} \hspace*{\fill}}\\
+  {\color{gray}(Month and year the object of the supply was received in the Member State of entry if the supplying trader transported or dispatched the object of the supply or if the customer dispatched the object of the supply)}\\
+
+  \TextField[name=delivery, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Month and year the transportation ended if the customer transported the object of the supply himself or herself)}\\
+
+  in / at \textsuperscript{1)}\\
+
+  \uline{<%country%>\hspace*{\fill}}\\
+  {\color{gray}(Member State and place of entry as part of the transport or dispatch of the object)}\\
+
+
+  % X\TextField[name=delivery, bordercolor=gray, width=\linewidth]{}\\
+  \uline{X\hspace*{\fill}}\\
+  {\color{gray}(Date of issue of the certificate)}\\
+
+  \uline{X\hspace*{\fill}}\\
+  {\color{gray}(Signature of the customer or of the authorised representative as well as the signatory’s name in capitals)}\\
+
+  \textbf{\textsuperscript{1)} Delete as appropriate.}
+
+\end{Form}
+\end{document}
+

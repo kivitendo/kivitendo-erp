@@ -1,0 +1,191 @@
+\ProvidesFile{kivitendo.sty}
+\usepackage{colortbl}
+\usepackage{eurosym}
+\usepackage{german}
+\usepackage{graphicx}
+\usepackage{ifthen}
+\usepackage{iftex}
+%Compilerunabhängigkeit
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage{latexsym}
+\usepackage{longtable}
+\usepackage{textcomp}
+
+%% Paketoptionen
+\newboolean{defaultbg}\setboolean{defaultbg}{true}
+\newboolean{draftbg}
+\newboolean{reqspeclogo}
+\newboolean{secondpagelogo}
+\DeclareOption{nologo}{\setboolean{defaultbg}{false}}
+\DeclareOption{draftlogo}{\setboolean{defaultbg}{false}\setboolean{draftbg}{true}}
+\DeclareOption{reqspeclogo}{\setboolean{reqspeclogo}{true}}
+\DeclareOption{secondpagelogo}{\setboolean{defaultbg}{false}\setboolean{secondpagelogo}{true}}
+\ProcessOptions
+
+%% Seitenlayout
+\setlength{\voffset}{-1.5cm}
+\setlength{\hoffset}{-2.5cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{2cm}
+\setlength{\textwidth}{16.4cm}
+\setlength{\textheight}{25cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0.2cm}
+
+\setlength{\unitlength}{1cm}
+
+\newcommand{\kivitendobgsettings}{%
+  \setlength{\headsep}{2.5cm}
+  \setlength{\textheight}{22.5cm}
+  \setlength{\footskip}{0.9cm}
+}
+
+%% Standardschrift Compilerunabhängig
+\newcommand*{\defaultfont}{\normalfont}
+\renewcommand*{\familydefault}{\sfdefault}
+\ifPDFTeX
+\else
+  \usepackage{fontspec}
+\fi
+
+%% Checkboxen
+\newsavebox{\checkedbox}
+\savebox{\checkedbox}(0.2,0.4){
+  \put(-0.15,-0.425){$\times$}
+  \put(-0.15,-0.45){$\Box$}
+}
+\newsavebox{\uncheckedbox}
+\savebox{\uncheckedbox}(0.2,0.4){
+  \put(-0.15,-0.45){$\Box$}
+}
+
+%% Farben
+\definecolor{kivitendoorange}{rgb}{1,0.4,0.2}
+\definecolor{kivitendodarkred}{rgb}{0.49,0,0}
+\definecolor{kivitendoyellow}{rgb}{1,1,0.4}
+\definecolor{kivitendobggray}{gray}{0.9}
+\definecolor{kivitendowhite}{gray}{1}
+
+%% Kopf- und Fußzeilen
+\newcommand{\kivitendofirsthead}{}
+\newcommand{\kivitendofirstfoot}{}
+\newcommand{\kivitendosecondhead}{}
+\newcommand{\kivitendosecondfoot}{\centerline{\defaultfont\small Seite \thepage}}
+
+\newcommand{\myhead}{%
+  \ifthenelse{\boolean{defaultbg}}{%
+    \begin{picture}(0,0)
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite1.png}}
+    \end{picture}%
+  }{}%
+  \ifthenelse{\boolean{secondpagelogo}}{%
+    \begin{picture}(0,0)
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite2.png}}
+    \end{picture}%
+  }{}%
+  \ifthenelse{\boolean{draftbg}}{%
+    \begin{picture}(0,0)
+      \put(-2.025,-26.9){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/draft.png}}
+    \end{picture}%
+  }{}%
+  \ifthenelse{\boolean{reqspeclogo}}{%
+    \begin{picture}(0,0)
+      \put(3,-22){\includegraphics*[width=13cm,keepaspectratio=true]{images/schachfiguren.jpg}}
+      \put(0.275,-4.1){\colorbox{kivitendoorange}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+      \put(0.275,-8.8){\colorbox{kivitendodarkred}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+      \put(0.275,-13.5){\colorbox{kivitendoyellow}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+    \end{picture}%
+  }{}%
+  \kivitendofirsthead
+}
+
+\newcommand{\mysecondhead}{%
+  \ifthenelse{\boolean{defaultbg} \or \boolean{secondpagelogo}}{%
+    \begin{picture}(0,0)
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite2.png}}
+    \end{picture}%
+  }{}%
+  \ifthenelse{\boolean{draftbg}}{%
+    \begin{picture}(0,0)
+      \put(-2.025,-26.9){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/draft.png}}
+    \end{picture}%
+  }{}%
+  \kivitendosecondhead
+}
+
+\newcommand{\myfoot}{\kivitendofirstfoot}
+\newcommand{\mysecondfoot}{\kivitendosecondfoot}
+
+\renewcommand{\ps@headings}{%
+  \renewcommand{\@oddhead}{\myhead}
+  \renewcommand{\@evenhead}{\@oddhead}%
+  \renewcommand{\@oddfoot}{\myfoot}
+  \renewcommand{\@evenfoot}{\@oddfoot}%
+}
+
+\renewcommand{\ps@plain}{%
+  \renewcommand{\@oddhead}{\mysecondhead}
+  \renewcommand{\@evenhead}{\@oddhead}%
+  \renewcommand{\@oddfoot}{\mysecondfoot}
+  \renewcommand{\@evenfoot}{\@oddfoot}%
+}
+
+\pagestyle{plain}
+\thispagestyle{headings}
+
+% Abschnitte mit Kasten hinterlegt
+
+\newcommand{\reqspecsectionstyle}{%
+  \renewcommand{\thesection}{\alph{section}}
+  \makeatletter
+  \def\section{\@ifstar\unnumberedsection\numberedsection}
+  \makeatother
+}
+
+\makeatletter
+\def\numberedsection{\@ifnextchar[%]
+\numberedsectionwithtwoarguments\numberedsectionwithoneargument}
+\def\unnumberedsection{\@ifnextchar[%]
+\unnumberedsectionwithtwoarguments\unnumberedsectionwithoneargument}
+\def\numberedsectionwithoneargument#1{\numberedsectionwithtwoarguments[#1]{#1}}
+\def\unnumberedsectionwithoneargument#1{\unnumberedsectionwithtwoarguments[#1]{#1}}
+\def\numberedsectionwithtwoarguments[#1]#2{%
+  \ifhmode\par\fi
+  \removelastskip
+  \vskip 3ex\goodbreak
+  \refstepcounter{section}%
+  \noindent
+  \begingroup
+  \leavevmode\Large\bfseries\raggedright
+  \begin{picture}(0,0)
+    \put(0,0){\colorbox{kivitendoorange}{\parbox{0.7cm}{\hspace*{0.7cm}\\\vspace*{0.2cm}}}}
+  \end{picture}%
+  \hspace*{0.3cm}\textcolor{white}{\thesection{}.}%
+  \quad%
+  #2
+  \par
+  \endgroup
+  \vskip 2ex\nobreak
+  \addcontentsline{toc}{section}{\protect\numberline{\thesection{}.}#1}%
+}
+\def\unnumberedsectionwithtwoarguments[#1]#2{%
+  \ifhmode\par\fi
+  \removelastskip
+  \vskip 3ex\goodbreak
+  \noindent
+  \begingroup
+  \leavevmode\Large\bfseries\raggedright
+  \leavevmode\Large\bfseries\raggedright
+  #2
+  \par
+  \endgroup
+  \vskip 2ex\nobreak%
+}
+\makeatother

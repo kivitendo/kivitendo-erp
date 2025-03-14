@@ -1,0 +1,72 @@
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+
+\usepackage{ulem}
+\usepackage{hyperref}
+\usepackage{xstring}
+\begin{document}
+
+\begin{Form}
+  \large
+  Bestätigung über das Gelangen des Gegenstands einer innergemeinschaftlichen Lieferung
+  in einen anderen EU-Mitgliedstaat (Gelangensbestätigung)
+  \vspace{0.4cm}
+
+  {\color{purple} Bitte unterschreiben und faxen/mailen an:
+    \begin{center} <%employee_fax%> / <%employee_email%> \end{center}}
+  \normalsize
+  \vspace{0.4cm}
+  <%name%>, <%street%>, <%zipcode%> <%city%>, <%country%>\hspace*{\fill}\\
+  \TextField[name=department, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Name und Anschrift des Abnehmers der innergemeinschaftlichen Lieferung, ggf. E-Mail-Adresse)}
+
+  \vspace{0.4cm}
+
+  Hiermit bestätige ich als Abnehmer, dass ich folgenden Gegenstand / dass folgender Gegenstand \textsuperscript{1)} einer
+  innergemeinschaftlichen Lieferung\\
+
+
+  \TextField[name=qty, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Menge des Gegenstands der Lieferung)}\\
+
+  \TextField[name=desc, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(handelsübliche Bezeichnung, bei Fahrzeugen zusätzlich die Fahrzeug-Identifikationsnummer)}\\
+
+  im\\
+
+  \uline{ \StrGobbleLeft{<%reqdate%>}{3} \hspace*{\fill}}\\
+  {\color{gray}(Monat und Jahr des Erhalts des Liefergegenstands im Mitgliedstaat, in den der Liefergegenstand gelangt ist, wenn der liefernde Unternehmer den Liefergegenstand befördert oder versendet hat oder wenn der Abnehmer den Liefergegenstand versendet hat)}\\
+
+
+  \TextField[name=delivery, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Monat und Jahr des Endes der Beförderung, wenn der Abnehmer den Liefergegenstand selbst befördert hat)}\\
+
+  in / nach \textsuperscript{1)}\\
+
+
+  \uline{<%country%>\hspace*{\fill}}\\
+  {\color{gray}(Mitgliedstaat und Ort, wohin der Liefergegenstand im Rahmen einer Beförderung oder Versendung gelangt ist)}\\
+
+  erhalten habe / gelangt ist.
+
+  \TextField[name=delivery, bordercolor=gray, width=\linewidth]{}\\
+  {\color{gray}(Datum der Ausstellung der Bestätigung)}\\
+
+  \uline{\hspace*{\fill}}
+
+  {\color{gray}(Unterschrift des Abnehmers oder seines Vertretungsberechtigten sowie Name des Unterzeichnenden in Druckschrift)}\\
+
+  \textbf{\textsuperscript{1)} Nichtzutreffendes bitte streichen.}
+\end{Form}
+\end{document}
+

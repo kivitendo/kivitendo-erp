@@ -1,0 +1,53 @@
+% config: use-template-toolkit=1
+% config: tag-style=$( )$
+$( USE KiviLatex )$
+$( USE P )$
+$( SET customer = letter.customer_vendor )$
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
+$( KiviLatex.required_packages_for_html )$
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode}{$(template_meta.language.template_code)$}
+\newcommand{\lxmedia}{$(template_meta.media)$}
+\newcommand{\lxcurrency}{}
+\newcommand{\kivicompany}{$(employee_company)$}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+% laufende Kopfzeile:
+%\ourhead{}{}{$( KiviLatex.filter(letter.subject) )$}{$( KiviLatex.filter(letter.letternumber) )$}{$( KiviLatex.filter(letter.date.to_kivitendo) )$}
+\ourhead{}{}{}{}{}
+
+\begin{document}
+
+\setkomavar{date}{$( KiviLatex.filter(letter.date.to_kivitendo) )$}
+
+$( IF letter.reference )$
+\setkomavar*{yourref}{\ihrzeichen}
+\setkomavar{yourref}{$( KiviLatex.filter(letter.reference) )$}
+$( END )$
+
+$( IF letter.subject )$
+\setkomavar{subject}{$( KiviLatex.filter(letter.subject) )$}
+$( END )$
+
+\begin{letter}{
+    $( KiviLatex.filter(customer.name) )$\strut\\
+    $( KiviLatex.filter(letter.contact.formal_greeting) )$\strut\\
+    $( KiviLatex.filter(customer.street) )$\strut\\
+    $( KiviLatex.filter(customer.zipcode) )$ $( KiviLatex.filter(customer.city) )$\strut\\
+    $( KiviLatex.filter(customer.country) )$%
+  }
+
+  \opening{$( KiviLatex.filter(letter.greeting) )$}
+  \thispagestyle{kivitendo.letter.first}
+
+  $( KiviLatex.filter_html(letter.body) )$
+
+  \closing{\gruesse}
+
+\end{letter}
+
+\end{document}

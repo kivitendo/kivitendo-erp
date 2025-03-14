@@ -1,0 +1,701 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{kiviletter}[2023/12/08 Letter Layouts for Kivitendo]
+
+\RequirePackage{l3keys2e}
+
+%Optionen vor den eigenen Paketoptionen hinzufügen, damit spätere diese ggf. überschreiben
+\PassOptionsToPackage{
+  fromlogo,
+  fromalign=right,
+  firstfoot=false,%Für einheitliche Randeinstellungen
+  refline=nodate,
+}{scrletter}
+
+\ExplSyntaxOn
+\newif\if@kivi@infobox
+\newif\if@kivi@footer
+\newcommand*{\SetupKiviletter}[1]{\keys_set:nn {kiviletter} {#1}}
+\keys_define:nn {kiviletter} {
+  infobox .choices:nn = {true,false} {\use:c {@kivi@infobox\l_keys_choice_tl}},
+  infobox .default:n = true,
+  infobox .initial:n = true,
+  reffields .meta:n = {infobox=false},
+  footer .choices:nn = {true,false} {\use:c {@kivi@footer\l_keys_choice_tl}},
+  footer .default:n = true,
+  footer .initial:n = true,
+  nofooter .meta:n = {footer=false},
+  unknown .code:n = \PassOptionsToPackage{\l_keys_key_str=#1}{scrletter},
+}
+\ExplSyntaxOff
+
+\ProcessKeysOptions{kiviletter}
+
+\RequirePackage{xparse}
+\RequirePackage{iftex}
+
+% Schriftart, Eingabelayout der Tastatur
+\ifPDFTeX
+  \RequirePackage[utf8]{inputenc}% Nur notwendig, wenn Basis älter als TL2018
+  \RequirePackage[T1]{fontenc}
+  \RequirePackage{lmodern}
+
+  \RequirePackage{eurosym}
+  \DeclareUnicodeCharacter{20AC}{\euro}
+\else
+  \RequirePackage{fontspec}
+\fi
+
+\RequirePackage{xltabular}
+\RequirePackage{booktabs}
+\RequirePackage{graphicx}
+
+\RequirePackage{scrletter}
+\LoadLetterOption{DIN}
+
+\newkomavar{taxpoint}
+\newkomavar{transaction}
+\newkomavar[\lieferschein{}~\nr]{delivery}
+\newkomavar[\angebot{}~\nr]{quote}
+\newkomavar[\auftragsnummer]{orderID}
+\newkomavar[\projektnummer]{projectID}
+\setkomavar*{fromphone}{\textTelefon}
+\setkomavar*{fromemail}{\textEmail}
+\setkomavar*{fromfax}{\textFax}
+\setkomavar*{customer}{\kundennummer}
+
+
+\usepackage{geometry}
+
+\ExplSyntaxOn
+\dim_new:N \g_kivi_margin_dim
+\dim_gset:Nn \g_kivi_margin_dim {\useplength{toaddrhpos}}
+\geometry{a4paper,margin=\g_kivi_margin_dim,heightrounded}
+%Scratch variables
+\int_new:N \l_kivi_tmp_int
+\bool_new:N \l_kivi_tmp_bool
+\bool_new:N  \g_kivi_TableFoot_bool
+\dim_new:N \g_kivi_orig@textheight_dim
+\ExplSyntaxOff
+
+\newsavebox{\shippingAddressBox}
+
+
+\DeclareNewLayer[
+  foreground,
+  hoffset=\useplength{toaddrhpos},
+  voffset=\dimexpr\useplength{toaddrvpos}+\useplength{toaddrheight}+4\baselineskip,%sep to shippingaddressbox
+  contents={\usebox\shippingAddressBox}
+]{kivitendo.shippingaddress}
+
+\newpairofpagestyles{kivitendo.letter}{}
+
+\renewcommand*{\letterpagestyle}{kivitendo.letter}
+
+\DeclareNewPageStyleByLayers{kivitendo.letter.first}{
+  kivitendo.shippingaddress,
+  plain.kivitendo.letter.head.odd,plain.kivitendo.letter.head.even,plain.kivitendo.letter.head.oneside,%
+  plain.kivitendo.letter.foot.odd,plain.kivitendo.letter.foot.even,plain.kivitendo.letter.foot.oneside,%
+}
+
+\setkomavar{backaddress}{\firma\ $\cdot$ \strasse\ $\cdot$ \ort}
+
+\setkomavar{firsthead}{
+  \if@logo
+    \rlap{\usekomavar{fromlogo}}%
+  \fi
+}
+
+\@setplength{locwidth}{6cm}
+
+\ExplSyntaxOn
+\dim_new:N \l_kivi_tab_desc_leftskip_dim
+
+
+
+\cs_new:Nn \__kivi_set_colwidth:nn  {
+  \dim_set:cn {l_kivi_tab_#1_dim} {#2}
+}
+
+
+\cs_new:Nn \__kivi_initialize_columns: {
+  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist {
+    \bool_if_exist:cF {l_kivi_col_##1_bool}
+    {
+      \bool_new:c {l_kivi_col_##1_bool}
+      \dim_new:c {l_kivi_tab_##1_dim}
+      \keys_define:nn {kivi/PricingTable} {
+        ##1 .choice:,
+        ##1 / true .code:n = \bool_set_true:c {l_kivi_col_##1_bool},
+        ##1 / false .code:n = \bool_set_false:c {l_kivi_col_##1_bool},
+        ##1 / unknown .code:n = {
+            \bool_set_true:c {l_kivi_col_##1_bool}
+            \dim_set:cn {l_kivi_tab_##1_dim} {####1}
+          },
+        ##1 .default:n = true,
+        ##1 .initial:n = true,
+        ##1 / header .prop_put:c = {l_kivi_col_##1_prop},
+        ##1 / colspec .prop_put:c = {l_kivi_col_##1_prop},
+      }
+    }
+  }
+}
+
+\clist_new:N \g_kivi_pricingtable_col_clist
+
+\keys_define:nn {kivi/PricingTable} {
+  columns .code:n =
+  \clist_gset:Nn \g_kivi_pricingtable_col_clist {#1}
+  \__kivi_initialize_columns:,
+  columns .initial:n = {pos, id, desc, amount, price, pricetotal},
+  unknown .code:n = \keys_set:no {kivi/Tabular} {\l_keys_key_str=#1}
+}
+
+% set default values for colwidth
+\keys_set:nn {kivi/PricingTable} {
+  pos=5ex,
+  id=4em,
+  amount=5em,
+  price=7em,
+  pricetotal=7em,
+  %  desc=auto,
+  pos/header=\position,
+  id/header=\artikelnummer,
+  desc/header=\bezeichnung,
+  amount/header=\menge,
+  price/header=\einzelpreis,
+  pricetotal/header=\gesamtpreis,
+  price / colspec = Price,
+  pricetotal / colspec = Price ,
+}
+
+\dim_new:N \g_kivi_tabcolsep_dim
+\dim_gset:Nn \g_kivi_tabcolsep_dim {.5\tabcolsep}
+\setlength\tabcolsep{.5\tabcolsep}
+
+\prg_new_conditional:Nnn \kivi_if_Price_col:n {T, TF} {
+  \prop_get:cnN {l_kivi_col_#1_prop} {colspec} \l_tmpa_tl
+  \exp_args:NV \tl_if_eq:nnTF \l_tmpa_tl {Price}
+  {\prg_return_true:}
+  {\prg_return_false:}
+}
+
+
+\cs_new:Nn \__kivi_calc_desc_column: {
+  \bool_if:NTF \g__kivi_Tabular_rowcolor_bool {
+    \dim_set:Nn \l_kivi_tab_desc_leftskip_dim {2\g_kivi_tabcolsep_dim}
+  }{
+    \dim_zero:N \l_kivi_tab_desc_leftskip_dim
+  }
+  \dim_zero:N \l_kivi_tab_desc_dim
+  \bool_set_false:N \l_tmpa_bool
+  \tl_gclear:N \g_kivi_Pricing_colspec_tl
+  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist {
+    \tl_if_eq:nnTF {##1} {desc}  {
+      \dim_set:Nn \l_kivi_tab_desc_dim {
+        \textwidth-\l_kivi_tab_desc_leftskip_dim
+      }
+      \bool_set_true:N \l_tmpa_bool
+      \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {p{\l_kivi_tab_desc_dim}}
+    }{
+      \bool_if:cT {l_kivi_col_##1_bool} {
+        \bool_if:NTF \l_tmpa_bool {
+          \dim_sub:Nn \l_kivi_tab_desc_dim {
+            \dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
+          }
+        }{
+          \dim_add:Nn \l_kivi_tab_desc_leftskip_dim {
+            \dim_use:c {l_kivi_tab_##1_dim}+2\g_kivi_tabcolsep_dim
+          }
+        }
+        \prop_if_in:cnTF {l_kivi_col_##1_prop} {colspec} {
+          \kivi_if_Price_col:nTF {##1} {
+            \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K}
+          }{
+            \tl_gput_right:Nx \g_kivi_Pricing_colspec_tl {\prop_item:cn {l_kivi_col_##1_prop} {colspec}}
+          }
+          \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {{\dim_use:c {l_kivi_tab_##1_dim}}}
+        } {
+          \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {K{\dim_use:c {l_kivi_tab_##1_dim}}}
+        }
+        \kivi_if_Price_col:nT {##1} {\tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {<{\__kivi_tab_column_currency:}}}
+      }
+    }
+  }
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool {
+    \tl_gput_left:Nn \g_kivi_Pricing_colspec_tl {@{}}
+    \tl_gput_right:Nn \g_kivi_Pricing_colspec_tl {@{}}
+  }
+}
+
+\newcolumntype{K}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{P}[1]{K{#1}<{\__kivi_tab_column_currency:}}
+
+\RequirePackage{tcolorbox}
+\tcbuselibrary{breakable, skins}
+
+\tcb@new@skin{kivi@LT}{base@unbroken,%
+frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
+underlay~first~and~middle={
+\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@foot_box}};
+},
+underlay~unbroken~and~last={
+\node[anchor=north]  at (interior.north)  {\csname box_use:c\endcsname  {g_kivi_LT@head_box}};
+\node[anchor=south]  at (interior.south)  {\csname box_use:c\endcsname  {g_kivi_LT@lastfoot_box}};
+},
+boxsep=0pt,
+boxrule=0pt,
+left=0pt,
+right=0pt,
+bottom=\box_ht:N  \g_kivi_LT@foot_box+\box_dp:N  \g_kivi_LT@foot_box + \aboverulesep,
+top=\box_ht:N  \g_kivi_LT@head_box+\box_dp:N  \g_kivi_LT@head_box +\belowrulesep,
+parbox=false,
+}
+
+\tcb@new@skin{kivi@LT@first}{base@first,%
+  frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+  skin~first=kivi@LT@first,skin~middle=kivi@LT@middle,skin~last=kivi@LT@middle,
+}
+
+\tcb@new@skin{kivi@LT@middle}{base@middle,%
+  frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+  skin~first=kivi@LT@middle,skin~middle=kivi@LT@middle,skin~last=kivi@LT@middle,
+}
+
+\tcb@new@skin{kivi@LT@last}{base@last,%
+  frame~engine=empty,interior~titled~engine=empty,interior~engine=empty,segmentation~engine=empty,title~engine=empty,%
+  skin~first=kivi@LT@middle,skin~middle=kivi@LT@middle,skin~last=kivi@LT@last,
+}
+
+\tcbset{kivi@LT/.style={skin=kivi@LT}}%
+
+\seq_new:N \l_kivi_PricingTable_seq
+\seq_new:N \l_kivi_columns_seq
+\seq_new:N \g_kivi_extraDescription_seq
+
+\int_new:N \g__kivi_PricingTable_rowcolor_int
+\dim_new:N \l__kivi_fboxsep_dim
+\dim_set:Nn \l__kivi_fboxsep_dim {\g_kivi_tabcolsep_dim}
+
+%colorbox variant to only add vertical spacing
+%based on colorbox definition from xcolor.sty
+%% ----------------------------------------------------------------
+%% Copyright (C) 2003-2016 by Dr. Uwe Kern <xcolor at ukern dot de>
+%% ----------------------------------------------------------------
+%% This variant of colorbox adds a space of \l__kivi_fboxsep_dim along the vertical axes but no horizontal space
+\def\kivi@tabcolorbox#1#{\protect\kivi@tabcolor@box{#1}}
+
+\def\kivi@tabcolor@box#1#2{
+  \tl_if_empty:oTF {#2}
+  \kivi@nocolor@b@x
+  \kivi@color@b@x
+  \relax{\color#1{#2}}
+}
+\long\def\kivi@color@b@x#1#2#3%
+{\leavevmode
+  \setbox\z@\hbox to \linewidth{{\set@color\parbox{\linewidth}{\raggedright#3}}}%
+  \dimen@\ht\z@\advance\dimen@\l__kivi_fboxsep_dim\ht\z@\dimen@
+  \dimen@\dp\z@\advance\dimen@\l__kivi_fboxsep_dim\dp\z@\dimen@
+  {#1{#2\color@block{\wd\z@}{\ht\z@}{\dp\z@}\box\z@}}}
+\long\def\kivi@nocolor@b@x#1#2#3%
+{\leavevmode
+  \setbox\z@\hbox to \linewidth{\parbox{\linewidth}{\raggedright#3}}%
+  \dimen@\ht\z@\advance\dimen@\l__kivi_fboxsep_dim\ht\z@\dimen@
+  \dimen@\dp\z@\advance\dimen@\l__kivi_fboxsep_dim\dp\z@\dimen@
+  {\box\z@}}
+%%%
+\newcommand{\FakeTable}[1]{
+  \par
+  \seq_set_split:Nnn \l_kivi_PricingTable_seq {\tabularnewline} {#1}
+  \seq_remove_all:Nn \l_kivi_PricingTable_seq {}
+  \begingroup
+  \setlength{\parskip}{\c_zero_dim}
+  \let\ExtraDescription\__kivi_addExtraDescription:n
+  \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+  \seq_map_inline:Nn \l_kivi_PricingTable_seq {
+    \if_mode_horizontal: \par \fi
+    \bool_if:NT \g__kivi_Tabular_content_rowcolor_bool {
+      \int_gincr:N \g__kivi_PricingTable_rowcolor_int
+      \int_if_odd:nTF {\g__kivi_PricingTable_rowcolor_int}
+      {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_odd_tl}}
+      {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_even_tl}}
+    }
+    {
+      \parbox{\linewidth}{
+        \seq_set_split:Nnn  \l_kivi_columns_seq {&} {##1}
+        \seq_gclear:N \g_kivi_extraDescription_seq
+        \exp_args:Nnx \use:n {\tabular[t]}\g_kivi_Pricing_colspec_tl
+        \seq_pop_left:NN \__l_FakeTable_columns_seq \l_tmpa_tl
+        \seq_item:Nn \l_kivi_columns_seq {\l_tmpa_tl}
+        \seq_map_inline:Nn \__l_FakeTable_columns_seq {
+          &\seq_item:Nn \l_kivi_columns_seq {####1}
+        }
+        \endtabular
+      }
+    }
+
+    \seq_if_empty:NTF \g_kivi_extraDescription_seq
+    {\par}
+    {\par\nopagebreak
+      \bool_if:NT \g__kivi_Tabular_content_rowcolor_bool {
+        \int_if_odd:nTF {\g__kivi_PricingTable_rowcolor_int}
+        {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_odd_tl}}
+        {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_even_tl}}
+      }
+      {
+        \setlength{\leftskip}{\dim_eval:n {\bool_if:NT \g__kivi_Tabular_rowcolor_bool {-\tabcolsep} +\l_kivi_tab_desc_leftskip_dim}}
+        \setlength{\hsize}{\dim_eval:n {\l_kivi_tab_desc_dim+\leftskip}}
+        \setlength{\linewidth}{\hsize}
+        \addtolength{\leftmargini}{\l_kivi_tab_desc_leftskip_dim}
+        \usekomafont{extraDescription}
+        \seq_use:Nn \g_kivi_extraDescription_seq {\ifhmode\\\fi}
+        \par
+      }
+    }
+    \par
+    \tl_if_empty:NF \l__kivi_Tabular_rowsep_tl {\nointerlineskip\l__kivi_Tabular_rowsep_tl}
+  }
+  \endgroup
+  \par
+}
+\seq_new:N  \__l_FakeTable_columns_seq
+\cs_new:Nn \__kivi_setup_FakeTable: {
+  \seq_clear:N \__l_FakeTable_columns_seq
+  \int_zero:N \l_tmpa_int
+  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist {
+    \int_incr:N \l_tmpa_int
+    \bool_if:cT {l_kivi_col_##1_bool} {\seq_put_right:Nx \__l_FakeTable_columns_seq {\int_use:N \l_tmpa_int}}
+  }
+}
+
+\tl_new:N \g_kivi_Pricing_colspec_tl
+\tl_gset:Nn \g_kivi_Pricing_colspec_tl {
+\bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
+\bool_if:NT \l_kivi_col_pos_bool {p{\l_kivi_tab_pos_dim}}
+\bool_if:NT \l_kivi_col_id_bool {p{\l_kivi_tab_id_dim}}
+p{\l_kivi_tab_desc_dim}
+\bool_if:NT \l_kivi_col_amount_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_amount_dim}}}
+\bool_if:NT \l_kivi_col_price_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_price_dim}<{\__kivi_tab_column_currency:}}}
+\bool_if:NT \l_kivi_col_pricetotal_bool {\exp_not:n {>{\raggedleft\arraybackslash}p{\l_kivi_tab_pricetotal_dim}<{\__kivi_tab_column_currency:}}}
+\bool_if:NF \g__kivi_Tabular_rowcolor_bool {@{}}
+}
+
+\cs_new_protected:Nn \__kivi_tab_column_currency: {\,\currency}
+\def\tabcurrency{\__kivi_tab_column_currency:}
+\cs_set:Nn \__kivi_tab_column_header_currency: {}
+\cs_set_eq:NN \__kivi_tab_column_body_currency:  \__kivi_tab_column_currency:
+
+\clist_map_inline:nn {head, foot, firsthead, lastfoot} {%TODO reduce
+  \box_new:c {g_kivi_LT@#1_box}
+}
+
+\newkomafont{PricingTableHeader}{\bfseries}
+
+\cs_new:Nn \__kivi_setup_LT_boxes: {
+  \__kivi_calc_desc_column:
+  \hbox_gset:Nn \g_kivi_LT@head_box {
+    \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+    \bool_if:NT \g__kivi_Tabular_rowcolor_bool {\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_header_tl}}%
+    {
+      \exp_args:Nnx \use:n {\tabular[b]}\g_kivi_Pricing_colspec_tl
+      \__kivi_PricingTabular_header:
+      \endtabular
+    }
+  }
+  \bool_if:nT {\g__kivi_Tabular_rowcolor_bool  && ! \g__kivi_Tabular_content_rowcolor_bool } {
+    \box_gset_dp:Nn \g_kivi_LT@head_box  {\box_dp:N \g_kivi_LT@head_box + \l__kivi_fboxsep_dim}
+  }
+  \hbox_gset:Nn \g_kivi_LT@foot_box {
+    \begin{tabular*}{\textwidth}[t]{@{\extracolsep{\fill}}r@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
+      \bool_if:NTF \g__kivi_Tabular_content_rowcolor_bool
+      {\hline\noalign{\vskip1pt}}
+      \midrule
+      \strut\weiteraufnaechsterseite
+    \end{tabular*}
+  }
+  \hbox_gset:Nn \g_kivi_LT@lastfoot_box {
+    \raisebox{\dimexpr\depth+\baselineskip}[0pt][0pt]{
+      \begin{tabular*}{\textwidth}{@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}\extracolsep{\fill}}r@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}}
+        \bool_if:NF \g__kivi_Tabular_rowcolor_bool \bottomrule
+      \end{tabular*}
+    }
+  }
+}
+
+
+%Macht es sinn hier eine Variante zu machen, in der alle Spalten Belegbar sind?
+\NewDocumentEnvironment{PricingTotal}{+b}{
+\par\nointerlineskip
+}{
+\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\nointerlineskip\kivi@tabcolorbox{\g__kivi_Tabular_rowcolor_PricingTotal_tl}}
+{
+\tabular[t]{
+@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
+p{\dim_eval:n {\linewidth-\l_kivi_tab_pricetotal_dim-\bool_if:NTF \g__kivi_Tabular_rowcolor_bool {4}{2}\tabcolsep}}P{\l_kivi_tab_pricetotal_dim}@{\bool_if:NT \g__kivi_Tabular_rowcolor_bool {\hskip\tabcolsep}}
+}
+\l__kivi_Tabular_PricingTotal_topsep_tl
+#1
+\endtabular
+}
+}
+
+\tl_new:N \l__kivi_Tabular_PricingTotal_topsep_tl
+%TODO
+\tl_set:Nn \l__kivi_Tabular_PricingTotal_topsep_tl {\bool_if:NF \g__kivi_Tabular_rowcolor_bool \midrule}
+
+\newcommand*\ExtraDescription{
+  \PackageError{kiviletter}{The~command~\string\ExtraDescription\space~may~be~only~used~inside~the~\string\FakeTable\space~environment.}{See~documentation~for~details}
+}
+
+
+\cs_new:Nn \__kivi_addExtraDescription:n {\seq_gput_right:Nn \g_kivi_extraDescription_seq {#1}}
+
+\newenvironment{PricingTabular}[1][]{
+  \begingroup
+  \dim_set:Nn \parskip {\c_zero_dim}
+  \tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
+  \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+  \__kivi_calc_desc_column:
+  \exp_args:Nx \longtable \g_kivi_Pricing_colspec_tl
+  % Tabellenkopf
+  \__kivi_PricingTabular_header:
+  \endhead
+  \midrule
+  \rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
+  \endfoot
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool \bottomrule
+  \endlastfoot
+}{
+  \endlongtable
+  \endgroup
+}
+
+\cs_set:Nn \__kivi_PricingTabular_header: {
+  \bool_if:NTF \g__kivi_Tabular_rowcolor_bool {\noalign{\skip_vertical:n {\dp\strutbox}}}\toprule
+  \cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
+  \bool_set_false:N \l_tmpa_bool
+  \clist_map_inline:Nn \g_kivi_pricingtable_col_clist  {
+    \bool_if:cT {l_kivi_col_##1_bool} {
+      \bool_if:NT \l_tmpa_bool {&}
+      \bool_set_true:N \l_tmpa_bool
+      \usekomafont{PricingTableHeader}
+      \prop_item:cn {l_kivi_col_##1_prop} {header}
+    }
+  }
+  \\
+  \noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool \midrule
+}
+
+\newkomafont{tablehead}{\bfseries}
+
+\keys_define:nn {kivi/SimpleTabular} {
+  colspec .tl_set:N =\l_kivi_SimpleTabular_colspec_tl,
+  colspec .initial:n = {rrX},
+  headline .tl_set:N = \l_kivi_SimpleTabular_headline_tl,
+  headline .initial:n = {\usekomafont{tablehead}\position & \usekomafont{tablehead}\menge & \usekomafont{tablehead}\bezeichnung},
+}
+
+\bool_new:N \g__kivi_Tabular_rowcolor_bool
+\bool_new:N \g__kivi_Tabular_content_rowcolor_bool
+
+\keys_define:nn {kivi/Tabular} {
+  color-rows .code:n = {
+      \bool_gset_eq:Nc \g__kivi_Tabular_rowcolor_bool {c_#1_bool}
+      \bool_gset_eq:Nc \g__kivi_Tabular_content_rowcolor_bool {c_#1_bool}
+    },
+  color-rows .initial:n = false,
+  color-rows .default:n = true,
+  color-only-structure .code:n  = {
+      \bool_gset_eq:Nc \g__kivi_Tabular_rowcolor_bool {c_#1_bool}
+      \bool_gset_eq:Nc \g__kivi_Tabular_content_rowcolor_bool {c_#1_bool}
+      \bool_gset_inverse:N \g__kivi_Tabular_content_rowcolor_bool
+    },
+  color-only-structure .initial:n = false,
+  color-only-structure .default:n = true,
+  rowcolor-odd .tl_gset:N = \g__kivi_Tabular_rowcolor_odd_tl,
+  rowcolor-odd .initial:n = black!10,
+  rowcolor-even .tl_gset:N = \g__kivi_Tabular_rowcolor_even_tl,
+  rowcolor-even .initial:n =,
+  rowcolor-header .tl_gset:N = \g__kivi_Tabular_rowcolor_header_tl,
+  rowcolor-header .initial:n = black!35,
+  rowcolor-total .tl_gset:N = \g__kivi_Tabular_rowcolor_PricingTotal_tl,
+  rowcolor-total .initial:n = black!35,
+  rowsep .tl_set:N =\l__kivi_Tabular_rowsep_tl,
+  rowsep .initial:n = ,
+  hrule .meta:n = {
+      rowsep={
+          \vskip\aboverulesep
+          \leavevmode\hrule\@height\lightrulewidth
+          \vskip\belowrulesep}},
+}
+
+\newcommand*{\SetupSimpleTabular}[1]{\keys_set:nn {kivi/SimpleTabular} {#1}}
+\newcommand*{\SetupPricingTabular}[1]{\keys_set:nn {kivi/PricingTable} {#1}}
+
+\newenvironment{SimpleTabular}[1][]
+{
+  \tl_if_in:nnTF {#1} {=} {\keys_set:nn {kivi/SimpleTabular} {#1}} {\tl_if_empty:nF {#1} {\tl_set:Nn \l_kivi_SimpleTabular_headline_tl {#1}}}
+  \setlength{\tabcolsep}{\g_kivi_tabcolsep_dim}
+  \dim_set:Nn \parskip {\c_zero_dim}
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool {
+    \tl_put_right:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
+    \tl_put_left:Nn \l_kivi_SimpleTabular_colspec_tl {@{}}
+  }
+  \exp_args:NnV \xltabular{\linewidth}\l_kivi_SimpleTabular_colspec_tl
+  \toprule
+  \cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_header_currency:
+  \l_kivi_SimpleTabular_headline_tl
+  \\
+  \noalign{\cs_gset_eq:NN \__kivi_tab_column_currency: \__kivi_tab_column_body_currency:}
+  \midrule
+  \endhead
+  \midrule
+  \rlap{\makebox[\textwidth][r]{\weiteraufnaechsterseite}}\\
+  \endfoot
+  \bool_if:NF \g__kivi_Tabular_rowcolor_bool \bottomrule
+  \endlastfoot
+  \ignorespaces
+}{
+  \def\@currenvir{tabularx}
+  \endxltabular
+}
+
+%PricingTabular* kann automatisch spalten ignorieren
+% \begin{PricingTabular*}[id=false]
+% deaktiviert damit die Spalte der Produktnummer
+% analog ist dies für pos, amount, price, pricetotal möglich.
+% Die Spalte der Bezeichnung ist nicht deaktivierbar
+\newenvironment{PricingTabular*}[1][]{
+  \int_gzero:N \g__kivi_PricingTable_rowcolor_int
+  \tl_if_empty:nF {#1} {\keys_set:nn {kivi/PricingTable} {#1}}
+  \__kivi_setup_LT_boxes:
+  \__kivi_setup_FakeTable:
+  \dim_set:Nn \parskip {\c_zero_dim}
+  \dim_set:Nn \parindent {\c_zero_dim}
+  \PricingTabularBox\ignorespaces
+}{\endPricingTabularBox
+  %compensate footer spacing
+  \skip_vertical:n {-\box_ht:N  \g_kivi_LT@foot_box-\box_dp:N  \g_kivi_LT@foot_box}
+}
+
+\newtcolorbox{PricingTabularBox}{breakable,skin=kivi@LT}
+
+\if@kivi@infobox
+
+  \def\locationsep{:}
+
+  \NewDocumentCommand{\locationentry}{som}{
+    \Ifkomavarempty{#3}{}{
+      \IfBooleanTF {#1} {
+        \strut
+        \IfNoValueTF {#2}
+        {\usekomavar*{#3}}
+        {#2}
+        \locationsep
+        \hfill\strut\space
+        \hbox_set:Nn \l_tmpa_box {\usekomavar{#3}}
+        \dim_compare:nTF {\box_wd:N \l_tmpa_box>\linewidth}
+        {\newline\hspace*{\fill}\llap}
+        {\hspace*{\fill}}
+        {\box_use:N \l_tmpa_box\strut}
+      }{
+        \@hangfrom{\strut
+          \IfNoValueTF {#2}
+          {\usekomavar*{#3}}
+          {#2}\locationsep~
+        }{
+          \parbox[t]{\dimexpr\linewidth-\hangindent}{
+            \raggedleft
+            \usekomavar{#3}\strut
+          }
+        }
+      }
+    }
+    \par
+  }
+
+  \newkomafont{transaction}{\bfseries}
+
+  \setkomavar{location}{
+    \Ifkomavarempty{transaction}{}{{
+          \usekomafont{transaction}
+          \usekomavar{transaction}
+        }
+    }
+    \par
+    \medskip
+    \parbox{\useplength{locwidth}}{
+      \locationentry{date}
+      \locationentry{myref}
+      \locationentry{customer}
+      \locationentry{yourref}
+      \locationentry{delivery}
+      \locationentry{quote}
+      \locationentry{orderID}
+      \locationentry{projectID}
+      \locationentry{taxpoint}
+      \locationentry[\ansprechpartner]{fromname}
+      \locationentry{fromphone}
+      \locationentry*{fromemail}
+    }
+  }
+  \removereffields
+  \AtBeginLetter{
+    \ifdim\ht\shippingAddressBox>\z@
+      \@addtoplength{refvpos}{\dimexpr\ht\shippingAddressBox+\dp\shippingAddressBox}
+      \@addtoplength{refvpos}{4\baselineskip}%sep between address boxes
+    \fi
+  }
+
+\fi
+
+%Fallback for older KOMA-Script-Versions
+\cs_if_exist:NF \Ifstr {\let\Ifstr\ifstr}
+\cs_if_exist:NF \Ifkomavarempty {\let\Ifkomavarempty\ifkomavarempty}
+
+%Definitionen für die insettings.tex
+\NewDocumentCommand{\setupIdentpath}{sm}{
+  \file_if_exist:nTF {#2/ident.tex}
+  {
+    \newcommand*{\identpath}{#2}
+  } {
+    \newcommand*{\identpath}{firma}
+  }
+}
+
+\newcommand*{\setupCurrencyConfig}[3][euro]{
+  \tl_new:N \g_kivi_currency_tl
+  \exp_args:Nf \str_if_in:nnT {#3} {USD} {\tl_gset:Nn \g_kivi_currency_tl {usd}}
+  \exp_args:Nf \str_if_in:nnT {#3} {CHF} {\tl_gset:Nn \g_kivi_currency_tl {chf}}
+  \exp_args:Nf \str_if_in:nnT {#3} {EUR} {\tl_gset:Nn \g_kivi_currency_tl {euro}}
+  \tl_if_empty:NT  \g_kivi_currency_tl {
+    \tl_if_empty:oTF {#3} {
+      \tl_gset:Nn \g_kivi_currency_tl {#1}
+    } {
+      \tl_gset:Nn \g_kivi_currency_tl {#3}
+    }
+  }
+  \input{#2/\g_kivi_currency_tl _account.tex}
+  \let\setupCurrencyConfig\_kivi_currency_already_configured:w
+}
+
+\newcommand*{\_kivi_currency_already_configured:w}[3][euro]{
+  \msg_error:nnx {kiviletter} {currency-already-configured} {\g_kivi_currency_tl}
+}
+
+\msg_new:nnn {kiviletter} {currency-already-configured} {
+  The~currency~configuration~is~a~global~setting~for~each~document.\\
+  It's~already~set~to~#1,~please~remove~the~second~call~of~\string\setupCurrencyConfig.
+}
+\ExplSyntaxOff
+
+
+\renewcommand*{\raggedsignature}{\raggedright}
+
+\newkomafont{extraDescription}{}
+\newkomafont{subtotal}{}
+\newkomafont{total}{}
+
+\endinput
