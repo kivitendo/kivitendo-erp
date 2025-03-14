@@ -129,6 +129,21 @@
 \fi
 % Ende Anpassungen der Fußzeile
 
+% Beginn Anpassungen der Infobox (auch genannt Absenderergänzung)
+\newkomavar{info0} \newkomavar{info1} \newkomavar{info2} \newkomavar{info3}
+\newkomavar{info4} \newkomavar{info5} \newkomavar{info6} \newkomavar{info7}
+\newkomavar{info8} \newkomavar{info9} \newkomavar{info10} \newkomavar{info11}
+
+\setkomavar{location}{
+  \par\medskip
+  \parbox{\useplength{locwidth}}{
+    \locationentry{info0} \locationentry{info1} \locationentry{info2} \locationentry{info3}
+    \locationentry{info4} \locationentry{info5} \locationentry{info6} \locationentry{info7}
+    \locationentry{info8} \locationentry{info9} \locationentry{info10} \locationentry{info11}
+  }
+}
+% Ende Anpassungen der Infobox
+
 %Mandantenspezifische ergänzende Einstellungen, falls nötig:
 %\InputIfFileExists{\identpath/dateiname}{}{}
 

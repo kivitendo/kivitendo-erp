@@ -20,6 +20,15 @@ $( KiviLatex.required_packages_for_html )$
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{$( KiviLatex.filter(reclamation.customervendor.number) )$}{\vkreklamation}{$( KiviLatex.filter(reclamation.record_number) )$}{$( reclamation.transdate_as_date )$}
 
+\setkomavar{info0}[\vorgangsbez]        {$( KiviLatex.filter(reclamation.transaction_description) )$}
+\setkomavar{info1}[\datum]              {$( KiviLatex.filter(reclamation.transdate_as_date) )$}
+\setkomavar{info2}[\kundennummer]       {$( KiviLatex.filter(reclamation.customervendor.number) )$}
+\setkomavar{info3}[\ihrzeichen]         {$( KiviLatex.filter(reclamation.cv_record_number) )$}
+\setkomavar{info4}[\vkreklamation{}~\nr]{$( KiviLatex.filter(reclamation.record_number) )$}
+\setkomavar{info5}[\ansprechpartner]    {$( KiviLatex.filter(reclamation.employee.name) )$}
+%\setkomavar{info6}[\textTelefon]        {$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
+%\setkomavar{info7}[\textEmail]          {$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
+
 \setkomavar*{date}{\datum}
 \setkomavar{date}{$( reclamation.transdate_as_date )$}
 \setkomavar{customer}{$( KiviLatex.filter(reclamation.customer.number) )$}

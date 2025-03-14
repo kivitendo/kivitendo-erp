@@ -36,6 +36,18 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
+\setkomavar{info0} [\vorgangsbez]       {<%transaction_description%>}
+\setkomavar{info1} [\rechnungsdatum]    {<%invdate%>}
+\setkomavar{info2} [\kundennummer]      {<%customernumber%>}
+\setkomavar{info3} [\ihreBestellnummer] {<%cusordnumber%>}
+\setkomavar{info4} [\auftragsnummer]    {<%ordnumber%>}
+\setkomavar{info5} [\angebot{}~\nr]     {<%quonumber%>}
+\setkomavar{info6} [\lieferschein{}~\nr]{<%donumber%>}
+\setkomavar{info7} [\leistungsdatum]    {<%tax_point%>}
+\setkomavar{info8} [\ansprechpartner]   {<%employee_name%>}
+\setkomavar{info9} [\textTelefon]       {<%employee_tel%>}
+\setkomavar{info10}[\textEmail]         {<%employee_email%>}
+
 \setkomavar*{date}{\rechnungsdatum}
 \setkomavar{date}{<%invdate%>}
 \setkomavar{customer}{<%customernumber%>}
