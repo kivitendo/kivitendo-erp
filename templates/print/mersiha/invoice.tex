@@ -48,15 +48,7 @@
 \setkomavar{info9} [\textTelefon]       {<%employee_tel%>}
 \setkomavar{info10}[\textEmail]         {<%employee_email%>}
 
-<%if template_meta.formname == "storno_invoice"%>%
-\setkomavar{title}{%
-  \rechung~ \nr ~<%invnumber%>%
-}
-<%else%>%
-\setkomavar{title}{%
-  \rechnung~ \nr ~<%invnumber%>%
-}
-<%end template_meta.formname == "storno_invoice"%>%
+\setkomavar{title}{\rechnung~\nr~<%invnumber%>}
 
 <%if shiptoname%>%
 \makeatletter

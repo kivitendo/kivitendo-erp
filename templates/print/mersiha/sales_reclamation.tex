@@ -29,10 +29,7 @@ $( KiviLatex.required_packages_for_html )$
 %\setkomavar{info6}[\textTelefon]        {$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
 %\setkomavar{info7}[\textEmail]          {$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 
-\setkomavar{title}{%
-  \vkreklamation~
-  \nr~$( KiviLatex.filter(reclamation.record_number) )$%
-}
+\setkomavar{title}{\vkreklamation~\nr~$( KiviLatex.filter(reclamation.record_number) )$}
 
 $( IF (reclamation.cv_record_number) )$%
   %\setkomavar*{yourref}{\ihreReclamationsnummer}
