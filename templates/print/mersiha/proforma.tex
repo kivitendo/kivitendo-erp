@@ -26,8 +26,6 @@
 \setkomavar{info8}[\textTelefon]       {<%employee_tel%>}
 \setkomavar{info9}[\textEmail]         {<%employee_email%>}
 
-\begin{document}
-
 \setkomavar{title}{\proformarechnung~\nr~<%ordnumber%>}
 
 <%if shiptoname%>%
@@ -51,6 +49,8 @@
   \end{lrbox}
   \makeatother
 <%end shiptoname%>%
+
+\begin{document}
 
 \begin{letter}{%
   <%if billing_address_id%>%
@@ -108,7 +108,7 @@
     <%end number%>%
     }%
     \begin{PricingTotal}%
-      % Tabellenende letzte Seite%
+      % Tabellenende letzte Seite
       \nettobetrag & <%subtotal%>\\%
       <%foreach tax%>%
         <%taxdescription%> & <%tax%>\\%
@@ -133,4 +133,3 @@
 \end{letter}
 
 \end{document}
-

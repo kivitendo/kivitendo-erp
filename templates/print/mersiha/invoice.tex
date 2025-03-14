@@ -36,40 +36,40 @@
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
-\setkomavar{info0} [\vorgangsbez]       {<%transaction_description%>}
-\setkomavar{info1} [\rechnungsdatum]    {<%invdate%>}
-\setkomavar{info2} [\kundennummer]      {<%customernumber%>}
-\setkomavar{info3} [\ihreBestellnummer] {<%cusordnumber%>}
-\setkomavar{info4} [\auftragsnummer]    {<%ordnumber%>}
-\setkomavar{info5} [\angebot{}~\nr]     {<%quonumber%>}
-\setkomavar{info6} [\lieferschein{}~\nr]{<%donumber%>}
-\setkomavar{info7} [\leistungsdatum]    {<%tax_point%>}
-\setkomavar{info8} [\ansprechpartner]   {<%employee_name%>}
-\setkomavar{info9} [\textTelefon]       {<%employee_tel%>}
-\setkomavar{info10}[\textEmail]         {<%employee_email%>}
+\setkomavar{info0}[\vorgangsbez]       {<%transaction_description%>}
+\setkomavar{info1}[\rechnungsdatum]    {<%invdate%>}
+\setkomavar{info2}[\kundennummer]      {<%customernumber%>}
+\setkomavar{info3}[\ihreBestellnummer] {<%cusordnumber%>}
+\setkomavar{info4}[\auftragsnummer]    {<%ordnumber%>}
+\setkomavar{info5}[\angebot{}~\nr]     {<%quonumber%>}
+\setkomavar{info6}[\lieferschein{}~\nr]{<%donumber%>}
+\setkomavar{info7}[\leistungsdatum]    {<%tax_point%>}
+\setkomavar{info8}[\ansprechpartner]   {<%employee_name%>}
+\setkomavar{info9}[\textTelefon]       {<%employee_tel%>}
+\setkomavar{info10}[\textEmail]        {<%employee_email%>}
 
 \setkomavar{title}{\rechnung~\nr~<%invnumber%>}
 
 <%if shiptoname%>%
-\makeatletter
-\begin{lrbox}\shippingAddressBox
-  \parbox{\useplength{toaddrwidth}}{
-    \backaddr@format{\scriptsize\usekomafont{backaddress}%
-      \strut\abweichendeLieferadresse
+  \makeatletter
+  \begin{lrbox}\shippingAddressBox
+    \parbox{\useplength{toaddrwidth}}{
+      \backaddr@format{\scriptsize\usekomafont{backaddress}%
+        \strut\abweichendeLieferadresse
+      }
+      \par\smallskip
+      \setlength{\parskip}{\z@}
+      \par
+      \normalsize
+      <%shiptoname%>\par
+      <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+      <%shiptodepartment_1%>\par
+      <%shiptodepartment_2%>\par
+      <%shiptostreet%>\par
+      <%shiptozipcode%> <%shiptocity%>%
     }
-    \par\smallskip
-    \setlength{\parskip}{\z@}
-    \par
-    \normalsize
-    <%shiptoname%>\par
-    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
-    <%shiptodepartment_1%>\par
-    <%shiptodepartment_2%>\par
-    <%shiptostreet%>\par
-    <%shiptozipcode%> <%shiptocity%>%
-  }
-\end{lrbox}
-\makeatother
+  \end{lrbox}
+  \makeatother
 <%end shiptoname%>%
 
 \begin{document}
@@ -79,7 +79,7 @@
     <%billing_address_name%> \strut\\%
     <%if billing_address_department_1%><%billing_address_department_1%>\\<%end if%>%
     <%if billing_address_department_2%><%billing_address_department_2%>\\<%end if%>%
-    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%me%>\strut\\%me%>\strut\\%me%>\strut\\%
+    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
     <%billing_address_street%>\strut\\%
     <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
     <%billing_address_country%>\strut\\%
@@ -114,19 +114,6 @@
   <%end notes%>%
 
 
-  %PricingTabular* kann automatisch spalten ignorieren
-  % \begin{PricingTabular*}[id=false]
-  % deaktiviert damit die Spalte der Produktnummer
-  % analog ist dies für pos, amount, price, pricetotal möglich.
-  % Die Spalte der Bezeichnung ist nicht deaktivierbar
-  %
-  % Darüber hinaus kann die Reihenfolge verändert werden, die Voreinstellung entspricht:
-  % \begin{PricingTabular*[columns={pos, id, desc, amount, price, pricetotal}]
-  % Auf diese Art ist auch möglich mehrSpalten anzulegen als definiert sind. Für jede Spalte kann die Breite über weitere Optionen angepasst werden, die Einträge der columns-Liste entspricht den Spaltennamen.
-  %
-  % id = false, % deaktiviert die Spalte der Artikelnummer
-  % amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
-  % desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
   \begin{PricingTabular*}[pricetotal/colspec = K]
     % eigentliche Tabelle
     \FakeTable{%
