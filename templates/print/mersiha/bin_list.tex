@@ -1,0 +1,87 @@
+\documentclass[twoside,parskip=half-]{scrartcl}
+\usepackage[reffields,backaddress=false,addrfield=topaligned,nofooter]{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+\KOMAoptions{fontsize=10pt}
+\begin{document}
+
+\setkomavar{title}{\lagerliste}
+
+\setkomavar{firsthead}{
+  \normalsize
+  \noindent\begin{tabular}[t]{@{}l@{}}
+    <%company%>\strut \\
+    <%address%>
+  \end{tabular}
+  \hfill
+  \begin{tabular}[t]{rr@{}}
+    Tel & < %tel%>\\
+    Fax & < %fax%>%
+  \end{tabular}
+  \rule{\linewidth}{\heavyrulewidth}
+}
+
+\makeatletter
+\setkomavar{location}{
+  \backaddr@format{\scriptsize\usekomafont{backaddress}%
+    \strut\lieferanschrift
+  }
+  \par\medskip\setlength{\parskip}{\z@}
+  \normalsize
+  <%shiptoname%>\par
+  <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+  <%shiptodepartment_1%>\par
+  <%shiptodepartment_2%>\par
+  <%shiptostreet%>\par
+  <%shiptozipcode%> <%shiptocity%>%
+}
+\makeatother
+
+\begin{letter}{
+    <%name%>\ifhmode\\\fi
+    <%street%>\ifhmode\\\fi
+    <%zipcode%> <%city%>\ifhmode\\\fi
+    <%country%>
+  }
+
+  \opening{}
+
+  \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
+    <%if warehouse%>%
+      &\bfseries\lager%
+    <%end warehouse%>%
+    &\bfseries\lagerplatz&\bfseries\lieferungMit}]
+
+    <%ordnumber%>%
+    &%
+    <%if shippingdate%>%
+      <%shippingdate%>%
+    <%end shippingdate%>%
+    <%if not shippingdate%>%
+    <%orddate%>%
+    <%end shippingdate%>%
+    & <%employee%>%
+    <%if warehouse%>%
+      & <%warehouse%>%
+    <%end warehouse%>%
+    & <%shippingpoint%> & <%shipvia%> \\
+  \end{SimpleTabular}
+
+  \bigskip
+
+  \begin{SimpleTabular}[colspec=rlXllrrll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\seriennummer & &\bfseries\menge&\bfseries\erh&&\bfseries\lagerplatz}]
+    <%foreach number%>%
+      <%runningnumber%> & <%number%> & <%description%> & <%serialnumber%> &
+      <%deliverydate%> & <%qty%> & <%ship%> & <%unit%> & <%bin%> \\
+    <%end number%>%
+  \end{SimpleTabular}
+
+\end{letter}
+
+\end{document}
+

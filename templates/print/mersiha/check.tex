@@ -1,0 +1,61 @@
+\documentclass[paper=a4]{scrartcl}
+\usepackage[reffields,backaddress=false]{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+\KOMAoptions{fontsize=9pt}
+
+
+\setplength{firstheadvpos}{4cm}
+
+\setkomavar{firsthead}{
+  \noindent\begin{tabular}[t]{@{}l@{}}
+    <%company%>\strut\\
+    <%address%>
+  \end{tabular}
+  \hfill
+  <%source%>\par
+  \medskip
+  <%text\_amount%> \dotfill <%decimal%>/100 \par\smallskip
+  \hfill <%datepaid%> \hspace{2cm}\strut<%amount%>
+}
+
+
+\begin{document}
+
+\begin{letter}{%
+  <%if billing_address_id%>%
+    <%billing_address_name%> \strut\\%
+    <%billing_address_street%>\strut\\%
+    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
+    <%billing_address_country%>\strut\\%
+  <%else%>%
+    <%name%>\strut\\%
+    <%street%>\strut\\%
+    <%zipcode%> <%city%>\strut\\%
+    <%country%>\strut%
+  <%end billing_address_id%>%
+  }
+
+  \opening{<%company%>}
+  \pagestyle{empty}
+
+  <%name%> \hfill <%datepaid%> \hfill <%source%>%
+
+  \begin{SimpleTabular}[colspec=lXrr,headline={\bfseries\rechnung&\bfseries\ausgestellt&\bfseries\faellig&\bfseries\verrechnet}]
+    <%foreach invnumber%>%
+      <%invnumber%> & <%invdate%> & <%due%> & <%paid%> \\
+    <%end invnumber%>%
+  \end{SimpleTabular}
+
+\end{letter}
+
+\end{document}
+

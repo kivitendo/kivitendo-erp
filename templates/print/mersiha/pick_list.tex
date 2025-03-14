@@ -1,0 +1,89 @@
+\documentclass[twoside,parskip=half-]{scrartcl}
+\usepackage[reffields,backaddress=false,addrfield=topaligned,nofooter]{kiviletter}
+
+% Variablen, die in settings verwendet werden
+\newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+
+% settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
+\input{insettings.tex}
+
+\KOMAoptions{fontsize=10pt}
+\begin{document}
+
+\setkomavar{title}{\sammelliste}
+
+\setkomavar{firsthead}{
+  \normalsize
+  \noindent\begin{tabular}[t]{@{}l@{}}
+    <%company%>\strut \\
+    <%address%>
+  \end{tabular}
+  \hfill
+  \begin{tabular}[t]{rr@{}}
+    Tel & < %tel%>\\
+    Fax & < %fax%>%
+  \end{tabular}
+  \rule{\linewidth}{\heavyrulewidth}
+}
+
+\makeatletter
+\setkomavar{location}{
+\normalsize
+<%shiptocontact%>%
+<%if shiptophone%>%
+  \\\textTelefon : <%shiptophone%>
+<%end shiptophone%>%
+<%if shiptofax%>%
+  \\\textFax : <%shiptofax%>
+<%end shiptofax%>%
+\\%
+<%shiptoemail%>%
+}
+\makeatother
+
+\setkomavar{backaddress}{\lieferanschrift}
+
+\begin{letter}{\strut%
+    <%shiptoname%>\ifhmode\\\fi
+    <%shiptostreet%>\ifhmode\\\fi
+    <%shiptozipcode%>\ifhmode\\\fi
+    <%shiptocity%>\ifhmode\\\fi
+    <%shiptocountry%>%
+  }
+
+  \opening{}
+
+
+  \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
+    <%if warehouse%>%
+      &\bfseries\lager%
+    <%end warehouse%>%
+    &\bfseries\lagerplatz&\bfseries\lieferungMit}]
+    <%ordnumber%>%
+    &%
+    <%if shippingdate%>%
+      <%shippingdate%>%
+    <%end shippingdate%>%
+    <%if not shippingdate%>%
+    <%orddate%>%
+    <%end shippingdate%>%
+    & <%employee%>%
+    <%if warehouse%>%
+      & <%warehouse%>%
+    <%end warehouse%>%
+    & <%shippingpoint%> & <%shipvia%> \\
+  \end{SimpleTabular}
+
+  \bigskip
+
+  \begin{SimpleTabular}[colspec=rlXrcll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\menge&\bfseries\lagerausgang&&\bfseries\lagerplatz}]%
+    <%foreach number%>%
+      <%runningnumber%> & <%number%> & <%description%> &%
+      <%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\%
+    <%end number%>%
+  \end{SimpleTabular}
+
+\end{letter}
+
+\end{document}
+
