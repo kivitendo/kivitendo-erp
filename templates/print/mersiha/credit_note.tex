@@ -23,23 +23,11 @@
 \setkomavar{info5}[\textTelefon]    {<%employee_tel%>}
 \setkomavar{info6}[\textEmail]      {<%employee_email%>}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%invdate%>}
-\setkomavar{customer}{<%customernumber%>}
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
   \gutschrift~
   \nr ~<%invnumber%>%
 }
 
-<%if invnumber_for_credit_note%>%
-  \setkomavar*{myref}{\fuerRechnung}
-  \setkomavar{myref}{<%invnumber_for_credit_note%>}
-<%end invnumber_for_credit_note%>%
-
-\setkomavar{transaction}{<%transaction_description%>}
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox

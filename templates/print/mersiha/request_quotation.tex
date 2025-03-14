@@ -24,21 +24,10 @@
 \setkomavar{info6}[\textTelefon]    {<%employee_tel%>}
 \setkomavar{info7}[\textEmail]      {<%employee_email%>}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%transdate%>}
-\setkomavar{customer}{<%customernumber%>}
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
   \anfrage~
   \nr ~<%quonumber%>%
 }
-<%if globalprojectnumber%>%
-  \setkomavar{projectID}{<%globalprojectnumber%>}
-<%end globalprojectnumber%>%
-
-\setkomavar{transaction}{<%transaction_description%>}
 
 \begin{document}
 

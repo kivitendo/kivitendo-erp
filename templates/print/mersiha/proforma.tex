@@ -32,19 +32,6 @@
   \proformarechnung~
   \nr ~<%ordnumber%>%
 }
-\setkomavar*{date}{\datum}
-
-\setkomavar{date}{<%orddate%>}
-\setkomavar{customer}{<%customernumber%>}
-<%if cusordnumber%>%
-  \setkomavar*{yourref}{\ihreBestellnummer}
-  \setkomavar{yourref}{<%cusordnumber%>}
-<%end cusordnumber%>%
-<%if quonumber%>\setkomavar{quote}{<%quonumber%>}<%end if%>%
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
-\setkomavar{transaction}{<%transaction_description%>}
 
 <%if shiptoname%>%
   \makeatletter

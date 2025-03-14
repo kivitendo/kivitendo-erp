@@ -29,22 +29,10 @@ $( USE LxERP )$
 %\setkomavar{info6}[\textTelefon]        {$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
 %\setkomavar{info7}[\textEmail]          {$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{$( reclamation.transdate_as_date )$}
-\setkomavar{customer}{$( KiviLatex.filter(reclamation.customer.number) )$}
-\setkomavar{fromname}{$( KiviLatex.filter(reclamation.employee.name) )$}
-%\setkomavar{fromphone}{$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
-%\setkomavar{fromemail}{$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 \setkomavar{title}{%
   \ekreklamation~
   \nr~$( KiviLatex.filter(reclamation.record_number) )$%
 }
-
-$( IF (reclamation.cv_record_number) )$%
-  %\setkomavar*{yourref}{\ihreReclamationsnummer}
-  \setkomavar{yourref}{$( KiviLatex.filter(reclamation.cv_record_number) )$}
-$( END )$%
-\setkomavar{transaction}{$( KiviLatex.filter(reclamation.transaction_description) )$}
 
 %TODO(Tamino): look at shipto
 $( IF (reclamation.shipto_id) )$%

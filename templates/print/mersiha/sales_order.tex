@@ -31,30 +31,10 @@
 \setkomavar{info8}[\textTelefon]               {<%employee_tel%>}
 \setkomavar{info9}[\textEmail]                 {<%employee_email%>}
 
-
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%orddate%>}
-\setkomavar{customer}{<%customernumber%>}
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
   \auftragsbestaetigung~
   \nr~<%ordnumber%>%
 }
-<%if tax_point%>%
-  \setkomavar*{taxpoint}{\leistungsdatum}
-  \setkomavar{taxpoint}{<%tax_point%>}
-<%end tax_point%>%
-<%if cusordnumber%>%
-  \setkomavar*{yourref}{\ihreBestellnummer}
-  \setkomavar{yourref}{<%cusordnumber%>}
-<%end cusordnumber%>%
-\setkomavar{transaction}{<%transaction_description%>}
-
-<%if quonumber%>
-  \setkomavar{quote}{<%quonumber%>}
-<%end quonumber%>%
 
 <%if shiptoname%>%
 \makeatletter

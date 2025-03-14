@@ -24,22 +24,10 @@
 \setkomavar{info6}[\textTelefon]    {<%employee_tel%>}
 \setkomavar{info7}[\textEmail]      {<%employee_email%>}
 
-\setkomavar*{date}{\rechnungsdatum}
-\setkomavar{date}{<%invdate%>}
-\setkomavar{customer}{<%customernumber%>}
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
   \rechnung~
   \nr ~<%invnumber%>%
 }
-\setkomavar*{myref}{\mahnung~\nr}
-\setkomavar{myref}{<%dunning_id%>}
-<%if globalprojectnumber%>%
-  \setkomavar{projectID}{<%globalprojectnumber%>}
-<%end globalprojectnumber%>%
-\setkomavar{transaction}{<%transaction_description%>}
 
 \begin{document}
 

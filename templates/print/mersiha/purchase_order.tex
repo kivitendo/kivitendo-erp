@@ -24,26 +24,10 @@
 \setkomavar{info6}[\textTelefon]        {<%employee_tel%>}
 \setkomavar{info7}[\textEmail]          {<%employee_email%>}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%orddate%>}
-
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
   \bestellung~
   \nr~<%ordnumber%>%
 }
-
-<%if cusordnumber%>%
-  \setkomavar*{yourref}{\unsereBestellnummer}
-  \setkomavar{yourref}{<%cusordnumber%>}
-<%end cusordnumber%>%
-\setkomavar{transaction}{<%transaction_description%>}
-
-<%if quonumber%>
-  \setkomavar{quote}{<%quonumber%>}
-<%end quonumber%>%
 
 <%if shiptoname%>%
 \makeatletter

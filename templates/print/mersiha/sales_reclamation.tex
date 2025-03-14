@@ -29,12 +29,6 @@ $( KiviLatex.required_packages_for_html )$
 %\setkomavar{info6}[\textTelefon]        {$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
 %\setkomavar{info7}[\textEmail]          {$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{$( reclamation.transdate_as_date )$}
-\setkomavar{customer}{$( KiviLatex.filter(reclamation.customer.number) )$}
-\setkomavar{fromname}{$( KiviLatex.filter(reclamation.employee.name) )$}
-%\setkomavar{fromphone}{$( KiviLatex.filter(reclamation.employee.deleted_tel) )$}
-%\setkomavar{fromemail}{$( KiviLatex.filter(reclamation.employee.deleted_email) )$}
 \setkomavar{title}{%
   \vkreklamation~
   \nr~$( KiviLatex.filter(reclamation.record_number) )$%
