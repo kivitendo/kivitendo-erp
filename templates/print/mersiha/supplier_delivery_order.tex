@@ -29,29 +29,9 @@
 \setkomavar{info7}[\textTelefon]               {<%employee_tel%>}
 \setkomavar{info8}[\textEmail]                 {<%employee_email%>}
 
-\setkomavar*{date}{\datum}
-\setkomavar{date}{<%transdate%>}
-
-\setkomavar{fromname}{<%employee_name%>}
-\setkomavar{fromphone}{<%employee_tel%>}
-\setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
 	\beistelllieferschein~\nr ~<%donumber%>%
 }
-<%if ordnumber%>
-	\setkomavar{orderID}{<%ordnumber%>}
-<%end ordnumber%>%
-<%if cusordnumber%>%
-	\setkomavar*{yourref}{\unsereBestellnummer}
-	\setkomavar{yourref}{<%cusordnumber%>}
-<%end cusordnumber%>%
-\setkomavar{transaction}{<%transaction_description%>}
-
-<%if globalprojectnumber%>%
-	\setkomavar{projectID}{<%globalprojectnumber%>}
-<%end globalprojectnumber%>%
-
-\setkomavar{transaction}{<%transaction_description%>}
 
 <%if shiptoname%>%
 \makeatletter
