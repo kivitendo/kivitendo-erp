@@ -93,7 +93,7 @@ $( END )$%
 
     \ekreklamationsformel
 
-    \begin{PricingTabular*}
+    \begin{PricingTabular*}[pricetotal/colspec = K]
       % eigentliche Tabelle
       \FakeTable{
         $( FOREACH item = reclamation.items_sorted )$%
@@ -109,11 +109,11 @@ $( END )$%
         &%
         $( item.qty_as_number )$ $( item.unit )$ &%
         $( item.sellprice_as_number )$&%
-        % TODO(Tamino): discount in '%'
-        \Ifstr{$( item.discount_as_number )$}{0}{}{\sffamily\scriptsize{(-$( item.discount_as_percent )$\%)}}%
         % TODO(Tamino): linetotal
-        \normalsize
-        $( LxERP.format_amount(item.linetotal, 2, 0) )$\tabularnewline
+        $( LxERP.format_amount(item.linetotal, 2, 0) )$\,\currency
+        % TODO(Tamino): discount in '%'
+        $( IF (item.discount) )$\par{\sffamily\scriptsize(-$( item.discount_as_percent )$\,\%)}$( END )$
+        \tabularnewline
         $( END )$%
       }%
       \begin{PricingTotal}%
