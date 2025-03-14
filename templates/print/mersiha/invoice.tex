@@ -151,7 +151,7 @@
   % id = false, % deaktiviert die Spalte der Artikelnummer
   % amount = 1cm, % Setzt die Breite der Mengenspalte auf 1cm
   % desc/header = Artikelbeschreibung, %Ändert die Überschrift der Bezeichnunsspalte in „Artikelbeschreibung”
-  \begin{PricingTabular*}%
+  \begin{PricingTabular*}[pricetotal/colspec = K]
     % eigentliche Tabelle
     \FakeTable{%
     <%foreach number%>%
@@ -165,8 +165,8 @@
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
-      \Ifstr{<%p_discount%>}{0}{}{{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}}%
-      <%linetotal%>\tabularnewline%
+      <%if optional%>\optional<%else%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end optional%>
+      \tabularnewline
     <%end number%>%
     }%
     \begin{PricingTotal}%
