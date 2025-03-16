@@ -425,6 +425,7 @@ sub retrieve_export {
                 FROM sepa_export_items sei
                 $joins
                 WHERE sei.sepa_export_id = ?
+                AND collected_payment IS FALSE
                 ORDER BY sei.id|;
 
     $export->{items} = selectall_hashref_query($form, $dbh, $query, conv_i($params{id}));
@@ -622,7 +623,8 @@ SQL
     my $query_sub  = qq|se.id IN (SELECT items.sepa_export_id
                                   FROM sepa_export_items items
                                   $joins_sub
-                                  WHERE $where_sub)|;
+                                  WHERE $where_sub
+                                  AND collected_payment IS FALSE)|;
 
     push @where,  $query_sub;
     push @values, @values_sub;
@@ -640,7 +642,7 @@ SQL
           WHERE (sei.sepa_export_id = se.id)) AS num_invoices,
          (SELECT SUM(sei.amount)
           FROM sepa_export_items sei
-          WHERE (sei.sepa_export_id = se.id)) AS sum_amounts,
+          WHERE (sei.sepa_export_id = se.id AND NOT sei.collected_payment)) AS sum_amounts,
          (SELECT string_agg(semi.message_id, ', ')
           FROM sepa_export_message_ids semi
           WHERE semi.sepa_export_id = se.id) AS message_ids,
