@@ -605,7 +605,8 @@ sub bank_transfer_download_sepa_xml {
   foreach my $item (@items) {
 
     # do not offer collected_payment
-    next if $item->{collected_payment};
+    # refactor - is already set in sql
+    # next if $item->{collected_payment};
 
     my $requested_execution_date;
     my $mandator_id;
