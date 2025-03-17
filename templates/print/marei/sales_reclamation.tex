@@ -64,13 +64,13 @@ $( END )$%
 
 \begin{letter}{
   %TODO(Tamino): what name, street, ... ?
-  $( reclamation.customer.name )$\strut\\
-  $( IF (reclamation.customer.department_1) )$$( reclamation.customer.department_1 )$\\$( END )$%
-  $( IF (reclamation.customer.department_2) )$$( reclamation.customer.department_2 )$\\$( END )$%
+  $( reclamation.customervendor.name )$\strut\\
+  $( IF (reclamation.customervendor.department_1) )$$( reclamation.customervendor.department_1 )$\\$( END )$%
+  $( IF (reclamation.customervendor.department_2) )$$( reclamation.customervendor.department_2 )$\\$( END )$%
   $( reclamation.contact.cp_givenname )$ $( reclamation.contact.cp_name )$\strut\\
-  $( reclamation.customer.street )$\strut\\
-  $( reclamation.customer.zipcode )$ $( city )$\strut\\
-  $( reclamation.customer.country )$ \strut
+  $( reclamation.customervendor.street )$\strut\\
+  $( reclamation.customervendor.zipcode )$ $( city )$\strut\\
+  $( reclamation.customervendor.country )$ \strut
     }
 
     % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.

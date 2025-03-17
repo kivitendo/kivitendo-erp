@@ -30,7 +30,7 @@
 <%end template_meta.formname == "final_invoice"%>
 
 <%if template_meta.formname == "storno_invoice"%>
-  \renewcommand{\rechnung}{}
+  \renewcommand{\rechnung}{\stornorechnung}
 <%end template_meta.formname == "storno_invoice"%>
 
 % laufende Kopfzeile:
@@ -45,7 +45,7 @@
 
 <%if template_meta.formname == "storno_invoice"%>%
 \setkomavar{title}{%
-  ~<%invnumber%>%
+  \rechung~ \nr ~<%invnumber%>%
 }
 <%else%>%
 \setkomavar{title}{%
@@ -165,7 +165,7 @@
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
-      \Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+      \Ifstr{<%p_discount%>}{0}{}{{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}}%
       <%linetotal%>\tabularnewline%
     <%end number%>%
     }%
