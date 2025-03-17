@@ -3059,11 +3059,13 @@ years: 1
         <para>Hierbei handelt es sich um einen auf Industriekunden zugeschnitten LaTeX
         Druckvorlagensatz auf Basis des Druckvorlagensatzes marei.</para>
 
-        <para>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
-        Grundsätzlich werden Doppelungen im LaTeX-Code vermieden, um die Wartung zu vereinfachen.
-        Belegtypen, die sich nur minimal voneinander unterscheiden, verweisen auf dieselbe LaTeX-Quelltextdatei, welche dann Fallunterscheidungen, z.B. für die Überschrift, enthält.
-        Eine Übersicht aller Belegtypen und zugehöriger LaTeX-Quelltextdateien liefert folgende Tabelle.
-        Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</para>
+        <simplesect>
+          <title>Struktur der Belegtypen</title>
+          <para>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
+          Grundsätzlich werden Doppelungen im LaTeX-Code vermieden, um die Wartung zu vereinfachen.
+          Belegtypen, die sich nur minimal voneinander unterscheiden, verweisen auf dieselbe LaTeX-Quelltextdatei, welche dann Fallunterscheidungen, z.B. für die Überschrift, enthält.
+          Eine Übersicht aller Belegtypen und zugehöriger LaTeX-Quelltextdateien liefert folgende Tabelle.
+          Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</para>
 
 <table><title>Dateinamen der Belegtypen</title>
 	<thead>
@@ -3124,42 +3126,53 @@ storno_invoice.tex* </td>
 		<td> </td><td> </td><td> Sammelrechnung (FiBu) </td><td> statement.tex </td>
 	</tr>
 </tbody></table>
-        <para>*: symbolischer Link
-        </para>
+          <para>*: symbolischer Link
+          </para>
 
-        <para>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
+          <para>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
           <programlisting>deutsch.tex
 englisch.tex
 firma/chf_account.tex
 firma/euro_account.tex
-firma/ident.tex
 firma/usd_account.tex
+firma/ident.tex
 insettings.tex</programlisting>
-          Die Infobox oben rechts auf den Belegen (auch genannt Absenderergänzung) wird über LaTeX KOMA-script Variablen befüllt.
-          Dies ist flexibler als im Druckvorlagensatz marei gestaltet.
-          In der Datei <literal>insettings.tex</literal> sind die KOMA-script Variablen <literal>info0</literal> bis <literal>info9</literal> definiert.
-          Diese erscheinen jedoch nur dann in der Infobox, wenn sie auf einen Wert ungleich eines leeren Strings gesetzt werden.
-          Das erlaubt es, in den Belegen ohne weitere Fallunterscheidungen die Variablen zu setzen.
-          Zum Verständnis hier ein Beispiel aus <literal>invoice.tex</literal>:
-          <programlisting>\setkomavar{info1}[\tAnsprechpartner]{&lt;%salesman_name%&gt;}
-\setkomavar{info2}[\tTelefon]{&lt;%salesman_tel%&gt;}
-\setkomavar{info3}[\tEmail]{&lt;%salesman_email%&gt;}
-\setkomavar{info4}[\tRechnungsdatum]{&lt;%invdate%&gt;}
-\setkomavar{info5}[\tBestellnr]{&lt;%ordnumber%&gt;}
-\setkomavar{info6}[\tRechnungsnr]{&lt;%invnumber%&gt;}
-\setkomavar{info7}[\tLieferdatum]{&lt;%deliverydate%&gt;}</programlisting>
-          Dieser Kunde möchte die Vorgangsbezeichnung nicht mit ausgeben und hat sich daher <literal>\setkomavar{info0}[\tVorgangsbez]{&lt;%transaction_description%&gt;}</literal> gespart.
-        </para>
-        <para>Weil <literal>info0</literal> bis <literal>info9</literal> in aufsteigender Reihenfolge ausgegeben werden, lässt sich über die Ziffer 0 bis 9 die Reihenfolge der Felder in der Infobox steuern.
-        Bei vielen Industriekunden benötigen bestimmte Belegtypen abweichende Informationen oder andere Übersetzungstexte in der Infobox; all dies lässt sich durch Anpassung obigen LaTeX-Codes erreichen.
-        </para>
-
+          </para>
+        </simplesect>
+        <simplesect>
+          <title>Infobox</title>
+          <para>
+            Die Infobox oben rechts auf den Belegen (auch genannt Absenderergänzung) wird über LaTeX KOMA-script Variablen befüllt.
+            Dies ist flexibler als im Druckvorlagensatz marei gestaltet.
+            In der Datei <literal>insettings.tex</literal> sind die KOMA-script Variablen <literal>info0</literal> bis <literal>info9</literal> definiert.
+            Diese erscheinen jedoch nur dann in der Infobox, wenn sie auf einen Wert ungleich eines leeren Strings gesetzt werden.
+            Das erlaubt es, in den Belegen ohne weitere Fallunterscheidungen die Variablen zu setzen.
+            Zum Verständnis hier ein Beispiel aus dem Belegtyp Rechnung, also <literal>invoice.tex</literal>:
+            <programlisting>% \setkomavar{info0}[\vorgangsbez]       {&lt;%transaction_description%&gt;}
+\setkomavar{info1}[\rechnungsdatum]    {&lt;%invdate%&gt;}
+\setkomavar{info2}[\kundennummer]      {&lt;%customernumber%&gt;}
+\setkomavar{info3}[\ihreBestellnummer] {&lt;%cusordnumber%&gt;}
+\setkomavar{info4}[\auftragsnummer]    {&lt;%ordnumber%&gt;}
+\setkomavar{info5}[\angebot{}~\nr]     {&lt;%quonumber%&gt;}
+\setkomavar{info6}[\lieferschein{}~\nr]{&lt;%donumber%&gt;}
+\setkomavar{info7}[\leistungsdatum]    {&lt;%tax_point%&gt;}
+\setkomavar{info8}[\ansprechpartner]   {&lt;%salesman_name%&gt;}
+\setkomavar{info9}[\textTelefon]       {&lt;%salesman_tel%&gt;}
+\setkomavar{info10}[\textEmail]        {&lt;%salesman_email%&gt;}
+</programlisting>
+            Dieser Kunde möchte die Vorgangsbezeichnung nicht mit ausgeben, weshalb die erste Zeile auskommentiert ist. Weiterhin ist exemplarisch der Verkäufer anstelle des Bearbeiters der Ansprechpartner. Daher wird mit <literal>&lt;%salesman_name%&gt;</literal> anstelle von <literal>&lt;%employee_name%&gt;</literal> gearbeitet. Telefon und E-Mail verhalten sich analog dazu.
+          </para>
+          <para>Weil <literal>info0</literal> bis <literal>info11</literal> in aufsteigender Reihenfolge ausgegeben werden, lässt sich über die Ziffern 0 bis 11 die Reihenfolge der Felder in der Infobox steuern.
+          Bei vielen Industriekunden benötigen bestimmte Belegtypen abweichende Informationen oder andere Übersetzungstexte in der Infobox; all dies lässt sich durch Anpassung obigen LaTeX-Codes erreichen.
+          </para>
+        </simplesect>
         <simplesect>
           <title>Tipps für Kundenanpassungen</title>
-
-          <para>
-          Logo mit absoluter Positionierung als Briefbogen einfügen: In <literal>insettings.tex</literal> einfügen:
-          <programlisting>\DeclareNewLayer[page,background,hoffset=125mm,voffset=12mm,
+          <itemizedlist>
+            <listitem>
+              <para>
+              Logo mit absoluter Positionierung als Briefbogen einfügen: In <literal>insettings.tex</literal> einfügen:
+              <programlisting>\DeclareNewLayer[page,background,hoffset=125mm,voffset=12mm,
   contents={\includegraphics[width=75mm]{logo-mit-text}}
 ]{background.first}
 \DeclareNewLayer[page,background,hoffset=20mm,voffset=4mm,
@@ -3167,38 +3180,42 @@ insettings.tex</programlisting>
 ]{background}
 \AddLayersToPageStyle{kivitendo.letter.first}{background.first}
 \AddLayersToPageStyle{kivitendo.letter}{background}</programlisting>
-          Das Logo muss in einem für LaTeX geeigneten Format vorliegen, bspw. PDF, PNG oder JPEG: logo-mit-text.pdf o.Ä.
-          </para>
-
-          <para>
-          Die alternierenden Farben der Zeilen in der Positionstabelle abschalten: In <literal>insettings.tex</literal> einfügen:
-          <programlisting>\SetupPricingTabular{
+              Das Logo muss in einem für LaTeX geeigneten Format vorliegen, bspw. PDF, PNG oder JPEG: <literal>logo-mit-text.pdf</literal> o.Ä.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              Die alternierenden Farben der Zeilen in der Positionstabelle abschalten: In <literal>insettings.tex</literal> einfügen:
+              <programlisting>\SetupPricingTabular{
   rowcolor-odd = white,
 }</programlisting>
-          </para>
-
-          <para>
-          Im Druckvorlagensatz mersiha bereits enthalten ist: Die standardmäßig aktive Ausgabe des Währungszeichens in der letzten Spalte der Positionstabelle abschalten: In <literal>insettings.tex</literal> einfügen:
-          <programlisting>\SetupPricingTabular{
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              Im Druckvorlagensatz mersiha bereits enthalten ist: Die standardmäßig aktive Ausgabe des Währungszeichens in der letzten Spalte der Positionstabelle abschalten: In <literal>insettings.tex</literal> einfügen:
+              <programlisting>\SetupPricingTabular{
   pricetotal/colspec = K,
 }</programlisting>
-          Dies ist bspw. nötig, um optionale Positionen richtig auszugeben und das Währungszeichen nur alle nicht-optionalen Positionen durch eine Fallunterscheidung in Template Toolkit einzufügen.
-          </para>
-        </simplesect>
-
-          <para>
-          In Lieferantenaufträgen zu jeder Position die Artikelnummer des Lieferanten ausgeben: In <literal>purchase_order.tex</literal> folgendes Delta (diff) einfügen:
-          <programlisting>     &lt;%foreach number%&gt;%
+              Dies ist bspw. nötig, um optionale Positionen richtig auszugeben und das Währungszeichen nur alle nicht-optionalen Positionen durch eine Fallunterscheidung in Template Toolkit einzufügen.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+              In Lieferantenaufträgen zu jeder Position die Artikelnummer des Lieferanten ausgeben: In <literal>purchase_order.tex</literal> folgendes diff (mit + markierte Zeilen) einfügen:
+              <programlisting>     &lt;%foreach number%&gt;%
        &lt;%runningnumber%&gt; &amp;%
        &lt;%number%&gt; &amp;%
        \textbf{&lt;%description%&gt;}%
-+      \ExtraDescription{&lt;%foreach make%&gt;&lt;%if make == name%&gt;&lt;%model%&gt; &lt;%end%&gt;&lt;%end%&gt;}
++      &lt;%foreach make%&gt;&lt;%if make == name%&gt;\ExtraDescription{&lt;%model%&gt;}&lt;%end%&gt;&lt;%end%&gt;%
        &lt;%if longdescription%&gt;\ExtraDescription{&lt;%longdescription%&gt;}&lt;%end longdescription%&gt;%
        &lt;%if reqdate%&gt;\ExtraDescription{\lieferdatum: &lt;%reqdate%&gt;}&lt;%end reqdate%&gt;%
-</programlisting>
-          Hier wird durch eine Schleife in Template Toolkit der richtige Wert extrahiert.
-          </para>
-
+    </programlisting>
+              Hier wird durch eine Schleife in Template Toolkit der richtige Wert extrahiert.
+              </para>
+            </listitem>
+          </itemizedlist>
+        </simplesect>
       </sect2>
 
       <sect2 id="Vorlagen-RB">
