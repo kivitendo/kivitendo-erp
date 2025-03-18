@@ -810,7 +810,7 @@ sub get_payment_select_options_for_bank_transaction {
   croak "No Bank Transaction with ID $bt_id found" unless ref $bt eq 'SL::DB::BankTransaction';
 
   if (ref $self->skonto_date eq 'DateTime' && $self->within_skonto_period(transdate => $bt->transdate)
-      && ! $self->booked_skonto_amount                                                                 ) {
+      && !$self->booked_skonto_amount                                                                 ) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
     push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
