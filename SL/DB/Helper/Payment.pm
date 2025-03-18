@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto booked_skonto_amount);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -518,6 +518,22 @@ sub open_amount_less_skonto {
   return _round($open_amount - ( $self->amount * $percent_skonto) );
 
 }
+sub booked_skonto_amount {
+  my $self = shift;
+
+  my $payments = [ grep { $_->chart_link =~ m/paid/ } @{ $self->transactions } ];
+
+  return unless scalar @{ $payments };
+
+  my ($tax, $booked_skonto_amount);
+
+  foreach my $payment_booking ( @{ $payments } ) {
+    $tax = SL::DB::Manager::Tax->get_first(where => [ or => [ skonto_purchase_chart_id => $payment_booking->chart_id,
+                                                              skonto_sales_chart_id    => $payment_booking->chart_id ]]);
+    $booked_skonto_amount += $payment_booking->amount if ref $tax eq 'SL::DB::Tax';
+  }
+  return _round($booked_skonto_amount);
+}
 sub _add_bank_fx_fees {
   my ($self, %params)   = @_;
   my $amount = $params{fee};
@@ -793,7 +809,8 @@ sub get_payment_select_options_for_bank_transaction {
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
   croak "No Bank Transaction with ID $bt_id found" unless ref $bt eq 'SL::DB::BankTransaction';
 
-  if (ref $self->skonto_date eq 'DateTime' &&  $self->within_skonto_period(transdate => $bt->transdate)) {
+  if (ref $self->skonto_date eq 'DateTime' && $self->within_skonto_period(transdate => $bt->transdate)
+      && ! $self->booked_skonto_amount                                                                 ) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
     push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
