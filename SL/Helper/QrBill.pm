@@ -9,7 +9,7 @@ use File::Spec ();
 use Imager ();
 use Imager::QRCode ();
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my %Config = (
   img_dir    => 'image',
@@ -79,26 +79,9 @@ sub _init {
   ];
 }
 
-# Validate the data with regular expressions and exit ungracefully
-# if conditions are not matched.
-sub _init_check {
-  my $self = shift;
-  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data, $additional_information) = @_;
-
-  my $check_re = sub {
-    my ($group, $href, $elem, $regex) = @_;
-    my $error = undef;
-    if (!exists $href->{$elem}) {
-      $error = 'does not exist';
-    } elsif (!defined $href->{$elem}) {
-      $error = 'is not defined';
-    } elsif ($href->{$elem} !~ $regex) {
-      $error = 'is not valid';
-    }
-    die "field '$elem' in group '$group' $error", "\n" if defined $error;
-  };
-
-  my %regexes = (
+# Return the regular expressions used for validating data.
+sub _get_regexes {
+  return (
     'biller information' => [
       [ 'iban', qr{^(?:CH|LI)[0-9a-zA-Z]{19}$} ],
     ],
@@ -142,6 +125,28 @@ sub _init_check {
       'qr_iban' => qr{^.{4}3[01][0-9]{3}.{12}$},
     },
   );
+}
+
+# Validate the data with regular expressions and exit ungracefully
+# if conditions are not matched.
+sub _init_check {
+  my $self = shift;
+  my ($biller_information, $biller_data, $payment_information, $invoice_recipient_data, $ref_nr_data, $additional_information) = @_;
+
+  my $check_re = sub {
+    my ($group, $href, $elem, $regex) = @_;
+    my $error = undef;
+    if (!exists $href->{$elem}) {
+      $error = 'does not exist';
+    } elsif (!defined $href->{$elem}) {
+      $error = 'is not defined';
+    } elsif ($href->{$elem} !~ $regex) {
+      $error = 'is not valid';
+    }
+    die "field '$elem' in group '$group' $error", "\n" if defined $error;
+  };
+
+  my %regexes = _get_regexes();
 
   my $group = 'biller information';
   foreach my $re (@{$regexes{$group}}) {
