@@ -1282,14 +1282,14 @@ sub action_transfer_stock_default {
 
     $parts_qty{$part->id} += $qty if $qty;
     push @transfer_requests, {
-      'delivery_order_item' => $item,
-      'warehouse_id'        => $part->warehouse_id || $default_warehouse_id,
-      'bin_id'              => $part->bin_id       || $default_bin_id,
-      'unit'                => $part->unit,
-      'qty'                 => $qty,
+      'delivery_order_item_id' => $item->id,
+      'warehouse_id'           => $part->warehouse_id || $default_warehouse_id,
+      'bin_id'                 => $part->bin_id       || $default_bin_id,
+      'unit'                   => $part->unit,
+      'qty'                    => $qty,
       # added in check transfer_request out direction if possible
-      'chargenumber'        => undef, # $item->serialnumber, # Is not used in delivery order
-      'bestbefore'          => undef, # $item->bestbefore,   # Is not used in delivery order
+      'chargenumber'           => undef, # $item->serialnumber, # Is not used in delivery order
+      'bestbefore'             => undef, # $item->bestbefore,   # Is not used in delivery order
     }
   }
 
@@ -1343,7 +1343,8 @@ sub action_transfer_stock_default {
       # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
       # lagerplatz wegbuchen!
       foreach (@transfer_requests) {
-        if ($_->{delivery_order_item}->parts_id eq $part_id){
+        my $item = SL::DB::DeliveryOrderItem->new(id => $_->{delivery_order_item_id})->load();
+        if ($item->parts_id eq $part_id){
           $_->{bin_id}        = $default_bin_id_ignore_onhand;
           $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
         }
