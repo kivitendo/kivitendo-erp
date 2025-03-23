@@ -56,7 +56,7 @@ sub new {
   my $self = {};
 
   $self->{message} = '';
-  $self->{dom} = eval { XML::LibXML->load_xml(string => $xml_data) };
+  $self->{dom} = eval { XML::LibXML->load_xml(string => $xml_data, load_ext_dtd => 0) };
 
   if ( ! $self->{dom} ) {
     $self->{message} = t8("Parsing the XML data failed: #1", $xml_data);
