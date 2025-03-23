@@ -158,7 +158,7 @@ sub extract_from_pdf {
   if (!defined $xmp) {
       push @warnings, $::locale->text('The file \'#1\' does not contain the required XMP meta data.', $file_name);
   } else {
-    my $dom = eval { XML::LibXML->load_xml(string => $xmp) };
+    my $dom = eval { XML::LibXML->load_xml(string => $xmp, load_ext_dtd => 0) };
 
     push @warnings, $::locale->text('Parsing the XMP metadata failed.'), if !$dom;
 

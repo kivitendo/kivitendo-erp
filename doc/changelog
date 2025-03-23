@@ -13,6 +13,8 @@ Kleinere neue Features und Detailverbesserungen:
 - SSO (Single-Sign-On) Unterstützung über entsprechende HTTP-Header.
   Für Details s.a. Doku und ggf. API-Doku im POD-Style
 
+- XXE Sicherheitslücke bei ZUGFeRD parsen verhindern (Upload), s.a.
+  https://www.usenix.org/sites/default/files/conference/protected-files/woot16_slides_spath.pdf
 Bugfixes (Tracker: https://www.kivitendo.de/redmine):
 
 
