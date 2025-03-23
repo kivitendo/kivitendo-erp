@@ -3728,6 +3728,7 @@ $self->{texts} = {
   'Skonto'                      => '',
   'Skonto Tax Correction for'   => '',
   'Skonto Terms'                => '',
+  'Skonto already booked'       => '',
   'Skonto amount'               => '',
   'Skonto information'          => '',
   'So far you could use one partnumber for severel parts, for example a service and an article.' => '',
