@@ -75,7 +75,7 @@ sub _get_stock_onhand {
   if ($params{bestbefore_eq}) {
     Carp::croak("not DateTime ".$params{bestbefore_eq}) unless ref($params{bestbefore_eq}) eq 'DateTime';
     push @where, sprintf "(bestbefore = ?)";
-    push @values, $params{bestbefore};
+    push @values, $params{bestbefore_eq};
   }
 
   # by
