@@ -23,6 +23,7 @@ use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
+use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
@@ -587,7 +588,14 @@ sub new_from {
     $args{vendor_id} = undef;
   }
   if ( $is_abbr_any->(qw(soso)) ) {
-    $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset if $source->periodic_invoices_config;
+    if ($source->periodic_invoices_config) {
+      $args{periodic_invoices_config} = $source->periodic_invoices_config->clone_and_reset;
+
+      if ($args{periodic_invoices_config}->active == 1) {
+        $args{periodic_invoices_config}->active(0);
+        flash_later('info', $::locale->text('Periodic invoices config set to inactive.'));
+      }
+    }
   }
   if ( $is_abbr_any->(qw(sqrq soirq sorq)) ) {
     $args{cusordnumber} = undef;
