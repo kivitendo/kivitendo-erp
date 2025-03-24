@@ -14,6 +14,7 @@
         <form method="post" id="receipt_form_[% order.id %]" action="controller.pl">
           [% L.hidden_tag("action", "POS/add") %]
           [% L.hidden_tag("id", order.id) %]
+          [% L.hidden_tag('point_of_sale_id', FORM.point_of_sale_id) %]
         </form>
         <table class="tbl-list">
           <caption>

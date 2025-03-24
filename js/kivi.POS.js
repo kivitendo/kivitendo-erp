@@ -145,6 +145,9 @@ namespace('kivi.POS', function(ns) {
   ns.open_receipt_load_dialog = function() {
     kivi.popup_dialog({
       url:    'controller.pl?action=POS/open_receipt_load_dialog',
+      data:   {
+        point_of_sale_id: $('#point_of_sale_id').val()
+      },
       id:     'receipt_load_dialog',
       load:   function() {
         kivi.reinit_widgets();
