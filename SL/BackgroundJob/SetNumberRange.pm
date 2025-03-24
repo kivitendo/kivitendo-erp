@@ -79,14 +79,14 @@ Background job for setting all kivitendo number ranges for a new year or a new m
 
 The job can either be run annually or monthly and defaults to annually.
 
-The backgroud accepts the following optional json encoded parameters in the data for monthly mode:
+The background job accepts the following optional json encoded parameters in the data for monthly mode:
 
 C<monthly>: If set to true the job assumes it is the first of a new month
 
 C<monthly_postfix>: A user postfix can be defined as a string for the new number.
 If nothing is set three zeros are added as a postfix string ('000').
 
-C<monthly_strftime>: Year, month and day can be optional be defined as user input in the
+C<monthly_strftime>: Year, month and day can optional be defined as user input in the
 same way as the C strftime method. If nothing is set 'y%-m%' is the default. More options at the
 time of writing can be found here: https://metacpan.org/pod/DateTime#strftime-Patterns
 
