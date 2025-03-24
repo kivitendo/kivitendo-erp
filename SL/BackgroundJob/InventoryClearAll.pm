@@ -6,6 +6,7 @@ use parent qw(SL::BackgroundJob::Base);
 
 use SL::DB::Inventory;
 use SL::Helper::Inventory qw(:ALL);
+use SL::Locale::String qw(t8);
 
 
 sub run {
@@ -46,6 +47,7 @@ sub run {
     next if $dry_run;
     my $x = SL::DB::Inventory->new();
 
+    $x->bestbefore  ($_->{bestbefore});
     $x->bin_id      ($_->{bin_id});
     $x->chargenumber($_->{chargenumber});
     $x->comment     ($comment);
@@ -59,10 +61,11 @@ sub run {
     $x->save();
   }
 
-  return "Lager: $ntransactions Buchungen "
-    . ($dry_run ? 'noch nicht ausgefuehrt' : 'ausgefuehrt')
-    . " um alle Lagerplaetze zu leeren. Artikel: "
-    . join(", ", @trans);
+  return $dry_run
+    ? t8('Inventory: #1 transactions not yet executed to clear all inventory slots. Parts: #2',
+      $ntransactions, join(',', @trans))
+    : t8('Inventory: #1 transactions executed to clear all inventory slots. Parts: #2',
+      $ntransactions, join(',', @trans));
 }
 
 1;
@@ -81,6 +84,8 @@ warehoue bins. Useful before stocktaking
 =head1 SYNOPSIS
 
 =head1 AUTHOR
+
+Niklas Schmidt
 
 
 =cut
