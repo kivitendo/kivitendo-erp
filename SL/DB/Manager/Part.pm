@@ -36,14 +36,10 @@ __PACKAGE__->add_filter_specs(
   },
   price_change_printed => sub {
     my ($key, $value, $prefix) = @_;
-    die "value must be a scalar ref to a hash ref"
-      unless ref $value eq 'REF' && ref ($$value) eq 'HASH';
 
-    my %value = %$$value;
-
-    my $template   = $value{template};
-    my $print_type = $value{print_type};
-    my $printed    = $value{printed};
+    my $template   = $value->{template};
+    my $print_type = $value->{print_type};
+    my $printed    = $value->{printed};
 
     my $comp = !!$printed  ? '>' : '<=';
 

@@ -943,19 +943,13 @@ sub action_search_print_part_labels_of_changed_prices {
   $::form->{filter} ||= {};
 
   $::form->{filter}->{price_change_printed} ||= {
-    template   => 'part_label',
-    print_type => 'stock',
-    printed    => 0
+    'template:struct'   => 'part_label',
+    'print_type:struct' => 'stock',
+    'printed:struct'    => 0
   };
-
-  my $price_change_printed =$::form->{filter}->{price_change_printed};
-  $::form->{filter}->{price_change_printed} = \$price_change_printed;
-
   my $report =  SL::ReportGenerator->new(\%::myconfig, $::form);
 
   $self->models->finalize; # for filter laundering
-
-  $::form->{filter}->{price_change_printed} = ${$::form->{filter}->{price_change_printed}};
 
   my $callback = $self->models->get_callback;
 
