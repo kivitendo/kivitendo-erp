@@ -116,7 +116,7 @@ sub process_attachments_extract_zip_file {
     my $new_attachment = SL::DB::EmailJournalAttachment->new(
       name    => $member->fileName,
       content => $member_content,
-      mime_type => File::MimeInfo::Magic::mimetype($member->fileName) || 'text/plain',
+      mime_type => File::MimeInfo::Magic::mimetype($member->fileName) || '',
       email_journal_id => $email_journal->id,
     )->save;
     $email_journal->add_attachments($new_attachment);
