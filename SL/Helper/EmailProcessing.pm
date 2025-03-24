@@ -8,6 +8,7 @@ use Carp;
 use XML::LibXML;
 use Archive::Zip;
 use File::MimeInfo::Magic;
+use Archive::Zip::MemberRead;
 
 use SL::ZUGFeRD;
 use SL::Locale::String qw(t8);
@@ -103,8 +104,6 @@ sub process_attachments_extract_zip_file {
   my $zip = Archive::Zip->new;
   open my $fh, "+<", \$attachment->content;
   $zip->readFromFileHandle($fh);
-  use Data::Dumper;
-  use Archive::Zip::MemberRead;
 
   my @new_attachments;
   foreach my $member ($zip->members) {
