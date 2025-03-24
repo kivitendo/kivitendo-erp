@@ -6,6 +6,7 @@ use parent qw(SL::BackgroundJob::Base);
 
 use SL::DB::Manager::Order;
 use SL::DB::Order::TypeData qw(:types);
+use SL::Locale::String qw(t8);
 
 
 sub run {
@@ -19,14 +20,9 @@ sub run {
   my $end     = $today->subtract(years => $years);
 
   my $quotations = SL::DB::Manager::Order->get_all(where => [
-    and => [
-      or => [
-        record_type => REQUEST_QUOTATION_TYPE(),
-        record_type => SALES_QUOTATION_TYPE(),
-      ],
-      transdate => { le => $end },
-      or => [ closed => 0, closed => undef],
-    ]
+    record_type => [ REQUEST_QUOTATION_TYPE(), SALES_QUOTATION_TYPE() ],
+    transdate => { le => $end },
+    or => [ closed => 0, closed => undef],
   ]);
 
   my (@req_quos, @sal_quos);
@@ -45,10 +41,11 @@ sub run {
     $quotation->save();
   }
 
-  return 'Preisanfragen ' . ($dry_run ? 'noch nicht geschlossen' : 'geschlossen') . ': '
-    . join(', ', @req_quos)
-    . ' Angebote ' . ($dry_run ? 'noch nicht geschlossen' : 'geschlossen') . ': '
-    . join(', ', @sal_quos);
+  return $dry_run
+    ? t8('Request quotations not yet closed: #1 Sales quotations not yet closed: #2',
+      join(', ', @req_quos), join(', ', @sal_quos))
+    : t8('Request quotations closed: #1 Sales quotations closed: #2',
+      join(', ', @req_quos), join(', ', @sal_quos));
 }
 
 1;
@@ -65,6 +62,8 @@ Background job for closing all request and sales quotations older than a given n
 =head1 SYNOPSIS
 
 =head1 AUTHOR
+
+Niklas Schmidt
 
 
 =cut
