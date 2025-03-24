@@ -5,7 +5,7 @@ use SL::Controller::Helper::ParseFilter ();
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw (filter add_filter_specs);
+our @EXPORT = qw (filter can_filter add_filter_specs);
 
 my %filter_spec;
 
@@ -17,6 +17,11 @@ sub filter {
   return ($prefix . $key, $value, $path) unless $filters->{$key};
 
   return $filters->{$key}->($key, $value, $prefix, @additional_tokens);
+}
+
+sub can_filter {
+  my ($class, $method) = @_;
+  exists $filter_spec{$class}{$method};
 }
 
 sub _get_filters {

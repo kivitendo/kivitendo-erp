@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 use Test::Deep;
 use Data::Dumper;
 
@@ -8,6 +8,23 @@ use_ok 'Support::TestSetup';
 use_ok 'SL::Controller::Helper::ParseFilter';
 
 use SL::DB::OrderItem;
+use SL::DB::Part;
+
+{
+  SL::DB::Manager::Part->add_filter_specs(
+    part_test_filter => sub {
+      my ($key, $value, $prefix) = @_;
+
+      my $template = $value->{template};
+      my $type = $value->{print_type};
+      my $printed = $value->{printed};
+
+      $prefix . "longdescription" => "template: $template, type: $type, printed: $printed";
+    }
+  );
+}
+
+
 
 undef *::any; # Test::Deep exports any (for junctions) and MoreCommon exports any (like in List::Moreutils)
 
@@ -441,3 +458,14 @@ test {
 }, {
   query => [ customer => { ilike => '%Meyer' } ]
 }, 'auto trim 2';
+
+test {
+  'part.part_test_filter.template:struct'   => 'part_label',
+  'part.part_test_filter.print_type:struct' => 'stock',
+  'part.part_test_filter.printed:struct'    => 0,
+
+}, {
+  query => [
+    'part.longdescription' => "template: part_label, type: stock, printed: 0"
+  ]
+}, "custom filter structs", class => 'SL::DB::Manager::OrderItem';

@@ -117,6 +117,8 @@ sub _parse_filter {
   my $all_methods = { %methods,         %{ $params{methods}         || {} } };
   my $all_complex = { %complex_methods, %{ $params{complex_methods} || {} } };
 
+  my %seen_custom_filters;
+
   my @result;
   for (my $i = 0; $i < scalar @$flattened; $i += 2) {
     my (@args, @filters, $method);
@@ -126,7 +128,16 @@ sub _parse_filter {
 
     my $is_multi      = $key =~ s/:multi//;
     my $is_any        = $key =~ s/:any//;
+    my $is_struct     = $key =~ s/:struct//;
     my @value_tokens  = $is_multi || $is_any ? parse_line('\s+', 0, $value) : ($value);
+
+    if ($params{class} && $is_struct) {
+      my ($cache_key, @data) = _extract_struct_values($key, $flattened, $params{class});
+      next if $seen_custom_filters{$cache_key}++;
+
+      @value_tokens = { @data };
+    }
+
 
     ($key, $method)   = split m{::}, $key, 2;
     ($key, @filters)  = split m{:},  $key;
@@ -250,6 +261,51 @@ sub _collapse_indirect_filters {
   }
 
   return \@collapsed;
+}
+
+sub _extract_struct_values {
+  my ($key, $flattened, $class) = @_;
+
+  my @tokens     = split /\./, $key;
+  my $curr_class = $class->object_class;
+
+  my $i = 0;
+   while ($i < $#tokens) {
+    eval {
+      $curr_class = $curr_class->meta->relationship($tokens[$i])->class;
+      ++$i;
+    } or do {
+      last;
+    }
+  }
+
+  my $manager    = $curr_class->meta->convention_manager->auto_manager_class_name;
+  my $obj_path   = join '.', @tokens[0..$i-1];
+  my $obj_prefix = join '.', @tokens[0..$i-1], '';
+  my $key_token  = $tokens[$i];
+
+  if (!$key_token) {
+    die "cannot find key token for custom struct filter: $key in class $class";
+  }
+
+  if (!$manager->can('can_filter') || !$manager->can_filter($key_token)) {
+    die "class manager $manager does not implement custom filter $key_token";
+  }
+
+  my $cache_key = $obj_prefix . $key_token;
+  my @data;
+
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
+    $key =~ s/:.*//;
+
+    next unless $key =~ /^\Q$cache_key\E\.(.+)/;
+
+    push @data, $1, $value;
+  }
+
+  return $cache_key, @data;
 }
 
 sub _prefix {
@@ -421,6 +477,33 @@ will expand to:
 
 For more about custom filters, see L<SL::DB::Helper::Filtered>.
 
+
+=head1 PASSING COMPLEX DATA TO CUSTOM FILTERS
+
+It is usually not recommended to pass more than one semantic value to a filter.
+If it is absolutely necessary, one can use the special filter C<:struct>.
+
+Example:
+
+
+    query => [
+      'part.part_test_filter.template:struct'   => 'part_label',
+      'part.part_test_filter.print_type:struct' => 'stock',
+      'part.part_test_filter.printed:struct'    => 0,
+    ]
+
+with a custom filter C<part_test_filter> defined on L<SL::DB::Manager::Part>
+will pass all key values as a single hashref to the custom filter:
+
+    {
+      template => 'part_label',
+      print_type => 'stock',
+      printed => 0,
+    }
+
+Warning! This feature is experimental and subject to change.
+
+
 =head1 FILTERS (leading with :)
 
 The following filters are built in, and can be used.
@@ -502,6 +585,13 @@ following will not work as you expect:
 This will search for orders whose invoice has the _same_ customer, which matches
 both inputs. This is because tables are aliased by their name and not by their
 position in with_objects.
+
+
+The code for structured custom filter will not remove spurious with_object entries yet.
+It will also not properly deserialize deeply nested data. So this does not work:
+
+  L.input_tag('part.custom_filter.key1.key2.key3:struct', ...)
+
 
 =head1 TODO
 
