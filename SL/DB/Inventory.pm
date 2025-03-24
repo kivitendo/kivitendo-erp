@@ -90,10 +90,14 @@ sub _before_save_check_valid_qty {
   return 1 unless $self->trans_type->direction eq 'out'; # also catches produce assembly
   return 1 if $::instance_conf->get_transfer_default_ignore_onhand;
 
-  my $qty = SL::Helper::Inventory->get_stock($self, bin => $self->bin_id, part => $self->parts_id) // 0;
+  my $qty = SL::Helper::Inventory->get_stock($self, bin          => $self->bin_id,
+                                                    chargenumber => $self->chargenumber,
+                                                    bestbefore   => $self->bestbefore,
+                                                    part         => $self->parts_id) // 0;
 
-  die t8("Cannot transfer #1 qty for #2 from warehouse #3 at bin #4",
-    $self->qty, $self->part->partnumber, $self->warehouse->description, $self->bin->description)
+  die t8("Cannot transfer #1 qty for #2 from warehouse #3 at bin #4. Optional Chargenumber: #5 Optional Bestbefore: #6",
+    $self->qty, $self->part->partnumber, $self->warehouse->description, $self->bin->description,
+    $self->chargenumber, $self->bestbefore)
     if $qty + $self->qty < 0;
 
   return 1;
