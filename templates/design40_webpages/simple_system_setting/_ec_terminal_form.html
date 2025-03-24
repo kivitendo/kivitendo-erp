@@ -1,5 +1,6 @@
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 [% USE HTML %]
 
 <div class="wrapper">
@@ -16,7 +17,7 @@
       </tr>
       <tr>
         <th> [% LxERP.t8("Transfer Chart") %] </th>
-        <td> [% L.select_tag("object.transfer_chart_id", SELF.Charts, default=SELF.object.transfer_chart_id, title_key='description', class='wi-wider') %] </td>
+        <td>[% P.chart.picker('object.transfer_chart_id', SELF.object.transfer_chart_id, type='AR_paid', choose=1) %]</td>
       </tr>
     </tbody>
   </table>

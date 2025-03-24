@@ -1,10 +1,10 @@
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 [% USE HTML %]
 
 <div class="wrapper">
-  [% IF ( SELF.Charts.size
-       && SELF.Projects.size
+  [% IF ( SELF.Projects.size
        && SELF.ECterminals.size
        && SELF.TSEterminals.size
        && SELF.Printers.size
@@ -19,7 +19,7 @@
       </tr>
       <tr>
         <th> [% LxERP.t8("Cash Chart") %] </th>
-        <td> [% L.select_tag("object.cash_chart_id", SELF.Charts, default=SELF.object.chart_id, title_key='description', class='wi-wider') %] </td>
+        <td>[% P.chart.picker('object.cash_chart_id', SELF.object.cash_chart_id, type='AR_paid', choose=1) %]</td>
       </tr>
       <tr>
         <th> [% LxERP.t8("Project") %] </th>
@@ -64,10 +64,6 @@
     </tbody>
   </table>
   [% ELSE %]
-    [% IF !(SELF.Charts.size) %]
-      [% 'No charts, create one first.' | $T8 %]
-      <br>
-    [% END %]
     [% IF !(SELF.Projects.size) %]
       [% 'No projects, create one first.' | $T8 %]
       <br>

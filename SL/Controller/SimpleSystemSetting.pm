@@ -534,19 +534,11 @@ sub setup_point_of_sale {
   use SL::DB::ReceiptPrinter;
   use SL::DB::Printer;
 
-  $self->{Charts}          = SL::DB::Manager::Chart->get_all();
   $self->{Projects}        = SL::DB::Manager::Project->get_all();
   $self->{ECterminals}     = SL::DB::Manager::ECterminal->get_all();
   $self->{TSEterminals}    = SL::DB::Manager::TSEterminal->get_all();
   $self->{ReceiptPrinters} = SL::DB::Manager::ReceiptPrinter->get_all();
   $self->{Printers}        = SL::DB::Manager::Printer->get_all();
-}
-
-sub setup_ec_terminal {
-  my ($self) = @_;
-  use SL::DB::Chart;
-
-  $self->{Charts}          = SL::DB::Manager::Chart->get_all();
 }
 
 #
