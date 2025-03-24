@@ -67,10 +67,14 @@ sub _get_stock_onhand {
   if (!$params{bestbefore} && $onhand_mode && default_show_bestbefore()) {
     $params{bestbefore} = DateTime->now_local;
   }
-
   if ($params{bestbefore}) {
-    Carp::croak("not DateTime ".$params{date}) unless ref($params{bestbefore}) eq 'DateTime';
+    Carp::croak("not DateTime ".$params{bestbefore}) unless ref($params{bestbefore}) eq 'DateTime';
     push @where, sprintf "(bestbefore IS NULL OR bestbefore >= ?)";
+    push @values, $params{bestbefore};
+  }
+  if ($params{bestbefore_eq}) {
+    Carp::croak("not DateTime ".$params{bestbefore_eq}) unless ref($params{bestbefore_eq}) eq 'DateTime';
+    push @where, sprintf "(bestbefore = ?)";
     push @values, $params{bestbefore};
   }
 
@@ -106,7 +110,6 @@ sub _get_stock_onhand {
   if ($onhand_mode) {
     $query .= ' HAVING SUM(qty) > 0';
   }
-
   my $results = selectall_hashref_query($::form, SL::DB->client->dbh, $query, @values);
 
   my %with_objects = (
@@ -607,6 +610,15 @@ If given, will return stock as it were on this timestamp. Optional. Must be L<Da
 =item * chargenumber
 
 If given, will only show stock with this chargenumber. Optional. May be array.
+
+=item * bestbefore
+
+If given, will only show stock without bestbefore or bestbefore after date. Optional, must be L<DateTime>.
+
+=item * bestbefore_eq
+
+If given, will only show stock with this exact bestbefore date. Optional, must be L<DateTime>.
+
 
 =item * by
 
