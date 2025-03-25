@@ -418,9 +418,16 @@ sub reference_account {
      SL::DB::Manager::AccTransaction->chart_link_filter("$link_filter")
   );
 
-  return undef unless ref $acc_trans;
+  my $id;
 
-  my $reference_account = SL::DB::Manager::Chart->find_by(id => $acc_trans->chart_id);
+  if (! $acc_trans) {
+    $id = $is_sales ? $::instance_conf->get_ar_chart_id : $::instance_conf->get_ap_chart_id;
+    return undef unless $id;
+  } else {
+    $id = $acc_trans->chart_id;
+  }
+
+  my $reference_account = SL::DB::Manager::Chart->find_by(id => $id);
 
   return $reference_account;
 }
