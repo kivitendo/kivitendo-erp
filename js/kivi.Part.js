@@ -504,6 +504,8 @@ namespace('kivi.Part', function(ns) {
     handle_keydown: function(event) {
       var self = this;
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
+        self.$dummy.autocomplete('close');
+
         // if string is empty assume they want to delete
         if (self.$dummy.val() === '') {
           self.set_item({});
