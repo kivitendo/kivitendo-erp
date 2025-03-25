@@ -119,7 +119,7 @@ sub action_new_user {
       countrycode  => $defaults->language('de'),
       numberformat => $defaults->numberformat('1.000,00'),
       dateformat   => $defaults->dateformat('dd.mm.yy'),
-      stylesheet   => "kivitendo.css",
+      stylesheet   => "design40.css",
       menustyle    => "neu",
     },
   ));
