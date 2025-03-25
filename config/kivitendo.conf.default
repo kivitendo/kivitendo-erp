@@ -96,9 +96,9 @@ language = de
 
 # Set stylesheet for login and admin forms. Supported:
 #  lx-office-erp
-#  kivitendo - default
-#  design40
-stylesheet = kivitendo
+#  kivitendo - was the default until version 3.9.2; will be dropped in version 4.0
+#  design40 - default
+stylesheet = design40
 
 # MassPrint Timeout
 # must be less than cgi timeout
