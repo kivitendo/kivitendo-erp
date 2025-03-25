@@ -196,7 +196,7 @@ sub create_or_update {
   my @errors = $self->config->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->show_form(title => $is_new ? t8('Add new custom variable') : t8('Edit custom variable'));
     return;
   }

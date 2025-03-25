@@ -607,6 +607,71 @@ div.layout-actionbar .layout-actionbar-default-action {
   font-weight: bold;
 }
 
+/* Flash message */
+#layout_flash_container {
+  position: absolute;
+  z-index: 200;
+  right: 20px;
+  min-width: 30%;
+  animation: fadein .5s;
+}
+@keyframes hop {
+  to  { transform: scale(1.01); }
+}
+@keyframes flash {
+  from  { background-color: black }
+}
+@keyframes fadein {
+  from  { opacity: 0; }
+  to  { opacity: 1; }
+}
+.layout-flash-message {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+  border-width: 1px;
+  border-style: solid;
+ /* animation: .5s ease-out .2s 1 normal none running flash;*/
+}
+.layout-flash-body{
+  padding-top:5px;
+  margin-top:5px;
+  border-top: 1px dotted black;
+}
+.layout-flash-timestamp{
+  opacity: 0.75;
+}
+.layout-flash-details::before {
+  content: ': ';
+}
+.layout-flash-type {
+  font-weight: bold;
+  float: right;
+}
+.layout-flash-error {
+  background-color: #FFD6D6;
+  border-color: #AE0014;
+}
+.layout-flash-ok {
+  background-color: #ADFFB6;
+  border-color: #007F0F;
+}
+.layout-flash-warning {
+  background-color: #FFE8C7;
+  border-color: #FF6600;
+}
+.layout-flash-info {
+  background-color: #DCF2FF;
+  border-color: #4690FF;
+}
+.layout-flash-title {
+  font-weight: bold;
+}
+.layout-flash-remove {
+  padding-right: 4px;
+}
+
+
 /* Admin section: the menu itself doesn't occupy space. So make room
    at the top of the div covering the whole admin area. */
 body > div.admin {

@@ -99,7 +99,7 @@ sub create_or_update {
 
   my @errors = $self->shop->validate;
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->load_types();
     $self->action_edit();
     return;

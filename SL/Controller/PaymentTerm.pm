@@ -106,7 +106,7 @@ sub create_or_update {
   my @errors = $self->{payment_term}->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->render('payment_term/form', title => $is_new ? $::locale->text('Create a new payment term') : $::locale->text('Edit payment term'));
     return;
   }

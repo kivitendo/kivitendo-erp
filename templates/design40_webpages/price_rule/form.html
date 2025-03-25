@@ -6,8 +6,6 @@
 
 <h1>[% title %]</h1>
 
-[% INCLUDE 'common/flash.html' %]
-
 <form method="post" action="controller.pl" id="form">
 [% L.hidden_tag("price_rule.id",   SELF.price_rule.id) %]
 [% L.hidden_tag("price_rule.type", SELF.price_rule.type) %]

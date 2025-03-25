@@ -2,8 +2,6 @@
 
 <h1>[% FORM.title %] — [% LxERP.t8("Step #1/#2", 1, 2) %] — [% LxERP.t8("Basic Data") %]</h1>
 <div class="wrapper">
-  [% INCLUDE 'common/flash.html' %]
-
   <form method="post" action="controller.pl" id="form">
     [% L.hidden_tag("id", SELF.query.id) %]
     <div class="input-panel control-panel">

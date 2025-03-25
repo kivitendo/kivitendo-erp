@@ -117,7 +117,7 @@ sub action_save {
   # Show form again if there were any errors. Nothing's been changed
   # yet in the database.
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     return $self->edit_form;
   }
 

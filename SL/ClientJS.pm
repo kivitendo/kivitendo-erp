@@ -10,7 +10,7 @@ use SL::JSON ();
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw() ],
-  'scalar --get_set_init' => [ qw(controller _actions _flash _flash_detail _no_flash_clear _error) ],
+  'scalar --get_set_init' => [ qw(controller _actions _error) ],
 );
 
 my %supported_methods = (
@@ -115,9 +115,12 @@ my %supported_methods = (
   redirect_to            => 1,  # window.location.href = <TARGET>
   save_file              => 4,  # kivi.save_file(<TARGET>, <ARGS>)
 
-  flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
-  flash_detail           => 2,  # kivi.display_flash_detail(<TARGET>, <ARGS>)
-  clear_flash            => 2,  # kivi.clear_flash(<TARGET>, <ARGS>)
+  # flash
+  flash                  => -2, # kivi.Flash.display_flash.apply({}, action.slice(1, action.length))
+  clear_flash            => 0,  # kivi.Flash.clear_flash()
+  show_flash             => 0,  # kivi.Flash.show()
+  hide_flash             => 0,  # kivi.Flash.hide()
+
   reinit_widgets         => 0,  # kivi.reinit_widgets()
   run                    => -1, # kivi.run(<TARGET>, <ARGS>)
   run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
@@ -181,19 +184,7 @@ sub init__actions {
   return [];
 }
 
-sub init__flash {
-  return {};
-}
-
-sub init__flash_detail {
-  return {};
-}
-
 sub init__error {
-  return '';
-}
-
-sub init__no_flash_clear {
   return '';
 }
 
@@ -201,7 +192,7 @@ sub to_json {
   my ($self) = @_;
 
   return SL::JSON::to_json({ error          => $self->_error   }) if $self->_error;
-  return SL::JSON::to_json({ no_flash_clear => $self->_no_flash_clear, eval_actions => $self->_actions });
+  return SL::JSON::to_json({ eval_actions => $self->_actions });
 }
 
 sub to_array {
@@ -209,10 +200,16 @@ sub to_array {
   return $self->_actions;
 }
 
+sub transfer_flash {
+  my ($self) = @_;
+  $self->flash(@$_) for SL::Helper::Flash->flash_contents;
+}
+
 sub render {
   my ($self, $controller) = @_;
   $controller ||= $self->controller;
   $self->reinit_widgets if $::request->presenter->need_reinit_widgets;
+  $self->transfer_flash;
   return $controller->render(\$self->to_json, { type => 'json' });
 }
 
@@ -234,40 +231,8 @@ sub ckeditor {
   return $self;
 }
 
-sub flash {
-  my ($self, $type, @messages) = @_;
-
-  my $message = join ' ', grep { $_ } @messages;
-
-  if (!$self->_flash->{$type}) {
-    $self->_flash->{$type} = [ 'flash', $type, $message ];
-    push @{ $self->_actions }, $self->_flash->{$type};
-  } else {
-    $self->_flash->{$type}->[-1] .= ' ' . $message;
-  }
-
-  return $self;
-}
-
-sub flash_detail {
-  my ($self, $type, @messages) = @_;
-
-  my $message = join '<br>', grep { $_ } @messages;
-
-  if (!$self->_flash_detail->{$type}) {
-    $self->_flash_detail->{$type} = [ 'flash_detail', $type, $message ];
-    push @{ $self->_actions }, $self->_flash_detail->{$type};
-  } else {
-    $self->_flash_detail->{$type}->[-1] .= ' ' . $message;
-  }
-
-  return $self;
-}
-
 sub no_flash_clear{
-  my ($self) = @_;
-  $self->_no_flash_clear('1');
-  return $self;
+  $_[0]; # noop for compatibility
 }
 
 sub error {
@@ -485,24 +450,10 @@ But it is easier to integrate into a method call chain, e.g.:
 
 =over 4
 
-=item C<flash $type, $message>
+=item C<flash $type, $message [, $details [, timestamp ]]>
 
-Display a C<$message> in the flash of type C<$type>. Multiple calls of
-C<flash> on the same C<$self> will be merged by type.
-
-On the client side the flashes of all types will be cleared after each
-successful ClientJS call that did not end with C<$js-E<gt>error(...)>.
-This clearing can be switched of by the function C<no_flash_clear>
-
-=item C<flash_detail $type, $message>
-
-Display a detailed message C<$message> in the flash of type C<$type>. Multiple calls of
-C<flash_detail> on the same C<$self> will be merged by type.
-So the flash message can be hold short and the visibility of details can toggled by the user.
-
-=item C<no_flash_clear>
-
-No automatic clearing of flash after successful ClientJS call
+Display a C<$message> in the flash of type C<$type> with optional
+C<$details>.
 
 =item C<error $message>
 

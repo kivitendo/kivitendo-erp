@@ -148,7 +148,7 @@ sub action_transfer {
                                                         pos_ids  => $::form->{pos_ids}               );
 
   if ($order->{error}){
-    flash_later('error',@{$order->{errors}});
+    flash_later('error', $_) for @{$order->{errors}};
     $self->redirect_to(controller => "ShopOrder", action => 'show', id => $self->shop_order->id);
   }else{
     $order->db->with_transaction( sub {

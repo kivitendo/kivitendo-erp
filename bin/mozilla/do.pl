@@ -55,7 +55,7 @@ require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
 
-use SL::Helper::Flash qw(flash flash_later render_flash);
+use SL::Helper::Flash qw(flash flash_later);
 
 use strict;
 
@@ -1045,7 +1045,6 @@ sub save {
   }
   if ($missing_serialnr ne '') {
     flash('error', $locale->text('Serial Number missing in Row') . $missing_serialnr);
-    render_flash();
     &update;
     $::dispatcher->end_request;
     return;
