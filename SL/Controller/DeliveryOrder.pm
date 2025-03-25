@@ -208,10 +208,6 @@ sub action_save {
     $self->js->flash('error', t8('This record has already been delivered.'));
     return $self->js->render();
   }
-  if ( $self->order->closed ) {
-    $self->js->flash('error', t8('This record has already been closed.'));
-    return $self->js->render();
-  }
 
   $self->save();
 
