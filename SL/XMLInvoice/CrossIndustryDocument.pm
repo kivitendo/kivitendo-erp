@@ -119,6 +119,14 @@ sub items {
   return $self->{_items};
 }
 
+sub _xpath_context {
+  my $xc = XML::LibXML::XPathContext->new;
+  $xc->registerNs(udt => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100');
+  $xc->registerNs(ram => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
+  $xc->registerNs(rsm => 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
+  $xc;
+}
+
 # Data keys we return
 sub _data_keys {
   my $self = shift;
@@ -145,6 +153,8 @@ sub parse_xml {
   $self->{_metadata} = {};
   $self->{_items} = ();
 
+  my $xc = _xpath_context();
+
   # Retrieve scalar metadata from DOM
   foreach my $key ( keys %{$self->scalar_xpaths} ) {
     foreach my $xpath ( @{${$self->scalar_xpaths}{$key}} ) {
@@ -153,7 +163,7 @@ sub parse_xml {
         ${$self->{_metadata}}{$key} = undef;
         next;
       }
-      my $value = $self->{dom}->findnodes($xpath);
+      my $value = $xc->find($xpath, $self->{dom});
       if ( $value ) {
         # Get rid of extraneous white space
         $value = $value->string_value;
@@ -175,7 +185,7 @@ sub parse_xml {
   my @items;
   $self->{_items} = \@items;
 
-  foreach my $item ( $self->{dom}->findnodes(ITEMS_XPATH)) {
+  foreach my $item ( $xc->findnodes(ITEMS_XPATH, $self->{dom}) ) {
     my %line_item;
     foreach my $key ( keys %{$self->item_xpaths} ) {
       foreach my $xpath ( @{${$self->item_xpaths}{$key}} ) {
@@ -184,7 +194,7 @@ sub parse_xml {
           $line_item{$key} = undef;
           next;
         }
-        my $value = $item->findnodes($xpath);
+        my $value = $xc->find($xpath, $item);
         if ( $value ) {
           # Get rid of extraneous white space
           $value = $value->string_value;
