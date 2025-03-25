@@ -1027,9 +1027,11 @@ sub action_update_item_input_row {
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
+  my $texts = get_part_texts($item->part, $record->language_id);
+
   $self->js
     ->val     ('#add_item_unit',                $item->unit)
-    ->val     ('#add_item_description',         $item->part->description)
+    ->val     ('#add_item_description',         $texts->{description})
     ->val     ('#add_item_sellprice_as_number', '')
     ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
     ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
@@ -1956,9 +1958,7 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
-
-  $item->assign_attributes(%new_attr, %{ $texts });
+  $item->assign_attributes(%new_attr);
 
   return $item;
 }
