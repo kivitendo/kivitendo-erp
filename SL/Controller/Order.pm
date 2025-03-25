@@ -1068,7 +1068,7 @@ sub action_add_item {
       ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
   } else {
     $self->js
-      ->append('#row_table_id', $row_as_html);
+      ->before('#row_table_footer', $row_as_html);
   }
 
   if ( $item->part->is_assortment ) {
@@ -1098,7 +1098,7 @@ sub action_add_item {
           ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
       } else {
         $self->js
-          ->append('#row_table_id', $row_as_html);
+          ->before('#row_table_footer', $row_as_html);
       }
     };
   };
