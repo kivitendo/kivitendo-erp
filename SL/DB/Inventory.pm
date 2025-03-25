@@ -97,7 +97,7 @@ sub _before_save_check_valid_qty {
 
   die t8("Cannot transfer #1 qty for #2 from warehouse #3 at bin #4. Optional Chargenumber: #5 Optional Bestbefore: #6",
     $self->qty, $self->part->partnumber, $self->warehouse->description, $self->bin->description,
-    $self->chargenumber, $self->bestbefore)
+    $self->chargenumber // '', $self->bestbefore // '')
     if $qty + $self->qty < 0;
 
   return 1;
