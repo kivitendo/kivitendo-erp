@@ -552,7 +552,7 @@ namespace('kivi.Order', function(ns) {
   ns.scroll_page_after_row_insert = function(id) {
     // find row height and border spacing
     const $id_input = $('input[name="orderitem_ids[+]"][value="'+id+'"]');
-    const $row = $id_input.closest('tbody');
+    const $row = $id_input.closest('tr');
     const table = $row.closest('table')[0];
     const style = getComputedStyle(table);
 
