@@ -17,11 +17,19 @@ sub action_reload {
 sub action_test_page {
   my ($self) = @_;
 
-  flash('error', 'This is an error message');
-  flash('warning', 'This is a warning message');
-  flash('info', 'This is an info message');
+  my $detail_message = qq(
+This is a long detail message: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
+ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+);
 
-  $self->render('flash/test_page');
+  flash('error', 'This is an error message');
+  flash('warning', 'This is a warning message', $detail_message);
+  flash('info', 'This is an info message');
+  flash('ok', 'This is an ok message', $detail_message);
+
+  $self->render('flash/test_page', title => 'Flash-Testpage');
 }
 1;
 
@@ -41,7 +49,7 @@ side flash messages
 =head1 TEST
 
 The function C<action_test_page> renders a functional test page with flash messages
-for Error, Warning and Information. See Developer Tools, Flash-Test.
+for Error, Warning, Information and Ok. See Developer Tools, Flash-Test.
 
 =head1 BUGS
 
