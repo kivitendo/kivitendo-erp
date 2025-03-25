@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::ReportGenerator;
+use SL::Controller::Helper::ReportGenerator;
 use SL::ZUGFeRD;
 use SL::Controller::ZUGFeRD;
 use SL::Controller::Helper::GetModels;
@@ -11,6 +13,7 @@ use SL::DB::Employee;
 use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::Presenter::EmailJournal;
+use SL::Presenter::Filter::EmailJournal;
 use SL::Presenter::Record qw(grouped_record_list);
 use SL::Presenter::Tag qw(html_tag div_tag button_tag);
 use SL::Helper::Flash;
@@ -32,6 +35,7 @@ use SL::DB::Manager::Vendor;
 
 use List::Util qw(first);
 use List::MoreUtils qw(any);
+use File::MimeInfo::Magic;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -221,22 +225,21 @@ sub action_list {
   my ($self) = @_;
 
   $::auth->assert('email_journal');
-  # default filter
-  $::form->{filter} ||= {"obsolete:eq_ignore_empty" => 0};
 
   if ( $::instance_conf->get_email_journal == 0 ) {
-    flash('info',  $::locale->text('Storing the emails in the journal is currently disabled in the client configuration.'));
+    flash('info',  t8('Storing the emails in the journal is currently disabled in the client configuration.'));
   }
+
+  $::form->{filter} ||= {
+    'obsolete:eq_ignore_empty' => 0,
+  };
+
   $self->setup_list_action_bar;
-  my @record_types_with_info = $self->get_record_types_with_info();
-  my %record_types_to_text   = $self->get_record_types_to_text();
-  $self->render('email_journal/list',
-                title   => $::locale->text('Email journal'),
-                ENTRIES => $self->models->get,
-                MODELS  => $self->models,
-                RECORD_TYPES_WITH_INFO => \@record_types_with_info,
-                RECORD_TYPES_TO_TEXT   => \%record_types_to_text,
-              );
+  my $report = $self->prepare_report;
+  $self->report_generator_list_objects(
+    report => $report,
+    objects => $self->models->get,
+  );
 }
 
 sub action_show {
@@ -326,10 +329,34 @@ sub action_show_attachment {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
 
+  my $name = $attachment->name;
+  my $content = \$attachment->content;
+  my $mime_type = $attachment->mime_type;
+
+  # try to guess the mime_type
+  if ($mime_type eq 'application/octet-stream') {
+    if ($attachment->content =~ m/^%PDF/) {
+      $mime_type = 'application/pdf';
+    } else {
+      $mime_type = File::MimeInfo::Magic::mimetype($attachment->name);
+      $mime_type ||= 'text/plain';
+    }
+  }
+
+  # only show standard types
+  if (!any {$mime_type eq $_} qw(
+    text/plain text/xml image/png image/jpeg
+    application/pdf application/json application/xml
+    )) {
+    $content = \t8("Can't display file")->translated;
+    $name = '';
+    $mime_type = 'text/plain';
+  }
+
   return $self->send_file(
-    \$attachment->content,
-    name => $attachment->name,
-    type => $attachment->mime_type,
+    $content,
+    name => $name,
+    type => $mime_type,
     content_disposition => 'inline',
   );
 }
@@ -522,6 +549,34 @@ sub action_toggle_obsolete {
     $self->entry->obsolete ?
       $::locale->text('Email marked as obsolete.')
     : $::locale->text('Email marked as not obsolete.')
+  )->render();
+
+  return;
+}
+
+sub action_toggle_attachment_processed {
+  my ($self) = @_;
+
+  $::auth->assert('email_journal');
+
+  my $attachment = SL::DB::EmailJournalAttachment->new(
+    id => $::form->{attachment_id}
+  )->load();
+  $self->entry($attachment->email_journal);
+
+  if (!$self->can_view_all && ($self->entry->sender_id != SL::DB::Manager::Employee->current->id)) {
+    $::form->error(t8('You do not have permission to access this entry.'));
+  }
+
+  $attachment->processed(!$attachment->processed);
+  $attachment->save;
+
+  $self->js
+  ->html('#processed_' . $attachment->id, $attachment->processed_as_bool_yn)
+  ->flash('info',
+    $attachment->processed ?
+      t8('Attachment \'#1\' set to processed.', $attachment->name)
+    : t8('Attachment \'#1\' set to unprocessed.', $attachment->name)
   )->render();
 
   return;
@@ -726,6 +781,168 @@ sub find_customer_vendor_from_email {
   return $customer_vendor;
 }
 
+sub prepare_report {
+  my ($self) = @_;
+
+  my %record_types_to_text   = $self->get_record_types_to_text();
+  my @record_types_with_info = $self->get_record_types_with_info();
+
+  my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
+
+  my $callback    = $self->models->get_callback;
+
+  my @columns_order = qw(
+    id
+    sender
+    from
+    recipients
+    subject
+    sent_on
+    attachment_names
+    has_unprocessed_attachments
+    unprocessed_attachment_names
+    status
+    extended_status
+    record_type
+    linked_to
+    obsolete
+  );
+
+  my @default_columns = qw(
+    from
+    recipients
+    subject
+    sent_on
+  );
+
+  my %column_defs = (
+    id => {
+      obj_link => sub {$self->url_for(
+          action => 'show', id => $_[0]->id, callback => $callback
+        )},
+      sub => sub { $_[0]->id },
+    },
+    sender => {
+      sub => sub { $_[0]->sender ? $_[0]->sender->name : '' },
+    },
+    from => {
+      obj_link => sub {$self->url_for(
+          action => 'show', id => $_[0]->id, callback => $callback
+        )},
+      sub => sub { $_[0]->from },
+    },
+    recipients => {
+      obj_link => sub {$self->url_for(
+          action => 'show', id => $_[0]->id, callback => $callback
+        )},
+      sub => sub { $_[0]->recipients },
+    },
+    subject => {
+      obj_link => sub {$self->url_for(
+          action => 'show', id => $_[0]->id, callback => $callback
+        )},
+      sub => sub { $_[0]->subject },
+    },
+    sent_on => {
+      obj_link => sub {$self->url_for(
+          action => 'show', id => $_[0]->id, callback => $callback
+        )},
+      sub => sub { $_[0]->sent_on->to_kivitendo(precision => 'minute') },
+    },
+    attachment_names => {
+      sub => sub {join(', ',
+          map {$_->name}
+          sort {$a->position <=> $b->position}
+          @{$_[0]->attachments}
+        )},
+    },
+    has_unprocessed_attachments => {
+      sub => sub { $_[0]->has_unprocessed_attachments }
+    },
+    unprocessed_attachment_names => {
+      sub => sub {join(', ',
+          map {$_->name}
+          sort {$a->position <=> $b->position}
+          grep {$_->processed == 0}
+          @{$_[0]->attachments}
+        )},
+    },
+    status => {
+      sub => sub { SL::Presenter::EmailJournal::entry_status($_[0]) },
+    },
+    extended_status => {
+      sub => sub { $_[0]->extended_status },
+    },
+    record_type => {
+      sub => sub { $record_types_to_text{$_[0]->record_type} },
+    },
+    linked_to => {
+      raw_data => sub {
+        SL::Presenter::Record::simple_grouped_record_list($_[0]->linked_records)
+      }
+    },
+    obsolete => {
+      sub => sub { $_[0]->obsolete_as_bool_yn }
+    },
+  );
+  $column_defs{$_}->{text} ||=
+    t8( $self->models->get_sort_spec->{$_}->{title} || $_ )
+    for keys %column_defs;
+
+  # make all sortable
+  my @sortable = keys %column_defs;
+
+  unless ($::form->{active_in_report}) {
+    $::form->{active_in_report}->{$_} = 1 foreach @default_columns;
+  }
+
+  $column_defs{$_}->{visible} = $::form->{active_in_report}->{$_} || 0
+    foreach keys %column_defs;
+
+  my $filter_html = SL::Presenter::Filter::EmailJournal::filter(
+    $::form->{filter},
+    active_in_report => $::form->{active_in_report},
+    record_types_with_info => \@record_types_with_info,
+  );
+
+  $self->models->disable_plugin('paginated')
+    if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->add_additional_url_params(
+    active_in_report => $::form->{active_in_report}
+  );
+  $self->models->finalize; # for filter laundering
+
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'EmailJournal',
+    output_format         => 'HTML',
+    raw_top_info_text     => $self->render(
+     'email_journal/_report_top',
+     { output => 0 },
+     FILTER_HTML => $filter_html,
+    ),
+    raw_bottom_info_text  => $self->render(
+     'email_journal/_report_bottom',
+     { output => 0 },
+     models => $self->models
+    ),
+    title                 => t8('Email journal'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns_order);
+  $report->set_export_options('list', qw(filter active_in_report));
+  $report->set_options_from_form;
+
+  $self->models->set_report_generator_sort_options(
+    report => $report,
+    sortable_columns => \@sortable
+  );
+
+  return $report;
+}
+
 sub add_js {
   $::request->{layout}->use_javascript("${_}.js") for qw(
     kivi.EmailJournal
@@ -745,10 +962,17 @@ sub init_models {
     query             => \@where,
     with_objects      => [ 'sender' ],
     sorted            => {
+      _default => {
+        by => 'sent_on',
+        dir => 0,
+      },
       sender          => t8('Sender'),
       from            => t8('From'),
       recipients      => t8('Recipients'),
       subject         => t8('Subject'),
+      attachment_names => t8('Attachments'),
+      has_unprocessed_attachments => t8('Has unprocessed attachments'),
+      unprocessed_attachment_names => t8('Unprocessed Attachments'),
       sent_on         => t8('Sent on'),
       status          => t8('Status'),
       extended_status => t8('Extended status'),
@@ -790,6 +1014,8 @@ sub init_filter_summary {
 
   push @filter_strings, $::locale->text('Linked')       if $filter->{'linked_to:eq_ignore_empty'} eq '1';
   push @filter_strings, $::locale->text('Not linked')   if $filter->{'linked_to:eq_ignore_empty'} eq '0';
+  push @filter_strings, $::locale->text('Unprocessed')  if $filter->{'has_unprocessed_attachments:eq_ignore_empty'} eq '1';
+  push @filter_strings, $::locale->text('Processed')    if $filter->{'has_unprocessed_attachments:eq_ignore_empty'} eq '0';
 
   return join ', ', @filter_strings;
 }
