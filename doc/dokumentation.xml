@@ -106,7 +106,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Mitte 2024 (ab Version 3.9) empfehlen wir:</para>
+        <para>Anfang 2025 (ab Version 3.9) empfehlen wir:</para>
 
         <itemizedlist>
           <listitem>
@@ -126,20 +126,18 @@
             <para>Ubuntu</para>
             <itemizedlist>
              <listitem>
-              <para>20.04 "Focal Fossa" LTS</para>
+              <para>22.04 "Jammy Jellyfish" LTS</para>
              </listitem>
              <listitem>
-              <para>22.04 "Jammy Jellyfish" LTS</para>
+              <para>24.04 "Jammy Jellyfish" LTS</para>
              </listitem>
             </itemizedlist>
           </listitem>
-
-          <listitem>
-            <para>openSUSE Leap 15.5 und SUSE Linux Enterprise Server 15 SP4</para>
-          </listitem>
-
           <listitem>
             <para>Fedora 39</para>
+          </listitem>
+          <listitem>
+            <para>openSUSE Leap 15.5 und SUSE Linux Enterprise Server 15 SP4</para>
           </listitem>
         </itemizedlist>
       </sect2>
