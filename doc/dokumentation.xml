@@ -47,18 +47,25 @@
 
       <orderedlist>
         <listitem>
-          <para><emphasis>Voraussetzungen überprüfen</emphasis>: kivitendo
-          benötigt gewisse Ressourcen und benutzt weitere Programme. Das
-          Kapitel "<xref linkend="Benötigte-Software-und-Pakete"/>" erläutert
-          diese. Auch die Liste der benötigten Perl-Module befindet sich
-          hier.</para>
+          <para><emphasis>Server vorbereiten</emphasis>: kivitendo
+          benötigt ein Linuxsystem mit einem aktuellen Webserver. Das
+          Kapitel "<xref linkend="Betriebssystem"/>" erläutert
+          diese.</para>
         </listitem>
-
+ 
         <listitem>
           <para><emphasis>Installation von kivitendo</emphasis>: Diese umfasst
           die "<xref linkend="Manuelle-Installation-des-Programmpaketes"/>"
           sowie grundlegende Einstellungen, die der "<xref
           linkend="config.config-file"/>" erläutert.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis>Voraussetzungen überprüfen</emphasis>: kivitendo
+          benötigt gewisse Ressourcen und benutzt weitere Programme. Das
+          Kapitel "<xref linkend="Benötigte-Software-und-Pakete"/>" erläutert
+          diese. Auch die Liste der benötigten Perl-Module befindet sich
+          hier.</para>
         </listitem>
 
         <listitem>
