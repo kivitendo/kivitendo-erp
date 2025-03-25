@@ -237,8 +237,7 @@ SL::Presenter::Filter - Presenter module for a generic Filter.
 =item C<create_filter $filter_elements, %params>
 
 Returns a rendered version (actually an instance of
-L<SL::Presenter::EscapedText>) of a filter form for reclamations of type
-C<$reclamation_type>.
+L<SL::Presenter::EscapedText>) of a filter.
 
 C<$filter_elements> is a hash reference with the values declaring which inputs
 to create.
