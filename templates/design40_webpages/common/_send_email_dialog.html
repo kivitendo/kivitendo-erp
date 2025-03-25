@@ -10,7 +10,13 @@
        FOREACH file = files.as_list %]
       <tr>
         <th>[% IF loop.first %][% label %][% END %]</th>
-        <td>[% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="1") %]</td>
+        <td>
+        [% IF checked %]
+          [% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="1") %]
+        [% ELSE %]
+          [% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="0") %]
+        [% END %]
+          </td>
       </tr>
     [% END %]
   [% END %]
