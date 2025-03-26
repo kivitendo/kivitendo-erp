@@ -76,10 +76,18 @@ __PACKAGE__->meta->initialize;
 __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted('items');
 
+__PACKAGE__->before_save('_before_save_set_record_type');
 __PACKAGE__->before_save('_before_save_set_invnumber');
 __PACKAGE__->after_save('_after_save_link_records');
 
 # hooks
+
+sub _before_save_set_record_type {
+  my ($self) = @_;
+  return 1 if $self->record_type;
+  $self->record_type( $self->invoice_type );
+  return 1;
+}
 
 sub _before_save_set_invnumber {
   my ($self) = @_;
@@ -108,7 +116,6 @@ sub _after_save_link_records {
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
 sub record_number { goto &invnumber; };
-sub record_type { goto &invoice_type; };
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -578,15 +585,17 @@ sub _post_update_allocated {
 
 sub invoice_type {
   my ($self) = @_;
+  return $self->record_type   if $self->record_type;
 
-  return 'ar_transaction'     if !$self->invoice;
-  return 'invoice_for_advance_payment_storno' if $self->type eq 'invoice_for_advance_payment' && $self->amount < 0 &&  $self->storno;
+  return 'ar_transaction_storno' if !$self->invoice && $self->storno;
+  return 'ar_transaction'        if !$self->invoice;
+  return 'invoice_for_advance_payment_storno' if $self->type eq 'invoice_for_advance_payment' && $self->amount < 0 && $self->storno;
   return 'invoice_for_advance_payment'        if $self->type eq 'invoice_for_advance_payment';
   return 'final_invoice'                      if $self->type eq 'final_invoice';
   # stornoed credit_notes are still credit notes and not invoices
   return 'credit_note'        if $self->type eq 'credit_note' && $self->amount < 0;
-  return 'invoice_storno'     if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
-  return 'credit_note_storno' if $self->type eq 'credit_note' && $self->amount > 0 &&  $self->storno;
+  return 'invoice_storno'     if $self->type ne 'credit_note' && $self->amount < 0 && $self->storno;
+  return 'credit_note_storno' if $self->type eq 'credit_note' && $self->amount > 0 && $self->storno;
   return 'invoice';
 }
 
@@ -605,14 +614,7 @@ sub displayable_state {
 sub displayable_type {
   my ($self) = @_;
 
-  return t8('AR Transaction')                         if $self->invoice_type eq 'ar_transaction';
-  return t8('Credit Note')                            if $self->invoice_type eq 'credit_note';
-  return t8('Invoice') . "(" . t8('Storno') . ")"     if $self->invoice_type eq 'invoice_storno';
-  return t8('Credit Note') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'credit_note_storno';
-  return t8('Invoice for Advance Payment')            if $self->invoice_type eq 'invoice_for_advance_payment';
-  return t8('Invoice for Advance Payment') . "(" . t8('Storno') . ")" if $self->invoice_type eq 'invoice_for_advance_payment_storno';
-  return t8('Final Invoice')                          if $self->invoice_type eq 'final_invoice';
-  return t8('Invoice');
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {
@@ -622,14 +624,7 @@ sub displayable_name {
 sub abbreviation {
   my ($self) = @_;
 
-  return t8('AR Transaction (abbreviation)')         if $self->invoice_type eq 'ar_transaction';
-  return t8('Credit note (one letter abbreviation)') if $self->invoice_type eq 'credit_note';
-  return t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")" if $self->invoice_type eq 'invoice_storno';
-  return t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")"  if $self->invoice_type eq 'credit_note_storno';
-  return t8('Invoice for Advance Payment (one letter abbreviation)')  if $self->invoice_type eq 'invoice_for_advance_payment';
-  return t8('Invoice for Advance Payment with Storno (abbreviation)') if $self->invoice_type eq 'invoice_for_advance_payment_storno';
-  return t8('Final Invoice (one letter abbreviation)')                if $self->invoice_type eq 'final_invoice';
-  return t8('Invoice (one letter abbreviation)');
+  return $self->type_data->text('abbreviation');
 }
 
 sub oneline_summary {
@@ -677,6 +672,10 @@ sub netamount_base_currency {
   my ($self) = @_;
 
   return $self->netamount; # already matches base currency
+}
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
 }
 
 1;
