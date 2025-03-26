@@ -590,6 +590,12 @@ sub invoice_type {
   return 'invoice';
 }
 
+sub is_credit_note {
+  my ($self) = @_;
+
+  return $self->invoice_type eq 'credit_note' ? 1 : undef;
+}
+
 sub displayable_state {
   my $self = shift;
 
