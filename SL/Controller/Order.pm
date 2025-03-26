@@ -1958,6 +1958,9 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
+  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
+  $new_attr{longdescription} = $texts->{longdescription} if ! defined $attr->{longdescription};
+
   $item->assign_attributes(%new_attr);
 
   return $item;
