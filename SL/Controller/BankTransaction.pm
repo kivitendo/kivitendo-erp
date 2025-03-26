@@ -1074,9 +1074,9 @@ sub _check_and_book_credit_note {
   die "Invalid state" unless ($has_one_credit_note == 1 && $has_one_invoice == 1);
 
   foreach my $invoice (@{ $params{invoices} }) {
-    my $is_credit_note = $invoice->invoice_type =~ m/credit_note/ ? 1 : undef;
-    my $sign       = $invoice->invoice_type =~ m/credit_note/ ?  1 : -1;  # correct sign for bookings
-    my $paid_sign  = $invoice->invoice_type =~ m/credit_note/ ? -1 :  1;  # paid is always negative for credit_note
+    my $is_credit_note = $invoice->is_credit_note ?  1 : undef;
+    my $sign           = $invoice->is_credit_note ?  1 : -1;  # correct sign for bookings
+    my $paid_sign      = $invoice->is_credit_note ? -1 :  1;  # paid is always negative for credit_note
 
     my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                     chart_id   => $params{transit_chart}->id,
