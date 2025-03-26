@@ -388,6 +388,14 @@ sub link_details {
       'title' => $locale->text('Sales quotation') . " $params{trans_info}",
     };
 
+  } elsif ($params{trans_type} eq 'sales_order_intake') {
+      my $script = 'controller.pl';
+      my $action = 'Order/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=sales_quotation_intake&id=' . $params{trans_id},
+        'title' => $locale->text('Order Intake') . " $params{trans_info}",
+      };
+
   } elsif ($params{trans_type} eq 'sales_delivery_order') {
 
     $link = {
@@ -413,6 +421,14 @@ sub link_details {
       'url'   => $script . '?action=' . $action . '&type=sales_order&id=' . $params{trans_id},
       'title' => $locale->text('Sales Order') . " $params{trans_info}",
     };
+
+  } elsif ($params{trans_type} eq 'sales_reclamation') {
+      my $script = 'controller.pl';
+      my $action = 'Reclamation/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=sales_reclamation&id=' . $params{trans_id},
+        'title' => $locale->text('Sales Reclamation') . " $params{trans_info}",
+      };
 
   } elsif ($params{trans_type} eq 'sales_invoice') {
     $link = {
@@ -450,6 +466,14 @@ sub link_details {
       'title' => $locale->text('Request quotation') . " $params{trans_info}",
     };
 
+  } elsif ($params{trans_type} eq 'purchase_quotation_intake') {
+      my $script = 'controller.pl';
+      my $action = 'Order/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=purchase_quotation_intake&id=' . $params{trans_id},
+        'title' => $locale->text('Quotation Intake') . " $params{trans_info}",
+      };
+
   } elsif ($params{trans_type} eq 'purchase_order') {
     my $script = 'oe.pl';
     my $action = 'edit';
@@ -461,6 +485,14 @@ sub link_details {
       'url'   => $script . '?action=' . $action . '&type=purchase_order&id=' . $params{trans_id},
       'title' => $locale->text('Purchase Order') . " $params{trans_info}",
     };
+
+  } elsif ($params{trans_type} eq 'purchase_reclamation') {
+      my $script = 'controller.pl';
+      my $action = 'Reclamation/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=purchase_reclamation&id=' . $params{trans_id},
+        'title' => $locale->text('Purchase Reclamation') . " $params{trans_info}",
+      };
 
   } elsif ($params{trans_type} eq 'vendor_invoice') {
     $link = {
