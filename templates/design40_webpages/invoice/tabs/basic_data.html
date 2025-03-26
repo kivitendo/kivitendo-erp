@@ -37,16 +37,16 @@
     <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
     <tbody>
       <tr>
-        <th>[%- SELF.cv == "customer" ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
-        [% SET cv_id = SELF.cv _ '_id' %]
+        <th>[%- SELF.type_data.properties('is_customer') ? LxERP.t8('Customer') : LxERP.t8('Vendor') -%]</th>
+        [% SET cv_id = SELF.type_data.properties('customervendor') _ '_id' %]
         <td class="wi-lightwide">
-          [% P.customer_vendor.picker("record.${SELF.cv}" _ '_id', SELF.record.$cv_id, type=SELF.cv, show_details="1") %]
+          [% P.customer_vendor.picker("record.${SELF.type_data.properties('customervendor')}" _ '_id', SELF.record.$cv_id, type=SELF.type_data.properties('customervendor'), show_details="1") %]
         </td>
       </tr>
-      <tr id='cp_row' [% IF !SELF.record.${SELF.cv}.contacts.size %]style='display:none'[% END %]>
+      <tr id='cp_row' [% IF !SELF.record.${SELF.type_data.properties('customervendor')}.contacts.size %]style='display:none'[% END %]>
         <th>[% 'Contact Person' | $T8 %]</th>
         <td>[% L.select_tag('record.cp_id',
-                            SELF.record.${SELF.cv}.contacts,
+                            SELF.record.${SELF.type_data.properties('customervendor')}.contacts,
                             default=SELF.record.cp_id,
                             title_key='full_name_dep',
                             value_key='cp_id',
@@ -56,9 +56,9 @@
       <tr>
         <th>[% 'Shipping Address' | $T8 %]</th>
         <td>
-          <span id='shipto_selection' [% IF !SELF.record.${SELF.cv}.shipto.size %]style='display:none'[% END %]>
+          <span id='shipto_selection' [% IF !SELF.record.${SELF.type_data.properties('customervendor')}.shipto.size %]style='display:none'[% END %]>
             [% shiptos = [ { shipto_id => "", displayable_id => LxERP.t8("No/individual shipping address") } ] ;
-               FOREACH s = SELF.record.${SELF.cv}.shipto ;
+               FOREACH s = SELF.record.${SELF.type_data.properties('customervendor')}.shipto ;
                  shiptos.push(s) ;
                END ;
                L.select_tag('record.shipto_id',
@@ -74,7 +74,7 @@
                           class='button neutral below wi-lightwide') %]
         </td>
       </tr>
-      [%- IF SELF.cv == "customer" %]
+      [%- IF SELF.type_data.properties('is_customer') %]
       <tr id="billing_address_row"[% IF !SELF.record.customer.additional_billing_addresses.as_list.size %]style="display:none"[% END %]>
         <th>[% 'Custom Billing Address' | $T8 %]</th>
         <td>
@@ -203,7 +203,7 @@
         class='wi-normal',
         title_key='safe_name') %]</td>
     </tr>
-    [% IF SELF.cv == 'customer' && SELF.all_salesmen.size %]
+    [% IF SELF.type_data.properties('is_customer') && SELF.all_salesmen.size %]
       <tr>
         <th>[% 'Salesman' | $T8 %]</th>
         <td>[% L.select_tag('record.salesman_id',
@@ -357,7 +357,7 @@
       [%- END %]
       <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Invoice.reorder_items("partnumber")'> [% 'Partnumber'  | $T8 %]</a></th>
       [%- IF SELF.search_cvpartnumber -%]
-      <th id="cvpartnumber_header_id"><a href='#' onClick='javascript:kivi.Invoice.reorder_items("cvpartnumber")'>[%- SELF.cv == "customer" ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</a></th>
+      <th id="cvpartnumber_header_id"><a href='#' onClick='javascript:kivi.Invoice.reorder_items("cvpartnumber")'>[%- SELF.type_data.properties('is_customer') ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</a></th>
       [%- END -%]
       <th id="partclass_header_id">[% 'Type'  | $T8 %]</th>
       <th id="description_header_id"><a href='#' onClick='javascript:kivi.Invoice.reorder_items("description")'>[% 'Description' | $T8 %]</a></th>
