@@ -54,7 +54,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -92,7 +92,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -130,7 +130,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -168,7 +168,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -206,7 +206,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -244,7 +244,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
@@ -282,7 +282,7 @@ my %type_data = (
     defaults => {
       # TODO
     },
-    part_classification_query => [ "used_for_sales" => 1 ],
+    part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
       # TODO
     },
