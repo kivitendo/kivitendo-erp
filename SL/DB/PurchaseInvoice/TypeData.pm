@@ -6,16 +6,29 @@ use Exporter qw(import);
 use SL::Locale::String qw(t8);
 
 use constant {
-  PURCHASE_INVOICE_TYPE     => 'purchase_invoice',
-  PURCHASE_CREDIT_NOTE_TYPE => 'purchase_credit_note',
+  AP_TRANSACTION_TYPE              => 'ap_transaction',
+  AP_TRANSACTION_STORNO_TYPE       => 'ap_transaction_storno',
+  PURCHASE_INVOICE_TYPE            => 'purchase_invoice',
+  PURCHASE_INVOICE_STORNO_TYPE     => 'purchase_invoice_storno',
+  PURCHASE_CREDIT_NOTE_TYPE        => 'purchase_credit_note',
+  PURCHASE_CREDIT_NOTE_STORNO_TYPE => 'purchase_credit_note_storno',
 };
 
-my @export_types = qw(PURCHASE_INVOICE_TYPE PURCHASE_CREDIT_NOTE_TYPE);
+my @export_types = qw(
+  AP_TRANSACTION_TYPE AP_TRANSACTION_STORNO_TYPE
+  PURCHASE_INVOICE_TYPE PURCHASE_INVOICE_STORNO_TYPE
+  PURCHASE_CREDIT_NOTE_TYPE PURCHASE_CREDIT_NOTE_STORNO_TYPE
+);
 my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 
 our @EXPORT_OK = (@export_types, @export_subs);
 our %EXPORT_TAGS = (types => \@export_types, subs => \@export_subs);
 
+# TODO types:
+#  - 'ap_transaction',
+#  - 'ap_transaction_storno',
+#  - 'purchase_invoice_storno',
+#  - 'purchase_credit_note_storno',
 my %type_data = (
   PURCHASE_INVOICE_TYPE() => {
     text => {
@@ -24,6 +37,7 @@ my %type_data = (
       add        => t8("Add Purchase Invoice"),
       edit       => t8("Edit Purchase Invoice"),
       type       => t8("Purchase Invoice"),
+      abbreviation => t8('Invoice (one letter abbreviation)'),
     },
     show_menu => {
       purchase_reclamation => 1,
@@ -58,6 +72,7 @@ my %type_data = (
       add        => t8("Add Purchase Credit Note"),
       edit       => t8("Edit Purchase Credit Note"),
       type       => t8("Purchase Credit Note"),
+      abbreviation => t8('Credit note (one letter abbreviation)'),
     },
     show_menu => {
       purchase_reclamation => 0,
@@ -88,8 +103,12 @@ my %type_data = (
 );
 
 my @valid_types = (
+  AP_TRANSACTION_TYPE,
+  AP_TRANSACTION_STORNO_TYPE,
   PURCHASE_INVOICE_TYPE,
+  PURCHASE_INVOICE_STORNO_TYPE,
   PURCHASE_CREDIT_NOTE_TYPE,
+  PURCHASE_CREDIT_NOTE_STORNO_TYPE,
 );
 
 my %valid_types = map { $_ => $_ } @valid_types;
