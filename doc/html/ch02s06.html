@@ -1,73 +1,161 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.6. Anpassung der PostgreSQL-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.1: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s05.html" title="2.5. kivitendo-Konfigurationsdatei"><link rel="next" href="ch02s07.html" title="2.7. Webserver-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.6. Anpassung der PostgreSQL-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s05.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s07.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.6. Anpassung der PostgreSQL-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Anpassung-der-PostgreSQL-Konfiguration"></a>2.6. Anpassung der PostgreSQL-Konfiguration</h2></div></div></div><p>PostgreSQL muss auf verschiedene Weisen angepasst werden.</p><p>Dies variert je nach eingesetzter Distribution, da distributionsabhängig unterschiedliche Strategien beim Upgrade der Postgres Version eingesetzt werden.
-            Als Hinweis einige Links zu den drei Distribution (Stand Dezember 2018):</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                  <a class="ulink" href="https://fedoraproject.org/wiki/PostgreSQL" target="_top">Fedora (Postgres-Installation unter Fedora)</a>
+   <title>2.6. Weitere benötigte Perl-Pakete installieren</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.1: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s05.html" title="2.5. kivitendo-Konfigurationsdatei"><link rel="next" href="ch02s07.html" title="2.7. Anpassung der PostgreSQL-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.6. Weitere benötigte Perl-Pakete installieren</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s05.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s07.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.6. Weitere benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Pakete"></a>2.6. Weitere benötigte Perl-Pakete installieren</h2></div></div></div><p>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
+        Bestandteil einer Standard-Perl-Installation sind. Um nach der
+	Installation von Kivitendo zu überprüfen,
+        ob die erforderlichen Pakete installiert und aktuell genug sind, wird
+        ein Script mitgeliefert, das wie folgt aufgerufen wird:</p><pre class="programlisting">./scripts/installation_check.pl</pre><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left"><a name="List-Moreutils"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Das Paket <code class="literal">List::MoreUtils</code> wird benötigt um das Script ausführen zu können!</p></td></tr></table></div><p>Die vollständige Liste der benötigten Perl-Module lautet:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                  <code class="literal">Algorithm::CheckDigits</code>
                </p></li><li class="listitem"><p>
-                  <a class="ulink" href="https://help.ubuntu.com/lts/serverguide/postgresql.html" target="_top">Ubuntu (Infos für Postgres für die aktuelle LTS Version)</a>
+                  <code class="literal">Archive::Zip</code>
                </p></li><li class="listitem"><p>
-                  <a class="ulink" href="https://de.opensuse.org/PostgreSQL" target="_top">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</a>
-               </p></li></ul></div><div class="sect2" title="2.6.1. Zeichensätze/die Verwendung von Unicode/UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.6.1. Zeichensätze/die Verwendung von Unicode/UTF-8</h3></div></div></div><p>kivitendo setzt zwingend voraus, dass die Datenbank
-        Unicode/UTF-8 als Encoding einsetzt. Bei aktuellen
-        Serverinstallationen braucht man hier meist nicht einzugreifen.</p><p>Das Encoding des Datenbankservers kann überprüft werden. Ist das
-        Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so braucht
-        man nichts weiteres diesbezüglich unternehmen. Zum Testen:</p><pre class="programlisting">su postgres
-echo '\l' | psql
-exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
-        Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 9.3 mit dem folgenden Befehl
-        getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 9.3 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsächlich verwendete
-        Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es ähnliche Methoden.</p><p>Das Encoding einer Datenbank kann in <span class="command"><strong>psql</strong></span> mit
-        <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.6.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.6.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
-        Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
-        <code class="filename">/var/lib/pgsql/data/</code> oder
-        <code class="filename">/etc/postgresql/</code>), muss sichergestellt werden,
-        dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
-        Parameter <code class="varname">listen_address</code> gesteuert. Laufen
-        PostgreSQL und kivitendo auf demselben Rechner, so kann dort der Wert
-        <code class="literal">localhost</code> verwendet werden. Andernfalls müssen
-        Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
-        was mit dem Wert <code class="literal">*</code> geschieht.</p><p>In der Datei <code class="filename">pg_hba.conf</code>, die im gleichen
-        Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden
-        sein sollte, müssen die Berechtigungen für den Zugriff geändert
-        werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
-        nötigen Verbindungen immer zuzulassen, für eine lokal laufende
-        Datenbank zum Beispiel:</p><pre class="programlisting">local all kivitendo password
-host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</pre></div><div class="sect2" title="2.6.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.6.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
-        Unterstützung für servergespeicherte Prozeduren eingerichet werden.
-        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
-        </p><pre class="programlisting">su - postgres
-psql template1</pre><p> führen Sie die folgenden Kommandos aus:</p><pre class="programlisting">CREATE EXTENSION IF NOT EXISTS plpgsql;
-\q</pre><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
-                  <code class="literal">CREATE EXTENSION</code> ist seit Version 9.1 die
-          bevorzugte Syntax um die Sprache <code class="literal">plpgsql</code>
-          anzulegen. In diesen Versionen ist die Extension meist auch schon
-          vorhanden. Sollten Sie eine ältere Version von Postgres haben,
-          benutzen Sie stattdessen den folgenden Befehl.</p><pre class="programlisting">CREATE LANGUAGE 'plpgsql';
-\q</pre></td></tr></table></div></div><div class="sect2" title="2.6.4. Erweiterung für Trigram Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-trigram"></a>2.6.4. Erweiterung für Trigram Prozeduren</h3></div></div></div><p>Ab Version 3.5.1 wird die Trigram-Index-Erweiterung benötigt.
-        Diese wird mit dem SQL-Updatescript
-        sql/Pg-upgrade2/trigram_extension.sql und Datenbank-Super-Benutzer
-        Rechten automatisch installiert. Dazu braucht der
-        DatenbankSuperbenutzer "postgres" ein Passwort.</p><pre class="programlisting">su - postgres
-psql
-\password postgres
+                  <code class="literal">CGI</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Clone</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Config::Std</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Daemon::Generic</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DateTime</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DateTime::Event::Cron</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DateTime::Format::Strptime</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DateTime::Set</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DBI</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">DBD::Pg</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Digest::SHA</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Email::Address</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Email::MIME</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Encode::IMAPUTF7</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Exception::Class</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">FCGI</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">File::Copy::Recursive</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">File::Flock</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">File::MimeInfo</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">File::Slurp</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">GD</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">HTML::Parser</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">HTML::Restrict</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Image::Info</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Imager</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Imager::QRCode</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">IPC::Run</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">JSON</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">List::MoreUtils</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">List::UtilsBy</code>
+               </p></li><li class="listitem"><p>LWP::Authen::Digest</p></li><li class="listitem"><p>LWP::UserAgent</p></li><li class="listitem"><p>
+                  <code class="literal">Mail::IMAPClient</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Net::SMTP::SSL</code> (optional, bei
+            E-Mail-Versand über SSL; siehe Abschnitt "<a class="xref" href="ch02s14.html#config.sending-email.smtp" title="2.14.1.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                  <code class="literal">Net::SSLGlue</code> (optional, bei
+            E-Mail-Versand über TLS; siehe Abschnitt "<a class="xref" href="ch02s14.html#config.sending-email.smtp" title="2.14.1.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                  <code class="literal">Math::Round</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Params::Validate</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">PBKDF2::Tiny</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">PDF::API2</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Regexp::IPv6</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Rest::Client</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Rose::Object</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Rose::DB</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Rose::DB::Object</code> Version 0.788 oder
+            neuer</p></li><li class="listitem"><p>
+                  <code class="literal">Set::Infinite</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">String::ShellQuote</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Sort::Naturally</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Template</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Text::CSV_XS</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Text::Iconv</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Text::Unidecode</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">Try::Tiny</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">URI</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">XML::Writer</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">XML::LibXML</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">YAML::XS</code> oder <code class="literal">YAML</code>
+               </p></li><li class="listitem"><p>
+                  <code class="literal">UUID::Tiny</code>
+               </p></li></ul></div><p>In der Version v3.9.1 sind keine neuen Pakete hinzugekommen.</p><p>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
+          <code class="literal">Mail::IMAPClient</code>, <code class="literal">Encode::IMAPUTF7</code>.
+          Nicht mehr benötigt wird <code class="literal">CAM::PDF</code>.
+        </p><p>In der Version v3.8.0 sind keine neuen Pakete hinzugekommen.</p><p>In der Version v3.7.0 sind keine neuen Pakete hinzugekommen.</p><p>Seit Version größer v3.6.0 sind die folgenden Pakete hinzugekommen: <code class="literal">IPC::Run</code>
+         </p><p>Seit Version größer v3.5.8 sind die folgenden Pakete hinzugekommen: <code class="literal">Imager</code>, <code class="literal">Imager::QRCode</code>
 
-Eingabe Passwort
-\q</pre><p>Benutzername Postgres und Passwort können jetzt beim Anlegen
-        einer Datenbank bzw. bei Updatescripten, die SuperuserRechte
-        benötigen, eingegeben werden.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
-                  <code class="literal">pg_trgm</code> ist je nach Distribution nicht im
-          Standard-Paket von Postgres enthalten. Ein </p><pre class="programlisting">select * from pg_available_extensions where name ='pg_trgm';</pre><p>
-          in template1 sollte entsprechend erfolgreich sein. Andernfalls muss
-          das Paket nachinstalliert werden, bspw. bei debian/ubuntu
-          </p><pre class="programlisting">apt install postgresql-contrib</pre><p>
-               </p></td></tr></table></div></div><div class="sect2" title="2.6.5. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.6.5. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
-        benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
-        anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
-        können:</p><p>Die Frage, ob der neue User Superuser sein soll, können Sie mit
-        nein beantworten, genauso ist die Berechtigung neue User (Roles) zu
-        generieren nicht nötig.</p><pre class="programlisting">su - postgres
-createuser -d -P kivitendo
-exit</pre><p>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
-        Sie den evtl. voreingestellten Benutzer “postgres” auf “kivitendo”
-        bzw. den hier gewählten Benutzernamen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s05.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s07.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.5. kivitendo-Konfigurationsdatei&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.7. Webserver-Konfiguration</td></tr></table></div></body></html>
+            <code class="literal">Rest::Client</code>
+            <code class="literal">Term::ReadLine::Gnu</code>
+         </p><p>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <code class="literal">Try::Tiny</code>, <code class="literal">Math::Round</code>
+         </p><p>Seit Version größer v3.5.6 sind die folgenden Pakete hinzugekommen: <code class="literal">XML::LibXML</code>
+         </p><p>Seit Version größer v3.5.3 sind die folgenden Pakete hinzugekommen: <code class="literal">Exception::Class</code>
+         </p><p>Seit Version größer v3.5.1 sind die folgenden Pakete hinzugekommen: <code class="literal">Set::Infinite</code>,
+        <code class="literal">List::UtilsBy</code>, <code class="literal">DateTime::Set</code>, <code class="literal">DateTime::Event::Cron</code>
+        
+            <code class="literal">Daemon::Generic</code>, <code class="literal">DateTime::Event::Cron</code>, <code class="literal">File::Flock</code>,
+        <code class="literal">File::Slurp</code>
+         </p><p>Seit Version größer v3.5.0 sind die folgenden Pakete
+        hinzugekommen: <code class="literal">Text::Unidecode</code>,
+        <code class="literal">LWP::Authen::Digest</code>,
+        <code class="literal">LWP::UserAgent</code>
+         </p><p>Seit Version v3.4.0 sind die folgenden Pakete hinzugekommen:
+        <code class="literal">Algorithm::CheckDigits</code>,
+        <code class="literal">PBKDF2::Tiny</code>
+         </p><p>Seit Version v3.2.0 sind die folgenden Pakete hinzugekommen:
+        <code class="literal">GD</code>, <code class="literal">HTML::Restrict</code>,
+        <code class="literal">Image::Info</code>
+         </p><p>Seit v3.0.0 sind die folgenden Pakete hinzugekommen:
+        <code class="literal">File::Copy::Recursive</code>.</p><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen:
+        <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
+        <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
+        hinzugekommen, <code class="literal">URI</code> und
+        <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo
+        nicht.</p><p>Gegenüber Version 2.6.3 ist <code class="literal">JSON</code> neu
+        hinzugekommen.</p><p>
+            <code class="literal">Email::Address</code> und
+        <code class="literal">List::MoreUtils</code> wurden aus dem Lieferumfang entfernt. Es wird
+        empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
+        installieren.</p><p>Gegenüber Version 2.6.1 sind <code class="literal">parent</code>,
+        <code class="literal">DateTime</code>, <code class="literal">Rose::Object</code>,
+        <code class="literal">Rose::DB</code> und <code class="literal">Rose::DB::Object</code>
+        neu hinzugekommen. <code class="literal">IO::Wrap</code> wurde entfernt.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s05.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s07.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.5. kivitendo-Konfigurationsdatei&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.7. Anpassung der PostgreSQL-Konfiguration</td></tr></table></div></body></html>

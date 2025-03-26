@@ -55,7 +55,8 @@
  
         <listitem>
           <para><emphasis>Installation von kivitendo</emphasis>: Diese umfasst
-          die "<xref linkend="Manuelle-Installation-des-Programmpaketes"/>"
+          die "<xref linkend="Manuelle-Installation-des-Programmpaketes"/>" oder alternativ
+          die fortgeschrittene   "<xref linkend="Installation mittels Ansible"/>"
           sowie grundlegende Einstellungen, die der "<xref
           linkend="config.config-file"/>" erläutert.</para>
         </listitem>
@@ -106,6 +107,11 @@
       <sect2 id="Betriebssystem">
         <title>Betriebssystem</title>
 
+        <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
+        Version (s.a. Liste der unterstützten Betriebssysteme)
+        benötigt.</para>
+
         <para>kivitendo ist für Linux konzipiert, und sollte auf jedem
         unixoiden Betriebssystem zum Laufen zu kriegen sein. Getestet ist
         diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
@@ -148,14 +154,521 @@
           </listitem>
         </itemizedlist>
       </sect2>
+             <sect3>
+          <title>Debian und Ubuntu</title>
+          <para>Für Debian und Ubuntu stehen die meisten der benötigten
+          Pakete als Debian-Pakete zur Verfügung. Sie können mit
+          folgendem Befehl installiert werden:</para>
 
-      <sect2 id="Pakete" xreflabel="Pakete">
-        <title>Benötigte Perl-Pakete installieren</title>
+          <programlisting>apt install  apache2 libarchive-zip-perl libclone-perl \
+  libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
+  libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
+  liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
+  libparams-validate-perl libpdf-api2-perl librose-db-object-perl \
+  librose-db-perl librose-object-perl libsort-naturally-perl \
+  libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
+  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
+  libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
+  libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
+  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl \
+  postgresql-contrib poppler-utils libhtml-restrict-perl \
+  libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl \
+  libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl \
+  libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
+  libdatetime-event-cron-perl libexception-class-perl \
+  libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
+  libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl \
+  libencode-imaputf7-perl libmail-imapclient-perl libuuid-tiny-perl
+          </programlisting>
 
-        <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
-        Apache) und ein Datenbankserver (PostgreSQL) in einer aktuellen
-        Version (s.a. Liste der unterstützten Betriebssysteme)
-        benötigt.</para>
+          <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
+          <note id="ubuntu-universe">
+            <para>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
+<programlisting>add-apt-repository universe</programlisting></para>
+          </note>
+        </sect3>
+
+        <sect3>
+          <title>Fedora</title>
+
+          <para>Für Fedora stehen die meisten der benötigten Perl-Pakete als
+          RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
+          installiert werden:</para>
+
+          <programlisting>dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
+  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
+  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
+  perl-DateTime perl-DateTime-Set perl-Email-Address perl-Email-MIME perl-FCGI \
+  perl-File-Copy-Recursive perl-File-Flock perl-File-MimeInfo perl-File-Slurp \
+  perl-GD perl-HTML-Restrict perl-JSON perl-List-MoreUtils perl-List-UtilsBy \
+  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PBKDF2-Tiny perl-PDF-API2 \
+  perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
+  perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
+  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
+  perl-YAML perl-libwww-perl</programlisting>
+        </sect3>
+
+        <sect3>
+          <title>openSUSE Leap 15.4 und SUSE Linux Enterprise Server 15</title>
+
+          <para>Für openSUSE Leap 15.4, sowie SLES 15 stehen alle benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
+          <para>Damit diese installiert werden können, muß das System die erforderlichen Repositories kennen und Zugriff über das Internet darauf haben.</para>
+          <para>Daher machen wir die Repositories dem System bekannt.</para>
+          <para>Um die zusätzlichen Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. In den allermeisten Fällen verwenden die Administratoren eine sichere SSH-Verbindung zum zu administrierenden Server.</para>
+          <para>Dazu geben wir folgenden Befehl ein:</para>
+
+          <para>Das ERP kivitendo Repository:</para>
+
+          <programlisting>zypper addrepo -f -p 90 \
+  http://download.opensuse.org/repositories/Application:/ERP:/kivitendo/15.4/ \
+  "OSS-15.4-App_ERP_kivitendo"</programlisting>
+
+          <para>Das ERP kivitendo Evaluation Repository:</para>
+
+          <programlisting>zypper addrepo -f -p 90 \
+  http://download.opensuse.org/repositories/Application:/ERP:/kivitendo:/eval/15.4/ \
+  "OSS-15.4-App_ERP_kivitendo_eval"</programlisting>
+
+          <para>Danach geben wir noch die beiden folgenden Befehle ein:</para>
+          <programlisting>zypper clean</programlisting>
+          <programlisting>zypper refresh</programlisting>
+          <para>Sollte zypper eine Meldung ausgeben, ob der Repository Key abgelehnt, nicht vertraut oder für immer akzeptiert werden soll, ist die Beantwortung durch drücken der "i" Taste am besten geeignet. Wer noch mehr über zypper erfahren möchte, kann sich einmal die zypper Hilfe anschauen.</para>
+          <programlisting>zypper --help</programlisting>
+          <note>
+          <para>Offiziell wird von openSUSE nur noch Versionen ab 15.4 unterstützt. Die SuSE Macher haben ab Version 15.x einen großen Umbau in der Verwaltung der Pakete vorgenommen, das heißt, der Paketumfang ist der SLE 15 als Programmunterbau angepasst. Dies gilt besonders der openSUSE Distribution. Es gibt ja einmal die openSUSE Distri und die professionelle SLE (SUSE Linux Enterprise) Version. Dadurch sind viele Pakete aus dem ursprünglich nur für die openSUSE geltenen Repository enfernt worden, aber auch viele auf aktuellem Stand gehalten. Mit der openSUSE Leap 15.4 ist es dem Benutzer ganz einfach gemacht worden zur professionellen SUSE Linux Enterprise zu wechseln, da die RPM Paketbasis identisch ist.</para>
+          </note>
+          <para>Ob openSUSE Leap oder SLE, man kann die Distribution auch als reine Text Version, also ohne KDE Oberfläche aufsetzen. Vorteil hierbei ist, dass weniger Balast und unnötige Pakte installiert werden. Diese Variante wird gerne auch als 'Server', 'minimale Server' oder auch 'minmal X' Variante bezeichnet.</para>
+          <para>Als Administrator hatte man jedoch auch immer die Möglichkeit, bei der Installation der Distribution die KDE (graphische) Oberfläche zu aktivieren. In dieser Konstellation hat man die Möglichkeit, eine VNC Verbindung vom administrativen Client zu verwenden. Ist das nicht eingerichtet, arbeitet der Admin dann direkt am Bildschirm des Servers. Nun loggen wir uns am Server direkt ein, starten Yast2 in einer Konsole wie folgt:</para>
+          <para>yast2 return.</para>
+          <para>Oder über die Menüführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste, dann die Maus verfahren auf System und YaST.</para>
+          <para>Im weiteren Verlauf der Installation, beschränken wir uns mit dem Installations Werkzeug zypper. Zypper ist ein Komandozeilen basiertes Installations Tool, welches bei openSUSE Standard ist. Zypper weist ein etwas eigenartiges Verhalten auf, dass sich in etwa wie folgt darstellt. Hat man die Repositories eingerichtet, kann man diese mit Yast als auch mit Zypper benutzen, setzt man einen Befehl wie etwa: zypper up ab, so findet zypper mehr neuere Programmversionen als Yast. Ich habe im allgemeinen noch keine Nachteile damit erlebt.</para>
+          <para>Programmpakete können mit folgendem Befehl installiert werden:</para>
+          <para>zypper install Paketname</para>
+          <para>Es wird empfohlen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakete mit YaST verwaltet werden, also wieder deinstalliert oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
+
+          <programlisting>zypper install kivitendo-erp</programlisting>
+
+          <para>Für Entwickler installiert man noch das folgende Paket:</para>
+
+          <programlisting>zypper install kivitendo-erp-devel</programlisting>
+        </sect3>
+
+     
+      <sect2>
+        <title>Andere Pakete installieren</title>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>poppler-utils</literal> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</para>
+          </listitem>
+          <listitem>
+            <para><literal>Postgres Trigram-Index</literal> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <literal>postgresql-contrib</literal> enthalten</para>
+          </listitem>
+        </itemizedlist>
+        <para>Debian und Ubuntu: <programlisting>apt install postgresql-contrib poppler-utils</programlisting></para>
+        <para>Fedora: <programlisting>dnf install poppler-utils postgresql-contrib</programlisting></para>
+        <para>openSUSE:<programlisting>Nicht notwendig, da poppler-utils bereits i.v.m. kivitendo-erp installiert wird</programlisting></para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="Manuelle-Installation-des-Programmpaketes"
+           xreflabel="Manuelle Installation des Programmpaketes">
+      <title>Manuelle Installation des Programmpaketes</title>
+
+      <sect2 id="Installation-mit-git">
+	<title>Installation mit git</title>
+
+        <para>Wir empfehlen eine Installation mittels des Versionsmanager
+        git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
+        viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
+        die Pfade anpassen) bspw. wie folgt: <programlisting>cd /var/www/
+git clone https://github.com/kivitendo/kivitendo-erp.git
+cd kivitendo-erp/
+git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</programlisting>
+        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
+        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha,
+        beta oder rc raus und das tail gibt davon den obersten Treffer
+        zurück). Sehr sinnvoll ist es, direkt im Anschluss einen eigenen
+        Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
+        damit zu verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
+        nach dem letzten Kommando (weiterführende Informationen <ulink
+        url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
+        Git Magic</ulink>).</para>
+
+        <para>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
+        3.4.1 nach 3.5: <programlisting>
+$ git clone https://github.com/kivitendo/kivitendo-erp.git
+$ cd kivitendo-erp/
+$ git checkout release-3.4.1                # das ist ein alter release aus dem wir starten ...
+$ git checkout -b meine_eigene_änderungen   # unser lokaler branch - unabhängig von allen anderen
+$ git add templates/mein_druck              # das sind unsere druckvorlagen inkl. produktbilder
+$ git commit -m "juhu tolle änderungen"
+
+[meine_aenderungen 1d89e41] juhu tolle ändernungen
+ 4 files changed, 380 insertions(+)
+ create mode 100644 templates/mein_druck/img/webdav/tesla.png
+ create mode 100644 templates/mein_druck/mahnung.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei.tex
+ create mode 100644 templates/mein_druck/zahlungserinnerung_zwei_invoice.tex
+
+# 5 Jahre später ...
+# webserver abschalten!
+
+$ git checkout master
+$ git pull                                  # oder git fetch und danach ein stable release tag auswählen (s.o.)
+$ git checkout meine_eigenen_änderungen
+$ git rebase master
+
+Zunächst wird der Branch zurückgespult, um Ihre Änderungen
+darauf neu anzuwenden ...
+Wende an: juhu tolle änderungen
+$ service apache2 restart                   # webserver starten!
+</programlisting></para>
+      </sect2>
+
+      <sect2 id="Installation_mit_Github">
+        <title>Installation über die Github Website</title>
+
+        <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
+        gehostet und kann <ulink
+        url="https://github.com/kivitendo/kivitendo-erp/tags">hier</ulink>
+        heruntergeladen werden.</para>
+
+
+        <para>Das aktuelleste kivitendo ERP-Archiv
+	(<filename>kivitendo-erp-*.tgz</filename>) wird dann im
+	Dokumentenverzeichnis des Webservers (z.B.
+	<filename>/var/www/html/</filename>,
+	<filename>/srv/www/htdocs</filename> oder
+	<filename>/var/www/</filename>) entpackt:</para>
+
+        <programlisting>cd /var/www
+tar xvzf kivitendo-erp-*.tgz</programlisting>
+
+        <para>Wechseln Sie in das entpackte Verzeichnis:</para>
+
+        <programlisting>cd kivitendo-erp</programlisting>
+
+        <para>Alternativ können Sie auch einen Alias in der
+        Webserverkonfiguration benutzen, um auf das tatsächliche
+        Installationsverzeichnis zu verweisen.</para>
+      </sect2>
+
+      <sect2 id="restliche-Verzeichnisse-erstellen-und-Besitzer-ändern">
+	<title>Restliche Verzeichnisse ändern und bearbeiten</title>
+
+        <para>Die folgenden Schritte müssen nach der Installation mittels git
+	oder der Github Website angewendet werden.</para>
+
+        <para>Bei einer Neuinstallation von Version 3.1.0 oder später muss das
+	WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
+
+        <programlisting>mkdir webdav</programlisting>
+
+        <para>Die Verzeichnisse <filename>users</filename>,
+        <filename>spool</filename> und <filename>webdav</filename> müssen für
+        den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+        restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
+        und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
+        (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
+        <constant>apache</constant> oder bei openSUSE
+        <constant>wwwrun</constant>).</para>
+
+        <para>Der folgende Befehl ändert den Besitzer für die oben genannten
+        Verzeichnisse auf einem Debian/Ubuntu-System:</para>
+
+        <programlisting>chown -R www-data users spool webdav</programlisting>
+
+        <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
+        <filename>templates</filename> und <filename>users</filename>
+        Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
+        kivitendo angelegt wird:</para>
+
+        <programlisting>chown www-data templates</programlisting>
+      </sect2>
+
+
+    </sect1>
+    <sect1 id="Installation mittels Ansible"
+           xreflabel="Installation mittels Ansible">
+      <title>Alternative, die fortgeschrittene  automatische Installation mittels Ansible auf Ubuntu 22.04</title>
+      <para>
+        Ansible ist ein Open-Source-Automatisierungstool, das verwendet
+        wird, um die Bereitstellung, Konfiguration und Verwaltung von
+        IT-Systemen zu automatisieren. Dabei führt es Aufgaben über SSH auf
+        entfernten Rechnern (Hosts) aus. Die Aufgaben werden dabei
+        deklarativ als YAML Dateien, den sogenannten Playbooks, übergeben.
+        Benötigt wird lediglich python und ansible ab Version 2.10.
+      </para>
+      <para>
+        Alle benötigten Konfigurationsdateien und das Playbook sind auf dem kivitendo github Account
+        unter dem Repository namens <ulink
+      url="https://github.com/kivitendo/kivitendo-ansible">kivitendo-ansible</ulink> verfügbar.
+        Das Repo kann lokal mit folgendem git-Befehl "geklont" werden:
+    <programlisting>git clone https://github.com/kivitendo/kivitendo-ansible</programlisting>
+      In diesem Repository befindet sich auch eine Readme.md, die aktuelle Installationshinweise auf englisch enthält.
+      </para>
+      <para>
+        Um die Installation zu starten,  wechseln Sie dann zunächst in den erstellten Ordner 'kivitendo-ansible' und
+        editieren die Datei inventory.
+
+        <programlisting>cd kivitendo-ansible
+vim inventory</programlisting>
+
+        Der/die Hosts auf denen Kivitendo installiert werden soll wird dann in
+        dieser Datei ('inventory') eingefügt, bspw. die
+
+        <programlisting>192.168.1.121</programlisting>
+        oder als Namen:
+        <programlisting>kivi.meine-lokale-domaene.de</programlisting>
+        Zusätzliche Parameter könnten erforderlich sein, bspw. der Benutzer für den SSH-Login:
+        <programlisting>kivi.meine-lokale-domaene.de ansible_user=myuser</programlisting>
+      </para>
+      <para>
+      Danach kann das Playbook mittels:
+      <programlisting>ansible-playbook --ask-become main.yml</programlisting>
+        ausgeführt werden, je nach Konfiguration wird man noch
+        aufgefordert das BECOME password einzutragen, hierbei handelt es
+        sich um das Passwort des Benutzers, über den die Installation dann auf dem Ziel-Rechner ausgeführt wird.
+      </para>
+      <para>
+        Nach erfolgreichen Ausführen des Playbooks ist Kivitendo dann über den Browser
+        erreichbar unter
+        <literal>http://&lt;IP des rechners&gt;/kivitendo-erp/</literal>
+      </para>
+      <para>
+        Nun muss noch eine Datenbank für Benutzer und Mandanten angelegt
+        werden. Dies kann über die Weboberfläche getan werden, indem man
+        sich mit dem Passwort <literal>admin123</literal> in der
+        Administrationsoberfläche anmeldet.
+        Weitere Details siehe Abschnitt "<xref
+            linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>"
+      </para>
+    </sect1>
+    <sect1 id="config.config-file">
+      <title>kivitendo-Konfigurationsdatei</title>
+
+      <sect2 id="config.config-file.introduction"
+             xreflabel="Einführung in die Konfigurationsdatei">
+        <title>Einführung</title>
+
+        <para>In kivitendo gibt es nur noch eine Konfigurationsdatei, die
+        benötigt wird: <filename>config/kivitendo.conf</filename> (kurz: "die
+        Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation von
+        kivitendo bzw. der Migration von älteren Versionen angelegt
+        werden.</para>
+
+        <para>Als Vorlage dient die Datei
+        <filename>config/kivitendo.conf.default</filename> (kurz: "die
+        Default-Datei"):</para>
+
+        <programlisting>$ cp config/kivitendo.conf.default config/kivitendo.conf</programlisting>
+
+        <para>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
+        der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
+        Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
+        Abschnitte und Werte enthalten, die von denen der Default-Datei
+        abweichen.</para>
+
+        <note>
+          <para>Vor der Umbenennung in kivitendo hieß diese Datei noch
+          <filename>config/lx_office.conf</filename>. Aus Gründen der
+          Kompatibilität wird diese Datei eingelesen, sofern die Datei
+          <filename>config/kivitendo.conf</filename> nicht existiert.</para>
+        </note>
+
+        <para>Diese Hauptkonfigurationsdatei ist dann eine
+        installationsspezifische Datei, d.h. sie enthält bspw. lokale
+        Passwörter und wird auch nicht im Versionsmanagement (git)
+        verwaltet.</para>
+
+        <para>Die Konfiguration ist ferner serverabhängig, d.h. für alle
+        Mandaten, bzw. Datenbanken gleich.</para>
+      </sect2>
+
+      <sect2 id="config.config-file.sections-parameters">
+        <title>Abschnitte und Parameter</title>
+
+        <para>Die Konfigurationsdatei besteht aus mehreren Teilen, die
+        entsprechend kommentiert sind:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>authentication</literal> (siehe Abschnitt "<xref
+            linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>"
+            in diesem Kapitel)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>authentication/database</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>authentication/http_basic</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>authentication/http_headers</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>authentication/ldap</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>system</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>paths</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>mail_delivery</literal> (siehe Abschnitt "<xref
+            linkend="config.sending-email.smtp"/>)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>imap_client</literal> (siehe Abschnitt "<xref
+            linkend="config.imap_client"/>)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>sent_emails_in_imap</literal> (siehe Abschnitt "<xref
+            linkend="config.sent_emails_in_imap"/>)</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>applications</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>environment</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>print_templates</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>task_server</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>periodic_invoices</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>self_tests</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>console</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>testing</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>testing/database</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>debug</literal></para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Die üblicherweise wichtigsten Parameter, die am Anfang
+        einzustellen oder zu kontrollieren sind, sind:</para>
+
+        <programlisting>[authentication]
+admin_password = geheim
+
+[authentication/database]
+host     = localhost
+port     = 5432
+db       = kivitendo_auth
+user     = postgres
+password =
+
+[system]
+default_manager = german</programlisting>
+
+        <para>Für kivitendo Installationen in der Schweiz sollte hier
+        <varname>german</varname> durch <varname>swiss</varname> ersetzt
+        werden.</para>
+
+        <para>Die Einstellung <varname>default_manager = swiss</varname>
+        bewirkt:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Beim Erstellen einer neuen Datenbank in der kivitendo
+            Administration werden automatisch die Standard-Werte für die
+            Schweiz voreingestellt: Währung CHF, 5er-Rundung, Schweizer
+            KMU-Kontenplan, Sollversteuerung, Aufwandsmethode, Bilanzierung
+            (die Werte können aber manuell angepasst werden).</para>
+          </listitem>
+
+          <listitem>
+            <para>Einstellen der Standardkonten für Rundungserträge und
+            -aufwendungen (unter Mandantenkonfiguration → Standardkonten
+            veränderbar)</para>
+          </listitem>
+
+          <listitem>
+            <para>das verwendete Zahlenformat wird auf
+            <varname>1'000.00</varname> eingestellt (unter Programm →
+            Benutzereinstellungen veränderbar)</para>
+          </listitem>
+
+          <listitem>
+            <para>DATEV-Automatik und UStVA werden nicht angezeigt,
+            Erfolgsrechnung ersetzt GUV ( unter Mandantenkonfiguration →
+            Features veränderbar)</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Nutzt man wiederkehrende Rechnungen, kann man unter
+        <varname>[periodic_invoices]</varname> den Login eines Benutzers
+        angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
+        mit Informationen über die erstellten Rechnungen bekommt.</para>
+
+        <para>kivitendo bringt eine eigene Komponente zur zeitgesteuerten
+        Ausführung bestimmter Aufgaben mit, den <link
+        linkend="config.task-server">Task-Server</link>. Er wird u.a. für
+        Features wie die <link
+        linkend="features.periodic-invoices">wiederkehrenden Rechnungen</link>
+        benötigt, erledigt aber auch andere erforderliche Aufgaben und muss
+        daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt
+        <link linkend="config.task-server">Task-Server</link> genauer
+        beschrieben.</para>
+
+        <para>Für Entwickler finden sich unter <varname>[debug]</varname>
+        wichtige Funktionen, um die Fehlersuche zu erleichtern.</para>
+      </sect2>
+
+      <sect2 id="config.config-file.prior-versions">
+        <title>Versionen vor 2.6.3</title>
+
+        <para>In älteren kivitendo Versionen gab es im Verzeichnis
+        <filename>config</filename> die Dateien
+        <filename>authentication.pl</filename> und
+        <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es
+        gab auch die Möglichkeit, eine lokale Version der Konfigurationsdatei
+        zu erstellen (<filename>lx-erp-local.conf</filename>). Dies ist ab
+        2.6.3 nicht mehr möglich, aber auch nicht mehr nötig.</para>
+
+        <para>Beim Update von einer kivitendo-Version vor 2.6.3 auf 2.6.3 oder
+        jünger müssen die Einstellungen aus den alten Konfigurationsdateien
+        manuell übertragen und die alten Konfigurationsdateien anschließend
+        gelöscht oder verschoben werden. Ansonsten zeigt kivitendo eine
+        entsprechende Fehlermeldung an.</para>
+      </sect2>
+    </sect1>
+    <sect1 id="Pakete" xreflabel="Pakete">
+        <title>Weitere benötigte Perl-Pakete installieren</title>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht
         Bestandteil einer Standard-Perl-Installation sind. Um nach der
@@ -476,522 +989,8 @@
         neu hinzugekommen. <literal>IO::Wrap</literal> wurde entfernt.</para>
 
 
-        <sect3>
-          <title>Debian und Ubuntu</title>
-          <para>Für Debian und Ubuntu stehen die meisten der benötigten
-          Pakete als Debian-Pakete zur Verfügung. Sie können mit
-          folgendem Befehl installiert werden:</para>
-
-          <programlisting>apt install  apache2 libarchive-zip-perl libclone-perl \
-  libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
-  libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
-  liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
-  libparams-validate-perl libpdf-api2-perl librose-db-object-perl \
-  librose-db-perl librose-object-perl libsort-naturally-perl \
-  libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
-  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
-  libimage-info-perl libgd-gd2-perl libapache2-mod-fcgid \
-  libfile-copy-recursive-perl postgresql libalgorithm-checkdigits-perl \
-  libcrypt-pbkdf2-perl git libcgi-pm-perl libtext-unidecode-perl libwww-perl \
-  postgresql-contrib poppler-utils libhtml-restrict-perl \
-  libdatetime-set-perl libset-infinite-perl liblist-utilsby-perl \
-  libdaemon-generic-perl libfile-flock-perl libfile-slurp-perl \
-  libfile-mimeinfo-perl libpbkdf2-tiny-perl libregexp-ipv6-perl \
-  libdatetime-event-cron-perl libexception-class-perl \
-  libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
-  libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl \
-  libencode-imaputf7-perl libmail-imapclient-perl libuuid-tiny-perl
-          </programlisting>
-
-          <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
-          <note id="ubuntu-universe">
-            <para>Die Perl Pakete für Ubuntu befinden sich im "Universe" Repository. Falls dies nicht aktiv ist, kann dies mit folgendem Aufruf aktiviert werden:
-<programlisting>add-apt-repository universe</programlisting></para>
-          </note>
-        </sect3>
-
-        <sect3>
-          <title>Fedora</title>
-
-          <para>Für Fedora stehen die meisten der benötigten Perl-Pakete als
-          RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
-          installiert werden:</para>
-
-          <programlisting>dnf install httpd mod_fcgid postgresql-server postgresql-contrib\
-  perl-Algorithm-CheckDigits perl-Archive-Zip perl-CPAN perl-Class-XSAccessor \
-  perl-Clone perl-Config-Std perl-DBD-Pg perl-DBI perl-Daemon-Generic \
-  perl-DateTime perl-DateTime-Set perl-Email-Address perl-Email-MIME perl-FCGI \
-  perl-File-Copy-Recursive perl-File-Flock perl-File-MimeInfo perl-File-Slurp \
-  perl-GD perl-HTML-Restrict perl-JSON perl-List-MoreUtils perl-List-UtilsBy \
-  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PBKDF2-Tiny perl-PDF-API2 \
-  perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
-  perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
-  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
-  perl-YAML perl-libwww-perl</programlisting>
-        </sect3>
-
-        <sect3>
-          <title>openSUSE Leap 15.4 und SUSE Linux Enterprise Server 15</title>
-
-          <para>Für openSUSE Leap 15.4, sowie SLES 15 stehen alle benötigten Perl-Pakete als RPM-Pakete zur Verfügung.</para>
-          <para>Damit diese installiert werden können, muß das System die erforderlichen Repositories kennen und Zugriff über das Internet darauf haben.</para>
-          <para>Daher machen wir die Repositories dem System bekannt.</para>
-          <para>Um die zusätzlichen Repositories für die Installation zur Verfügung zu stellen, kann man diese mit YaST oder auch in einem Terminal auf der Konsole bekannt geben. Wir beschränken uns hier mit der Eingabe auf der Konsole. In den allermeisten Fällen verwenden die Administratoren eine sichere SSH-Verbindung zum zu administrierenden Server.</para>
-          <para>Dazu geben wir folgenden Befehl ein:</para>
-
-          <para>Das ERP kivitendo Repository:</para>
-
-          <programlisting>zypper addrepo -f -p 90 \
-  http://download.opensuse.org/repositories/Application:/ERP:/kivitendo/15.4/ \
-  "OSS-15.4-App_ERP_kivitendo"</programlisting>
-
-          <para>Das ERP kivitendo Evaluation Repository:</para>
-
-          <programlisting>zypper addrepo -f -p 90 \
-  http://download.opensuse.org/repositories/Application:/ERP:/kivitendo:/eval/15.4/ \
-  "OSS-15.4-App_ERP_kivitendo_eval"</programlisting>
-
-          <para>Danach geben wir noch die beiden folgenden Befehle ein:</para>
-          <programlisting>zypper clean</programlisting>
-          <programlisting>zypper refresh</programlisting>
-          <para>Sollte zypper eine Meldung ausgeben, ob der Repository Key abgelehnt, nicht vertraut oder für immer akzeptiert werden soll, ist die Beantwortung durch drücken der "i" Taste am besten geeignet. Wer noch mehr über zypper erfahren möchte, kann sich einmal die zypper Hilfe anschauen.</para>
-          <programlisting>zypper --help</programlisting>
-          <note>
-          <para>Offiziell wird von openSUSE nur noch Versionen ab 15.4 unterstützt. Die SuSE Macher haben ab Version 15.x einen großen Umbau in der Verwaltung der Pakete vorgenommen, das heißt, der Paketumfang ist der SLE 15 als Programmunterbau angepasst. Dies gilt besonders der openSUSE Distribution. Es gibt ja einmal die openSUSE Distri und die professionelle SLE (SUSE Linux Enterprise) Version. Dadurch sind viele Pakete aus dem ursprünglich nur für die openSUSE geltenen Repository enfernt worden, aber auch viele auf aktuellem Stand gehalten. Mit der openSUSE Leap 15.4 ist es dem Benutzer ganz einfach gemacht worden zur professionellen SUSE Linux Enterprise zu wechseln, da die RPM Paketbasis identisch ist.</para>
-          </note>
-          <para>Ob openSUSE Leap oder SLE, man kann die Distribution auch als reine Text Version, also ohne KDE Oberfläche aufsetzen. Vorteil hierbei ist, dass weniger Balast und unnötige Pakte installiert werden. Diese Variante wird gerne auch als 'Server', 'minimale Server' oder auch 'minmal X' Variante bezeichnet.</para>
-          <para>Als Administrator hatte man jedoch auch immer die Möglichkeit, bei der Installation der Distribution die KDE (graphische) Oberfläche zu aktivieren. In dieser Konstellation hat man die Möglichkeit, eine VNC Verbindung vom administrativen Client zu verwenden. Ist das nicht eingerichtet, arbeitet der Admin dann direkt am Bildschirm des Servers. Nun loggen wir uns am Server direkt ein, starten Yast2 in einer Konsole wie folgt:</para>
-          <para>yast2 return.</para>
-          <para>Oder über die Menüführung wie folgt: Ein Klick auf das runde Icon, ganz links unten in der Menüleiste, dann die Maus verfahren auf System und YaST.</para>
-          <para>Im weiteren Verlauf der Installation, beschränken wir uns mit dem Installations Werkzeug zypper. Zypper ist ein Komandozeilen basiertes Installations Tool, welches bei openSUSE Standard ist. Zypper weist ein etwas eigenartiges Verhalten auf, dass sich in etwa wie folgt darstellt. Hat man die Repositories eingerichtet, kann man diese mit Yast als auch mit Zypper benutzen, setzt man einen Befehl wie etwa: zypper up ab, so findet zypper mehr neuere Programmversionen als Yast. Ich habe im allgemeinen noch keine Nachteile damit erlebt.</para>
-          <para>Programmpakete können mit folgendem Befehl installiert werden:</para>
-          <para>zypper install Paketname</para>
-          <para>Es wird empfohlen zusätzliche Pakete nicht direkt mit CPAN zu installieren, da man diese auch über andere Repositories beziehen kann, die bei openSUSE zur Verfügung stehen. Dadurch hat man den Vorteil, dass die Pakete mit YaST verwaltet werden, also wieder deinstalliert oder durch neuere ersetzt werden können. Zudem kann man auch noch eventuelle Bugs an openSUSE senden und diese dem Maintainer melden.</para>
-
-          <programlisting>zypper install kivitendo-erp</programlisting>
-
-          <para>Für Entwickler installiert man noch das folgende Paket:</para>
-
-          <programlisting>zypper install kivitendo-erp-devel</programlisting>
-        </sect3>
-      </sect2>
-
-      <sect2>
-        <title>Andere Pakete installieren</title>
-
-        <itemizedlist>
-          <listitem>
-            <para><literal>poppler-utils</literal> 'pdfinfo' zum Erkennen der Seitenanzahl bei der PDF-Generierung</para>
-          </listitem>
-          <listitem>
-            <para><literal>Postgres Trigram-Index</literal> Für datenbankoptimierte Suchanfragen. Bspw. im Paket <literal>postgresql-contrib</literal> enthalten</para>
-          </listitem>
-        </itemizedlist>
-        <para>Debian und Ubuntu: <programlisting>apt install postgresql-contrib poppler-utils</programlisting></para>
-        <para>Fedora: <programlisting>dnf install poppler-utils postgresql-contrib</programlisting></para>
-        <para>openSUSE:<programlisting>Nicht notwendig, da poppler-utils bereits i.v.m. kivitendo-erp installiert wird</programlisting></para>
-      </sect2>
-    </sect1>
-    <sect1 id="Installation mittels Ansible"
-           xreflabel="Installation mittels Ansible">
-      <title>Installation mittels Ansible auf Ubuntu 22.04</title>
-      <para>
-        Ansible ist ein Open-Source-Automatisierungstool, das verwendet
-        wird, um die Bereitstellung, Konfiguration und Verwaltung von
-        IT-Systemen zu automatisieren. Dabei führt es Aufgaben über SSH auf
-        entfernten Rechnern (Hosts) aus. Die Aufgaben werden dabei
-        deklarativ als YAML Dateien, den sogenannten Playbooks, übergeben.
-        Benötigt wird lediglich python und ansible ab Version 2.10.
-      </para>
-      <para>
-        Alle benötigten Konfigurationsdateien und das Playbook sind auf dem kivitendo github Account
-        unter dem Repository namens <ulink
-      url="https://github.com/kivitendo/kivitendo-ansible">kivitendo-ansible</ulink> verfügbar.
-        Das Repo kann lokal mit folgendem git-Befehl "geklont" werden:
-    <programlisting>git clone https://github.com/kivitendo/kivitendo-ansible</programlisting>
-      In diesem Repository befindet sich auch eine Readme.md, die aktuelle Installationshinweise auf englisch enthält.
-      </para>
-      <para>
-        Um die Installation zu starten,  wechseln Sie dann zunächst in den erstellten Ordner 'kivitendo-ansible' und
-        editieren die Datei inventory.
-
-        <programlisting>cd kivitendo-ansible
-vim inventory</programlisting>
-
-        Der/die Hosts auf denen Kivitendo installiert werden soll wird dann in
-        dieser Datei ('inventory') eingefügt, bspw. die
-
-        <programlisting>192.168.1.121</programlisting>
-        oder als Namen:
-        <programlisting>kivi.meine-lokale-domaene.de</programlisting>
-        Zusätzliche Parameter könnten erforderlich sein, bspw. der Benutzer für den SSH-Login:
-        <programlisting>kivi.meine-lokale-domaene.de ansible_user=myuser</programlisting>
-      </para>
-      <para>
-      Danach kann das Playbook mittels:
-      <programlisting>ansible-playbook --ask-become main.yml</programlisting>
-        ausgeführt werden, je nach Konfiguration wird man noch
-        aufgefordert das BECOME password einzutragen, hierbei handelt es
-        sich um das Passwort des Benutzers, über den die Installation dann auf dem Ziel-Rechner ausgeführt wird.
-      </para>
-      <para>
-        Nach erfolgreichen Ausführen des Playbooks ist Kivitendo dann über den Browser
-        erreichbar unter
-        <literal>http://&lt;IP des rechners&gt;/kivitendo-erp/</literal>
-      </para>
-      <para>
-        Nun muss noch eine Datenbank für Benutzer und Mandanten angelegt
-        werden. Dies kann über die Weboberfläche getan werden, indem man
-        sich mit dem Passwort <literal>admin123</literal> in der
-        Administrationsoberfläche anmeldet.
-        Weitere Details siehe Abschnitt "<xref
-            linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>"
-      </para>
-    </sect1>
-    <sect1 id="Manuelle-Installation-des-Programmpaketes"
-           xreflabel="Manuelle Installation des Programmpaketes">
-      <title>Manuelle Installation des Programmpaketes</title>
-
-      <sect2 id="Installation-mit-git">
-	<title>Installation mit git</title>
-
-        <para>Wir empfehlen eine Installation mittels des Versionsmanager
-        git. Hierfür muss ein git-Client installiert sein. Damit ist man sehr
-        viel flexibler für zukünftige Upgrades. Installations-Anleitung (bitte
-        die Pfade anpassen) bspw. wie folgt: <programlisting>cd /var/www/
-git clone https://github.com/kivitendo/kivitendo-erp.git
-cd kivitendo-erp/
-git checkout `git tag -l | egrep -ve "(alpha|beta|rc)" | tail -1`</programlisting>
-        Erläuterung: Der Befehl wechselt zur letzten Stable-Version (git tag
-        -l listet alle Tags auf, das egrep schmeisst alle Einträge mit alpha,
-        beta oder rc raus und das tail gibt davon den obersten Treffer
-        zurück). Sehr sinnvoll ist es, direkt im Anschluss einen eigenen
-        Branch zu erzeugen, um bspw. seine eigenen Druckvorlagen-Anpassungen
-        damit zu verwalten. Hierfür reicht ein simples <programlisting>  git checkout -b meine_eigenen_änderungen</programlisting>
-        nach dem letzten Kommando (weiterführende Informationen <ulink
-        url="http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html">
-        Git Magic</ulink>).</para>
-
-        <para>Ein beispielhafter Workflow für Druckvorlagen-Anpassungen von
-        3.4.1 nach 3.5: <programlisting>
-$ git clone https://github.com/kivitendo/kivitendo-erp.git
-$ cd kivitendo-erp/
-$ git checkout release-3.4.1                # das ist ein alter release aus dem wir starten ...
-$ git checkout -b meine_eigene_änderungen   # unser lokaler branch - unabhängig von allen anderen
-$ git add templates/mein_druck              # das sind unsere druckvorlagen inkl. produktbilder
-$ git commit -m "juhu tolle änderungen"
-
-[meine_aenderungen 1d89e41] juhu tolle ändernungen
- 4 files changed, 380 insertions(+)
- create mode 100644 templates/mein_druck/img/webdav/tesla.png
- create mode 100644 templates/mein_druck/mahnung.tex
- create mode 100644 templates/mein_druck/zahlungserinnerung_zwei.tex
- create mode 100644 templates/mein_druck/zahlungserinnerung_zwei_invoice.tex
-
-# 5 Jahre später ...
-# webserver abschalten!
-
-$ git checkout master
-$ git pull                                  # oder git fetch und danach ein stable release tag auswählen (s.o.)
-$ git checkout meine_eigenen_änderungen
-$ git rebase master
-
-Zunächst wird der Branch zurückgespult, um Ihre Änderungen
-darauf neu anzuwenden ...
-Wende an: juhu tolle änderungen
-$ service apache2 restart                   # webserver starten!
-</programlisting></para>
-      </sect2>
-
-      <sect2 id="Installation_mit_Github">
-        <title>Installation über die Github Website</title>
-
-        <para>Der aktuelle Stable-Release, bzw. beta Release wird bei github
-        gehostet und kann <ulink
-        url="https://github.com/kivitendo/kivitendo-erp/tags">hier</ulink>
-        heruntergeladen werden.</para>
-
-
-        <para>Das aktuelleste kivitendo ERP-Archiv
-	(<filename>kivitendo-erp-*.tgz</filename>) wird dann im
-	Dokumentenverzeichnis des Webservers (z.B.
-	<filename>/var/www/html/</filename>,
-	<filename>/srv/www/htdocs</filename> oder
-	<filename>/var/www/</filename>) entpackt:</para>
-
-        <programlisting>cd /var/www
-tar xvzf kivitendo-erp-*.tgz</programlisting>
-
-        <para>Wechseln Sie in das entpackte Verzeichnis:</para>
-
-        <programlisting>cd kivitendo-erp</programlisting>
-
-        <para>Alternativ können Sie auch einen Alias in der
-        Webserverkonfiguration benutzen, um auf das tatsächliche
-        Installationsverzeichnis zu verweisen.</para>
-      </sect2>
-
-      <sect2 id="restliche-Verzeichnisse-erstellen-und-Besitzer-ändern">
-	<title>Restliche Verzeichnisse ändern und bearbeiten</title>
-
-        <para>Die folgenden Schritte müssen nach der Installation mittels git
-	oder der Github Website angewendet werden.</para>
-
-        <para>Bei einer Neuinstallation von Version 3.1.0 oder später muss das
-	WebDAV Verzeichnis derzeit manuell angelegt werden:</para>
-
-        <programlisting>mkdir webdav</programlisting>
-
-        <para>Die Verzeichnisse <filename>users</filename>,
-        <filename>spool</filename> und <filename>webdav</filename> müssen für
-        den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-        restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer-
-        und Gruppennamen sind bei verschiedenen Distributionen unterschiedlich
-        (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-        <constant>apache</constant> oder bei openSUSE
-        <constant>wwwrun</constant>).</para>
-
-        <para>Der folgende Befehl ändert den Besitzer für die oben genannten
-        Verzeichnisse auf einem Debian/Ubuntu-System:</para>
-
-        <programlisting>chown -R www-data users spool webdav</programlisting>
-
-        <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen
-        <filename>templates</filename> und <filename>users</filename>
-        Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in
-        kivitendo angelegt wird:</para>
-
-        <programlisting>chown www-data templates</programlisting>
-      </sect2>
-
-
-
-
-
-    </sect1>
-
-    <sect1 id="config.config-file">
-      <title>kivitendo-Konfigurationsdatei</title>
-
-      <sect2 id="config.config-file.introduction"
-             xreflabel="Einführung in die Konfigurationsdatei">
-        <title>Einführung</title>
-
-        <para>In kivitendo gibt es nur noch eine Konfigurationsdatei, die
-        benötigt wird: <filename>config/kivitendo.conf</filename> (kurz: "die
-        Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation von
-        kivitendo bzw. der Migration von älteren Versionen angelegt
-        werden.</para>
-
-        <para>Als Vorlage dient die Datei
-        <filename>config/kivitendo.conf.default</filename> (kurz: "die
-        Default-Datei"):</para>
-
-        <programlisting>$ cp config/kivitendo.conf.default config/kivitendo.conf</programlisting>
-
-        <para>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
-        der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
-        Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
-        Abschnitte und Werte enthalten, die von denen der Default-Datei
-        abweichen.</para>
-
-        <note>
-          <para>Vor der Umbenennung in kivitendo hieß diese Datei noch
-          <filename>config/lx_office.conf</filename>. Aus Gründen der
-          Kompatibilität wird diese Datei eingelesen, sofern die Datei
-          <filename>config/kivitendo.conf</filename> nicht existiert.</para>
-        </note>
-
-        <para>Diese Hauptkonfigurationsdatei ist dann eine
-        installationsspezifische Datei, d.h. sie enthält bspw. lokale
-        Passwörter und wird auch nicht im Versionsmanagement (git)
-        verwaltet.</para>
-
-        <para>Die Konfiguration ist ferner serverabhängig, d.h. für alle
-        Mandaten, bzw. Datenbanken gleich.</para>
-      </sect2>
-
-      <sect2 id="config.config-file.sections-parameters">
-        <title>Abschnitte und Parameter</title>
-
-        <para>Die Konfigurationsdatei besteht aus mehreren Teilen, die
-        entsprechend kommentiert sind:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para><literal>authentication</literal> (siehe Abschnitt "<xref
-            linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>"
-            in diesem Kapitel)</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>authentication/database</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>authentication/http_basic</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>authentication/http_headers</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>authentication/ldap</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>system</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>paths</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>mail_delivery</literal> (siehe Abschnitt "<xref
-            linkend="config.sending-email.smtp"/>)</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>imap_client</literal> (siehe Abschnitt "<xref
-            linkend="config.imap_client"/>)</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>sent_emails_in_imap</literal> (siehe Abschnitt "<xref
-            linkend="config.sent_emails_in_imap"/>)</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>applications</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>environment</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>print_templates</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>task_server</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>periodic_invoices</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>self_tests</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>console</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>testing</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>testing/database</literal></para>
-          </listitem>
-
-          <listitem>
-            <para><literal>debug</literal></para>
-          </listitem>
-        </itemizedlist>
-
-        <para>Die üblicherweise wichtigsten Parameter, die am Anfang
-        einzustellen oder zu kontrollieren sind, sind:</para>
-
-        <programlisting>[authentication]
-admin_password = geheim
-
-[authentication/database]
-host     = localhost
-port     = 5432
-db       = kivitendo_auth
-user     = postgres
-password =
-
-[system]
-default_manager = german</programlisting>
-
-        <para>Für kivitendo Installationen in der Schweiz sollte hier
-        <varname>german</varname> durch <varname>swiss</varname> ersetzt
-        werden.</para>
-
-        <para>Die Einstellung <varname>default_manager = swiss</varname>
-        bewirkt:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Beim Erstellen einer neuen Datenbank in der kivitendo
-            Administration werden automatisch die Standard-Werte für die
-            Schweiz voreingestellt: Währung CHF, 5er-Rundung, Schweizer
-            KMU-Kontenplan, Sollversteuerung, Aufwandsmethode, Bilanzierung
-            (die Werte können aber manuell angepasst werden).</para>
-          </listitem>
-
-          <listitem>
-            <para>Einstellen der Standardkonten für Rundungserträge und
-            -aufwendungen (unter Mandantenkonfiguration → Standardkonten
-            veränderbar)</para>
-          </listitem>
-
-          <listitem>
-            <para>das verwendete Zahlenformat wird auf
-            <varname>1'000.00</varname> eingestellt (unter Programm →
-            Benutzereinstellungen veränderbar)</para>
-          </listitem>
-
-          <listitem>
-            <para>DATEV-Automatik und UStVA werden nicht angezeigt,
-            Erfolgsrechnung ersetzt GUV ( unter Mandantenkonfiguration →
-            Features veränderbar)</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>Nutzt man wiederkehrende Rechnungen, kann man unter
-        <varname>[periodic_invoices]</varname> den Login eines Benutzers
-        angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
-        mit Informationen über die erstellten Rechnungen bekommt.</para>
-
-        <para>kivitendo bringt eine eigene Komponente zur zeitgesteuerten
-        Ausführung bestimmter Aufgaben mit, den <link
-        linkend="config.task-server">Task-Server</link>. Er wird u.a. für
-        Features wie die <link
-        linkend="features.periodic-invoices">wiederkehrenden Rechnungen</link>
-        benötigt, erledigt aber auch andere erforderliche Aufgaben und muss
-        daher in Betrieb genommen werden. Seine Einrichtung wird im Abschnitt
-        <link linkend="config.task-server">Task-Server</link> genauer
-        beschrieben.</para>
-
-        <para>Für Entwickler finden sich unter <varname>[debug]</varname>
-        wichtige Funktionen, um die Fehlersuche zu erleichtern.</para>
-      </sect2>
-
-      <sect2 id="config.config-file.prior-versions">
-        <title>Versionen vor 2.6.3</title>
-
-        <para>In älteren kivitendo Versionen gab es im Verzeichnis
-        <filename>config</filename> die Dateien
-        <filename>authentication.pl</filename> und
-        <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es
-        gab auch die Möglichkeit, eine lokale Version der Konfigurationsdatei
-        zu erstellen (<filename>lx-erp-local.conf</filename>). Dies ist ab
-        2.6.3 nicht mehr möglich, aber auch nicht mehr nötig.</para>
-
-        <para>Beim Update von einer kivitendo-Version vor 2.6.3 auf 2.6.3 oder
-        jünger müssen die Einstellungen aus den alten Konfigurationsdateien
-        manuell übertragen und die alten Konfigurationsdateien anschließend
-        gelöscht oder verschoben werden. Ansonsten zeigt kivitendo eine
-        entsprechende Fehlermeldung an.</para>
-      </sect2>
-    </sect1>
+ 
+      </sect1>
 
     <sect1 id="Anpassung-der-PostgreSQL-Konfiguration">
       <title>Anpassung der PostgreSQL-Konfiguration</title>
