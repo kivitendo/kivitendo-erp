@@ -75,7 +75,8 @@ __PACKAGE__->run_before('check_auth',
 
 __PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit price_popup load_second_rows close_quotations) ]);
-__PACKAGE__->run_before('get_basket_info_from_from');
+__PACKAGE__->run_before('get_basket_info_from_from',
+                        except => [ qw(close_quotations) ]);
 
 #
 # actions
