@@ -1,4 +1,4 @@
-use Test::More tests => 449;
+use Test::More tests => 462;
 
 use strict;
 
@@ -103,6 +103,7 @@ test_credit_note();
 test_ap_transaction();
 test_neg_ap_transaction(invoice => 0);
 test_neg_ap_transaction(invoice => 1);
+test_neg_ap_transaction_skonto();
 test_ap_payment_transaction();
 test_ap_payment_part_transaction();
 test_neg_sales_invoice();
@@ -658,6 +659,20 @@ sub test_full_workflow_ar_multiple_inv_skonto_reconciliate_and_undo {
   is(scalar @{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [bank_transaction_id => $bt->id ] )},
        9, "$testname 9 acc_trans entries created");
 
+  # check for record link and skonto corrections
+  my $rl_skonto = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $ar_transaction_skonto->id, from_table => 'ar', to_table => 'gl' ]);
+  is (ref $rl_skonto->[0], 'SL::DB::RecordLink', "$testname record link skonto gl created");
+  my $acc_trans_skonto = SL::DB::Manager::AccTransaction->get_all(where => [trans_id => $rl_skonto->[0]->to_id]);
+  foreach my $entry (@{ $acc_trans_skonto }) {
+    if ($entry->chart_link =~ m/tax/) {
+      is($entry->amount, '-1.29000');
+    } elsif ($entry->chart_link =~ m/AR_paid/) {
+      is($entry->amount, '1.29000');
+    } else {
+      fail("invalid chart link state");
+    }
+  }
+
   # same loop as above, but only for the 3rd ar_id
   foreach my $acc_trans_id_entry (@{ SL::DB::Manager::BankTransactionAccTrans->get_all(where => [ar_id => $ar_transaction_skonto->id ] )}) {
     isnt($acc_trans_id_entry->ar_id, '', "$testname: bt linked with acc_trans and trans_id set");
@@ -773,6 +788,75 @@ sub test_credit_note {
   is($credit_note->paid     , '-844.90000', "$testname: paid ok");
   is($bt->invoice_amount    , '-844.90000', "$testname: bt invoice amount for credit note was assigned");
   is($bt->amount            , '-844.90000', "$testname: bt  amount for credit note was assigned");
+}
+
+sub test_neg_ap_transaction_skonto {
+  my (%params) = @_;
+  my $testname = 'test_neg_ap_transaction invoice with skonto';
+  my $netamount = -840.34;
+  my $amount    = $::form->round_amount($netamount * 1.19, 2);
+  my $payment_skonto = create_payment_terms(percent_skonto => 0.04, terms_skonto => 11);
+  my $invoice   = SL::DB::PurchaseInvoice->new(
+    invoice      => 1,
+    invnumber    => 'test_neg_ap_transaction_with_negative_skonto',
+    amount       => $amount,
+    netamount    => $netamount,
+    transdate    => $dt,
+    taxincluded  => 0,
+    vendor_id    => $vendor->id,
+    taxzone_id   => $vendor->taxzone_id,
+    currency_id  => $currency_id,
+    transactions => [],
+    notes        => 'test_neg_ap_transaction_with_skonto',
+    payment_id   => $payment_skonto->id,
+  );
+  $invoice->add_ap_amount_row(
+    amount     => $invoice->netamount,
+    chart      => $ap_amount_chart,
+    tax_id     => $tax_9->id,
+  );
+
+  $invoice->create_ap_row(chart => $ap_chart);
+  $invoice->save;
+
+  is($invoice->amount, -1000, "$testname: amount ok");
+
+  my $bt            = create_bank_transaction(record        => $invoice,
+                                              amount        => 960,
+                                              bank_chart_id => $bank->id,
+                                              transdate     => $dt_10,
+                                                               );
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_skonto_pt' ]
+  };
+
+  is($bt->amount, 960, "$testname: bt  amount for ap was assigned");
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $invoice->id ]
+  };
+
+  my $ret = save_btcontroller_to_string();
+  $invoice->load;
+  $bt->load;
+  is($invoice->amount   , '-1000.00000', "$testname: amount ok");
+  is($invoice->netamount, '-840.34000', "$testname: netamount ok");
+  is($invoice->paid     , '-1000.00000', "$testname: paid ok");
+  is($bt->invoice_amount, '960.00000', "$testname: bt invoice amount for ap was assigned");
+  is($bt->amount,         '960.00000', "$testname: bt  amount for ap was assigned");
+
+  my $rl_skonto = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $invoice->id, from_table => 'ap', to_table => 'gl' ]);
+  is (ref $rl_skonto->[0], 'SL::DB::RecordLink', "$testname record link skonto gl created");
+  my $acc_trans_skonto = SL::DB::Manager::AccTransaction->get_all(where => [trans_id => $rl_skonto->[0]->to_id]);
+  foreach my $entry (@{ $acc_trans_skonto }) {
+    if ($entry->chart_link =~ m/tax/) {
+      is($entry->amount, '-6.39000');
+    } elsif ($entry->chart_link =~ m/AP_paid/) {
+      is($entry->amount, '6.39000');
+    } else {
+      fail("invalid chart link state");
+    }
+  }
 }
 
 sub test_neg_ap_transaction {
