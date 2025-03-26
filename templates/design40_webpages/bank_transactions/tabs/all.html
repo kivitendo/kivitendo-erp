@@ -13,6 +13,22 @@
 
 [% SET debug=1 %]
 <form method="post" id="list_all_form">
+
+  [% INCLUDE 'common/flash.html' %]
+
+  [% IF SELF.problems.size %]
+    [% INCLUDE 'bank_transactions/_problems.html' %]
+  [% END %]
+
+  <p>[% HTML.escape(bank_account.name) %] [% HTML.escape(bank_account.iban) %], [% 'Bank code' | $T8 %] [% HTML.escape(bank_account.bank_code) %], [% 'Bank' | $T8 %] [% HTML.escape(bank_account.bank) %]</p>
+  <p>
+    [% IF FORM.filter.fromdate %] [% 'From'      | $T8 %] [% FORM.filter.fromdate %] [% END %]
+    [% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate   %] [% END %]
+    [% L.hidden_tag("filter.bank_account", FORM.filter.bank_account) %]
+    [% L.hidden_tag("filter.fromdate",     FORM.filter.fromdate)     %]
+    [% L.hidden_tag("filter.todate",       FORM.filter.todate)       %]
+  </p>
+
   [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
   [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
   [% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
