@@ -1,0 +1,145 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<tbody class="row_entry listrow" data-position="[%- HTML.escape(ITEM.position) -%]"[%- IF MYCONFIG.show_form_details -%] data-expanded="1"[%- END -%]>
+  <tr>
+    <td>
+      [% IF MYCONFIG.show_form_details %]
+        [% L.img_tag(src="image/collapse.svg",
+                     alt=LxERP.t8('Hide details'), title=LxERP.t8('Hide details'), class="expand row-icon") %]
+      [% ELSE %]
+        [% L.img_tag(src="image/expand.svg",
+                     alt=LxERP.t8('Show details'), title=LxERP.t8('Show details'), class="expand row-icon") %]
+      [% END %]
+      [% L.hidden_tag("items[+]", ID) %]
+      [% L.hidden_tag("converted_from_record_item_type_ref[+]", ITEM.converted_from_record_item_type_ref) %]
+      [% L.hidden_tag("converted_from_record_item_id[+]",       ITEM.converted_from_record_item_id) %]
+      [% L.hidden_tag("record.items[+].id", ITEM.id, id='item_' _ ID) %]
+      [% L.hidden_tag("record.items[].parts_id", ITEM.parts_id) %]
+      [% L.hidden_tag("basket_item_ids[+]", ITEM.basket_item_id) %]
+    </td>
+    <td class="center"><div name="position">[% HTML.escape(ITEM.position) %]</div></td>
+    <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
+    <td>
+      [% L.button_tag("kivi.Invoice.delete_item_row(this)",
+                      LxERP.t8("X"),
+                      confirm=LxERP.t8("Are you sure?")) %]
+    </td>
+    [%- IF SELF.show_update_button -%]
+    <td>
+      [%- L.img_tag(src="image/rotate_cw.svg",
+                    alt=LxERP.t8('Update from master data'),
+                    title= LxERP.t8('Update from master data'),
+                    onclick="if (!confirm('" _ LxERP.t8("Are you sure to update this position from master data?") _ "')) return false; kivi.Invoice.update_row_from_master_data(this);",
+                    class='row-icon',
+                    id='update_from_master') %]
+    </td>
+    [%- END -%]
+    <td>
+      <div name="partnumber">
+        [%- P.link_tag(SELF.url_for(controller='Part', action='edit', 'part.id'=ITEM.part.id), ITEM.part.partnumber, target="_blank", title=LxERP.t8('Open in new window')) -%]
+      </div>
+    </td>
+    [%- IF SELF.search_cvpartnumber -%]
+    <td><div name="cvpartnumber">[% HTML.escape(ITEM.cvpartnumber) %]</div></td>
+    [%- END -%]
+    <td><div name="partclassification">[% ITEM.part.presenter.typeclass_abbreviation %]</div></td>
+    <td>
+      [% L.areainput_tag("record.items[].description",
+                     ITEM.description,
+                     size='40',
+                     class='wi-lightwide') %]
+      [% L.hidden_tag("record.items[].longdescription", ITEM.longdescription) %]
+      [% L.button_tag("kivi.Invoice.show_longdescription_dialog(this)", LxERP.t8("L"), class="wi-tiny neutral") %]
+    </td>
+    <td>
+      [% L.input_tag("record.items[].qty_as_number",
+                      ITEM.qty_as_number,
+                      size = 5,
+                      class="recalc reformat_number numeric wi-verysmall") %]
+      [% IF ITEM.part.formel %]
+        [% L.button_tag("kivi.Invoice.show_calculate_qty_dialog(this)", LxERP.t8("*/"), class="neutral") %]
+        [% L.hidden_tag("formula[+]", ITEM.part.formel) %]
+      [% END %]
+    </td>
+    <td>
+      [% L.select_tag("record.items[].price_factor_id",
+                       SELF.all_price_factors,
+                       default = ITEM.price_factor_id,
+                       title_key = 'description',
+                       with_empty = 1,
+                       class="recalc wi-mediumsmall") %]
+    </td>
+    <td>
+      [% L.select_tag("record.items[].unit",
+                      ITEM.part.available_units,
+                      default = ITEM.unit,
+                      title_key = 'name',
+                      value_key = 'name',
+                      class = 'unitselect wi-mediumsmall') %]
+    </td>
+    <td>
+      [% L.button_tag("kivi.Invoice.price_chooser_item_row(this)",
+                       ITEM.active_price_source.source_description _ ' | ' _ ITEM.active_discount_source.source_description,
+                       name = "price_chooser_button",
+                       class = "neutral") %]
+    </td>
+    [% SET RIGHT_TO_EDIT_PRICES = 0 %]
+    [% IF SELF.type_data.properties('is_customer') %]
+      [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('sales_edit_prices', 1) %]
+    [% ELSE %]
+      [% SET RIGHT_TO_EDIT_PRICES = AUTH.assert('purchase_edit_prices', 1) %]
+    [% END %]
+    <td>
+      [% L.hidden_tag("record.items[].active_price_source", ITEM.active_price_source.source) %]
+      [% SET EDIT_PRICE = (RIGHT_TO_EDIT_PRICES && ITEM.active_price_source.source == '') %]
+      <div name="editable_price" [% IF !EDIT_PRICE %]style="display:none"[% END %] class="numeric">
+        [% L.input_tag("record.items[].sellprice_as_number",
+                        ITEM.sellprice_as_number,
+                        size = 10,
+                        disabled=(EDIT_PRICE? '' : 1),
+                        class="recalc reformat_number numeric wi-verysmall") %]
+      </div>
+      <div name="not_editable_price" [% IF EDIT_PRICE %]style="display:none"[% END %]>
+        [% L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric plain-data") %]  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
+        [% L.hidden_tag("record.items[].sellprice_as_number",
+                         ITEM.sellprice_as_number,
+                         disabled=(EDIT_PRICE? 1 : '')) %]
+      </div>
+    </td>
+    <td>
+      [% L.hidden_tag("record.items[].active_discount_source", ITEM.active_discount_source.source) %]
+      [% SET EDIT_DISCOUNT = (RIGHT_TO_EDIT_PRICES && ITEM.active_discount_source.source == '') %]
+      <div name="editable_discount" [% IF !EDIT_DISCOUNT %]style="display:none"[% END %] class="numeric">
+        [% L.input_tag("record.items[].discount_as_percent",
+                        ITEM.discount_as_percent,
+                        size = 5,
+                        disabled=(EDIT_DISCOUNT? '' : 1),
+                        class="recalc reformat_number numeric") %]
+      </div>
+      <div name="not_editable_discount" [% IF EDIT_DISCOUNT %]style="display:none"[% END %]>
+        [% L.div_tag(ITEM.discount_as_percent, name="discount_text", class="numeric") %]
+        [% L.hidden_tag("record.items[].discount_as_percent",
+                         ITEM.discount_as_percent,
+                         disabled=(EDIT_DISCOUNT? 1 : '')) %]
+      </div>
+    </td>
+    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric") %]</td>
+  </tr>
+  <tr [% IF !MYCONFIG.show_form_details %]style="display:none"[% END %]>
+    <td colspan="100%">
+      [% IF MYCONFIG.show_form_details || ITEM.render_second_row %]
+        <div name="second_row" data-loaded="1">
+          [% PROCESS invoice/tabs/_second_row.html ITEM=ITEM %]
+        </div>
+      [% ELSE %]
+        <div name="second_row" id="second_row_[% ID %]">
+          [% LxERP.t8("Loading...") %]
+        </div>
+      [% END %]
+    </td>
+  </tr>
+</tbody>

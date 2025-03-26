@@ -1,0 +1,60 @@
+[% USE T8 %]
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+
+<table>
+  <tr>
+    <td>
+      [% IF SELF.type_data.properties('show_serialno') %]
+        <b>[% 'Serial No.' | $T8 %]</b> [% L.input_tag("record.items[].serialnumber", ITEM.serialnumber, size = 15, "data-validate"="trimmed_whitespaces") %]
+      [% END %]
+      <b>[% 'Project' | $T8 %]</b> [% P.project.picker("record.items[].project_id", ITEM.project_id, size = 15) %]
+      [% IF SELF.type_data.properties('show_reqdate') %]
+        <b>[% 'Reqdate' | $T8 %]</b> [% L.date_tag("record.items[].reqdate_as_date", ITEM.reqdate_as_date) %]
+      [% END %]
+      <b>[% 'Subtotal' | $T8 %]</b> [% L.yes_no_tag("record.items[].subtotal", ITEM.subtotal) %]
+      [% IF SELF.type_data.properties('has_marge') %]
+        <b>[% 'Ertrag' | $T8 %]</b>
+          <span name="linemargin">
+            <span[% IF ITEM.marge_total < 0 %] class="plus0"[% END %]>
+              [% LxERP.format_amount(ITEM.marge_total, 2, 0) %]
+              [% LxERP.format_amount(ITEM.marge_percent, 2, 0) %]%
+            </span>
+          </span>
+        <b> [% 'LP' | $T8 %]</b>
+        [% LxERP.format_amount(ITEM.part.listprice, 2, 0) %]
+        <b>[% 'EK' | $T8 %]</b>
+          [% L.input_tag("record.items[].lastcost_as_number",
+                          ITEM.lastcost_as_number,
+                          size = 5,
+                          class="recalc reformat_number numeric") %]
+      [% END %]
+      <b>[% 'On Hand' | $T8 %]</b>
+        <span class="numeric[%- IF ITEM.part.onhand < ITEM.part.rop -%] plus0[%- END -%]">
+          [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit -%]
+        </span>
+      <b>[% 'Optional' | $T8 %]</b>&nbsp;
+        [%- L.yes_no_tag("record.items[].optional", ITEM.optional
+                          class="recalc") %]&nbsp;
+    </td>
+  </tr>
+  <tr>
+    [% SET n = 0 %]
+    [% FOREACH var = ITEM.cvars_by_config %]
+      [% NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
+      [% SET n = n + 1 %]
+      <td>
+        <b>[% var.config.description %]</b>
+        [% L.hidden_tag('record.items[].custom_variables[+].config_id', var.config.id) %]
+        [% L.hidden_tag('record.items[].custom_variables[].id', var.id) %]
+        [% L.hidden_tag('record.items[].custom_variables[].sub_module', var.sub_module) %]
+        [% INCLUDE 'common/render_cvar_input.html' var_name='record.items[].custom_variables[].unparsed_value' %]
+      </td>
+      [% IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
+        </tr><tr>
+      [% END %]
+    [% END %]
+  </tr>
+</table>
