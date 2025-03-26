@@ -50,6 +50,7 @@ __PACKAGE__->meta->columns(
   qrbill_without_amount     => { type => 'boolean', default => 'false' },
   quodate                   => { type => 'date' },
   quonumber                 => { type => 'text' },
+  record_type               => { type => 'enum', check_in => [ 'ar_transaction', 'ar_transaction_storno', 'invoice', 'invoice_storno', 'invoice_for_advance_payment', 'invoice_for_advance_payment_storno', 'final_invoice', 'credit_note', 'credit_note_storno' ], db_type => 'invoice_types', not_null => 1 },
   salesman_id               => { type => 'integer' },
   shippingpoint             => { type => 'text' },
   shipto_id                 => { type => 'integer' },
