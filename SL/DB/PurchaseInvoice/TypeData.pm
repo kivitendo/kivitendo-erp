@@ -35,6 +35,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      is_credit_note => 0,
+      has_marge      => 0,
     },
     defaults => {
       # TODO
@@ -67,6 +69,8 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      is_credit_note => 1,
+      has_marge      => 0,
     },
     defaults => {
       # TODO
