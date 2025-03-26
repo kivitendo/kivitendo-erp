@@ -469,9 +469,9 @@ sub init_search_cvpartnumber {
   my ($self) = @_;
 
   my $user_prefs = SL::Helper::UserPreferences::PartPickerSearch->new();
-  my $search_cvpartnumber;
-  $search_cvpartnumber = !!$user_prefs->get_sales_search_customer_partnumber() if $self->cv eq 'customer';
-  $search_cvpartnumber = !!$user_prefs->get_purchase_search_makemodel()        if $self->cv eq 'vendor';
+  my $search_cvpartnumber = $self->type_data->properties('is_customer')
+   ? !!$user_prefs->get_sales_search_customer_partnumber()
+   : !!$user_prefs->get_purchase_search_makemodel();
 
   return $search_cvpartnumber;
 }
