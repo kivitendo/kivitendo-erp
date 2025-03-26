@@ -6,6 +6,7 @@ use Carp;
 use Data::Dumper;
 use List::Util qw(sum);
 
+use SL::DB::PurchaseInvoice::TypeData qw(:types);
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::AttrHTML;
@@ -60,9 +61,17 @@ __PACKAGE__->meta->initialize;
 __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted('items');
 
+__PACKAGE__->before_save('_before_save_set_record_type');
 __PACKAGE__->after_save('_after_save_link_records');
 
 # hooks
+
+sub _before_save_set_record_type {
+  my ($self) = @_;
+  return 1 if $self->record_type;
+  $self->record_type( $self->invoice_type );
+  return 1;
+}
 
 sub _after_save_link_records {
   my ($self) = @_;
@@ -83,7 +92,6 @@ sub _after_save_link_records {
 sub items { goto &invoiceitems; }
 sub add_items { goto &add_invoiceitems; }
 sub record_number { goto &invnumber; }
-sub record_type { goto &invoice_type; }
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
@@ -106,11 +114,7 @@ sub customervendor {
 sub abbreviation {
   my $self = shift;
 
-  return t8('AP Transaction (abbreviation)') if !$self->invoice && !$self->storno;
-  return t8('AP Transaction (abbreviation)') . '(' . t8('Storno (one letter abbreviation)') . ')' if !$self->invoice && $self->storno;
-  return t8('Invoice (one letter abbreviation)'). '(' . t8('Storno (one letter abbreviation)') . ')' if $self->storno;
-  return t8('Invoice (one letter abbreviation)');
-
+  return $self->type_data->text('abbreviation');
 }
 
 sub oneline_summary {
@@ -132,9 +136,13 @@ sub link {
 
 sub invoice_type {
   my ($self) = @_;
+  return $self->record_type   if $self->record_type;
 
-  return 'purchase_credit_note'  if  $self->amount < 0;
-  return 'ap_transaction'        if !$self->invoice;
+  return 'ap_transaction'              if !$self->invoice;
+  return 'ap_transaction_storno'       if !$self->invoice && $self->storno;
+  return 'purchase_credit_note'        if  $self->amount < 0;
+  return 'purchase_credit_note_storno' if  $self->amount < 0 && self->storno;
+  return 'purchase_invoice_storno'     if  $self->storno;
   return 'purchase_invoice';
 }
 sub is_credit_note {
@@ -146,8 +154,7 @@ sub is_credit_note {
 sub displayable_type {
   my ($self) = @_;
 
-  return t8('AP Transaction')    if $self->invoice_type eq 'ap_transaction';
-  return t8('Purchase Invoice');
+  return $self->type_data->text('type');
 }
 
 sub displayable_name {
@@ -348,6 +355,10 @@ sub netamount_base_currency {
   my ($self) = @_;
 
   return $self->netamount; # already matches base currency
+}
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
 }
 
 1;
