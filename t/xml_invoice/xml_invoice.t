@@ -15,7 +15,7 @@ use Support::TestSetup;
 Support::TestSetup::login();
 
 File::Find::find(sub {
-  next unless /(xml|pdf)$/;
+  return unless /(xml|pdf)$/;
 
 #   diag "found file $_";
   test_file($_, SL::ZUGFeRD::RES_OK());
