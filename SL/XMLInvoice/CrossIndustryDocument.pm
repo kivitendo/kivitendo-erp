@@ -180,7 +180,9 @@ sub parse_xml {
 
   # Convert payment code metadata field to Boolean
   # See https://service.unece.org/trade/untdid/d16b/tred/tred4461.htm for other valid codes.
-  ${$self->{_metadata}}{'direct_debit'} = ${$self->{_metadata}}{'direct_debit'} == 59 ? 1 : 0;
+  if (${$self->{_metadata}}{'direct_debit'}) {
+    ${$self->{_metadata}}{'direct_debit'} = ${$self->{_metadata}}{'direct_debit'} == 59 ? 1 : 0;
+  }
 
   my @items;
   $self->{_items} = \@items;
