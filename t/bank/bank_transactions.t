@@ -1,4 +1,4 @@
-use Test::More tests => 471;
+use Test::More tests => 474;
 
 use strict;
 
@@ -835,6 +835,20 @@ sub test_credit_note_with_skonto {
   is($credit_note->paid     , '-844.90000', "$testname: paid ok");
   is($bt->invoice_amount    , '-811.10000', "$testname: bt invoice amount for credit note was assigned");
   is($bt->amount            , '-844.90000', "$testname: bt  amount for credit note was assigned");
+
+  # Prüfe Soll- und Haben-Seite der USt-Korrekturbuchung
+  my $rl_skonto = SL::DB::Manager::RecordLink->get_all(where => [ from_id => $credit_note->id, from_table => 'ar', to_table => 'gl' ]);
+  is (ref $rl_skonto->[0], 'SL::DB::RecordLink', "$testname record link skonto gl created");
+  my $acc_trans_skonto = SL::DB::Manager::AccTransaction->get_all(where => [trans_id => $rl_skonto->[0]->to_id]);
+  foreach my $entry (@{ $acc_trans_skonto }) {
+    if ($entry->chart_link =~ m/tax/) {
+      is($entry->amount, '5.40000');
+    } elsif ($entry->chart_link =~ m/AR_paid/) {
+      is($entry->amount, '-5.40000');
+    } else {
+      fail("invalid chart link state");
+    }
+  }
 }
 
 
