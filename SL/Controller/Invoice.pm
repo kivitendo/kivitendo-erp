@@ -312,8 +312,9 @@ sub make_record {
     );
   } else {
     $record = $db_class->new(
-      invoiceitems  => [],
-      currency_id => $::instance_conf->get_currency_id(),
+      invoiceitems => [],
+      record_type  => $::form->{type},
+      currency_id  => $::instance_conf->get_currency_id(),
     );
     # $record = SL::Model::Record->update_after_new($record)
   }
