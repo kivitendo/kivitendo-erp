@@ -183,7 +183,7 @@ sub pre_render {
   $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
   my $print_form = Form->new('');
-  $print_form->{type}        = $::form->{type};
+  $print_form->{type}        = $self->record->record_type;
   $print_form->{printers}    = SL::DB::Manager::Printer->get_all_sorted;
   $self->{print_options}     = SL::Helper::PrintOptions->get_print_options(
     form => $print_form,
@@ -499,7 +499,7 @@ sub init_show_update_button {
 
 sub init_type_data {
   my ($self) = @_;
-  SL::DB::Helper::TypeDataProxy->new(ref $self->record, $::form->{type});
+  SL::DB::Helper::TypeDataProxy->new(ref $self->record, $self->record->record_type);
 }
 
 
