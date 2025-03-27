@@ -53,6 +53,7 @@
                             with_empty=1,
                             class='wi-lightwide') %]</td>
       </tr>
+    [% IF SELF.type_data.properties('is_customer') %]
       <tr>
         <th>[% 'Shipping Address' | $T8 %]</th>
         <td>
@@ -74,6 +75,7 @@
                           class='button neutral below wi-lightwide') %]
         </td>
       </tr>
+      [%- END %]
       [%- IF SELF.type_data.properties('is_customer') %]
       <tr id="billing_address_row"[% IF !SELF.record.customer.additional_billing_addresses.as_list.size %]style="display:none"[% END %]>
         <th>[% 'Custom Billing Address' | $T8 %]</th>
@@ -124,10 +126,12 @@
           </td>
         </tr>
       [% END %]
+      [% IF SELF.type_data.properties('is_customer') %]
       <tr>
         <th>[% 'Shipping Point' | $T8 %]</th>
         <td>[% L.input_tag('record.shippingpoint', SELF.record.shippingpoint, class='wi-lightwide') %]</td>
       </tr>
+      [% END %]
       <tr>
         <th>[% 'Ship via' | $T8 %]</th>
         <td>[% L.input_tag('record.shipvia', SELF.record.shipvia, class='wi-lightwide') %]</td>
@@ -289,18 +293,20 @@
       <td>[% L.date_tag('deliverydate', deliverydate, class='wi-date') %]</td>
       <td></td>
     </tr>
-    [% UNLESS SELF.type_data.properties('is_credit_note') %]
+    [% UNLESS SELF.type_data.properties('is_credit_note') or !SELF.type_data.properties('is_customer') %]
       <tr>
         <th>[% 'Delivery Order Number' | $T8 %]</th>
         <td></td>
         <td>[% L.input_tag("record.donumber", SELF.record.donumber, class="wi-small") %]</td>
       </tr>
     [% END %]
+    [% IF SELF.type_data.properties('is_customer') %]
     <tr>
       <th>[% 'Customer Order Number' | $T8 %]</th>
       <td></td>
       <td>[% L.input_tag("record.cusordnumber", SELF.record.cusordnumber, class="wi-small") %]</td>
     </tr>
+    [% END %]
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>
       <td></td>
