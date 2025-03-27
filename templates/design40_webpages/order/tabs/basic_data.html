@@ -453,6 +453,9 @@
     </tr>
   </tfoot>
 </table>
+[% IF order_item_input_position == 1 %]
+  [% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
+[%- END -%]
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
 
