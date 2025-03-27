@@ -646,9 +646,10 @@ sub _skonto_charts_and_tax_correction {
     croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
     my $notes = SL::HTML::Util->strip($self->notes);
 
-    my $debit_state = ($is_sales && !$self->is_credit_note)          ? 1
-                    : $self->invoice_type eq 'purchase_credit_note'  ? 1
-                    : $self->invoice_type eq 'credit_note'           ? 0
+    my $debit_state = ( $is_sales && !$self->is_credit_note)        ? 1
+                    : (!$is_sales && !$self->is_credit_note)        ? 0
+                    : $self->invoice_type eq 'purchase_credit_note' ? 1
+                    : $self->invoice_type eq 'credit_note'          ? 0
                     : die "invalid type state";
 
     my $current_transaction = SL::DB::GLTransaction->new(
