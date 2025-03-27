@@ -29,18 +29,81 @@ my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 our @EXPORT_OK = (@export_types, @export_subs);
 our %EXPORT_TAGS = (types => \@export_types, subs => \@export_subs);
 
-# TODO types:
-#  - 'ar_transaction',
-#  - 'ar_transaction_storno',
 my %type_data = (
+  AR_TRANSACTION_TYPE() => {
+    text => {
+      delete       => t8("The ar transaction has been deleted"),
+      list         => t8("AR Transactions"),
+      add          => t8("Add AR Transaction"),
+      edit         => t8("Edit AR Transaction"),
+      type         => t8("AR Transaction"),
+      abbreviation => t8("AR Transaction (abbreviation)"),
+    },
+    show_menu => {
+      # TODO
+    },
+    properties => {
+      customervendor => "customer",
+      is_customer    => 1,
+      nr_key         => "invnumber",
+      worflow_needed => 0,
+      is_credit_note => 0,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_sale" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
+  AR_TRANSACTION_STORNO_TYPE() => {
+    text => {
+      delete       => t8("The storno ar transaction has been deleted"),
+      list         => t8("Storno AR Transactions"),
+      add          => t8("Add Storno AR Transaction"),
+      edit         => t8("Edit Storno AR Transaction"),
+      type         => t8("Storno AR Transaction"),
+      abbreviation => t8("Storno (one letter abbreviation)"),
+    },
+    show_menu => {
+      # TODO
+    },
+    properties => {
+      customervendor => "customer",
+      is_customer    => 1,
+      nr_key         => "invnumber",
+      worflow_needed => 1,
+      is_credit_note => 0,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_sale" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
   INVOICE_TYPE() => {
     text => {
-      delete       => t8('The invoice has been deleted'),
+      delete       => t8("The invoice has been deleted"),
       list         => t8("Invoices"),
       add          => t8("Add Invoice"),
       edit         => t8("Edit Invoice"),
       type         => t8("Invoice"),
-      abbreviation => t8('Invoice (one letter abbreviation)'),
+      abbreviation => t8("Invoice (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,
@@ -74,12 +137,12 @@ my %type_data = (
   },
   INVOICE_FOR_ADVANCE_PAYMENT_TYPE() => {
     text => {
-      delete       => t8('The invoice for advance payment has been deleted'),
+      delete       => t8("The invoice for advance payment has been deleted"),
       list         => t8("Invoices for Advance Payment"),
       add          => t8("Add Invoice for Advance Payment"),
       edit         => t8("Edit Invoice for Advance Payment"),
       type         => t8("Invoice for Advance Payment"),
-      abbreviation => t8('Invoice for Advance Payment (one letter abbreviation)'),
+      abbreviation => t8("Invoice for Advance Payment (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 1,
@@ -113,12 +176,12 @@ my %type_data = (
   },
   INVOICE_FOR_ADVANCE_PAYMENT_STORNO_TYPE() => {
     text => {
-      delete       => t8('The strono invoice for advance payment has been deleted'),
+      delete       => t8("The strono invoice for advance payment has been deleted"),
       list         => t8("Storno Invoices for Advance Payment"),
       add          => t8("Add Storno Invoice for Advance Payment"),
       edit         => t8("Edit Storno Invoice for Advance Payment"),
       type         => t8("Storno Invoice for Advance Payment"),
-      abbreviation => t8('Invoice for Advance Payment with Storno (abbreviation)'),
+      abbreviation => t8("Storno (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,
@@ -152,12 +215,12 @@ my %type_data = (
   },
   FINAL_INVOICE_TYPE() => {
     text => {
-      delete       => t8('The final invoice has been deleted'),
+      delete       => t8("The final invoice has been deleted"),
       list         => t8("Final Invoices"),
       add          => t8("Add Final Invoice"),
       edit         => t8("Edit Final Invoice"),
       type         => t8("Final Invoice"),
-      abbreviation => t8('Final Invoice (one letter abbreviation)'),
+      abbreviation => t8("Final Invoice (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,
@@ -191,12 +254,12 @@ my %type_data = (
   },
   INVOICE_STORNO_TYPE() => {
     text => {
-      delete       => t8('The storno invoice has been deleted'),
+      delete       => t8("The storno invoice has been deleted"),
       list         => t8("Storno Invoices"),
       add          => t8("Add Storno Invoice"),
       edit         => t8("Edit Storno Invoice"),
       type         => t8("Storno Invoice"),
-      abbreviation => t8('Invoice (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")"
+      abbreviation => t8("Storno (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,
@@ -230,12 +293,12 @@ my %type_data = (
   },
   CREDIT_NOTE_TYPE() => {
     text => {
-      delete       => t8('The credit note has been deleted'),
+      delete       => t8("The credit note has been deleted"),
       list         => t8("Credit Notes"),
       add          => t8("Add Credit Note"),
       edit         => t8("Edit Credit Note"),
       type         => t8("Credit Note"),
-      abbreviation => t8('Credit note (one letter abbreviation)'),
+      abbreviation => t8("Credit note (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,
@@ -269,12 +332,12 @@ my %type_data = (
   },
   CREDIT_NOTE_STORNO_TYPE() => {
     text => {
-      delete       => t8('The storno credit note has been deleted'),
+      delete       => t8("The storno credit note has been deleted"),
       list         => t8("Storno Credit Notes"),
       add          => t8("Add Storno Credit Note"),
       edit         => t8("Edit Storno Credit Note"),
       type         => t8("Storno Credit Note"),
-      abbreviation => t8('Credit note (one letter abbreviation)') . "(" . t8('Storno (one letter abbreviation)') . ")"
+      abbreviation => t8("Storno (one letter abbreviation)"),
     },
     show_menu => {
       invoice_for_advance_payment => 0,

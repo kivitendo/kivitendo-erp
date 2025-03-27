@@ -624,6 +624,11 @@ sub displayable_name {
 sub abbreviation {
   my ($self) = @_;
 
+  # with storno
+  if ($self->storno_id || $self->storno_obj) {
+    return $self->type_data->text('abbreviation') . '(' . t8('Storno (one letter abbreviation)') . ')';
+  }
+
   return $self->type_data->text('abbreviation');
 }
 
