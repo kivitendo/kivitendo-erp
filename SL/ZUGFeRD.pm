@@ -109,7 +109,7 @@ sub _extract_zugferd_invoice_xml {
 
         # Caveat: this will only ever catch the first attachment looking like
         #         an XML invoice.
-        if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
+        if ( $parser->{result} == SL::XMLInvoice::RES_OK ){
           return $parser;
         } else {
           push @res, t8(
@@ -225,7 +225,7 @@ sub extract_from_xml {
     message      => $invoice_xml->{message},
     metadata_xmp => undef,
     invoice_xml  => $invoice_xml,
-    warnings     => (),
+    warnings     => [],
   );
 
   return \%res;
