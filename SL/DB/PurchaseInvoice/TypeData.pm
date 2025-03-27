@@ -24,20 +24,81 @@ my @export_subs = qw(valid_types validate_type is_valid_type get get3);
 our @EXPORT_OK = (@export_types, @export_subs);
 our %EXPORT_TAGS = (types => \@export_types, subs => \@export_subs);
 
-# TODO types:
-#  - 'ap_transaction',
-#  - 'ap_transaction_storno',
-#  - 'purchase_invoice_storno',
-#  - 'purchase_credit_note_storno',
 my %type_data = (
+  AP_TRANSACTION_TYPE() => {
+    text => {
+      delete       => t8("The ap transaction has been deleted"),
+      list         => t8("AP Transactions"),
+      add          => t8("Add AP Transaction"),
+      edit         => t8("Edit AP Transaction"),
+      type         => t8("AP Transaction"),
+      abbreviation => t8("AP Transaction (abbreviation)"),
+    },
+    show_menu => {
+      # TODO
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "invnumber",
+      worflow_needed => 0,
+      is_credit_note => 0,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
+  AP_TRANSACTION_STORNO_TYPE() => {
+    text => {
+      delete       => t8("The storno ap transaction has been deleted"),
+      list         => t8("Storno AP Transactions"),
+      add          => t8("Add Storno AP Transaction"),
+      edit         => t8("Edit Storno AP Transaction"),
+      type         => t8("Storno AP Transaction"),
+      abbreviation => t8("Storno (one letter abbreviation)"),
+    },
+    show_menu => {
+      # TODO
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "invnumber",
+      worflow_needed => 0,
+      is_credit_note => 0,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
   PURCHASE_INVOICE_TYPE() => {
     text => {
-      delete     => t8('The purchase invoice has been deleted'),
-      list       => t8("Purchase Invoices"),
-      add        => t8("Add Purchase Invoice"),
-      edit       => t8("Edit Purchase Invoice"),
-      type       => t8("Purchase Invoice"),
-      abbreviation => t8('Invoice (one letter abbreviation)'),
+      delete       => t8("The purchase invoice has been deleted"),
+      list         => t8("Purchase Invoices"),
+      add          => t8("Add Purchase Invoice"),
+      edit         => t8("Edit Purchase Invoice"),
+      type         => t8("Purchase Invoice"),
+      abbreviation => t8("Invoice (one letter abbreviation)"),
     },
     show_menu => {
       purchase_reclamation => 1,
@@ -65,14 +126,49 @@ my %type_data = (
       subversions => 0,
     },
   },
+  PURCHASE_INVOICE_STORNO_TYPE() => {
+    text => {
+      delete       => t8("The storno purchase invoice has been deleted"),
+      list         => t8("Storno Purchase Invoices"),
+      add          => t8("Add Storno Purchase Invoice"),
+      edit         => t8("Edit Storno Purchase Invoice"),
+      type         => t8("Storno Purchase Invoice"),
+      abbreviation => t8("Storno (one letter abbreviation)"),
+    },
+    show_menu => {
+      purchase_reclamation => 0,
+      use_as_new           => 0,
+      # delete => sub { die "not implemented" },
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "invnumber",
+      worflow_needed => 1,
+      is_credit_note => 0,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
   PURCHASE_CREDIT_NOTE_TYPE() => {
     text => {
-      delete     => t8('The purchase credit note has been deleted'),
-      list       => t8("Purchase Credit Notes"),
-      add        => t8("Add Purchase Credit Note"),
-      edit       => t8("Edit Purchase Credit Note"),
-      type       => t8("Purchase Credit Note"),
-      abbreviation => t8('Credit note (one letter abbreviation)'),
+      delete       => t8("The purchase credit note has been deleted"),
+      list         => t8("Purchase Credit Notes"),
+      add          => t8("Add Purchase Credit Note"),
+      edit         => t8("Edit Purchase Credit Note"),
+      type         => t8("Purchase Credit Note"),
+      abbreviation => t8("Credit Note (one letter abbreviation)"),
     },
     show_menu => {
       purchase_reclamation => 0,
@@ -84,6 +180,41 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      is_credit_note => 1,
+      has_marge      => 0,
+    },
+    defaults => {
+      # TODO
+    },
+    part_classification_query => [ "used_for_purchase" => 1 ],
+    rights => {
+      # TODO
+    },
+    features => {
+      price_tax   => 1,
+      stock       => 0,
+      subversions => 0,
+    },
+  },
+  PURCHASE_CREDIT_NOTE_STORNO_TYPE() => {
+    text => {
+      delete       => t8("The storno purchase credit note has been deleted"),
+      list         => t8("Storno Purchase Credit Notes"),
+      add          => t8("Add Storno Purchase Credit Note"),
+      edit         => t8("Edit Storno Purchase Credit Note"),
+      type         => t8("Storno Purchase Credit Note"),
+      abbreviation => t8("Storno (one letter abbreviation)"),
+    },
+    show_menu => {
+      purchase_reclamation => 0,
+      use_as_new           => 0,
+      # delete => sub { die "not implemented" },
+    },
+    properties => {
+      customervendor => "vendor",
+      is_customer    => 0,
+      nr_key         => "invnumber",
+      worflow_needed => 1,
       is_credit_note => 1,
       has_marge      => 0,
     },
