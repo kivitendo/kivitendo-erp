@@ -885,6 +885,7 @@ $self->{texts} = {
   'Create PDF'                  => 'PDF erzeugen',
   'Create Reclamation'          => 'Reklamation erstellen',
   'Create Sub-Version'          => 'Unterversion erzeugen',
+  'Create a new article from line' => 'Einen neuen Artikel mit den Daten der Zeile anlegen',
   'Create a new background job' => 'Einen neuen Hintergrund-Job anlegen',
   'Create a new client'         => 'Einen neuen Mandanten anlegen',
   'Create a new delivery term'  => 'Neue Lieferbedingungen anlegen',
