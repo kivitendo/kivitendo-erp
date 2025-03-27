@@ -63,10 +63,10 @@
 
         <listitem>
           <para><emphasis>Voraussetzungen überprüfen</emphasis>: kivitendo
-          benötigt gewisse Ressourcen und benutzt weitere Programme. Das
+          benötigt weitere Pakete und Module. Das
           Kapitel "<xref linkend="Benötigte-Software-und-Pakete"/>" erläutert
           diese. Auch die Liste der benötigten Perl-Module befindet sich
-          hier.</para>
+          hier, ein Script hilft bei der Übersicht und Installation.</para>
         </listitem>
 
         <listitem>
