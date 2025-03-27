@@ -1,4 +1,4 @@
-use Test::More tests => 462;
+use Test::More tests => 471;
 
 use strict;
 
@@ -100,6 +100,7 @@ test_skonto_exact();
 test_two_invoices();
 test_partial_payment();
 test_credit_note();
+test_credit_note_with_skonto();
 test_ap_transaction();
 test_neg_ap_transaction(invoice => 0);
 test_neg_ap_transaction(invoice => 1);
@@ -789,6 +790,53 @@ sub test_credit_note {
   is($bt->invoice_amount    , '-844.90000', "$testname: bt invoice amount for credit note was assigned");
   is($bt->amount            , '-844.90000', "$testname: bt  amount for credit note was assigned");
 }
+
+sub test_credit_note_with_skonto {
+
+  my $testname = 'test_credit_note_with_skonto';
+
+  my $payment_terms = create_payment_terms(percent_skonto => 0.04, terms_skonto => 11);
+
+  my $part1 = new_part(   partnumber => 'T4255')->save;
+  my $credit_note = create_credit_note(
+    invnumber    => 'cn 2',
+    customer     => $customer,
+    transdate    => $dt,
+    taxincluded  => 0,
+    invoiceitems => [ create_invoice_item(part => $part1, qty => 1, sellprice => 710) ],
+    payment_id   => $payment_terms->id,
+  );
+  is($credit_note->amount ,'-844.9' ,"$testname: amount before booking ok");
+  is($credit_note->paid   ,'0'      ,"$testname: paid before booking ok");
+  my $bt = create_bank_transaction(
+    record        => $credit_note,
+    amount        => abs($credit_note->amount),
+    bank_chart_id => $bank->id,
+    transdate     => $dt_10,
+  );
+  my ($agreement, $rule_matches) = $bt->get_agreement_with_invoice($credit_note);
+  is($agreement, 14, "points for credit note ok");
+  is($rule_matches, 'remote_account_number(3) exact_amount(4) depositor_matches(2) remote_name(2) payment_within_30_days(1) datebonus14(2) ', "rules_matches for credit note ok");
+
+  $::form->{invoice_ids} = {
+    $bt->id => [ $credit_note->id ]
+  };
+
+  $::form->{invoice_skontos} = {
+    $bt->id => [ 'with_skonto_pt' ]
+  };
+
+  save_btcontroller_to_string();
+
+  $credit_note->load;
+  $bt->load;
+  is($credit_note->amount   , '-844.90000', "$testname: amount ok");
+  is($credit_note->netamount, '-710.00000', "$testname: netamount ok");
+  is($credit_note->paid     , '-844.90000', "$testname: paid ok");
+  is($bt->invoice_amount    , '-811.10000', "$testname: bt invoice amount for credit note was assigned");
+  is($bt->amount            , '-844.90000', "$testname: bt  amount for credit note was assigned");
+}
+
 
 sub test_neg_ap_transaction_skonto {
   my (%params) = @_;
