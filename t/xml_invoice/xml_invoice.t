@@ -10,7 +10,9 @@ use File::Find;
 use File::Slurp;
 use SL::ZUGFeRD;
 use Data::Dumper;
+use Support::TestSetup;
 
+Support::TestSetup::login();
 
 File::Find::find(sub {
   next unless /(xml|pdf)$/;
