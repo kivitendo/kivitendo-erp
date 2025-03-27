@@ -587,6 +587,7 @@ sub invoice_type {
   my ($self) = @_;
   return $self->record_type   if $self->record_type;
 
+  ### only valid if object comes out of database or is ready to be stored in database
   return 'ar_transaction_storno' if !$self->invoice && $self->storno;
   return 'ar_transaction'        if !$self->invoice;
   return 'invoice_for_advance_payment_storno' if $self->type eq 'invoice_for_advance_payment' && $self->amount < 0 && $self->storno;
@@ -625,7 +626,7 @@ sub abbreviation {
   my ($self) = @_;
 
   # with storno
-  if ($self->storno_id || $self->storno_obj) {
+  if (!($self->storno_id || $self->storno_obj) && $self->storno) {
     return $self->type_data->text('abbreviation') . '(' . t8('Storno (one letter abbreviation)') . ')';
   }
 
@@ -680,7 +681,7 @@ sub netamount_base_currency {
 }
 
 sub type_data {
-  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->type);
+  SL::DB::Helper::TypeDataProxy->new(ref $_[0], $_[0]->record_type);
 }
 
 1;
