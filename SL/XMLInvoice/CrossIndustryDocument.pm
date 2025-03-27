@@ -121,9 +121,9 @@ sub items {
 
 sub _xpath_context {
   my $xc = XML::LibXML::XPathContext->new;
-  $xc->registerNs(udt => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100');
-  $xc->registerNs(ram => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100');
-  $xc->registerNs(rsm => 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100');
+  $xc->registerNs(udt => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15');
+  $xc->registerNs(ram => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12');
+  $xc->registerNs(rsm => 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:1p0');
   $xc;
 }
 
