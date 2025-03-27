@@ -84,6 +84,10 @@
       <td>[% L.input_tag("parts_partnumber", "", class="wi-normal") %]</td>
     </tr>
     <tr>
+      <th>[% 'Serial Number' | $T8 %]</th>
+      <td>[% L.input_tag("parts_serialnumber", "") %]</td>
+    </tr>
+    <tr>
       <th>[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker("project_id", project_id, active="both", valid="both", class="wi-normal") %]</td>
     </tr>
