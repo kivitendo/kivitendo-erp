@@ -22,6 +22,7 @@ use SL::Webdav;
 use SL::File;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(listify);
+use SL::Presenter::Tag qw(select_tag div_tag);
 
 use SL::Helper::PrintOptions;
 
@@ -80,6 +81,167 @@ sub action_add {
     'invoice/form',
     title => $self->type_data->text('add'),
   );
+}
+
+# set form elements in respect to a changed customer or vendor
+#
+# This action is called on an change of the customer/vendor picker.
+sub action_customer_vendor_changed {
+  my ($self) = @_;
+
+  $self->record(SL::Model::Record->update_after_customer_vendor_change($self->record));
+
+  $self->recalc();
+
+  if ($self->record->customervendor->contacts && scalar @{ $self->record->customervendor->contacts } > 0) {
+    $self->js->show('#cp_row');
+  } else {
+    $self->js->hide('#cp_row');
+  }
+
+  if ($self->record->type_data->properties('is_customer')) {
+    if ($self->record->customer->shipto && scalar @{ $self->record->customer->shipto } > 0) {
+      $self->js->show('#shipto_selection');
+    } else {
+      $self->js->hide('#shipto_selection');
+    }
+
+
+    my $show_hide = scalar @{ $self->record->customer->additional_billing_addresses } > 0 ? 'show' : 'hide';
+    $self->js
+      ->$show_hide('#billing_address_row')
+      ->val( '#record_salesman_id', $self->record->salesman_id)
+      ->replaceWith('#record_shipto_id',          $self->build_shipto_select)
+      ->replaceWith('#shipto_inputs',             $self->build_shipto_inputs)
+      ->replaceWith('#record_billing_address_id', $self->build_billing_address_select)
+      ;
+  }
+
+  $self->js
+    ->replaceWith('#record_cp_id',              $self->build_contact_select)
+    ->replaceWith('#business_info_row',         $self->build_business_info_row)
+    ->val(        '#record_taxzone_id',         $self->record->taxzone_id)
+    ->val(        '#record_taxincluded',        $self->record->taxincluded)
+    ->val(        '#record_currency_id',        $self->record->currency_id)
+    ->val(        '#record_payment_id',         $self->record->payment_id)
+    ->val(        '#record_delivery_term_id',   $self->record->delivery_term_id)
+    ->val(        '#record_intnotes',           $self->record->intnotes)
+    ->val(        '#record_language_id',        $self->record->customervendor->language_id)
+    ->focus(      '#record_' . $self->record->type_data->properties('customervendor') . '_id')
+    ->run('kivi.Invoice.update_exchangerate');
+
+  $self->js_redisplay_amounts_and_taxes;
+  $self->js_redisplay_cvpartnumbers;
+  $self->js->render();
+}
+
+# update item input row when a part ist picked
+sub action_update_item_input_row {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{$_} for qw(create_part_type sellprice_as_number discount_as_percent);
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $record       = $self->record;
+  my $item         = SL::DB::InvoiceItem->new(%$form_attr);
+  $item->qty(1) if !$item->qty;
+  $item->unit($item->part->unit);
+
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
+
+  $self->js
+    ->val     ('#add_item_unit',                $item->unit)
+    ->val     ('#add_item_description',         $item->part->description)
+    ->val     ('#add_item_sellprice_as_number', '')
+    ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
+    ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
+    ->val     ('#add_item_discount_as_percent', '')
+    ->attr    ('#add_item_discount_as_percent', 'placeholder', $discount_src->discount_as_percent)
+    ->attr    ('#add_item_discount_as_percent', 'title',       $discount_src->source_description)
+    ->render;
+}
+
+# add an item row for a new item entered in the input row
+sub action_add_item {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{create_part_type};
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $item = new_item($self->record, $form_attr);
+
+  $self->record->add_items($item);
+
+  $self->recalc();
+
+  $self->get_item_cvpartnumber($item);
+
+  my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  my $row_as_html = $self->p->render('invoice/tabs/_row',
+                                     ITEM => $item,
+                                     ID   => $item_id,
+                                     SELF => $self,
+  );
+
+  if ($::form->{insert_before_item_id}) {
+    $self->js
+      ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+  } else {
+    $self->js
+      ->append('#row_table_id', $row_as_html);
+  }
+
+  if ( $item->part->is_assortment ) {
+    $form_attr->{qty_as_number} = 1 unless $form_attr->{qty_as_number};
+    foreach my $assortment_item ( @{$item->part->assortment_items} ) {
+      my $attr = { parts_id => $assortment_item->parts_id,
+                   qty      => $assortment_item->qty * $::form->parse_amount(\%::myconfig, $form_attr->{qty_as_number}), # TODO $form_attr->{unit}
+                   unit     => $assortment_item->unit,
+                   description => $assortment_item->part->description,
+                 };
+      my $item = new_item($self->record, $attr);
+
+      # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
+      $item->discount(1) unless $assortment_item->charge;
+
+      $self->record->add_items( $item );
+      $self->recalc();
+      $self->get_item_cvpartnumber($item);
+      my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+      my $row_as_html = $self->p->render('record/tabs/_row',
+                                         ITEM => $item,
+                                         ID   => $item_id,
+                                         SELF => $self,
+      );
+      if ($::form->{insert_before_item_id}) {
+        $self->js
+          ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+      } else {
+        $self->js
+          ->append('#row_table_id', $row_as_html);
+      }
+    };
+  };
+
+  $self->js
+    ->val('.add_item_input', '')
+    ->attr('.add_item_input', 'placeholder', '')
+    ->attr('.add_item_input', 'title', '')
+    ->attr('#add_item_qty_as_number', 'placeholder', '1')
+    ->run('kivi.Invoice.init_row_handlers')
+    ->run('kivi.Invoice.renumber_positions')
+    ->focus('#add_item_parts_id_name');
+
+  $self->js->run('kivi.Invoice.row_table_scroll_down') if !$::form->{insert_before_item_id};
+
+  $self->js_redisplay_amounts_and_taxes;
+  $self->js->render();
 }
 
 sub action_webdav_pdf_export {
@@ -169,16 +331,25 @@ sub pre_render {
   $self->{all_taxzones}               = SL::DB::Manager::TaxZone->get_all_sorted();
   $self->{all_currencies}             = SL::DB::Manager::Currency->get_all_sorted();
   $self->{all_departments}            = SL::DB::Manager::Department->get_all_sorted();
-  $self->{all_languages}              = SL::DB::Manager::Language->get_all_sorted( query => [ or => [ obsolete => 0, id => $self->record->language_id ] ] );
-  $self->{all_employees}              = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->record->employee_id,
-                                                                                              deleted => 0 ] ],
-                                                                           sort_by => 'name');
-  $self->{all_salesmen}               = SL::DB::Manager::Employee->get_all(where => [ or => [ id => $self->record->salesman_id,
-                                                                                              deleted => 0 ] ],
-                                                                           sort_by => 'name');
-  $self->{all_payment_terms}          = SL::DB::Manager::PaymentTerm->get_all_sorted(where => [ or => [ id => $self->record->payment_id,
-                                                                                                        obsolete => 0 ] ]);
-  $self->{all_delivery_terms}         = SL::DB::Manager::DeliveryTerm->get_valid($self->record->delivery_term_id);
+  $self->{all_languages}              = SL::DB::Manager::Language->get_all_sorted(
+    query => [ or => [ obsolete => 0, id => $self->record->language_id ] ]
+  );
+  $self->{all_employees}              = SL::DB::Manager::Employee->get_all(
+    where => [ or => [ id => $self->record->employee_id, deleted => 0 ] ],
+    sort_by => 'name'
+  );
+  if ($self->record->type_data->properties('is_customer')) {
+    $self->{all_salesmen} = SL::DB::Manager::Employee->get_all(
+      where => [ or => [ id => $self->record->salesman_id, deleted => 0 ] ],
+      sort_by => 'name'
+    );
+  }
+  $self->{all_payment_terms}          = SL::DB::Manager::PaymentTerm->get_all_sorted(
+    where => [ or => [ id => $self->record->payment_id, obsolete => 0 ] ]
+  );
+  $self->{all_delivery_terms}         = SL::DB::Manager::DeliveryTerm->get_valid(
+    $self->record->delivery_term_id
+  );
   $self->{current_employee_id}        = SL::DB::Manager::Employee->current->id;
   $self->{positions_scrollbar_height} = SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height();
 
@@ -223,6 +394,146 @@ sub pre_render {
       calculate_qty show_history
     );
   $self->setup_action_bar;
+}
+
+# build the selection box for contacts
+#
+# Needed, if customer/vendor changed.
+sub build_contact_select {
+  my ($self) = @_;
+
+  select_tag('record.cp_id', [ $self->record->customervendor->contacts ],
+    value_key  => 'cp_id',
+    title_key  => 'full_name_dep',
+    default    => $self->record->cp_id,
+    with_empty => 1,
+    style      => 'width: 300px',
+  );
+}
+
+# build the selection box for shiptos
+#
+# Needed, if customer/vendor changed.
+sub build_shipto_select {
+  my ($self) = @_;
+
+  select_tag('record.shipto_id',
+             [ {displayable_id => t8("No/individual shipping address"), shipto_id => ''}, $self->record->customer->shipto ],
+             value_key  => 'shipto_id',
+             title_key  => 'displayable_id',
+             default    => $self->record->shipto_id,
+             with_empty => 0,
+             style      => 'width: 300px',
+  );
+}
+
+# build the inputs for the cusom shipto dialog
+#
+# Needed, if customer/vendor changed.
+sub build_shipto_inputs {
+  my ($self) = @_;
+
+  my $content = $self->p->render('common/_ship_to_dialog',
+                                 vc_obj      => $self->record->customervendor,
+                                 cs_obj      => $self->record->custom_shipto,
+                                 cvars       => $self->record->custom_shipto->cvars_by_config,
+                                 id_selector => '#record_shipto_id');
+
+  div_tag($content, id => 'shipto_inputs');
+}
+
+# build the selection box for the additional billing address
+#
+# Needed, if customer/vendor changed.
+sub build_billing_address_select {
+  my ($self) = @_;
+
+  select_tag('record.billing_address_id',
+             [ {displayable_id => '', id => ''}, $self->record->customervendor->additional_billing_addresses ],
+             value_key  => 'id',
+             title_key  => 'displayable_id',
+             default    => $self->record->billing_address_id,
+             with_empty => 0,
+             style      => 'width: 300px',
+  );
+}
+
+# render the info line for business
+#
+# Needed, if customer/vendor changed.
+sub build_business_info_row {
+  $_[0]->p->render('invoice/tabs/_business_info_row', SELF => $_[0]);
+}
+
+# build the rows for displaying taxes
+#
+# Called if amounts where recalculated and redisplayed.
+sub build_tax_rows {
+  my ($self) = @_;
+
+  my $rows_as_html;
+  foreach my $tax (sort { $a->{tax}->rate cmp $b->{tax}->rate } @{ $self->{taxes} }) {
+    $rows_as_html .= $self->p->render(
+      'invoice/tabs/_tax_row',
+      SELF => $self,
+      TAX => $tax,
+      TAXINCLUDED => $self->record->taxincluded,
+    );
+  }
+  return $rows_as_html;
+}
+
+sub js_redisplay_amounts_and_taxes {
+  my ($self) = @_;
+
+  if (scalar @{ $self->{taxes} }) {
+    $self->js->show('#taxincluded_row_id');
+  } else {
+    $self->js->hide('#taxincluded_row_id');
+  }
+
+  if ($self->record->taxincluded) {
+    $self->js->hide('#subtotal_row_id');
+  } else {
+    $self->js->show('#subtotal_row_id');
+  }
+
+  if ($self->record->type_data->properties('has_marge')) {
+    my $is_neg = $self->record->marge_total < 0;
+    $self->js
+      ->html('#marge_total_id',   $::form->format_amount(\%::myconfig, $self->record->marge_total,   2))
+      ->html('#marge_percent_id', $::form->format_amount(\%::myconfig, $self->record->marge_percent, 2))
+      ->action_if( $is_neg, 'addClass',    '#marge_total_id',        'plus0')
+      ->action_if( $is_neg, 'addClass',    '#marge_percent_id',      'plus0')
+      ->action_if( $is_neg, 'addClass',    '#marge_percent_sign_id', 'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_total_id',        'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_percent_id',      'plus0')
+      ->action_if(!$is_neg, 'removeClass', '#marge_percent_sign_id', 'plus0');
+  }
+
+  $self->js
+    ->html('#netamount_id', $::form->format_amount(\%::myconfig, $self->record->netamount, -2))
+    ->html('#amount_id',    $::form->format_amount(\%::myconfig, $self->record->amount,    -2))
+    ->remove('.tax_row')
+    ->insertBefore($self->build_tax_rows, '#amount_row_id');
+}
+
+sub js_redisplay_cvpartnumbers {
+  my ($self) = @_;
+
+  $self->get_item_cvpartnumber($_) for @{$self->record->items_sorted};
+
+  my @data = map {[$_->{cvpartnumber}]} @{ $self->record->items_sorted };
+
+  $self->js
+    ->run('kivi.Invoice.redisplay_cvpartnumbers', \@data);
+}
+
+sub recalc {
+  my ($self) = @_;
+
+  $self->{taxes} = [];
+  # TODO: calculate see 'sub form_footer' in is/ir.pl
 }
 
 sub setup_action_bar {
@@ -277,6 +588,30 @@ sub _create_and_send_zip {
   );
 }
 
+sub get_part_texts {
+  my ($part_or_id, $language_or_id, %defaults) = @_;
+
+  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
+  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
+  my $texts       = {
+    description     => $defaults{description}     // $part->description,
+    longdescription => $defaults{longdescription} // $part->notes,
+  };
+
+  return $texts unless $language_id;
+
+  my $translation = SL::DB::Manager::Translation->get_first(
+    where => [
+      parts_id    => $part->id,
+      language_id => $language_id,
+    ]);
+
+  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
+  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
+
+  return $texts;
+}
+
 # load or create a new record object
 #
 # And assign changes from the form to this object.
@@ -302,7 +637,7 @@ sub make_record {
   # record here solves this problem.
   my $record;
   if ($::form->{id}) {
-    $record   = $db_class->new(
+    $record = $db_class->new(
       id => $::form->{id}
     )->load(
       with => [
@@ -313,17 +648,17 @@ sub make_record {
   } else {
     $record = $db_class->new(
       invoiceitems => [],
-      record_type  => $::form->{type},
+      record_type  => $record_type,
       currency_id  => $::instance_conf->get_currency_id(),
     );
     # $record = SL::Model::Record->update_after_new($record)
   }
 
-  # my $cv_id_method = $record->type_data->properties('customervendor'). '_id';
-  # if (!$::form->{id} && $::form->{$cv_id_method}) {
-  #   $record->$cv_id_method($::form->{$cv_id_method});
-  #   $record = SL::Model::Record->update_after_customer_vendor_change($record);
-  # }
+  my $cv_id_method = $record->type_data->properties('customervendor'). '_id';
+  if (!$::form->{id} && $::form->{$cv_id_method}) {
+    $record->$cv_id_method($::form->{$cv_id_method});
+    $record = SL::Model::Record->update_after_customer_vendor_change($record);
+  }
 
   # don't assign hashes as objects
   my $form_record_items = delete $::form->{record}->{items};
@@ -333,9 +668,9 @@ sub make_record {
   # restore form values
   $::form->{record}->{items} = $form_record_items;
 
-  # if ($record->type_data->properties('is_customer')) {
-  #   $self->setup_custom_shipto_from_form($record, $::form);
-  # }
+  if ($record->type_data->properties('is_customer')) {
+    $self->setup_custom_shipto_from_form($record, $::form);
+  }
 
   # remove deleted items
   $self->item_ids_to_delete([]);
@@ -422,9 +757,9 @@ sub new_item {
   $new_attr{project_id}             = $record->globalproject_id;
   $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
-  # add_custom_variables adds cvars to an orderitem with no cvars for saving, but
-  # they cannot be retrieved via custom_variables until the order/orderitem is
-  # saved. Adding empty custom_variables to new orderitem here solves this problem.
+  # add_custom_variables adds cvars to an invoiceitem with no cvars for saving, but
+  # they cannot be retrieved via custom_variables until the record/invoiceitem is
+  # saved. Adding empty custom_variables to new invoiceitem here solves this problem.
   $new_attr{custom_variables} = [];
 
   my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
