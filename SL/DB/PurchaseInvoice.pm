@@ -114,6 +114,10 @@ sub customervendor {
 sub abbreviation {
   my $self = shift;
 
+  if ($self->storno_id || $self->storno_obj) {
+    return $self->type_data->text('abbreviation') . '(' . t8('Storno (one letter abbreviation)') . ')';
+  }
+
   return $self->type_data->text('abbreviation');
 }
 
