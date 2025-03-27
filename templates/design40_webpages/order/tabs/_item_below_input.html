@@ -39,14 +39,7 @@
         [% L.input_tag('add_item.qty_as_number', '', placeholder="1", size = 5, class="add_item_input numeric wi-verysmall") %]
         [% L.hidden_tag('add_item.unit', SELF.created_part.unit, class="add_item_input") %]
     </td>
-    <td>
-      [%- L.select_tag("add_item.price_factor_id",
-                       SELF.all_price_factors,
-                       default = ITEM.price_factor_id,
-                       title_key = 'description',
-                       with_empty = 1,
-                       class="recalc wi-mediumsmall") %]
-    </td>
+    <td></td>
     <td></td>
     <td></td>
     <td>[% L.input_tag('add_item.sellprice_as_number', price, size = 10, class="add_item_input numeric tooltipster-html wi-verysmall") %]</td>
