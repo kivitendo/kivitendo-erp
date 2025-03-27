@@ -1387,7 +1387,7 @@ sub ar_transactions {
       $ar->{type} =
         $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
         $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
-        $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
+        $ar->{amount} < 0 ? $locale->text("Credit Note (one letter abbreviation)") :
         $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
                             $locale->text("AR Transaction (abbreviation)");
     }
