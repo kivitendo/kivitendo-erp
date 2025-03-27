@@ -16,7 +16,7 @@ File::Find::find(sub {
   next unless /(xml|pdf)$/;
 
 #   diag "found file $_";
-  test_file($_, SL::ZUGFeRD::RES_OK()) unless /Large/i;
+  test_file($_, SL::ZUGFeRD::RES_OK());
 }, "t/xml_invoice/corpus");
 
 
