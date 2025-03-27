@@ -1933,15 +1933,17 @@ sub new_item {
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
+  my $texts = get_part_texts($item->part, $record->language_id);
+
   my %new_attr;
-  $new_attr{description}            = $item->part->description     if ! $item->description;
+  $new_attr{description}            = $texts->{description}        if ! $item->description;
   $new_attr{qty}                    = 1.0                          if ! $item->qty;
   $new_attr{price_factor_id}        = $item->part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $item->part->notes           if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $texts->{longdescription}    if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
   $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
@@ -1949,9 +1951,6 @@ sub new_item {
   # they cannot be retrieved via custom_variables until the order/orderitem is
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
-
-  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
-  $new_attr{longdescription} = $texts->{longdescription} if ! defined $attr->{longdescription};
 
   $item->assign_attributes(%new_attr);
 
