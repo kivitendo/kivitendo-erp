@@ -84,7 +84,8 @@ namespace('kivi.ActionBar', function(k){
       var accesskey = '';
       if (e.ctrlKey) accesskey += 'crtl+'
       if (e.altKey)  accesskey += 'alt+'
-      accesskey += e.which;
+      var keycode = e.which + (e.shiftKey ? 0 : 32);
+      accesskey += keycode;
 
       // special case. HTML elements that make legitimate use of enter will also trigger the enter accesskey.
       // so. if accesskey is '13' and the event source is one of these (currently only textareas & combo boxes) ignore it.
