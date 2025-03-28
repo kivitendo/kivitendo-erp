@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-202x-xx-xx - Release x.x.x
+2025-03-28 - Release 3.9.2
 
 Größere neue Features:
 
@@ -15,7 +15,87 @@ Kleinere neue Features und Detailverbesserungen:
 
 - XXE Sicherheitslücke bei ZUGFeRD parsen verhindern (Upload), s.a.
   https://www.usenix.org/sites/default/files/conference/protected-files/woot16_slides_spath.pdf
-Bugfixes (Tracker: https://www.kivitendo.de/redmine):
+
+Github pull requests gemerged in diese Version (https://github.com/kivitendo/kivitendo-erp/):
+#359 Lieferschein Speichern u. schliessen "Als geschlossen markieren"
+#370 Backgroundjob: ShopPartMassCreate Existierende Bilder überspringen
+#385 202409 feat zugferd email address
+#393 FIX: shopware6 connector: Bilder Upload für Shopware >= v6.6 Beheben
+#401 SelfTest:check_missing_tax: Bei reverse_charge Steuer, kein Fehlalarm
+#409 FIX: DeliveryOrder: Ohne Prüfung auf Bestand
+#410 202411-fix-doku-minor-enhancement-backgroundjob-setnumberrange
+#411 20241128 fix qr account
+#412 Debitorenbuchungen input eine ID gegeben, Zahlenformartierungen
+#413 202411 match end to end bt
+#414 202412 doku installation logpfad
+#415 202412 dodate in lieferschein
+#416 Doku: Typos
+#418 FIX: S:C:DeliveryOrder: instances of SL::DB::Unit have attribute $name
+#420 marei - bugfix: fix check for billing_address_department_
+#421 202501 ISO-3166 Ländernamen ZUGFeRD
+#422 202501 bt code 191
+#423 202501 Lieferschein: Button Speichern und weiter
+#425 F http header auth
+#426 202502 fix is empty on undefined value
+#427 202502 experimentelle Features assortment und order kommen in den Standard, oe.pl aufgeräumt
+#428 locale/de: Rechtschreibung korrigiert
+#430 202502 follow up trans info delivery order.js
+#431 202502 E-Mail Vorgangsbezeichnung in Betreff aufnehmen mandantenspez. konfigurierbar
+#434 202503 Druckvorlagen Bugfixes
+#435 202503 Background-Job Lager leeren vor Inventur und CloseQuotations
+#436 202503-fix-742 Wiederkehrende Rechnung bei Auftrag als_neu_speichern
+#438 2024 item input below item list 2
+#439 202503 preformatted html for result in backgroundjob
+#440 Fix Maske Sortiment Add_item mit Enter
+#441 Fix Anhänge bei Emailversand immer angehakt. Nur Design 4.0
+#442 DB: alle Benutzer auf Stilvorlage design40 setzen
+#443 CsvImport: Datumsformat bei Multiplex-Importen berücksichtigen
+#444 S:C:Order: Beschreibung übernehmen bei Hinzufügen neuer Artikel
+#446 fehlende Belegtypen bei Wiedervorlagen
+#447 Offene Angebote/Aufträge auf login-Seite schliessen können
+#448 202501 zugferd xrechnung namespaces aus xml 2
+#449 202503 Skontobuchung Einkaufsgutschrift Fix #699
+#450 Setting doc generation to use https dtd url for download since http i…
+#451 Expanding units of measure (cloned from NX dev stack) because those u…
+#454 templates: vergessenes feature_experimental_assortment entfernt
+#456 2024 set number range 6
+#458 MT940 SWIFT Codes Sonderfall
+#459 FIX: S:C:DeliverOrder: Überprüfen der Lagerbewegungen auf Bestand
+
+
+Bugfixes (Tracker:  https://www.kivitendo.de/redmine):
+451	Design4.0: Radiobuttons/Texte verschoben
+499	Auftrags-Controller: geänderte Artikel-Beschreibung aus der Eingabezeile wird nicht in Position übernommen
+542	design4.0 SEPA Export ist visuell unbrauchbar (Hintergrundfarbe alterniert nicht und ist durchgängig rosa).
+543	design 4.0: Aktiviertes DMS beim E-Mail-Dialog nicht beachtet
+616	Design4.0: alternierende (Zebra) Tabellen mit dynamischen Zeilen
+628	SL::BackgroundJob::SetNumberRange Automatik auf die "neueren" Nummernkreise erweitern
+665	Individuelle Lieferadresse wird nicht übernommen im Workflow Autftrag  -> Lieferschein
+670	RecordImport aus Email über EmailJournal lädt den Anhang runter und zeigt nichts an
+675	Die Inhalte der Reiter Dokumente/Anhänge werden bei Lieferscheinen EK/VK nicht gerendet, wenn ein Lieferscheine über einen Link aufgerufen wird
+677	Link von der Wiedervorlagenliste zum Lieferschein
+678	Link vom Lagerbewegungsbericht zum Lieferschein
+684	Lieferscheindatum fehlt beim Drucken
+686	Shopware Version > 6.4 akzeptiert den POST '/api/media?_response=true' nicht mehr => shopware erwartet uuids in der Version 7 als zusätzlichen Parameter
+694	neuer Lieferschein-Controller: Speichern und Schließen defekt
+695	Anhänge bei Emailversand immer angehakt. Nur Design 4.0
+696	Workflow Auftrag -> Lieferschein: Positionsdetails gehen verloren
+697	Lieferschein: Formular-Details /zweite Zeile) lässt sich nicht ausklappen nach Workflow aus Auftrag
+699	Einkaufsgutschrift mit Skonto per Kontenauszug verbuchen, erzeugt DATEV Fehler, bzw. eine Fehlbuchung
+700	Email Lieferschein ohne Anhang
+702	Lieferschein fehlende Funktion als geschlossen markieren
+718	 Shopconnector shopware6: Check API Zeigt Fehlermeldung nicht an
+723	Kontoauszug verbuchen -> Eine Zahlung mehreren Rechnungen inkl. Schlussrechnung zuweisen wirft Fehler
+734	Design 4.0 Debitorenbuchung kein zahlungseingang möglich
+735	Auslagern (Nicht auslagern über Standardlagerplatz) im Lieferschein lässt zu das mehr ausgelagert wird wie auf den Lagern vorhanden
+736	Neuer Auftrags Controller: Artikel hier hinzufügen! Beschreibung wird nicht übernommen
+742	Konfiguration wiederkehrende Rechnung E-Mail Versand an Ansprechpartner angewählt -> als neu speichern -> Kunde wechseln -> alter Ansprechpartner bleibt bestehen ...
+744	Design4.0: Tabellenhöhe bei Auftrag erfassen im CSS nicht anpassbar
+745	Filter bei Zeiterfassung in erp-yaml vorkonfigurieren
+753	Design4.0: Verlauf der Hintergrund-Job-Ausführungen anzeigen, pre Fehlermeldung läuft über
+754	CSV-Import: bei Multiplex-Importen wird das Datumsformat ignoriert
+
+
 
 
 
