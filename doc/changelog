@@ -44,6 +44,8 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Die Vorgangsbezeichnung kann im E-Mail-Betreff vorbelegt werden (Mandantenkonfig)
 
+- Die Eingabezeile für Artikel kann mandantenweit und benutzerbezogen unterhalb der Positionszeile
+  positioniert werden, was eher dem Verhalten der vorherigen Eingabemaske entspricht.
 
 ## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
 
