@@ -57,7 +57,8 @@ namespace('kivi.ActionBar', function(k){
       var normalized = $.map(String.prototype.split.call(keystring, '+'), function(val, i) {
         switch (val) {
           case 'ctrl':
-          case 'alt':  return val;
+          case 'alt':
+          case 'shift': return val;
           case 'enter': return 13;
           default:
             if (val.length == 1) {
@@ -87,8 +88,9 @@ namespace('kivi.ActionBar', function(k){
       var target = e.data.target;
       var key = e.which;
       var accesskey = '';
-      if (e.ctrlKey) accesskey += 'crtl+'
-      if (e.altKey)  accesskey += 'alt+'
+      if (e.ctrlKey)  accesskey += 'crtl+';
+      if (e.altKey)   accesskey += 'alt+';
+      if (e.shiftKey) accesskey += 'shift+';
       accesskey += e.which;
 
       // special case. HTML elements that make legitimate use of enter will also trigger the enter accesskey.
