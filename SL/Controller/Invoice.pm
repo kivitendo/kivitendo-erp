@@ -539,7 +539,250 @@ sub recalc {
 sub setup_action_bar {
   my ($self, %params) = @_;
 
-  # TODO
+  my $change_never            = $::instance_conf->get_is_changeable == 0;
+  my $change_on_same_day_only = $::instance_conf->get_is_changeable == 2 && DateTime->today_local ne $self->record->gldate;
+  my $payments_balanced       = ($::form->{oldtotalpaid} == 0); # TODO not implemented yet
+  my $has_storno              = $self->record->storno && !$self->record->storno_id; # TODO: move to SL::DB::*
+  my $may_edit_create         = $::auth->assert('invoice_edit', 1);
+  my $factur_x_enabled        = $self->record && $self->type_data->properties('is_customer') && $self->record->customer
+                             && $self->record->customer->create_zugferd_invoices_for_this_customer;
+  my $locked                  = $self->record->transdate && $self->record->transdate <= $::instance_conf->get_closedto;
+
+  my $is_linked_bank_transaction = $self->record->id
+      && SL::DB::Default->get->payments_changeable != 0
+      && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $self->record->id);
+
+  my $warn_unlinked_delivery_order = $::instance_conf->get_warn_no_delivery_order_for_invoice
+      && !$self->record->id && $::form->{convert_from_record_type_ref} ne 'SL::DB::DeliveryOrder';  # TODO make this more robust
+
+  my $has_further_invoice_for_advance_payment;
+  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+    my $lr          = $self->record->linked_records(direction => 'to', to => ['Invoice']);
+    $has_further_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
+  }
+
+  my $has_final_invoice;
+  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+    my $lr          = $self->record->linked_records(direction => 'to', to => ['Invoice']);
+    $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->invoice_type} @$lr;
+  }
+
+  my $is_invoice_for_advance_payment_from_order;
+  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+    my $lr          = $self->record->linked_records(direction => 'from', from => ['Order']);
+    $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
+  }
+
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        t8('Update'),
+        submit    => [ '#form', { action => "update" } ],
+        disabled  => !$may_edit_create ? t8('You must not change this invoice.')
+                   : $locked           ? t8('The billing period has already been locked.')
+                   :                     undef,
+        id        => 'update_button',
+        accesskey => 'enter',
+      ],
+
+      combobox => [
+        action => [
+          t8('Post'),
+          submit   => [ '#form', { action => "post" } ],
+          checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $locked                                   ? t8('The billing period has already been locked.')
+                    : $self->record->storno                     ? t8('A canceled invoice cannot be posted.')
+                    : ($self->record->id && $change_never)      ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($self->record->id && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
+        ],
+        action => [
+          t8('Post and Close'),
+          submit   => [ '#form', { action => "post_and_close" } ],
+          checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $locked                                   ? t8('The billing period has already been locked.')
+                    : $self->record->storno                     ? t8('A canceled invoice cannot be posted.')
+                    : ($self->record->id && $change_never)      ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($self->record->id && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
+        ],
+        action => [
+          t8('Post Payment'),
+          submit   => [ '#form', { action => "post_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create           ? t8('You must not change this invoice.')
+                    : !$self->record->id          ? t8('This invoice has not been posted yet.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                               undef,
+          only_if  => $self->type_data->show_menu('post_payment'),
+        ],
+        action => [ t8('Mark as paid'),
+          submit   => [ '#form', { action => "mark_as_paid" } ],
+          confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
+          disabled => !$may_edit_create ? t8('You must not change this invoice.')
+                    : !$self->record->id ? t8('This invoice has not been posted yet.')
+                    :                     undef,
+          only_if  => $self->type_data->show_menu('mark_as_paid'),
+        ],
+      ], # end of combobox "Post"
+
+      combobox => [
+        action => [ t8('Storno'),
+          submit   => [ '#form', { action => "storno" } ],
+          confirm  => t8('Do you really want to cancel this invoice?'),
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create   ? t8('You must not change this invoice.')
+                    : !$self->record->id  ? t8('This invoice has not been posted yet.')
+                    : $self->record->storno ? t8('Cannot storno storno invoice!')
+                    : $locked             ? t8('The billing period has already been locked.')
+                    : !$payments_balanced ? t8('Cancelling is disallowed. Either undo or balance the current payments until the open amount matches the invoice amount')
+                    : undef,
+        ],
+        action => [ t8('Delete'),
+          submit   => [ '#form', { action => "delete" } ],
+          confirm  => t8('Do you really want to delete this object?'),
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create        ? t8('You must not change this invoice.')
+                    : !$self->record->id       ? t8('This invoice has not been posted yet.')
+                    : $locked                  ? t8('The billing period has already been locked.')
+                    : $change_never            ? t8('Changing invoices has been disabled in the configuration.')
+                    : $change_on_same_day_only ? t8('Invoices can only be changed on the day they are posted.')
+                    : $has_storno              ? t8('Can only delete the "Storno zu" part of the cancellation pair.')
+                    :                            undef,
+        ],
+      ], # end of combobox "Storno"
+
+      'separator',
+
+      combobox => [
+        action => [ t8('Workflow') ],
+        action => [
+          t8('Use As New'),
+          submit   => [ '#form', { action => "use_as_new" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create ? t8('You must not change this invoice.')
+                    : !$self->record->id ? t8('This invoice has not been posted yet.')
+                    :                     undef,
+        ],
+        action => [
+          t8('Further Invoice for Advance Payment'),
+          submit   => [ '#form', { action => "further_invoice_for_advance_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$self->record->id                         ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has already a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
+                    :                                              undef,
+          only_if  => $self->type_data->show_menu('advance_payment'),
+        ],
+        action => [
+          t8('Final Invoice'),
+          submit   => [ '#form', { action => "final_invoice" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
+                    : !$self->record->id                               ? t8('This invoice has not been posted yet.')
+                    : $has_further_invoice_for_advance_payment   ? t8('This invoice has a further invoice for advanced payment.')
+                    : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
+                    : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
+                    :                                              undef,
+          only_if  => $self->type_data->show_menu('advance_payment'),
+        ],
+        action => [
+          t8('Credit Note'),
+          submit   => [ '#form', { action => "credit_note" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create              ? t8('You must not change this invoice.')
+                    : $self->type_data->properties('is_credit_note') ? t8('Credit notes cannot be converted into other credit notes.')
+                    : !$self->record->id             ? t8('This invoice has not been posted yet.')
+                    : $self->record->storno          ? t8('A canceled invoice cannot be used. Please undo the cancellation first.')
+                    :                                  undef,
+        ],
+        action => [
+          t8('Sales Order'),
+          submit   => [ '#form', { action => "order" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Reclamation'),
+          submit   => ['#form', { action => "sales_reclamation" }], # can't call Reclamation directly
+          disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
+          only_if  => $self->type_data->show_menu('reclamation') && !$self->record->storno,
+        ],
+      ], # end of combobox "Workflow"
+
+      combobox => [
+        action => [ t8('Export') ],
+        action => [
+          ($self->record->id ? t8('Print') : t8('Preview')),
+          call     => [ 'kivi.SalesPurchase.show_print_dialog', $self->record->id ? 'print' : 'preview' ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create               ? t8('You must not print this invoice.')
+                    : !$self->record->id && $locked   ? t8('The billing period has already been locked.')
+                    :                                   undef,
+        ],
+        action => [ t8('Print and Post'),
+          call     => [ 'kivi.SalesPurchase.show_print_dialog', 'print_and_post' ],
+          checks   => [ 'kivi.validate_form' ],
+          confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
+          disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
+                    : $locked                                   ? t8('The billing period has already been locked.')
+                    : $self->record->storno                     ? t8('A canceled invoice cannot be posted.')
+                    : ($self->record->id && $change_never)      ? t8('Changing invoices has been disabled in the configuration.')
+                    : ($self->record->id && $change_on_same_day_only) ? t8('Invoices can only be changed on the day they are posted.')
+                    : $is_linked_bank_transaction               ? t8('This transaction is linked with a bank transaction. Please undo and redo the bank transaction booking if needed.')
+                    :                                             undef,
+        ],
+        action => [ t8('E Mail'),
+          call     => [ 'kivi.SalesPurchase.show_email_dialog' ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create       ? t8('You must not print this invoice.')
+                    : !$self->record->id      ? t8('This invoice has not been posted yet.')
+                    : $self->type_data->properties('is_customer') && $self->customer && $self->customer->postal_invoice ? t8('This customer wants a postal invoices.')
+                    :                     undef,
+        ],
+        action => [ t8('Factur-X/ZUGFeRD'),
+          submit   => [ '#form', { action => "download_factur_x_xml" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create  ? t8('You must not print this invoice.')
+                    : !$self->record->id ? t8('This invoice has not been posted yet.')
+                    : !$factur_x_enabled ? t8('Creating Factur-X/ZUGFeRD invoices is not enabled for this customer.')
+                    :                      undef,
+        ],
+      ], # end of combobox "Export"
+
+      combobox => [
+        action => [ t8('more') ],
+        action => [
+          t8('History'),
+          call     => [ 'set_history_window', $self->record->id * 1, 'glid' ],
+          disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
+        ],
+        action => [
+          t8('Follow-Up'),
+          call     => [ 'follow_up_window' ],
+          disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
+        ],
+#         action => [  # TODO
+#           t8('Drafts'),
+#           call     => [ 'kivi.Draft.popup', 'is', 'invoice', $form->{draft_id}, $form->{draft_description} ],
+#           disabled => !$may_edit_create  ? t8('You must not change this invoice.')
+#                     :  $self->record->id ? t8('This invoice has already been posted.')
+#                     : $locked            ? t8('The billing period has already been locked.')
+#                     :                     undef,
+#         ],
+      ], # end of combobox "more"
+    );
+  }
+
 }
 
 sub get_item_cvpartnumber {
@@ -796,6 +1039,7 @@ sub setup_custom_shipto_from_form {
     $custom_shipto->cvar_by_name($_)->value($shipto_cvars->{$_}) for keys %$shipto_cvars;
   }
 }
+
 
 sub init_record {
   $_[0]->make_record;
