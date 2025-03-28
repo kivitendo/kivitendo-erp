@@ -25,6 +25,12 @@ my (%uselines, %modules, %supplied, %requires);
     'DateTime::Duration'                 => 1,
     'DateTime::Infinite'                 => 1,
   },
+  'Exception::Class' => {
+    'Exception::Class::Base'             => 1,
+  },
+  'Rose::DB' => {
+    'Rose::DB::Cache'                    => 1,
+  },
   'Rose::DB::Object' => {
    'Rose::DB::Object::ConventionManager' => 1,
    'Rose::DB::Object::Manager'           => 1,
@@ -89,7 +95,7 @@ find(sub {
     next if /SL::/;
     next if /Support::Files/; # our own test support module
     next if /use (warnings|strict|vars|lib|constant|utf8)/;
-    next if /^use (with|the)/;
+    next if /^use (it|the|with)/;
 
     my ($useline) = m/^use\s+(.*?)$/;
 
