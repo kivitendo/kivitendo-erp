@@ -2,11 +2,27 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2025-03-28 - Release 3.9.2
+2025-03-28 - Release 3.9.2 beta
 
 Größere neue Features:
 
+- Der alte Controller-Code im Bereich Auftrag/Lieferschein wurde
+  komplett entfernt und steht ab dieser Version nicht mehr
+  abwärtskompatibel zu Verfügung.
+
+- Bei allen Anwendern wird automatisch das neuere Design 4.0 automatisch
+  voreingestellt, das kann aber noch letzmalig auf eine andere
+  Variante in den Benutzereinstellung verändert werden. Ab der
+  Version 4.0 werden die älteren Designs entfernt.
+
+
 Mittelgroße neue Features:
+
+- ZUGFeRD, bzw. generelle eRechnungen von Lieferanten können über
+  das Testsystem t/ validiert werden.
+  Entsprechende PDFs müssten in den Ordner t/xml_invoice/corpus/ kopiert werden
+  und werden dann mit dem Aufruf: t/run.sh t/xml_invoice/xml_invoice.t validiert.
+
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -16,7 +32,21 @@ Kleinere neue Features und Detailverbesserungen:
 - XXE Sicherheitslücke bei ZUGFeRD parsen verhindern (Upload), s.a.
   https://www.usenix.org/sites/default/files/conference/protected-files/woot16_slides_spath.pdf
 
-Github pull requests gemerged in diese Version (https://github.com/kivitendo/kivitendo-erp/):
+- Der Hintergrund-Job Nummernkreise aktualisieren hat mehrere neue Paramter zur
+  Verwendung bekommen und kann somit auch monatlich Nummernkreise setzen. Details
+  in der Dokumentation.pdf oder perldoc SL/BackgroundJob/SetNumberRange.pm
+
+- Neuer Hintergrund-Job der alle Angebote/Aufträge älter als x Jahre schliessen kann.
+
+- Neuer Hintergrund-Job der den kompletten Lagerbestand auf 0 setzen kann.
+
+- Die Funktion Sortiment im Artikelstamm ist nicht mehr experimentell.
+
+- Die Vorgangsbezeichnung kann im E-Mail-Betreff vorbelegt werden (Mandantenkonfig)
+
+
+## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
+
 #359 Lieferschein Speichern u. schliessen "Als geschlossen markieren"
 #370 Backgroundjob: ShopPartMassCreate Existierende Bilder überspringen
 #385 202409 feat zugferd email address
@@ -63,7 +93,8 @@ Github pull requests gemerged in diese Version (https://github.com/kivitendo/kiv
 #459 FIX: S:C:DeliverOrder: Überprüfen der Lagerbewegungen auf Bestand
 
 
-Bugfixes (Tracker:  https://www.kivitendo.de/redmine):
+## Änderungshistorie aus dem Bugfix-Tracker (https://www.kivitendo.de/redmine)
+
 451	Design4.0: Radiobuttons/Texte verschoben
 499	Auftrags-Controller: geänderte Artikel-Beschreibung aus der Eingabezeile wird nicht in Position übernommen
 542	design4.0 SEPA Export ist visuell unbrauchbar (Hintergrundfarbe alterniert nicht und ist durchgängig rosa).
