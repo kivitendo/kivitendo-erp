@@ -73,7 +73,7 @@ namespace('kivi.ActionBar', function(k){
     bind_targets: function(){
       for (var target in this.actions) {
         if (target in this.bound_targets) continue;
-        $(target).on('keypress', null, { 'target': target }, this.handle_accesskey);
+        $(target).on('keydown', null, { 'target': target }, this.handle_accesskey);
         this.bound_targets[target] = 1;
       }
     },
