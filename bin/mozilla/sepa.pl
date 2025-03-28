@@ -671,7 +671,6 @@ sub bank_transfer_download_sepa_docs {
   my $form     = $main::form;
   my $defaults = SL::DB::Default->get;
   my $locale   = $main::locale;
-  my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   if (!$defaults->doc_storage) {
     $form->show_generic_error($locale->text('Doc Storage is not enabled'));
@@ -688,29 +687,33 @@ sub bank_transfer_download_sepa_docs {
     $form->show_generic_error($locale->text('You have not selected any export.'));
   }
 
-  my @items = ();
-
+  my %arap_ids;
   foreach my $id (@ids) {
-    my $export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, vc => $vc);
-    push @items, @{ $export->{items} } if ($export);
+    my $sepa_export = SL::DB::Manager::SepaExport->find_by(id => $id);
+    # check for combined and normal sepa export items
+    foreach my $sepa_entry (@{ $sepa_export->find_sepa_exports_acc_trans },
+                            @{ $sepa_export->find_sepa_export_item       } ) {
+      $arap_ids{ap_id}{$sepa_entry->{ap_id}} = 'invoice'          if $sepa_entry->{ap_id};
+      $arap_ids{ar_id}{$sepa_entry->{ar_id}} = 'purchase_invoice' if $sepa_entry->{ar_id};
+    }
   }
+
   my @files;
-  foreach my $item (@items) {
+  foreach my $arap_id (keys %arap_ids) {
+    while ( my ($object_id, $type) = each %{ $arap_ids{$arap_id} } ) { # {ap_id};
+      # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
+      # but there is no get_latest_version (but sorts objects by itime!)
+      my ( $file_object ) = SL::File->get_all(object_id   => $object_id,
+                                              object_type => $type,
+                                              file_type   => 'document',
+                                             );
+      next if     (ref $file_object ne 'SL::File::Object');
+      next unless $file_object->mime_type eq 'application/pdf';
 
-    # check if there is already a file for the invoice
-    # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
-    # but there is no get_latest_version (but sorts objects by itime!)
-    # check if already resynced
-    my ( $file_object ) = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
-                                            object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
-                                            file_type   => 'document',
-                                           );
-    next if     (ref $file_object ne 'SL::File::Object');
-    next unless $file_object->mime_type eq 'application/pdf';
-
-    my $file = $file_object->get_file;
-    die "No file" unless -e $file;
-    push @files, $file;
+      my $file = $file_object->get_file;
+      die "No file" unless -e $file;
+      push @files, $file;
+    }
   }
   my $inputfiles  = join " ", @files;
   my $downloadname = $locale->text('SEPA XML Docs for Exports ') . (join " ", @ids) . ".pdf";
@@ -835,6 +838,11 @@ sub setup_sepa_list_transfers_action_bar {
         action => [
           t8('SEPA XML download'),
           submit => [ '#form', { action => 'bank_transfer_download_sepa_xml' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        ],
+         action => [
+          t8('SEPA XML PDF Document download'),
+          submit => [ '#form', { action => 'bank_transfer_download_sepa_docs' } ],
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
         ],
         action => [
