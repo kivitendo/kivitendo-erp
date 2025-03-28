@@ -683,7 +683,6 @@ sub bank_transfer_download_sepa_docs {
   my $form     = $main::form;
   my $defaults = SL::DB::Default->get;
   my $locale   = $main::locale;
-  my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   if (!$defaults->doc_storage) {
     $form->show_generic_error($locale->text('Doc Storage is not enabled'));
@@ -700,11 +699,15 @@ sub bank_transfer_download_sepa_docs {
     $form->show_generic_error($locale->text('You have not selected any export.'));
   }
 
-  my @items = ();
-
+  my @items;
   foreach my $id (@ids) {
-    my $export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, vc => $vc);
-    push @items, @{ $export->{items} } if ($export);
+    my $sepa_export = SL::DB::Manager::SepaExport->find_by(id => $id);
+    # check for combined and normal sepa export items
+    foreach my $sepa_entry (@{ $sepa_export->find_sepa_exports_acc_trans },
+                            @{ $sepa_export->find_sepa_export_item       } ) {
+      push @items, { ap_id => $sepa_entry->{ap_id} }  if $sepa_entry->{ap_id};
+      push @items, { ar_id => $sepa_entry->{ar_id} }  if $sepa_entry->{ar_id};
+    }
   }
 
   SL::SEPA::send_concatinated_sepa_pdfs(\@items, $locale->text('SEPA_#1_Documents.pdf', (join '_', @ids)));
@@ -824,6 +827,11 @@ sub setup_sepa_list_transfers_action_bar {
         action => [
           t8('SEPA XML download'),
           submit => [ '#form', { action => 'bank_transfer_download_sepa_xml' } ],
+          checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
+        ],
+         action => [
+          t8('SEPA XML PDF Document download'),
+          submit => [ '#form', { action => 'bank_transfer_download_sepa_docs' } ],
           checks => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
         ],
         action => [
