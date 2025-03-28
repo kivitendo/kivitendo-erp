@@ -40,7 +40,11 @@ my %type_data = (
       abbreviation => t8("AR Transaction (abbreviation)"),
     },
     show_menu => {
-      # TODO
+      post_payment                => 0,
+      mark_as_paid                => 0,
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -73,7 +77,11 @@ my %type_data = (
       abbreviation => t8("Storno (one letter abbreviation)"),
     },
     show_menu => {
-      # TODO
+      post_payment                => 0,
+      mark_as_paid                => 0,
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -113,6 +121,11 @@ my %type_data = (
       sales_reclamation           => 1,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => sub { $::instance_conf->get_is_show_mark_as_paid },
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => sub { $::instance_conf->get_show_sales_reclamation },
     },
     properties => {
       customervendor => "customer",
@@ -152,6 +165,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 0,
+      mark_as_paid                => 0,
+      advance_payment             => 1,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -191,6 +209,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => sub { $::instance_conf->get_is_show_mark_as_paid },
+      advance_payment             => sub { $::instance_conf->get_show_invoice_for_advance_payment },
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -230,6 +253,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => 1,
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -269,6 +297,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => sub { $::instance_conf->get_is_show_mark_as_paid },
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -308,6 +341,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => sub { $::instance_conf->get_is_show_mark_as_paid },
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
@@ -347,6 +385,11 @@ my %type_data = (
       sales_reclamation           => 0,
       use_as_new => 1,
       # delete     => sub { die "not implemented" },
+      post_payment                => 1,
+      mark_as_paid                => sub { $::instance_conf->get_is_show_mark_as_paid },
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "customer",
