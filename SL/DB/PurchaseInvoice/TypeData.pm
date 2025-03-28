@@ -35,7 +35,11 @@ my %type_data = (
       abbreviation => t8("AP Transaction (abbreviation)"),
     },
     show_menu => {
-      # TODO
+      post_payment                => 0,
+      mark_as_paid                => 0,
+      advance_payment             => 0,
+      credit_note                 => 0,
+      reclamation                 => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -68,7 +72,11 @@ my %type_data = (
       abbreviation => t8("Storno (one letter abbreviation)"),
     },
     show_menu => {
-      # TODO
+      post_payment        => 0,
+      mark_as_paid        => 0,
+      advance_payment     => 0,
+      credit_note         => 0,
+      reclamation         => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -104,6 +112,11 @@ my %type_data = (
       purchase_reclamation => 1,
       use_as_new           => 1,
       # delete => sub { die "not implemented" },
+      post_payment         => 0,
+      mark_as_paid         => 0,
+      advance_payment      => 0,
+      credit_note          => 0,
+      reclamation          => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -139,6 +152,11 @@ my %type_data = (
       purchase_reclamation => 0,
       use_as_new           => 0,
       # delete => sub { die "not implemented" },
+      post_payment         => 0,
+      mark_as_paid         => 0,
+      advance_payment      => 0,
+      credit_note          => 0,
+      reclamation          => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -174,6 +192,11 @@ my %type_data = (
       purchase_reclamation => 0,
       use_as_new           => 1,
       # delete => sub { die "not implemented" },
+      post_payment         => 0,
+      mark_as_paid         => 0,
+      advance_payment      => 0,
+      credit_note          => 0,
+      reclamation          => 0,
     },
     properties => {
       customervendor => "vendor",
@@ -209,6 +232,11 @@ my %type_data = (
       purchase_reclamation => 0,
       use_as_new           => 0,
       # delete => sub { die "not implemented" },
+      post_payment         => 0,
+      mark_as_paid         => 0,
+      advance_payment      => 0,
+      credit_note          => 0,
+      reclamation          => 0,
     },
     properties => {
       customervendor => "vendor",
