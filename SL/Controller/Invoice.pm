@@ -12,7 +12,7 @@ use SL::Model::Record;
 
 use Archive::Zip;
 use Params::Validate qw(:all);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any first_index);
 
 use SL::DB::File;
 use SL::DB::Invoice;
@@ -164,6 +164,18 @@ sub action_update_item_input_row {
     ->render;
 }
 
+sub action_update_exchangerate {
+  my ($self) = @_;
+
+  my $data = {
+    is_standard   => $self->record->currency_id == $::instance_conf->get_currency_id,
+    currency_name => $self->record->currency->name,
+    exchangerate  => $self->record->daily_exchangerate_as_null_number,
+  };
+
+  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
@@ -240,6 +252,25 @@ sub action_add_item {
 
   $self->js->run('kivi.Invoice.row_table_scroll_down') if !$::form->{insert_before_item_id};
 
+  $self->js_redisplay_amounts_and_taxes;
+  $self->js->render();
+}
+
+# called if a unit in an existing item row is changed
+sub action_unit_changed {
+  my ($self) = @_;
+
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{item_ids} };
+  my $item = $self->record->items_sorted->[$idx];
+
+  my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
+  $item->sellprice($item->unit_obj->convert_to($item->sellprice, $old_unit_obj));
+
+  $self->recalc();
+
+  $self->js
+    ->run('kivi.Invoice.update_sellprice', $::form->{item_id}, $item->sellprice_as_number);
+  $self->js_redisplay_line_values;
   $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
 }
@@ -481,6 +512,30 @@ sub build_tax_rows {
     );
   }
   return $rows_as_html;
+}
+
+sub js_redisplay_line_values {
+  my ($self) = @_;
+
+  my $has_marge = $self->record->type_data->properties('has_marge');
+
+  my @data;
+  if ($has_marge) {
+    @data = map {
+      [
+       $::form->format_amount(\%::myconfig, $_->{linetotal},     2, 0),
+       $::form->format_amount(\%::myconfig, $_->{marge_total},   2, 0),
+       $::form->format_amount(\%::myconfig, $_->{marge_percent}, 2, 0),
+      ]} @{ $self->record->items_sorted };
+  } else {
+    @data = map {
+      [
+       $::form->format_amount(\%::myconfig, $_->{linetotal},     2, 0),
+      ]} @{ $self->record->items_sorted };
+  }
+
+  $self->js
+    ->run('kivi.Invoice.redisplay_line_values', $has_marge, \@data);
 }
 
 sub js_redisplay_amounts_and_taxes {
