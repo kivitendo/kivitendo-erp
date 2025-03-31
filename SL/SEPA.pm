@@ -318,7 +318,7 @@ sub _check_and_book_credit_note {
 
   if ($transfer->{payment_type} ne 'without_skonto' && $transfer->{skonto_amount}) {
     my @skonto_bookings = $invoice->_skonto_charts_and_tax_correction(sepa_export_id => $sepa_export_id,
-                                                                      amount         => abs($transfer->{skonto_amount}),
+                                                                      amount         => $transfer->{skonto_amount},
                                                                       transdate_obj  => $transdate);
     $amount += abs($transfer->{skonto_amount});
     # create an acc_trans entry for each result of $self->skonto_charts
@@ -329,7 +329,7 @@ sub _check_and_book_credit_note {
       $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                    chart_id   => $skonto_booking->{'chart_id'},
                                                    chart_link => SL::DB::Manager::Chart->find_by(id => $skonto_booking->{'chart_id'})->link,
-                                                   amount     => $skonto_amount * $mult,
+                                                   amount     => $skonto_amount * $mult *-1,
                                                    transdate  => $transdate,
                                                    source     => $params{source},
                                                    taxkey     => 0,
@@ -340,7 +340,7 @@ sub _check_and_book_credit_note {
       $arap_booking= SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                  chart_id   => $invoice->reference_account->id,
                                                  chart_link => $invoice->reference_account->link,
-                                                 amount     => $skonto_amount * $mult * -1,
+                                                 amount     => $skonto_amount * $mult,
                                                  transdate  => $transdate,
                                                  source     => '', #$params{source},
                                                  taxkey     => 0,
