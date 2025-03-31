@@ -10,10 +10,11 @@ use SL::Dev::Record;
 use SL::Dev::Payment;
 use SL::Dev::Shop;
 use SL::Dev::TimeRecording;
+use SL::Dev::EmailJournal;
 
 sub import {
   no strict "refs";
-  for (qw(Part CustomerVendor Inventory Record Payment Shop TimeRecording)) {
+  for (qw(Part CustomerVendor Inventory Record Payment Shop TimeRecording EmailJournal)) {
     Exporter::export_to_level("SL::Dev::$_", 1, @_);
   }
 }

@@ -18,6 +18,7 @@ __PACKAGE__->meta->columns(
   mtime            => { type => 'timestamp', default => 'now()', not_null => 1 },
   name             => { type => 'text', not_null => 1 },
   position         => { type => 'integer', not_null => 1 },
+  processed        => { type => 'boolean', default => 'false', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

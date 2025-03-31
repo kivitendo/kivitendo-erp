@@ -230,6 +230,7 @@ sub _create_attachment_part {
     mime_type => $attributes{content_type},
     content   => ( $email_journal > 1 ? $attachment_content : ' '),
     file_id   => $file_id,
+    processed => 1,
   );
 
   return $ent;
