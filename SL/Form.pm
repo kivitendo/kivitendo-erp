@@ -1010,7 +1010,7 @@ sub send_email {
                                 ],
                                   sort_by   => 'itime DESC');
         # if uploaded documents exists, add ALL pdf files for later merging
-        if (scalar @{ $latest_documents } > 1) {
+        if (scalar @{ $latest_documents }) {
           my $files;
           foreach my $latest_document (@{ $latest_documents }) {
             die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
