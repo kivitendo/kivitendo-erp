@@ -693,8 +693,8 @@ sub bank_transfer_download_sepa_docs {
     # check for combined and normal sepa export items
     foreach my $sepa_entry (@{ $sepa_export->find_sepa_exports_acc_trans },
                             @{ $sepa_export->find_sepa_export_item       } ) {
-      $arap_ids{ap_id}{$sepa_entry->{ap_id}} = 'invoice'          if $sepa_entry->{ap_id};
-      $arap_ids{ar_id}{$sepa_entry->{ar_id}} = 'purchase_invoice' if $sepa_entry->{ar_id};
+      $arap_ids{ap_id}{$sepa_entry->{ap_id}} = 'purchase_invoice' if $sepa_entry->{ap_id};
+      $arap_ids{ar_id}{$sepa_entry->{ar_id}} = 'invoice'          if $sepa_entry->{ar_id};
     }
   }
 
