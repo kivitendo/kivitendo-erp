@@ -515,7 +515,7 @@ sub open_amount_less_skonto {
   my $percent_skonto = $self->percent_skonto || 0;
 
   my $open_amount = ($self->amount // 0) - ($self->paid // 0);
-  return _round($open_amount - ( $self->amount * $percent_skonto) );
+  return _round($open_amount - ( $open_amount * $percent_skonto) );
 
 }
 sub booked_skonto_amount {
