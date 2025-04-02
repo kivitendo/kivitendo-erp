@@ -188,7 +188,6 @@ sub _create_export {
       my %params = (transfer => $transfer, sepa_export_id => $export_id);
       $self->_check_and_book_credit_note(transfer => $transfer, sepa_export_id => $export_id, current_credit_note_amount => $vc_cn_amount{$transfer->{vc_id}});
       $vc_cn_amount{$transfer->{vc_id}} += $transfer->{amount} unless $transfer->{credit_note};
-      next;
     }
     if (!$transfer->{reference}) {
       do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{"${arap}_id"})) x 3);
