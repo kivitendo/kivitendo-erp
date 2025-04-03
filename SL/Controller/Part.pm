@@ -41,11 +41,11 @@ use Rose::Object::MakeMethods::Generic (
                                   orphaned
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
-                                  all_buchungsgruppen all_payment_terms all_warehouses
+                                  all_buchungsgruppen all_payment_terms
                                   parts_classification_filter
                                   all_languages all_units all_price_factors
                                   all_businesses) ],
-  'scalar'                => [ qw(warehouse bin stock_amounts journal) ],
+  'scalar'                => [ qw(stock_amounts journal) ],
 );
 
 # safety
@@ -673,30 +673,6 @@ sub action_reorder_items {
   $self->js->run('kivi.Part.redisplay_items', \@to_sort)->render;
 }
 
-sub action_warehouse_changed {
-  my ($self) = @_;
-
-  if ($::form->{warehouse_id} ) {
-    $self->warehouse(SL::DB::Manager::Warehouse->find_by_or_create(id => $::form->{warehouse_id}));
-    die unless ref($self->warehouse) eq 'SL::DB::Warehouse';
-
-    if ( $self->warehouse->id and @{$self->warehouse->bins} ) {
-      $self->bin($self->warehouse->bins_sorted_naturally->[0]);
-      $self->js
-        ->html('#bin', $self->build_bin_select)
-        ->focus('#part_bin_id');
-      return $self->js->render;
-    }
-  }
-
-  # no warehouse was selected, empty the bin field and reset the id
-  $self->js
-       ->val('#part_bin_id', undef)
-       ->html('#bin', '');
-
-  return $self->js->render;
-}
-
 sub action_ajax_autocomplete {
   my ($self, %params) = @_;
 
@@ -1235,14 +1211,6 @@ sub parse_form_customerprices {
   };
 }
 
-sub build_bin_select {
-  select_tag('part.bin_id', [ @{ $_[0]->warehouse->bins_sorted_naturally } ],
-    title_key => 'description',
-    default   => $_[0]->bin->id,
-  );
-}
-
-
 # get_set_inits for partpicker
 
 sub init_parts {
@@ -1407,11 +1375,6 @@ sub init_assembly_items {
     push(@array, $ai);
   };
   return \@array;
-}
-
-sub init_all_warehouses {
-  my ($self) = @_;
-  SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef, id => $self->part->warehouse_id ] ]);
 }
 
 sub init_all_languages {

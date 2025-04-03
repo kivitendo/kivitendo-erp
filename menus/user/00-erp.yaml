@@ -1625,6 +1625,13 @@
   params:
     action: Project/test_page
 - parent: develop
+  id: warehouse_test
+  name: Warehouse Test
+  access: developer
+  order: 430
+  params:
+    action: Warehouse/test_page
+- parent: develop
   id: ckeditor_test
   name: CKEditor5 Test
   access: developer
