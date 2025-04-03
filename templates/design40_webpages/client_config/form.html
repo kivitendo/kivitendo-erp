@@ -80,9 +80,10 @@
 
 <h1>[% title | html %]</h1>
 
-[% INCLUDE 'common/flash.html' %]
-
 <form action='controller.pl' method='POST' id='form'>
+
+ [% INCLUDE 'common/flash.html' %]
+
  <div class="tabwidget">
   <ul>
    <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
