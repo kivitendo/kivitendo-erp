@@ -134,6 +134,10 @@ sub update_part {
                                ? _u8($part->notes)
                                : _u8($shop_part->shop_description);
 
+  $update_p->{metaTitle}       = _u8($shop_part->metatag_title)       if $shop_part->metatag_title;
+  $update_p->{metaDescription} = _u8($shop_part->metatag_description) if $shop_part->metatag_description;
+  $update_p->{keywords}        = _u8($shop_part->metatag_keywords)    if $shop_part->metatag_keywords;
+
   # locales simple check for english
   my $english = SL::DB::Manager::Language->get_first(query => [ description   => { ilike => 'Englisch' },
                                                         or => [ template_code => { ilike => 'en' } ],
@@ -180,11 +184,7 @@ sub update_part {
     }
     undef $update_p->{partNumber}; # we dont need this one
     $ret = $self->connector->PATCH('api/product/' . $one_d->{id}, to_json($update_p));
-    unless (204 == $ret->responseCode()) {
-      die t8('Part Description is too long for this Shopware version. It should have lower than 255 characters.')
-         if $ret->responseContent() =~ m/Diese Zeichenkette ist zu lang. Sie sollte.*255 Zeichen/;
-      die "Updating part with " .  $part->partnumber . " failed: " . $ret->responseContent() unless (204 == $ret->responseCode());
-    }
+    $self->_die_on_error($part, $ret) unless (204 == $ret->responseCode());
   } else {
     # create part
     # 1. get the correct tax for this product
@@ -227,7 +227,7 @@ sub update_part {
     $update_p->{price}->[0]->{linked} = \1; # link product variants
 
     $ret = $self->connector->POST('api/product', to_json($update_p));
-    die "Create for Product " .  $part->partnumber . " failed: " . $ret->responseContent() unless (204 == $ret->responseCode());
+    $self->_die_on_error($part, $ret) unless (204 == $ret->responseCode());
   }
 
   # if there are images try to sync this with the shop_part
@@ -242,6 +242,22 @@ sub update_part {
 
   return 1; # no invalid response code -> success
 }
+
+sub _die_on_error {
+  my ($self, $part, $ret) = @_;
+
+  die t8('Part Description is too long for this Shopware version. It should have lower than 255 characters.')
+     if $ret->responseContent() =~ m/Diese Zeichenkette ist zu lang. Sie sollte.*255 Zeichen/
+     && $ret->responseContent() =~ m/description/;
+  die t8('Part Metatag Title is too long for this Shopware version. It should have lower than 255 characters.')
+     if $ret->responseContent() =~ m/Diese Zeichenkette ist zu lang. Sie sollte.*255 Zeichen/
+     && $ret->responseContent() =~ m/metaTitle/;
+  die t8('Part Metatag Description is too long for this Shopware version. It should have lower than 255 characters.')
+     if $ret->responseContent() =~ m/Diese Zeichenkette ist zu lang. Sie sollte.*255 Zeichen/
+     && $ret->responseContent() =~ m/metaDescription/;
+  die t8("Action for part #1 failed: #2", $part->partnumber, $ret->responseContent());
+};
+
 sub sync_all_categories {
   my ($self, %params) = @_;
 
