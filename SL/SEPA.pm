@@ -87,7 +87,14 @@ sub retrieve_open_invoices {
   foreach my $result ( @$results ) {
     my   @options;
     push @options, { payment_type => 'without_skonto',  display => t8('without skonto') };
-    push @options, { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt'), selected => 1 } if $result->{within_skonto_period};
+
+    if ($result->{within_skonto_period}) {
+      push @options, { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt'), selected => 1 };
+      # add real invoice open amount in results
+      $result->{open_amount_less_skonto} =   $arap eq 'ap'
+                                           ? SL::DB::Manager::PurchaseInvoice->find_by(id => $result->{id})->open_amount_less_skonto
+                                           : SL::DB::Manager::Invoice->find_by(id => $result->{id})->open_amount_less_skonto;
+    }
     $result->{payment_select_options}  = \@options;
   }
 

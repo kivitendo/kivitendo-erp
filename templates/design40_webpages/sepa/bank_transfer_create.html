@@ -104,6 +104,7 @@
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
           <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
+          <input type="hidden" id="invoice_open_amount_less_skonto_[% loop.count %]" name="invoice_open_amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount_less_skonto, 2) %]">
           [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
             <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
               [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
@@ -145,7 +146,7 @@
     } else if ( $(this).val() == "difference_as_skonto" ) {
         $('#' + id).val( $('#invoice_open_amount_' + id).val() );
     } else if ( $(this).val() == "with_skonto_pt" ) {
-              $('#' + id).val( $('#amount_less_skonto_' + id).val() );
+        $('#' + id).val( $('#invoice_open_amount_less_skonto_' + id).val() );
     }
   });
 </script>
