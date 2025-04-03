@@ -35,7 +35,7 @@
 
 [% IF saved_message %]<p class="message message_info">[% saved_message | html  %]</p>[% END %]
 
-<div class="tabwidget">
+<div id="ar_tabs" class="tabwidget">
 
 <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
@@ -44,6 +44,7 @@
   [% END %]
   [% IF id %]
     [% IF INSTANCE_CONF.get_doc_storage %]
+      <li><a href="#ui-tabs-docs">[% 'Documents' | $T8 %]</a></li>
       <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=invoice&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
     [% END %]
     [% IF AUTH.assert('record_links', 1) %]
@@ -53,6 +54,9 @@
   [% END %]
 </ul>
 
+[% IF id AND INSTANCE_CONF.get_doc_storage %]
+  <div id="ui-tabs-docs"></div>
+[% END %]
 
 <div id="ui-tabs-basic-data">
 
