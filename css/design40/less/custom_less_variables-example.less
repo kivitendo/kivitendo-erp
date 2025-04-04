@@ -1,0 +1,63 @@
+/* ------------------------------------------------------------- */
+/* CUSTOM VARIABLES EXAMPLE (custom_less_variables_example.less) */
+/* ------------------------------------------------------------- */
+
+
+// ----------------------------------------------------------------------------
+//
+// CUSTOM VARIABLES EXAMPLE
+//
+// ----------------------------------------------------------------------------
+// DESCRIPTION: Here we aim to provide a simple example on how to adapt the
+// basic colors of the design.
+//
+// This is useful as it may not be straightforward to understand which
+// variables correspond to which colors in the UI. To make things simpler we
+// provide comments in the file and also provide an annotated image under:
+// css/design40/manual/images/kivitendo-color-variables.png
+//
+// If you want to try out the changes, insert the variables into the file
+// custom_less_variables.less or copy this file to that location and then
+// recompile the less/css using the command: `lessc -x style.less ../style.css`.
+
+// the background color of the title bar as well as other highlighted elements
+// like primary buttons
+// here I chose a different green
+@brand-color: #218706;
+
+// the text color on the highlighted elements
+// NOTE: here as well as with other text colors it is important to keep contrast
+// and readability in mind the contrast can be checked in firefox by inspecting
+// the text element and clicking on the color preview in the inspector. at
+// the bottom it will show the contrast ratio and whether or not it meets WCAG
+// accessibility standard
+//@on-brand-color: #000;
+
+// a custom color defined for later use below
+@gray-darker-2: #333333;
+
+// a custom style color that affects the background of the entire page
+// it should have a name like: @style_<xxx>
+// in the current default this uses a "green_brown", here I chose a more neutral
+// gray
+@style_mine: #808080;
+
+// apply the color style with the name we gave it above
+@colorstyle: "mine"; // not style_*, only * like "plum"
+
+// the background and text color of the header bar .frame-header
+// by default a very dark grey here slightly less dark version
+@dashbrd_bg: @gray-darker-2;
+@dashbrd_text: @gray-verylight;
+
+// colors of hovered main elements in the menu left
+@menu_left_level_1_hover_color: @menu_left_level_1_color;
+@menu_left_level_1_hover_bg: @gray-lighter;
+
+// table headers
+// change the default black/dark grey to a light grey version
+@t-cell-head-bg: @gray-lighter;
+@t-cell-head-text: @base-dark;
+@t-cell-head-text-accent: @base-dark; // Links
+
+// that's it for now
