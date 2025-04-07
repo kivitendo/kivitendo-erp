@@ -970,7 +970,7 @@ sub action_update_row_from_master_data {
       next;
     }
 
-    my $texts = get_part_texts($item->part, $self->reclamation->language_id);
+    my $texts = SL::Model::Record->get_part_texts($item->part, $self->reclamation->language_id);
 
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
@@ -1411,7 +1411,7 @@ sub make_item {
   $item->assign_attributes(%$attr);
 
   if ($is_new) {
-    my $texts = get_part_texts($item->part, $record->language_id);
+    my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
     $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
     $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
     $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
@@ -1473,7 +1473,7 @@ sub new_item {
   # saved. Adding empty custom_variables to new reclamationitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts($part, $record->language_id,
+  my $texts = SL::Model::Record->get_part_texts($part, $record->language_id,
                 description => $new_attr{description},
                 longdescription => $new_attr{longdescription},
               );
@@ -2291,30 +2291,6 @@ sub get_item_cvpartnumber {
     my @cps = grep { $_->customer_id eq $self->reclamation->customervendor->id } @{$item->part->customerprices};
     $item->{cvpartnumber} = $cps[0]->customer_partnumber if scalar @cps;
   }
-}
-
-sub get_part_texts {
-  my ($part_or_id, $language_or_id, %defaults) = @_;
-
-  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
-  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
-  my $texts       = {
-    description     => $defaults{description}     // $part->description,
-    longdescription => $defaults{longdescription} // $part->notes,
-  };
-
-  return $texts unless $language_id;
-
-  my $translation = SL::DB::Manager::Translation->get_first(
-    where => [
-      parts_id    => $part->id,
-      language_id => $language_id,
-    ]);
-
-  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
-  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
-
-  return $texts;
 }
 
 sub save_history {
