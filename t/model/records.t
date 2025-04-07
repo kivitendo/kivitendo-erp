@@ -15,12 +15,14 @@ use List::Util qw(pairs);
 use SL::DB::PaymentTerm;
 use SL::DB::DeliveryTerm;
 use SL::DB::Employee;
+use SL::DB::Language;
 use SL::DB::ReclamationReason;
+use SL::DB::Translation;
 use SL::Model::Record;
 
 use SL::Dev::ALL qw(:ALL);
 
-my ($customer, $vendor, $employee, $payment_term, $delivery_term, @parts, $reclamation_reason);
+my ($customer, $vendor, $employee, $payment_term, $delivery_term, @parts, $reclamation_reason, $language1, $language2);
 my ($dbh);
 
 my ($sales_quotation1,    $sales_order1,    $sales_invoice1,    $sales_delivery_order1,    $sales_reclamation1);
@@ -180,6 +182,39 @@ is($price_source->price, 70, 'get price source purchase price right with given p
 is($discount_source->source_description, 'None (PriceSource Discount)', 'get price source right with given price');
 is($discount_source->discount, 3, 'get discount source purchase discount right with given price');
 
+note "testing get part texts";
+reset_state();
+reset_basic_sales_records();
+
+# part as obj
+my $texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[0]->part);
+is_deeply($texts, {description => $sales_quotation1->items_sorted->[0]->part->description, longdescription => undef},
+          'get_part_texts: simple texts via part obj');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[0]->part->id);
+is_deeply($texts, {description => $sales_quotation1->items_sorted->[0]->part->description, longdescription => undef},
+          'get_part_texts: simple texts via part id');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[1]->part);
+is_deeply($texts, {description => 'b part', longdescription => 'note to b part'},
+          'get_part_texts: all untranslated texts');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[1]->part, $language1);
+is_deeply($texts, {description => 'B-Teil', longdescription => 'Bemerkung zu B-Teil'},
+          'get_part_texts: get one translation via lang obj');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[1]->part, $language2->id);
+is_deeply($texts, {description => 'partie B', longdescription => 'Note pour la partie B'},
+          'get_part_texts: get another translation via lang id');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[1]->part, $language1, description => 'default', longdescription => 'default');
+is_deeply($texts, {description => 'B-Teil', longdescription => 'Bemerkung zu B-Teil'},
+                  'get_part_texts: no defaults with translation');
+
+$texts = SL::Model::Record->get_part_texts($sales_quotation1->items_sorted->[0]->part, $language1, description => 'default', longdescription => 'default');
+is_deeply($texts, {description => 'default', longdescription => 'default'},
+                  'get_part_texts: defaults with missing translation');
+
 clear_up();
 done_testing;
 
@@ -200,7 +235,8 @@ sub clear_up {
               DeliveryOrderItem DeliveryOrder
               OrderItem Order OrderVersion
               Reclamation ReclamationItem ReclamationReason
-              Part Customer Vendor PaymentTerm DeliveryTerm)
+              Part Customer Vendor PaymentTerm DeliveryTerm
+              Translation Language)
           ) {
     "SL::DB::Manager::${_}"->delete_all(all => 1);
   }
@@ -315,6 +351,10 @@ sub reset_state {
     'description_long' => 'Test Delivey Term Test Delivey Term',
   )->save;
 
+  # some languages
+  $language1 = SL::DB::Language->new(description => 'lang1', template_code => 'L1')->save;
+  $language2 = SL::DB::Language->new(description => 'lang2', template_code => 'L2')->save;
+
   # some parts/services
   @parts = ();
   push @parts, new_part(
@@ -322,6 +362,11 @@ sub reset_state {
   )->save;
   push @parts, new_part(
     partnumber => 'b',
+    description => 'b part',
+    notes       => 'note to b part',
+    translations => [SL::DB::Translation->new(language_id => $language1->id, translation => 'B-Teil',   longdescription => 'Bemerkung zu B-Teil'),
+                     SL::DB::Translation->new(language_id => $language2->id, translation => 'partie B', longdescription => 'Note pour la partie B')
+    ]
   )->save;
 
   $reclamation_reason = SL::DB::ReclamationReason->new(
