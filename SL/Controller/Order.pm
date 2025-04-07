@@ -1347,20 +1347,16 @@ sub action_update_row_from_master_data {
 
     my $price_editable = $self->order->is_sales ? $::auth->assert('sales_edit_prices', 1) : $::auth->assert('purchase_edit_prices', 1);
 
-    if ($::myconfig{show_longdescription_always}) {
-      $self->js
-        ->val('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
-    } else {
-      $self->js
-        ->remove('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]')
-        ->insertAfter(hidden_tag('order.orderitems[].longdescription', $item->longdescription), '.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]');
-    }
-
     $self->js
       ->run('kivi.Order.set_price_and_source_text',    $item_id, $price_src   ->source, $price_src   ->source_description, $item->sellprice_as_number, $price_editable)
       ->run('kivi.Order.set_discount_and_source_text', $item_id, $discount_src->source, $discount_src->source_description, $item->discount_as_percent, $price_editable)
       ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
-      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description);
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
+
+    if ($::myconfig{show_longdescription_always}) {
+      $self->js->run('kivi.Order.longdescription_trigger_change', $item_id);
+    }
 
     if ($self->search_cvpartnumber) {
       $self->get_item_cvpartnumber($item);
