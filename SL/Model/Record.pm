@@ -11,7 +11,9 @@ use SL::DB::Reclamation;
 use SL::DB::RequirementSpecOrder;
 use SL::DB::History;
 use SL::DB::Invoice;
+use SL::DB::Part;
 use SL::DB::Status;
+use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
@@ -138,6 +140,30 @@ sub get_best_price_and_discount_source {
   }
 
   return ($price_src, $discount_src);
+}
+
+sub get_part_texts {
+  my ($class, $part_or_id, $language_or_id, %defaults) = @_;
+
+  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
+  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
+  my $texts       = {
+    description     => $defaults{description}     // $part->description,
+    longdescription => $defaults{longdescription} // $part->notes,
+  };
+
+  return $texts unless $language_id;
+
+  my $translation = SL::DB::Manager::Translation->get_first(
+    where => [
+      parts_id    => $part->id,
+      language_id => $language_id,
+    ]);
+
+  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
+  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
+
+  return $texts;
 }
 
 sub delete {
