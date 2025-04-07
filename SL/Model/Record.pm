@@ -488,6 +488,20 @@ entered.
 Returns an reference to an array where the first element is the best
 price source and the second element is the best discount source.
 
+=item C<get_part_texts>
+
+Get the description and longdescription of a part with or without translation.
+
+Expects a part object or it's id as first parameter (mandatory) and a language
+object or it's id as second parameter (optional).
+
+You can give optional default values for the texts as a hash with the keys
+C<description> and C<longdescription>. The defaults are returned if no
+translation for one text can be found.
+
+Returns a hasf ref with the keys C<description> and C<longdescription> and
+the texts as values.
+
 =item C<delete>
 
 Expects a record to delete.
