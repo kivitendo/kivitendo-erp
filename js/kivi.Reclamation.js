@@ -555,7 +555,7 @@ namespace('kivi.Reclamation', function(ns) {
   ns.price_chooser_item_row = function(clicked) {
     if (!ns.check_cv()) return;
     var row         = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="reclamation_items_ids[+]"]');
+    var item_id_dom = $(row).find('[name="reclamation_item_ids[+]"]');
 
     var data = $('#reclamation_form').serializeArray();
     data.push({ name: 'action',  value: 'Reclamation/price_popup' },

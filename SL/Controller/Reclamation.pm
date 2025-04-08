@@ -656,7 +656,7 @@ sub action_customer_vendor_changed {
 sub action_unit_changed {
   my ($self) = @_;
 
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{reclamationitem_ids} };
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{reclamation_item_ids} };
   my $item = $self->reclamation->items_sorted->[$idx];
 
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
@@ -880,7 +880,7 @@ sub action_reorder_items {
 sub action_price_popup {
   my ($self) = @_;
 
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{reclamation_items_ids} };
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{reclamation_item_ids} };
   my $item = $self->reclamation->items_sorted->[$idx];
   if ($item->is_linked_to_record) {
     $self->js->flash('error', t8("Can't change price of a linked item"));
@@ -945,8 +945,8 @@ sub action_return_from_create_part {
 sub action_load_second_rows {
   my ($self) = @_;
 
-  foreach my $item_id (@{ $::form->{reclamation_items_ids} }) {
-    my $idx  = first_index { $_ eq $item_id } @{ $::form->{reclamation_items_ids} };
+  foreach my $item_id (@{ $::form->{reclamation_item_ids} }) {
+    my $idx  = first_index { $_ eq $item_id } @{ $::form->{reclamation_item_ids} };
     my $item = $self->reclamation->items_sorted->[$idx];
 
     $self->js_load_second_row($item, $item_id, 0);
@@ -962,7 +962,7 @@ sub action_update_row_from_master_data {
   my ($self) = @_;
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
-    my $idx   = first_index { $_ eq $item_id } @{ $::form->{reclamationitem_ids} };
+    my $idx   = first_index { $_ eq $item_id } @{ $::form->{reclamation_item_ids} };
     my $item  = $self->reclamation->items_sorted->[$idx];
 
     if ($item->is_linked_to_record) {
@@ -1080,11 +1080,11 @@ sub js_reset_reclamation_and_item_ids_after_save {
     ->val('#reclamation_record_number', $self->reclamation->record_number);
 
   my $idx = 0;
-  foreach my $form_item_id (@{ $::form->{reclamationitem_ids} }) {
+  foreach my $form_item_id (@{ $::form->{reclamation_item_ids} }) {
     next if !$self->reclamation->items_sorted->[$idx]->id;
     next if $form_item_id !~ m{^new};
     $self->js
-      ->val ('[name="reclamationitem_ids[+]"][value="' . $form_item_id . '"]',
+      ->val ('[name="reclamation_item_ids[+]"][value="' . $form_item_id . '"]',
              $self->reclamation->items_sorted->[$idx]->id)
       ->val ('#item_' . $form_item_id,
              $self->reclamation->items_sorted->[$idx]->id)
