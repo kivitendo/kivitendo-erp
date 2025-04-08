@@ -519,7 +519,7 @@ sub search_contacts {
     }
     add_token(\@where_tokens, \@values, col => "COALESCE(c.name, v.name)", val => $filter->{vcname}, method => 'ILIKE', esc => 'substr') if $filter->{vcname};
 
-    push @where_tokens, 'cp.cp_cv_id IS NOT NULL' if $filter->{status} eq 'active';
+    push @where_tokens, 'c.obsolete is FALSE ' if $filter->{status} eq 'active';
     push @where_tokens, 'cp.cp_cv_id IS NULL'     if $filter->{status} eq 'orphaned';
   }
 
