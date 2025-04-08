@@ -601,7 +601,7 @@ sub display_row {
             (qw(bo price_old id inventory_accno bin partsgroup partnotes active_price_source active_discount_source
                 orderer_id
                 income_accno expense_accno listprice part_type taxaccounts ordnumber donumber transdate cusordnumber
-                longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
+                basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
