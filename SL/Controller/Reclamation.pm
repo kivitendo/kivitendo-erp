@@ -671,6 +671,37 @@ sub action_unit_changed {
   $self->js->render();
 }
 
+# update item input row when a part ist picked
+sub action_update_item_input_row {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{$_} for qw(create_part_type sellprice_as_number discount_as_percent);
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $record       = $self->reclamation;
+  my $item         = SL::DB::ReclamationItem->new(%$form_attr);
+  $item->qty(1) if !$item->qty;
+  $item->unit($item->part->unit);
+
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
+
+  my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
+
+  $self->js
+    ->val     ('#add_item_unit',                $item->unit)
+    ->val     ('#add_item_description',         $texts->{description})
+    ->val     ('#add_item_sellprice_as_number', '')
+    ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
+    ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
+    ->val     ('#add_item_discount_as_percent', '')
+    ->attr    ('#add_item_discount_as_percent', 'placeholder', $discount_src->discount_as_percent)
+    ->attr    ('#add_item_discount_as_percent', 'title',       $discount_src->source_description)
+    ->render;
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
@@ -742,6 +773,9 @@ sub action_add_item {
 
   $self->js
     ->val('.add_item_input', '')
+    ->attr('.add_item_input', 'placeholder', '')
+    ->attr('.add_item_input', 'title', '')
+    ->attr('#add_item_qty_as_number', 'placeholder', '1')
     ->run('kivi.Reclamation.init_row_handlers')
     ->run('kivi.Reclamation.renumber_positions')
     ->focus('#add_item_parts_id_name');

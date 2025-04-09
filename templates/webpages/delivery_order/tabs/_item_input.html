@@ -25,7 +25,6 @@
           [%- SET PARAM_KEY = SELF.type_data.properties('is_customer') ? 'with_customer_partnumber' : 'with_makemodel' -%]
           [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
           [% P.part.picker('add_item.parts_id', SELF.created_part, style='width: 300px', class="add_item_input",
-                            fat_set_item=1,
                             multiple_pos_input=1,
                             action={set_multi_items='kivi.DeliveryOrder.add_multi_items'},
                             classification_id=SELF.part_picker_classification_ids.as_list.join(','),
