@@ -1113,6 +1113,7 @@ sub action_add_item {
     ->attr('#add_item_qty_as_number', 'placeholder', '1')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.renumber_positions')
+    ->reinit_widgets
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
@@ -1179,6 +1180,7 @@ sub action_add_multi_items {
     ->run('kivi.Part.close_picker_dialogs')
     ->run('kivi.Order.init_row_handlers')
     ->run('kivi.Order.renumber_positions')
+    ->reinit_widgets
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
@@ -1351,6 +1353,10 @@ sub action_update_row_from_master_data {
       ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
+
+    if ($::myconfig{show_longdescription_always}) {
+      $self->js->run('kivi.Order.longdescription_trigger_change', $item_id);
+    }
 
     if ($self->search_cvpartnumber) {
       $self->get_item_cvpartnumber($item);

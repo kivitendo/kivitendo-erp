@@ -191,6 +191,10 @@
       <td>[% L.input_tag('form_cvars_nr_cols', MYCONFIG.form_cvars_nr_cols || 3, class='wi-verysmall') %]</td>
     </tr>
     <tr>
+      <th>[% 'Always show longdescription in record positions' | $T8 %]</th>
+      <td>[% L.yes_no_tag('show_longdescription_always', MYCONFIG.show_longdescription_always) %]</td>
+    </tr>
+    <tr>
       <th>[% 'Quick Searches that will be shown in the header for this user' | $T8 %]</th>
       <td>
         <div>
