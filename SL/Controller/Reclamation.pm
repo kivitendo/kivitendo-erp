@@ -1009,12 +1009,21 @@ sub action_update_row_from_master_data {
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
 
-    my ($price_src, undef) = SL::Model::Record->get_best_price_and_discount_source($self->reclamation, $item, ignore_given => 1);
+    my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($self->reclamation, $item, ignore_given => 1);
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
+    $item->discount($discount_src->discount);
+    $item->active_discount_source($discount_src);
+
+    my $price_editable = $self->reclamation->is_sales ? $::auth->assert('sales_edit_prices', 1) : $::auth->assert('purchase_edit_prices', 1);
 
     $self->js
-      ->run('kivi.Reclamation.update_sellprice', $item_id, $item->sellprice_as_number)
+      ->run('kivi.Reclamation.set_price_and_source_text',    $item_id,
+            $price_src   ->source, $price_src   ->source_description,
+            $item->sellprice_as_number, $price_editable)
+      ->run('kivi.Reclamation.set_discount_and_source_text', $item_id,
+            $discount_src->source, $discount_src->source_description,
+            $item->discount_as_percent, $price_editable)
       ->html('.row_entry:has(#item_' . $item_id
              . ') [name = "partnumber"] a', $item->part->partnumber)
       ->val ('.row_entry:has(#item_' . $item_id
