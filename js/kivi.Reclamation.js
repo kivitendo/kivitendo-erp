@@ -489,6 +489,15 @@ namespace('kivi.Reclamation', function(ns) {
     return insert_before_item_id;
   };
 
+  ns.update_item_input_row = function() {
+    if (!ns.check_cv()) return;
+
+    var data = $('#reclamation_form').serializeArray();
+    data.push({ name: 'action', value: 'Reclamation/update_item_input_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.add_item = function() {
     if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
@@ -870,13 +879,9 @@ $(function() {
   $('#reclamation_transdate_as_date').change(kivi.Reclamation.update_exchangerate);
   $('#reclamation_exchangerate_as_null_number').change(kivi.Reclamation.exchangerate_changed);
 
-  if ($('#type').val() == 'sales_reclamation') {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
-  } else {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.lastcost, -2)) });
-  }
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_description').val(o.description) });
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
+  $('#add_item_parts_id').on('set_item:PartPicker', function() {
+    kivi.Reclamation.update_item_input_row();
+  });
 
   $('.add_item_input').keydown(function(event) {
     if (event.keyCode == 13) {

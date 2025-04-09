@@ -600,6 +600,15 @@ namespace('kivi.DeliveryOrder', function(ns) {
     return insert_before_item_id;
   };
 
+  ns.update_item_input_row = function() {
+    if (!ns.check_cv()) return;
+
+    var data = $('#order_form').serializeArray();
+    data.push({ name: 'action', value: 'DeliveryOrder/update_item_input_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.add_item = function() {
     if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
@@ -832,8 +841,9 @@ $(function() {
   $('#order_transdate_as_date').change(kivi.DeliveryOrder.update_exchangerate);
   $('#order_exchangerate_as_null_number').change(kivi.DeliveryOrder.exchangerate_changed);
 
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_description').val(o.description) });
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
+  $('#add_item_parts_id').on('set_item:PartPicker', function() {
+    kivi.DeliveryOrder.update_item_input_row();
+  });
 
   $('.add_item_input').keydown(function(event) {
     if (event.keyCode == 13) {

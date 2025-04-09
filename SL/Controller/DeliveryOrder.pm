@@ -718,6 +718,29 @@ sub action_unit_changed {
   $self->js->render();
 }
 
+# update item input row when a part ist picked
+sub action_update_item_input_row {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{$_} for qw(create_part_type sellprice_as_number discount_as_percent);
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $record       = $self->order;
+  my $item         = SL::DB::DeliveryOrderItem->new(%$form_attr);
+  $item->qty(1) if !$item->qty;
+  $item->unit($item->part->unit);
+
+  my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
+
+  $self->js
+    ->val     ('#add_item_unit',                $item->unit)
+    ->val     ('#add_item_description',         $texts->{description})
+    ->render;
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
