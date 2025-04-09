@@ -744,6 +744,7 @@ sub action_add_item {
     ->val('.add_item_input', '')
     ->run('kivi.Reclamation.init_row_handlers')
     ->run('kivi.Reclamation.renumber_positions')
+    ->reinit_widgets
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Reclamation.row_table_scroll_down') if !$::form->{insert_before_item_id};
@@ -807,6 +808,7 @@ sub action_add_multi_items {
     ->run('kivi.Part.close_picker_dialogs')
     ->run('kivi.Reclamation.init_row_handlers')
     ->run('kivi.Reclamation.renumber_positions')
+    ->reinit_widgets
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Reclamation.row_table_scroll_down') if !$::form->{insert_before_item_id};
@@ -989,6 +991,10 @@ sub action_update_row_from_master_data {
       ->val ('.row_entry:has(#item_' . $item_id
              . ') [name = "reclamation.reclamation_items[].longdescription"]',
              $item->longdescription);
+
+    if ($::myconfig{show_longdescription_always}) {
+      $self->js->run('kivi.Reclamation.longdescription_trigger_change', $item_id);
+    }
 
     if ($self->search_cvpartnumber) {
       $self->get_item_cvpartnumber($item);
