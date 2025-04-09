@@ -713,6 +713,29 @@ sub action_unit_changed {
   $self->js->render();
 }
 
+# update item input row when a part ist picked
+sub action_update_item_input_row {
+  my ($self) = @_;
+
+  delete $::form->{add_item}->{$_} for qw(create_part_type sellprice_as_number discount_as_percent);
+
+  my $form_attr = $::form->{add_item};
+
+  return unless $form_attr->{parts_id};
+
+  my $record       = $self->order;
+  my $item         = SL::DB::DeliveryOrderItem->new(%$form_attr);
+  $item->qty(1) if !$item->qty;
+  $item->unit($item->part->unit);
+
+  my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
+
+  $self->js
+    ->val     ('#add_item_unit',                $item->unit)
+    ->val     ('#add_item_description',         $texts->{description})
+    ->render;
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
@@ -1098,7 +1121,7 @@ sub action_update_row_from_master_data {
   foreach my $item_id (@{ $::form->{item_ids} }) {
     my $idx   = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
     my $item  = $self->order->items_sorted->[$idx];
-    my $texts = get_part_texts($item->part, $self->order->language_id);
+    my $texts = SL::Model::Record->get_part_texts($item->part, $self->order->language_id);
 
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
@@ -1750,7 +1773,7 @@ sub make_item {
   $item->assign_attributes(%$attr);
 
   if ($is_new) {
-    my $texts = get_part_texts($item->part, $record->language_id);
+    my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
     $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
     $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
     $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
@@ -1782,16 +1805,18 @@ sub new_item {
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
+  my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
+
   my %new_attr;
   $new_attr{part}                   = $part;
-  $new_attr{description}            = $part->description     if ! $item->description;
-  $new_attr{qty}                    = 1.0                    if ! $item->qty;
-  $new_attr{price_factor_id}        = $part->price_factor_id if ! $item->price_factor_id;
+  $new_attr{description}            = $texts->{description}     if ! $item->description;
+  $new_attr{qty}                    = 1.0                       if ! $item->qty;
+  $new_attr{price_factor_id}        = $part->price_factor_id    if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $part->notes           if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $texts->{longdescription} if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
   $new_attr{lastcost}               = $record->is_sales ? $part->lastcost : 0;
 
@@ -1800,13 +1825,7 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts(
-    $part, $record->language_id,
-    description => $new_attr{description},
-    longdescription => $new_attr{longdescription}
-  );
-
-  $item->assign_attributes(%new_attr, %{ $texts });
+  $item->assign_attributes(%new_attr);
 
   return $item;
 }
@@ -2358,30 +2377,6 @@ sub get_item_cvpartnumber {
       @{$item->part->customerprices};
     $item->{cvpartnumber} = $cps[0]->customer_partnumber if scalar @cps;
   }
-}
-
-sub get_part_texts {
-  my ($part_or_id, $language_or_id, %defaults) = @_;
-
-  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
-  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
-  my $texts       = {
-    description     => $defaults{description}     // $part->description,
-    longdescription => $defaults{longdescription} // $part->notes,
-  };
-
-  return $texts unless $language_id;
-
-  my $translation = SL::DB::Manager::Translation->get_first(
-    where => [
-      parts_id    => $part->id,
-      language_id => $language_id,
-    ]);
-
-  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
-  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
-
-  return $texts;
 }
 
 sub nr_key {
