@@ -301,7 +301,7 @@ sub check_auth {
 }
 
 sub add_javascript {
-  $::request->layout->add_javascripts(qw(kivi.PriceRuleMacro.js kivi.CustomerVendor.js kivi.Part.js));
+  $::request->layout->add_javascripts(qw(kivi.PriceRuleMacro.js kivi.CustomerVendor.js kivi.Part.js kivi.Validator.js));
 }
 
 1;
