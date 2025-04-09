@@ -203,7 +203,7 @@ sub raw_value {
 
 sub get_all_types {
   my ($class, $vc) = @_;
-  my @types = $class->ordered_types;
+  # my @types = $class->ordered_types;
 
   $vc
   ? [ map { [ $_->{type}, $_->{description} ] } grep { $_->{$vc} } @types ]
