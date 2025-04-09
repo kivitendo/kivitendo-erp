@@ -573,7 +573,7 @@ namespace('kivi.Reclamation', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
+  ns.set_price_and_source_text = function(item_id, source, descr, price_str, price_editable) {
     var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="reclamation.reclamation_items[].active_price_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
@@ -602,13 +602,17 @@ namespace('kivi.Reclamation', function(ns) {
       var html_elt  = $(row).find('[name="sellprice_text"]');
       price_elt.val(price_str);
       html_elt.html(price_str);
-      ns.recalc_amounts_and_taxes();
     }
+  };
 
+  ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
+    ns.set_price_and_source_text(item_id, source, descr, price_str, price_editable);
+
+    if (price_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
   };
 
-  ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
+  ns.set_discount_and_source_text = function(item_id, source, descr, discount_str, price_editable) {
     var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="reclamation.reclamation_items[].active_discount_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
@@ -637,9 +641,13 @@ namespace('kivi.Reclamation', function(ns) {
       var html_elt     = $(row).find('[name="discount_text"]');
       discount_elt.val(discount_str);
       html_elt.html(discount_str);
-      ns.recalc_amounts_and_taxes();
     }
+  };
 
+  ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
+    ns.set_discount_and_source_text(item_id, source, descr, discount_str, price_editable);
+
+    if (discount_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
   };
 
