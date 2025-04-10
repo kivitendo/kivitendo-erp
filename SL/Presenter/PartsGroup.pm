@@ -17,8 +17,7 @@ sub partsgroup_picker {
 
   my $all = delete $params{objects} // SL::DB::Manager::PartsGroup->get_all;
   unshift @$all, $curr if $curr && !any { $_->id == $curr } @$all;
-
-  select_tag($name, $all, %params, default_sub => sub { $curr && $_[0]->id == $curr }, title_key => 'partsgroup');
+  select_tag($name, $all, %params, default => $curr, title_key => 'partsgroup');
 }
 
 sub partsgroup {
