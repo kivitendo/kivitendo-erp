@@ -136,6 +136,7 @@ sub bank_transfer_create {
   my $subtract_days   = $::instance_conf->get_sepa_set_skonto_date_buffer_in_days;
   my $set_skonto_date = $::instance_conf->get_sepa_set_skonto_date_as_default_exec_date;
   my $set_duedate     = $::instance_conf->get_sepa_set_duedate_as_default_exec_date;
+  my %vc_id_num_of_transactions;
   foreach my $bt (@bank_transfers) {
     # add a good recommended exec date
     # set to skonto date if exists or to duedate
@@ -157,6 +158,8 @@ sub bank_transfer_create {
     }
     $bt->{credit_note} = 1 if $bt->{amount} < 0;
     die t8('Cannot select Credit Notes without combining payments.') if $bt->{credit_note} && !$form->{combine_payments};
+    # count transaction per vendor
+    $vc_id_num_of_transactions{$bt->{vc_id}} += 1;
   }
 
   if (!scalar @bank_transfers) {
@@ -201,6 +204,7 @@ sub bank_transfer_create {
     my %combine_payments;
     if ($form->{combine_payments}) {
       foreach my $bt (@bank_transfers) {
+        next unless $vc_id_num_of_transactions{$bt->{vc_id}} > 1; # combine only if we have more than one inv
         $combine_payments{$bt->{vc_id}}{amount}    += $bt->{amount};
         $combine_payments{$bt->{vc_id}}{reference} .=  !$combine_payments{$bt->{vc_id}}{reference} && $bt->{vc_vc_id}
                                                       ? $bt->{vc_vc_id} . ': ' . $bt->{invnumber}
