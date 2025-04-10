@@ -126,6 +126,19 @@
       </tr>
     [% END %]
   [% END %]
+    <tr style="border-bottom: 2px solid #000;">
+    <tr style="border-bottom: 2px solid #000;">
+    <tr>
+      <td><b>[% 'Totals' | $T8 %]</b> </td>
+      <td></td>
+      <td></td>
+      <td><b>[% LxERP.format_amount(total_trans, -2) %]</b></td>
+      <td></td>
+      <td><b>[% LxERP.format_amount(total_trans_skonto, -2) %]</b></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
   </tbody>
 </table>
 
