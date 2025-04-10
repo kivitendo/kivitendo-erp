@@ -162,8 +162,12 @@ sub bank_transfer_create {
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
+  # TODO move both calcs UP!
+  my $total_trans        = sum map { $_->{open_amount} } @bank_transfers;
 
-  my $total_trans = sum map { $_->{open_amount} } @bank_transfers;
+  my $total_trans_skonto = sum map {  $_->{payment_type} eq 'with_skonto_pt'
+                                    ? $_->{open_amount_less_skonto}
+                                    : $_->{open_amount } } @bank_transfers;
 
   if ($total_trans < 0) {
     $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'));
@@ -215,6 +219,7 @@ sub bank_transfer_create {
                                        'error_message'      => $error_message,
                                        'vc'                 => $vc,
                                        'total_trans'        => $total_trans,
+                                       'total_trans_skonto' => $total_trans_skonto,
                                        'combine_payments'   => \%combine_payments,
                                      });
 
