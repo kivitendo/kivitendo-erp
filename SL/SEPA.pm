@@ -3,6 +3,7 @@ package SL::SEPA;
 use strict;
 
 use POSIX qw(strftime);
+use Time::HiRes qw(usleep gettimeofday);
 
 use Data::Dumper;
 use SL::DBUtils;
@@ -175,12 +176,13 @@ sub _create_export {
   # and no reference to an invoice, but to a vendor_id
   my %vc_id_end_to_end;
   foreach my $transfer (@{ $params{collective_bank_transfers} }) {
-
+    my ($sec, $usec) = gettimeofday();
     die "Invalid state, need a valid combined payment reference" unless $transfer->{reference}; # catch for h_reference
 
-    $vc_id_end_to_end{$transfer->{vc_id}} = strftime "KIVITENDOSUPERMONIKA%Y%m%d%H%M%S", localtime;
     $transfer->{is_combined_payment}      = 1;
     $transfer->{payment_type}             = 'without_skonto';
+    $vc_id_end_to_end{$transfer->{vc_id}} = strftime ("KIVITENDOMONIKA%Y%m%d%H%M%S", localtime) . $usec;
+    usleep(1);
   }
   # sum all credit notes for vc_id for later subtraction
   my %vc_cn_amount;
@@ -207,10 +209,10 @@ sub _create_export {
 
     $h_item_id->execute() || $::form->dberror($q_item_id);
     my ($item_id)      = $h_item_id->fetchrow_array();
-
+    my ($sec, $usec) = gettimeofday();
     my $end_to_end_id  =  $transfer->{collected_payment} || $transfer->{is_combined_payment}
                          ? $vc_id_end_to_end{$transfer->{vc_id}}
-                         : strftime "KIVITENDO%Y%m%d%H%M%S", localtime;
+                         : strftime ("KIVITENDO%Y%m%d%H%M%S", localtime) . $usec;
     my $item_id_len    = length "$item_id";
     my $num_zeroes     = 35 - $item_id_len - length $end_to_end_id;
     $end_to_end_id    .= '0' x $num_zeroes if (0 < $num_zeroes);
