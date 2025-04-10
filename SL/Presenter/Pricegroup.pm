@@ -42,7 +42,7 @@ sub pricegroup_picker {
   my $all = SL::DB::Manager::Pricegroup->get_all;
   $value  = SL::DB::Manager::Pricegroup->find_by(id => $value) if $value && !ref $value;
 
-  select_tag($name, $all, default_sub => sub { $value && $_[0]->id == $value->id }, title_key => 'pricegroup', %params);
+  select_tag($name, $all, default => $value->id, title_key => 'pricegroup', %params);
 }
 
 sub picker { goto &pricegroup_picker };
