@@ -60,8 +60,11 @@ sub bank_transfer_add {
     if ($invoice->{open_amount} < 0) {
       $invoice->{credit_note} = 1;
     }
-    my $prefix                    = $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
-    $prefix                       = $::locale->text('Credit Note') if $invoice->{credit_note};
+    my $prefix;
+    my $prefix = $invoice->{vc_vc_id} ? $invoice->{vc_vc_id} . ": " : '';
+    $prefix   .=  $invoice->{credit_note}
+                ? $::locale->text('Credit Note')
+                : $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
     $prefix                      .= ' ' unless $prefix =~ m/ $/;
     $invoice->{reference_prefix}  = $prefix;
 
