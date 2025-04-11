@@ -9,6 +9,11 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- SEPA Überweisungen für Lieferantenrechnungen können zusammengefasst und
+  mit Gutschriften verrechnet werden. Zusätzlich wird beim Rückimport von der
+  Bank über das MT940 Verfahren diese Überweisung direkt beim Import verbucht
+  (falls SEPA EndToEndID und Überweisungssumme identisch ist).
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Alle PDFs die sich im Reiter Dokumente befinden können beim E-Mail-Versand
