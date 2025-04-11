@@ -7,6 +7,14 @@
     [% IF bank_transfer.collective_transfer %]
     <tr>
         <input type="hidden" name="collective_bank_transfers[+].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
+        <input type="hidden" name="collective_bank_transfers[].payment_type"
+          [% IF        combine_payments.${bank_transfer.vc_id}.payment_type.with_skonto_pt && NOT combine_payments.${bank_transfer.vc_id}.payment_type.without_skonto %]
+           value="with_skonto_pt">
+          [% ELSIF NOT combine_payments.${bank_transfer.vc_id}.payment_type.with_skonto_pt &&     combine_payments.${bank_transfer.vc_id}.payment_type.without_skonto  %]
+           value="without_skonto">
+          [% ELSE %]
+           value="mixed">
+          [% END %]
       <td> <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
                     [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
             </a></td>
