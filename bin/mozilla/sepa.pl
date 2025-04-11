@@ -165,6 +165,7 @@ sub bank_transfer_create {
     # count transaction per vendor
     $vc_id_num_of_transactions{$bt->{vc_id}} += 1;
 
+    # calc totals
     $total_trans        +=   $bt->{open_amount};
     $total_trans_skonto +=   $bt->{payment_type} eq 'with_skonto_pt'
                            ? $bt->{open_amount_less_skonto}
@@ -215,6 +216,11 @@ sub bank_transfer_create {
                                                       : !$combine_payments{$bt->{vc_id}}{reference}
                                                       ? $bt->{invnumber}
                                                       : ' / ' . $bt->{invnumber};
+
+        # check if we have mixed payment types for the same vc
+        $combine_payments{$bt->{vc_id}}{payment_type}{with_skonto_pt} = 1 if $bt->{payment_type} eq 'with_skonto_pt';
+        $combine_payments{$bt->{vc_id}}{payment_type}{without_skonto} = 1 if $bt->{payment_type} eq 'without_skonto';
+
         $bt->{collective_transfer} = 1;
       }
     }
