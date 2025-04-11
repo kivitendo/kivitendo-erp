@@ -177,12 +177,12 @@ sub _book_sepa {
 
   $bt->load;
 
-  my (@seis, @combined);
+  my @seis;
 
-  if (@combined = grep { $_->is_combined_payment } @{ $sei->sepa_export->find_sepa_export_item } ) {
-    die "Invalid state " unless scalar @combined == 1 && ref $combined[0] eq 'SL::DB::SepaExportItem';
-    $combined[0]->set_executed;
-    @seis = grep { $_->collected_payment } @{ $sei->sepa_export->find_sepa_export_item };
+  if ($sei->is_combined_payment) {
+    $sei->set_executed;
+    @seis = grep { $_->collected_payment && $sei->end_to_end_id eq $_->end_to_end_id }
+                @{ $sei->sepa_export->find_sepa_export_item };
   } else {
     push @seis, $sei;
   }
@@ -190,9 +190,9 @@ sub _book_sepa {
   foreach my $sepa_export_item (@seis) {
     my $invoice;
     if ( $sepa_export_item->ar_id ) {
-      $invoice = SL::DB::Manager::Invoice->find_by( id => $sepa_export_item->ar_id);
+      $invoice = SL::DB::Manager::Invoice->find_by(id => $sepa_export_item->ar_id);
     } elsif ( $sepa_export_item->ap_id ) {
-      $invoice = SL::DB::Manager::PurchaseInvoice->find_by( id => $sepa_export_item->ap_id);
+      $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $sepa_export_item->ap_id);
     } else {
       die "sepa_export_item needs either ar_id or ap_id\n";
     }
