@@ -1,0 +1,53 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE P %]
+[%- USE L %]
+
+<h1>[% 'Price Rules Macro' | $T8 %]</h1>
+
+[% PROCESS 'common/flash.html' %]
+[% PROCESS 'price_rule_macro/full_editor/input_blocks.html' %]
+
+<form id='#form' action='controller.pl' method='post'>
+  <div id='price_rule_macro'>
+    <table>
+      <tr>
+        <td>[% 'Name' | $T8 %]</td>
+        <td>[% L.input_tag('price_rule_macro.name', SELF.price_rule_macro.name) %]
+      </tr>
+      <tr>
+        <td>[% 'Valid for' | $T8 %]</td>
+        <td>[% L.select_tag('price_rule_macro.type', [[ 'customer', LxERP.t8('Sales') ],[ 'vendor', LxERP.t8('Purchase')] ]  default=SELF.price_rule_macro.type) %]</td>
+      </tr>
+
+      <tr>
+        <td>[% 'Priority' | $T8 %]</td>
+        <td>[% L.select_tag('price_rule_macro.priority', [ [ '', LxERP.t8('All') ], [ 3, LxERP.t8('Normal') ], [ 4 , LxERP.t8('Override')]], default=SELF.price_rule_macro.priority) %]</td>
+      </tr>
+
+      <tr>
+        <td>[% 'Obsolete' | $T8 %]</td>
+        <td>[% L.checkbox_tag('price_rule_macro.obsolete', checked=SELF.price_rule_macro.obsolete, for_submit=1) %]</td>
+      </tr>
+
+      <tr>
+       <th align="right">[% 'Notes' | $T8 %]</th>
+       <td>[% L.textarea_tag('price_rule_macro.notes', SELF.price_rule_macro.notes, style='width: 300px') %]</td>
+      </tr>
+
+      <tr>
+        <td>[% 'Conditions' | $T8 %]</td>
+        <td>[% PROCESS condition_elements items=SELF.price_rule_macro.parsed_definition.condition prefix='price_rule_macro' %]</td>
+      </tr>
+      <tr>
+        <td>
+          [% 'Actions' | $T8 %]
+          <a id='price_rule_price_type_help' class='interact cursor-help' title='[% 'Price type explanation' | $T8 %]'>[?]</a>
+        </td>
+        <td>[% PROCESS action_input item=SELF.price_rule_macro.parsed_definition.action prefix='price_rule_macro.action' %]</td>
+      </tr>
+    </table>
+    [% L.hidden_tag('price_rule_macro.id', SELF.price_rule_macro.id) %]
+  </div>
+</form>
