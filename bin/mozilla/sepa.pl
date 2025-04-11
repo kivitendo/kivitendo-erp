@@ -137,6 +137,7 @@ sub bank_transfer_create {
   my $set_skonto_date = $::instance_conf->get_sepa_set_skonto_date_as_default_exec_date;
   my $set_duedate     = $::instance_conf->get_sepa_set_duedate_as_default_exec_date;
   my %vc_id_num_of_transactions;
+  my ($total_trans, $total_trans_skonto);
   foreach my $bt (@bank_transfers) {
     # add a good recommended exec date
     # set to skonto date if exists or to duedate
@@ -160,17 +161,17 @@ sub bank_transfer_create {
     die t8('Cannot select Credit Notes without combining payments.') if $bt->{credit_note} && !$form->{combine_payments};
     # count transaction per vendor
     $vc_id_num_of_transactions{$bt->{vc_id}} += 1;
+
+    $total_trans        +=   $bt->{open_amount};
+    $total_trans_skonto +=   $bt->{payment_type} eq 'with_skonto_pt'
+                           ? $bt->{open_amount_less_skonto}
+                           : $bt->{open_amount };
   }
 
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
   # TODO move both calcs UP!
-  my $total_trans        = sum map { $_->{open_amount} } @bank_transfers;
-
-  my $total_trans_skonto = sum map {  $_->{payment_type} eq 'with_skonto_pt'
-                                    ? $_->{open_amount_less_skonto}
-                                    : $_->{open_amount } } @bank_transfers;
 
   if ($total_trans < 0) {
     $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'));
