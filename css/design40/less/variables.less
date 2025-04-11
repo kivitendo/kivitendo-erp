@@ -216,13 +216,18 @@
 // -----------------------
 // Font size
 // -----------------------
-@font-size-base:          11pt; // vorh.14px
-@font-size-large:         ceil(@font-size-base * 1.25); //  ~18px
-@font-size-medium:        ceil(@font-size-base * 1.0 ); //  ~18px
-@font-size-small:         ceil(@font-size-base * 0.85); //  ~11px
-@font-size-smaller:       ceil(@font-size-base * 0.76); //  ~12px
-@font-size-verysmall:     ceil(@font-size-base * 0.6); //   ~12px
+@font-size-base:          14px;
+@font-size-larger:        ceil(@font-size-base * 1.25); //  18px
+@font-size-large:         ceil(@font-size-base * 1.1);  //  16px
+@font-size-medium:        ceil(@font-size-base * 1.0 ); //  14px
+@font-size-small:         ceil(@font-size-base * 0.85); //  12px
 
+// font sizes smaller than above should be used rarely if at all
+// TODO: check if used
+@font-size-smaller:       ceil(@font-size-base * 0.76);
+@font-size-verysmall:     ceil(@font-size-base * 0.6);
+
+//
 // -----------------------
 // Line height
 // -----------------------
@@ -241,12 +246,12 @@
 @headings-color-error:    @base-error;
 @headings-color-confirm:  @base-ok;
 
-@h1-size:            floor(@font-size-base * 1.1); //  ~**px
-@h2-size:            floor(@font-size-base * 1.2); //  ~**px
-@h3-size:            ceil(@font-size-base * 1.1); //  ~**px
-@h4-size:            ceil(@font-size-base * 1.0); //  ~**px
-@h5-size:            @font-size-base;
-@h6-size:            ceil(@font-size-base * 0.85); //  ~**px
+@h1-size:            @font-size-large;
+@h2-size:            @font-size-larger;
+@h3-size:            @font-size-large;
+@h4-size:            @font-size-medium;
+@h5-size:            @font-size-medium;
+@h6-size:            @font-size-medium;
 
 @h1-style:           normal;
 @h2-style:           normal;
@@ -608,7 +613,7 @@
 
 @table-caption-bg:               @_table-caption-bg;
 @table-caption-color:            @_table-caption-color;
-@table-caption-size:             @h3-size - 2pt ;
+@table-caption-size:             @h3-size ;
 @table-caption-style:            @h3-style ;
 @table-caption-weight:           @h3-weight ;
 
