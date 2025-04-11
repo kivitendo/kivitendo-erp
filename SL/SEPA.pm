@@ -181,7 +181,6 @@ sub _create_export {
     die "Invalid state, need a valid combined payment reference" unless $transfer->{reference}; # catch for h_reference
 
     $transfer->{is_combined_payment}      = 1;
-    $transfer->{payment_type}             = 'without_skonto';
     $vc_id_end_to_end{$transfer->{vc_id}} = strftime ("KIVITENDOMONIKA%Y%m%d%H%M%S", localtime) . $usec;
     usleep(1);
   }
@@ -231,6 +230,8 @@ sub _create_export {
     } elsif ($transfer->{payment_type} eq 'difference_as_skonto' ) {
       push(@values, $transfer->{amount});
     } elsif ($transfer->{payment_type} eq 'with_skonto_pt' ) {
+      push(@values, $transfer->{skonto_amount});
+    } elsif ($transfer->{payment_type} eq 'mixed' ) {
       push(@values, $transfer->{skonto_amount});
     } else {
       die "illegal payment_type: " . $transfer->{payment_type} . "\n";
