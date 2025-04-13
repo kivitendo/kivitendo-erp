@@ -55,7 +55,7 @@ sub create_parsed_file {
   $form->{$_}        = $vars->{$_} for keys %{$vars};
   $form->{format}    = lc($params{format} || 'pdf');
   $form->{cwd}       = SL::System::Process::exe_dir();
-  $form->{templates} = $::instance_conf->get_templates;
+  $form->{templates} = $::instance_conf->get_templates || 'templates/mymarei';
   $form->{IN}        = $params{template};
   $form->{tmpdir}    = $temp_dir->dirname;
   my $tmpdir         = $form->{tmpdir};
@@ -220,7 +220,7 @@ sub find_template {
 
   $params{name} or croak "Missing parameter 'name'";
 
-  my $path                 = $::instance_conf->get_templates;
+  my $path                 = $::instance_conf->get_templates || 'templates/mymarei';
   my $extension            = $params{extension} || "tex";
   my ($printer, $language) = ('', '');
 
