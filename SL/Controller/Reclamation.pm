@@ -1492,26 +1492,24 @@ sub new_item {
 
   $item->assign_attributes(%$attr);
 
-  my $part = SL::DB::Part->new(id => $attr->{parts_id})->load;
-  $item->qty(1.0)          if !$item->qty;
-  $item->unit($part->unit) if !$item->unit;
+  $item->qty(1.0)                if !$item->qty;
+  $item->unit($item->part->unit) if !$item->unit;
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
   my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
 
   my %new_attr;
-  $new_attr{part}                   = $part;
-  $new_attr{description}            = $texts->{description}     if ! $item->description;
-  $new_attr{qty}                    = 1.0                       if ! $item->qty;
-  $new_attr{price_factor_id}        = $part->price_factor_id    if ! $item->price_factor_id;
+  $new_attr{description}            = $texts->{description}       if ! $item->description;
+  $new_attr{qty}                    = 1.0                         if ! $item->qty;
+  $new_attr{price_factor_id}        = $item>part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $texts->{longdescription} if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $texts->{longdescription}   if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
-  $new_attr{lastcost}               = $record->is_sales ? $part->lastcost : 0;
+  $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
   # add_custom_variables adds cvars to an reclamationitem with no cvars for saving, but
   # they cannot be retrieved via custom_variables until the reclamation/reclamationitem is
