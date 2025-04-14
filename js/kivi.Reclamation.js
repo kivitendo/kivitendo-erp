@@ -489,6 +489,15 @@ namespace('kivi.Reclamation', function(ns) {
     return insert_before_item_id;
   };
 
+  ns.update_item_input_row = function() {
+    if (!ns.check_cv()) return;
+
+    var data = $('#reclamation_form').serializeArray();
+    data.push({ name: 'action', value: 'Reclamation/update_item_input_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
   ns.add_item = function() {
     if ($('#add_item_parts_id').val() === '') return;
     if (!ns.check_cv()) return;
@@ -564,7 +573,7 @@ namespace('kivi.Reclamation', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
+  ns.set_price_and_source_text = function(item_id, source, descr, price_str, price_editable) {
     var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="reclamation.reclamation_items[].active_price_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
@@ -593,13 +602,17 @@ namespace('kivi.Reclamation', function(ns) {
       var html_elt  = $(row).find('[name="sellprice_text"]');
       price_elt.val(price_str);
       html_elt.html(price_str);
-      ns.recalc_amounts_and_taxes();
     }
+  };
 
+  ns.update_price_source = function(item_id, source, descr, price_str, price_editable) {
+    ns.set_price_and_source_text(item_id, source, descr, price_str, price_editable);
+
+    if (price_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
   };
 
-  ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
+  ns.set_discount_and_source_text = function(item_id, source, descr, discount_str, price_editable) {
     var row        = $('#item_' + item_id).parents("tbody").first();
     var source_elt = $(row).find('[name="reclamation.reclamation_items[].active_discount_source"]');
     var button_elt = $(row).find('[name="price_chooser_button"]');
@@ -628,9 +641,13 @@ namespace('kivi.Reclamation', function(ns) {
       var html_elt     = $(row).find('[name="discount_text"]');
       discount_elt.val(discount_str);
       html_elt.html(discount_str);
-      ns.recalc_amounts_and_taxes();
     }
+  };
 
+  ns.update_discount_source = function(item_id, source, descr, discount_str, price_editable) {
+    ns.set_discount_and_source_text(item_id, source, descr, discount_str, price_editable);
+
+    if (discount_str) ns.recalc_amounts_and_taxes();
     kivi.io.close_dialog();
   };
 
@@ -870,13 +887,9 @@ $(function() {
   $('#reclamation_transdate_as_date').change(kivi.Reclamation.update_exchangerate);
   $('#reclamation_exchangerate_as_null_number').change(kivi.Reclamation.exchangerate_changed);
 
-  if ($('#type').val() == 'sales_reclamation') {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.sellprice, -2)) });
-  } else {
-    $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_sellprice_as_number').val(kivi.format_amount(o.lastcost, -2)) });
-  }
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_description').val(o.description) });
-  $('#add_item_parts_id').on('set_item:PartPicker', function(e,o) { $('#add_item_unit').val(o.unit) });
+  $('#add_item_parts_id').on('set_item:PartPicker', function() {
+    kivi.Reclamation.update_item_input_row();
+  });
 
   $('.add_item_input').keydown(function(event) {
     if (event.keyCode == 13) {
