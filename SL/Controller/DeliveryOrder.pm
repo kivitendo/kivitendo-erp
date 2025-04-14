@@ -1126,12 +1126,17 @@ sub action_update_row_from_master_data {
     $item->description($texts->{description});
     $item->longdescription($texts->{longdescription});
 
-    my ($price_src, undef) = SL::Model::Record->get_best_price_and_discount_source($self->order, $item, ignore_given => 1);
+    my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($self->order, $item, ignore_given => 1);
     $item->sellprice($price_src->price);
     $item->active_price_source($price_src);
+    $item->discount($discount_src->discount);
+    $item->active_discount_source($discount_src);
 
     $self->js
-      ->run('kivi.DeliveryOrder.update_sellprice', $item_id, $item->sellprice_as_number)
+      ->run('kivi.DeliveryOrder.set_price_and_source',    $item_id,
+            $price_src   ->source, $item->sellprice)
+      ->run('kivi.DeliveryOrder.set_discount_and_source', $item_id,
+            $discount_src->source, $item->discount)
       ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
