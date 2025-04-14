@@ -683,6 +683,24 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.set_price_and_source = function(item_id, source, price) {
+    var row        = $('#item_' + item_id).parents("tbody").first();
+
+    var source_elt = $(row).find('[name="order.orderitems[].active_price_source"]');
+    source_elt.val(source);
+    var price_elt = $(row).find('[name="order.orderitems[].sellprice"]');
+    price_elt.val(price);
+  };
+
+  ns.set_discount_and_source = function(item_id, source, discount) {
+    var row        = $('#item_' + item_id).parents("tbody").first();
+
+    var source_elt = $(row).find('[name="order.orderitems[].active_discount_source"]');
+    source_elt.val(source);
+    var discount_elt = $(row).find('[name="order.orderitems[].discount"]');
+    discount_elt.val(discount);
+  };
+
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
