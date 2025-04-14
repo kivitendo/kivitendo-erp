@@ -671,18 +671,6 @@ namespace('kivi.DeliveryOrder', function(ns) {
     kivi.SalesPurchase.edit_longdescription_with_params(params);
   };
 
-  ns.price_chooser_item_row = function(clicked) {
-    if (!ns.check_cv()) return;
-    var row         = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
-
-    var data = $('#order_form').serializeArray();
-    data.push({ name: 'action',  value: 'DeliveryOrder/price_popup' },
-              { name: 'item_id', value: item_id_dom.val()   });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
   ns.set_price_and_source = function(item_id, source, price) {
     var row        = $('#item_' + item_id).parents("tbody").first();
 
