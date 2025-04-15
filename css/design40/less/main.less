@@ -55,20 +55,18 @@
 // GENERAL FONT SIZES
 // --------------------------------------
 
+// NOTE: I removed the content here because it was overwriting
+// font sizes with smaller variants, the base font size is set in
+// scaffolding.less on the body element and should be inherited
+// from there
 #content {
-
-  & > p,
-  & > div,
-  & > td,
-  & > th {
-    font-size: @font-size-smaller ;
-  }
   input,
   select, option,
   textarea {
-    font-size: @font-size-smaller ;
+    // NOTE: I had to set the font size explicitly for input elements otherwise
+    // the browser renders it as 13.3333px, despite inheriting 14px
+    font-size: @font-size-base ;
   }
-
 }
 
 
@@ -255,14 +253,6 @@ a {
 // -----------------------
 // Lists (UL & OL)
 // -----------------------
-ul,
-ol {
-  font-size: @font-size-base ;
-
-  li {
-    font-size: @font-size-small ;
-  }
-}
 .wrapper .col{
   ul {
     list-style: circle outside;
