@@ -70,7 +70,9 @@
   cursor:        pointer ;
   width:         auto ;
   padding:       0.2em 0.6em;
-  font-size:     @font-size-smaller ;
+  // NOTE: I had to set the font size explicitly here otherwise the browser
+  // renders it as 13.3333px, despite inheriting 14px
+  font-size:     @font-size-base;
   font-weight:   normal;
   font-style:    normal;
   text-align:    center;
