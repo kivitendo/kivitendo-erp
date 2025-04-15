@@ -314,7 +314,6 @@ div.layout-split-left #html-menu {
   height:             100%;
   padding:            0 0 150px 0;
   background-color:   @menu_left_bg ;
-  font-size:          @font-size-small;
 
   // menu item icons (mii) ausblenden
   .mii {
@@ -337,7 +336,6 @@ div.layout-split-left #html-menu {
     display:       block ;
     a {
       display:     block;
-      word-wrap:   break-word;
       text-decoration: none;
       font-weight: normal;
     }
@@ -358,11 +356,10 @@ div.layout-split-left #html-menu {
     background-color: @menu_left_level_1_bg ;
     color:             @menu_left_level_1_color;
     border-top:       @menu_border ;
-    font-size:         90% ;
     text-transform:   uppercase;
 
     a {
-      padding:   5px 0 6px 8px ;
+      padding:   8px 0 5px 8px ;
       cursor:   pointer ;
 
       &:hover,
@@ -383,7 +380,7 @@ div.layout-split-left #html-menu {
       border-bottom:     0 ;
 
       a {
-        padding:         5px 0 6px 8px ;
+        padding:         8px 0 5px 8px ;
         cursor:         auto ;
 
         &:hover,
@@ -402,7 +399,6 @@ div.layout-split-left #html-menu {
   // Sub Menu Item (2nd Level)
   // -----------------------
   .s1{
-    font-size: 80% ;
     padding: 0 ;
     background-color: @menu_left_level_2_bg ;
     border-top:       @menu_border ;
@@ -425,7 +421,6 @@ div.layout-split-left #html-menu {
       &:after{
         content:     "▼" ;
         color:       @gray-standard ;
-        font-size:   80% ;
       }
       a {
         display:   inline-block ;
@@ -454,7 +449,6 @@ div.layout-split-left #html-menu {
   // -----------------------
   .s2{
     padding:           0 ;
-    font-size:         80% ;
     background-color: @menu_left_level_3_bg ;
 
     a {
