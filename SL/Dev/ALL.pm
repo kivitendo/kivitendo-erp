@@ -8,6 +8,7 @@ use SL::Dev::CustomerVendor;
 use SL::Dev::Inventory;
 use SL::Dev::Record;
 use SL::Dev::Payment;
+use SL::Dev::POS;
 use SL::Dev::Shop;
 use SL::Dev::TimeRecording;
 
