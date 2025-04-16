@@ -115,14 +115,14 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{vc} = $form->{type} eq 'purchase_delivery_order' ? 'vendor' : 'customer';
+  $form->{vc} = $form->{type} eq 'purchase_delivery_order'  || $form->{type} eq "supplier_delivery_order" ? 'vendor' : 'customer';
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-  $form->{title}             = $locale->text('Delivery Orders');
+  $form->{title}           =  SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "list");
 
   setup_do_search_action_bar();
 
@@ -146,6 +146,8 @@ sub orders {
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
+  $form->{vc} = "vendor" if $form->{type} eq "supplier_delivery_order";
+
   report_generator_set_default_sort('transdate', 1);
 
   DO->transactions();
@@ -168,7 +170,7 @@ sub orders {
   $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered} = "Y"                     if ($form->{delivered} && $form->{notdelivered});
 
-  $form->{title}       = $locale->text('Delivery Orders');
+  $form->{title}       =  SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "list");
 
   my $attachment_basename = SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "attachment");
 
