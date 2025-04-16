@@ -16,13 +16,5 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->relationships(
-  points_of_sale => {
-    class      => 'SL::DB::PointOfSale',
-    column_map => { id => 'receipt_printer_id' },
-    type       => 'one to many',
-  },
-);
-
 1;
 ;

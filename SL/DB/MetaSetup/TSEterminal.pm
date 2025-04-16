@@ -16,13 +16,7 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->relationships(
-  points_of_sale => {
-    class      => 'SL::DB::PointOfSale',
-    column_map => { id => 'tse_terminal_id' },
-    type       => 'one to many',
-  },
-);
+__PACKAGE__->meta->unique_keys([ 'name' ]);
 
 1;
 ;

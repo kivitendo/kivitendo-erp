@@ -52,6 +52,11 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Project',
     key_columns => { project_id => 'id' },
   },
+
+  receipt_printer => {
+    class       => 'SL::DB::ReceiptPrinter',
+    key_columns => { receipt_printer_id => 'id' },
+  },
 );
 
 1;
