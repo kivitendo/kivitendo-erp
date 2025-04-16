@@ -159,6 +159,8 @@ use SL::DB::TodoUserConfig;
 use SL::DB::TransferType;
 use SL::DB::Translation;
 use SL::DB::TriggerInformation;
+use SL::DB::TSEDevice;
+use SL::DB::TSETransaction;
 use SL::DB::TSEterminal;
 use SL::DB::Unit;
 use SL::DB::UnitsLanguage;
