@@ -3745,6 +3745,7 @@ $self->{texts} = {
   'Show sales report'           => '',
   'Show settings'               => '',
   'Show subtotals'              => '',
+  'Show the longdescription always directly in the record\'s position row if enabled. Users can override this setting in their user preferences.' => '',
   'Show the picture in the part form' => '',
   'Show the pictures in the result for search parts' => '',
   'Show the weights of articles and the total weight in orders, invoices and delivery notes?' => '',
