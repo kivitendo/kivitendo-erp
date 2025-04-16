@@ -14,11 +14,16 @@ use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::TaxZone;
 use SL::DB::Currency;
 use SL::DB::PointOfSale;
+use SL::DB::TSEDevice;
 
 use SL::DBUtils qw(do_query);
 use SL::Locale::String qw(t8);
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::DateTime;
+
+use SL::POS;
+use SL::POS::Receipt;
+use SL::POS::TSEAPI;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -73,7 +78,7 @@ sub action_add {
 
   $self->render(
     'pos/form',
-    title => t8('Point Of Sale'),
+    title => $point_of_sale->name
   );
 }
 
@@ -117,6 +122,7 @@ sub action_create_new_customer {
   my $name = delete $::form->{new_customer}->{name}
     or die "name is needed.";
 
+  # fetches the first taxzone id, but not necessarily the correct one!
   my $taxzone_id = SL::DB::Manager::TaxZone->get_all_sorted(
     query => [ obsolete => 0 ]
   )->[0]->id;
@@ -231,38 +237,8 @@ sub action_to_delivery_order {
   my ($self) = @_;
   my $order = $self->order;
 
-  my $delivery_order = SL::Model::Record->new_from_workflow(
-    $order,
-    SALES_DELIVERY_ORDER_TYPE(),
-    {
-      no_linked_records => 1, # order is not saved
-    }
-  );
+  my $delivery_order = POS->order_to_delivery_order($order); # may die, runs in transaction
 
-  SL::DB->client->with_transaction(sub {
-    SL::Model::Record->save(
-      $delivery_order,
-      with_validity_token => {
-        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
-        token => delete $::form->{form_validity_token}
-      },
-    );
-
-    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
-      $delivery_order
-    );
-
-    # save created delivery_order_stock_entries
-    # they will be used in _do_stock_transfer
-    $delivery_order->save(cascade => 1);
-
-    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
-      $delivery_order, 'out', 1
-    );
-
-  }) || do {
-    die t8("Creating delivery order failed: #1", SL::DB->client->error);
-  };
   flash_later("info", t8("Delivery Order created."));
 
   # TODO: print
@@ -277,44 +253,8 @@ sub action_to_invoice {
   my ($self) = @_;
   my $order = $self->order;
 
-  my $delivery_order = SL::Model::Record->new_from_workflow(
-    $order,
-    SALES_DELIVERY_ORDER_TYPE(),
-    {
-      no_linked_records => 1, # order is not saved
-    }
-  );
+  my $invoice = SL::POS::order_to_invoice($order); # may die, runs in transaction
 
-  SL::DB->client->with_transaction(sub {
-    SL::Model::Record->save(
-      $delivery_order,
-      with_validity_token => {
-        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
-        token => delete $::form->{form_validity_token}
-      },
-    );
-
-    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
-      $delivery_order
-    );
-
-    # save created delivery_order_stock_entries
-    # they will be used in _do_stock_transfer
-    $delivery_order->save(cascade => 1);
-
-    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
-      $delivery_order, 'out', 1
-    );
-
-    my $invoice = SL::Model::Record->new_from_workflow(
-      $delivery_order,
-      INVOICE_TYPE()
-    );
-
-    $invoice->post();
-  }) || do {
-    die t8("Creating invoice failed: #1", SL::DB->client->error);
-  };
   flash_later("info", t8("Invoice created."));
 
   # TODO: print
@@ -327,6 +267,17 @@ sub action_to_invoice {
 
 sub action_do_payment {
   my ($self) = @_;
+
+  my $point_of_sale = SL::DB::Manager::PointOfSale->find_by(
+    id => $::form->{point_of_sale_id}
+  ) or die t8("Could not find POS with id '#1'", $::form->{point_of_sale_id});
+
+  my $transaction_number = $::form->{transaction_number} // (10000 + int(rand(10000))); # TODO: transaction_number should come from start_transaction
+
+  my $tse_device =
+    SL::DB::Manager::TSEDevice->find_by(device_id => $::form->{tse_device_id})
+    // SL::DB::Manager::TSEDevice->get_first()   # hack while we don't have a start_transaction
+    // die t8("Could not find TSE Device with device_id '#1'", $::form->{tse_device_id});
 
   my $order = $self->order;
   $order->calculate_prices_and_taxes();
@@ -358,75 +309,12 @@ sub action_do_payment {
     die t8("The amount entered is to small.");
   }
 
-  my $delivery_order = SL::Model::Record->new_from_workflow(
-    $order,
-    SALES_DELIVERY_ORDER_TYPE(),
-    {
-      no_linked_records => 1, # order is not saved
-    }
-  );
+  my $validity_token = $::form->{form_validity_token}; # validity token of the order
 
-  my $point_of_sale = SL::DB::Manager::PointOfSale->find_by(
-    id => $::form->{point_of_sale_id}
-  ) or die t8("Could not find POS with id '#1'", $::form->{point_of_sale_id});
-
-  SL::DB->client->with_transaction(sub {
-    SL::Model::Record->save(
-      $delivery_order,
-      with_validity_token => {
-        scope => SL::DB::ValidityToken::SCOPE_ORDER_SAVE(),
-        token => delete $::form->{form_validity_token}
-      },
-    );
-
-    $delivery_order = SL::Controller::DeliveryOrder::_add_default_transfer_to_delivery_order(
-      $delivery_order
-    );
-
-    # save created delivery_order_stock_entries
-    # they will be used in _do_stock_transfer
-    $delivery_order->save(cascade => 1);
-
-    $delivery_order = SL::Controller::DeliveryOrder::_do_stock_transfer(
-      $delivery_order, 'out', 1
-    );
-
-    my $invoice = SL::Model::Record->new_from_workflow(
-      $delivery_order,
-      INVOICE_TYPE()
-    );
-
-    $invoice->post();
-
-    if ($cash_amount) {
-      $invoice->pay_invoice(
-        chart_id  => $point_of_sale->cash_chart_id,
-        amount    => $cash_amount,
-        transdate => DateTime->now->to_kivitendo,
-        source    => t8('POS cash payment'),
-        memo      => $point_of_sale->name,
-      );
-    }
-
-    if ($terminal_amount) {
-      $invoice->pay_invoice(
-        chart_id  => $point_of_sale->ec_terminal->transfer_chart_id,
-        amount    => $terminal_amount,
-        transdate => DateTime->now->to_kivitendo,
-        source    => t8('POS terminal payment'),
-        memo      => $point_of_sale->ec_terminal->name,
-      );
-    }
-
-    # TODO: TSE
-
-    1;
-  }) || do {
-    die t8("Creating receipt failed: #1", SL::DB->client->error);
-  };
-
+  my $invoice = SL::POS::pay_order_with_amounts($point_of_sale, $tse_device, $transaction_number, $order, $validity_token, $cash_amount, $terminal_amount);
 
   # TODO: Print receipt
+  # my $receipt_data = SL::POSReceipt::load_receipt_by_ar_id($invoice->id);
 
   return $self->js
     ->run(
