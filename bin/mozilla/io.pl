@@ -71,6 +71,7 @@ use SL::Helper::CreatePDF;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::UserPreferences::DisplayPreferences;
 
 require "bin/mozilla/common.pl";
 
@@ -331,7 +332,7 @@ sub display_row {
     $column_data{description} = (($rows > 1) # if description is too large, use a textbox instead
                                 ? $cgi->textarea( -name => "description_$i", -id => "description_$i", -default => $form->{"description_$i"}, -rows => $rows, -columns => 30)
                                 : $cgi->textfield(-name => "description_$i", -id => "description_$i",   -value => $form->{"description_$i"}, -size => 30));
-    if ($myconfig{show_longdescription_always}) {
+    if (SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always()) {
       $column_data{description} .= '<br />'.$cgi->textarea(-name    => "longdescription_$i",
                                                            -id      => "longdescription_$i",
                                                            -default => $form->{"longdescription_$i"},
@@ -590,7 +591,7 @@ sub display_row {
       push @hidden_vars, qw(delivery_order_items_id converted_from_orderitems_id converted_from_delivery_order_items_id has_sernumber);
     }
 
-    if (!$myconfig{show_longdescription_always}) {
+    if (!SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always()) {
       push @hidden_vars, 'longdescription';
     }
 

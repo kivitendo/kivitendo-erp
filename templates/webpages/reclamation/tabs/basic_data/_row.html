@@ -64,7 +64,7 @@
                      ITEM.description,
                      size='40',
                      style='width: 300px') %]
-      [%- IF MYCONFIG.show_longdescription_always %]
+      [%- IF show_longdescription_always %]
         [% L.textarea_tag("reclamation.reclamation_items[].longdescription",
                           ITEM.longdescription,
                           size='40',

@@ -52,7 +52,7 @@
                      ITEM.description,
                      size='40',
                      class='wi-lightwide') %]
-      [%- IF MYCONFIG.show_longdescription_always %]
+      [%- IF show_longdescription_always %]
         [% L.textarea_tag("order.orderitems[].longdescription",
                           ITEM.longdescription,
                           class='texteditor texteditor-resize-height-to-content wi-wider') %]

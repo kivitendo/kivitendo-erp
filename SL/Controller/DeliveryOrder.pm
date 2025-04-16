@@ -1115,7 +1115,7 @@ sub action_update_row_from_master_data {
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
 
-    if ($::myconfig{show_longdescription_always}) {
+    if (SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always()) {
       $self->js->run('kivi.DeliveryOrder.longdescription_trigger_change', $item_id);
     }
 
@@ -1988,6 +1988,7 @@ sub pre_render {
 
   $self->{template_args}{in_out}                                 = $self->type_data->properties("transfer");
   $self->{template_args}{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+  $self->{template_args}->{show_longdescription_always}          = SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always();
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 

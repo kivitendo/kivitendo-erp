@@ -1354,7 +1354,7 @@ sub action_update_row_from_master_data {
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].description"]', $item->description)
       ->val ('.row_entry:has(#item_' . $item_id . ') [name = "order.orderitems[].longdescription"]', $item->longdescription);
 
-    if ($::myconfig{show_longdescription_always}) {
+    if (SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always()) {
       $self->js->run('kivi.Order.longdescription_trigger_change', $item_id);
     }
 
@@ -2293,6 +2293,7 @@ sub pre_render {
     $self->{template_args}->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
   }
   $self->{template_args}->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+  $self->{template_args}->{show_longdescription_always}            = SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always();
   $self->{template_args}->{order_item_input_position} = SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
                                                       // $::instance_conf->get_order_item_input_position;
 

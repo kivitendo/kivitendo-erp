@@ -34,6 +34,7 @@ use SL::DB::Helper::Record qw(get_object_name_from_type get_class_from_type);
 
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
+use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
 
@@ -992,7 +993,7 @@ sub action_update_row_from_master_data {
              . ') [name = "reclamation.reclamation_items[].longdescription"]',
              $item->longdescription);
 
-    if ($::myconfig{show_longdescription_always}) {
+    if (SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always()) {
       $self->js->run('kivi.Reclamation.longdescription_trigger_change', $item_id);
     }
 
@@ -1663,6 +1664,8 @@ sub pre_render {
                                                     link => File::Spec->catfile($_->full_filedescriptor),
                                                 } } @all_objects;
   }
+
+  $self->{template_args}->{show_longdescription_always} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_show_longdescription_always();
 
   $self->get_item_cvpartnumber($_) for @{$self->reclamation->items_sorted};
 
