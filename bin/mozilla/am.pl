@@ -665,6 +665,7 @@ sub config {
   $form->{positions_show_update_button}           = AM->positions_show_update_button();
   $form->{time_recording_use_duration}            = AM->time_recording_use_duration();
   $form->{longdescription_dialog_size_percentage} = AM->longdescription_dialog_size_percentage();
+  $form->{show_longdescription_always}            = AM->show_longdescription_always();
   $form->{layout_style}                           = AM->layout_style();
   $form->{part_picker_search_all_as_list_default} = AM->part_picker_search_all_as_list_default();
   $form->{order_item_input_position}              = AM->order_item_input_position();

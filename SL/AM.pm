@@ -562,6 +562,10 @@ sub longdescription_dialog_size_percentage {
   SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
 }
 
+sub show_longdescription_always {
+  SL::Helper::UserPreferences::DisplayPreferences->new()->get_user_show_longdescription_always();
+}
+
 sub layout_style {
   SL::Helper::UserPreferences::DisplayPreferences->new()->get_layout_style();
 }
@@ -616,6 +620,9 @@ sub save_preferences {
   }
   if (exists $form->{longdescription_dialog_size_percentage}) {
     SL::Helper::UserPreferences::DisplayPreferences->new()->store_longdescription_dialog_size_percentage($form->{longdescription_dialog_size_percentage})
+  }
+  if (exists $form->{show_longdescription_always}) {
+    SL::Helper::UserPreferences::DisplayPreferences->new()->store_user_show_longdescription_always($form->{show_longdescription_always})
   }
   if (exists $form->{layout_style}) {
     SL::Helper::UserPreferences::DisplayPreferences->new()->store_layout_style($form->{layout_style})

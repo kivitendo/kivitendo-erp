@@ -220,7 +220,7 @@
      <tr>
       <th align="right">[% 'Always show longdescription in record positions' | $T8 %]</th>
       <td>
-        [% L.yes_no_tag('show_longdescription_always', MYCONFIG.show_longdescription_always) %]
+        [% L.select_tag('show_longdescription_always', [ [ 'default', LxERP.t8('Use settings from client configuration') ], [ 0, LxERP.t8('No') ], [ 1, LxERP.t8('Yes') ] ], default=show_longdescription_always) %]
       </td>
      </tr>
 
