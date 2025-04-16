@@ -21,6 +21,7 @@ __PACKAGE__->meta->columns(
   name                      => { type => 'text', not_null => 1 },
   project_id                => { type => 'integer', not_null => 1 },
   receipt_printer_id        => { type => 'integer', not_null => 1 },
+  serial_number             => { type => 'text', not_null => 1 },
   tse_terminal_id           => { type => 'integer', not_null => 1 },
 );
 
