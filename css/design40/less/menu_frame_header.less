@@ -15,132 +15,93 @@
 // CONTENTS:
 // - FRAME-HEADER
 // - FRAME-HEADER-ELEMENTS (Links left & right)
-// - AJAX-SPINNER (Beach Ball)
 // - QUICK-SEARCH
+// - AJAX-SPINNER (Beach Ball)
 // ----------------------------------------------------------------------------
 
 
 #frame-header {
+  background-color: @dashbrd_bg;
+  color: @dashbrd_text;
 
-    text-align: left;
-    margin: 0;
-    padding: 0.2em 0.6em;
-    border: 0;
-    overflow: hidden;
-    height: 28px;
-    width: 100%;
-    display: table-cell;
-    vertical-align: middle;
-    border-spacing: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    background-color: @dashbrd_bg;
-    line-height: 100%;
-    font-size: @font-size-smaller ;
+// --------------------------------------
+// FRAME-HEADER-ELEMENTS (Left & Right)
+// --------------------------------------
 
-    + div {
-        // see main.less
+// these are boxes containing icons and text on the left and right
+.frame-header-element {
+  display: flex;
+  gap: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+
+  span {
+    a {
+      // this centers the icon element in the link vertically
+      display: flex;
     }
+  }
+}
+
+// container for the name of the client
+// added a box to center the text vertically
+.frame-header-client-box {
+  display: flex;
+  align-items: center;
+}
+.client {
+  text-transform: uppercase;
+  text-wrap: nowrap;
+  font-size: @font-size-larger;
+  // set height for vertical centering
+  height: @font-size-larger;
+}
+
+// --------------------------------------
+// QUICK-SEARCH
+// --------------------------------------
+
+// NOTE: div needed here because the same class name is used for the span below
+div.frame-header-quicksearch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 5px;
+  // limit maximum height and make input fields scrollable if needed
+  // TODO: later this can be adapted so that the input fields wrap on a narrower
+  // screen (up to 1 or 2 lines/rows), but for this to work more changes in the
+  // underlying less/CSS are required so that the content below can shift down
+  // dynamically, currently these heights are hard coded
+  max-height: 35px;
+  overflow-y: scroll;
+}
+
+span.frame-header-quicksearch input {
+  min-width: 5em;
+  max-width: 7em;
+  // NOTE: set the font size explicitly here otherwise the browser renders
+  // it as 13.3333px, despite inheriting 14px
+  font-size: @font-size-base;
+  background-color: @dashbrd_input_bg;
+}
 
 
-    // --------------------------------------
-    // FRAME-HEADER-ELEMENTS (Left & Right)
-    // --------------------------------------
+// --------------------------------------
+// AJAX-SPINNER (Beach Ball)
+// --------------------------------------
 
-    span.frame-header-element {
-        color: @dashbrd_text ;
-        padding-top: 0.2em;
+.frame-header-spinner-box {
+  // this is used as a place holder in order to avoid content shift when
+  // the spinner is displayed and hidden
+  width: 16px;
+}
 
-        a:link,
-        a:visited,
-        a:hover,
-        a:active {
-            text-decoration: none;
-            border-bottom: none;
-            color: @dashbrd_link ;
-        }
-
-        a:hover{
-            color: @dashbrd_link_hover ;
-            text-decoration: @dashbrd_link_deco; /*underline*/
-        }
-        span.client{
-          text-transform: uppercase ;
-          font-size: 130% ;
-        }
-    } // /span.frame-header-element
-
-
-    span.frame-header-left,
-    span.frame-header-center,
-    span.frame-header-right    {
-        border-spacing: 0;
-        padding: 0;
-        vertical-align: middle;
-        height: 100%;
-        display: table-row;
-
-        & > span {
-          height: 24px;
-          margin: 0 10px;
-          display: table-cell ;
-          vertical-align: middle;
-        }
-    }
-
-    span.frame-header-left {
-        float: left;
-        padding: 0 1.0em 0 0.2em ;
-        margin-right: 1.0em ;
-        & > span { padding-right: 1.0em ; }
-    }
-    span.frame-header-right {
-        float: right;
-        vertical-align: middle;
-        padding: 0 1.2em 0 1.0em ;
-        margin-left: 1.0em;
-        & > span { padding-left: 1.0em ; }
-    }
-
-
-
-    // --------------------------------------
-    // AJAX-SPINNER (Beach Ball)
-    // --------------------------------------
-
-    #ajax-spinner {
-      display: none;
-    }
-
-
-
-    // --------------------------------------
-    // QUICK-SEARCH
-    // --------------------------------------
-
-    div.frame-header-quicksearch{
-      display: block;
-      overflow: hidden;
-      margin: 0.1em auto 0 auto;
-      text-align: center;
-      width: auto;
-
-      span.frame-header-quicksearch input {
-        font-size: @font-size-smaller;
-        //font-family: @font-family-sans-serif ;
-        margin-top: 0.1em;
-        background-color: @dashbrd_input_bg ;
-        width: auto !important;
-        min-width: 5em;
-        max-width: 7em;
-        padding: 0 0.2em ;
-        border-width: 1px ;
-        //border-color: #bcbcbc;
-        border-style: solid;
-        border-top-color: #949494;
-        border-right-color: #BCBCBC;
-        border-bottom-color: #BCBCBC;
-        border-left-color: #949494;
-      }
-    } // /div.frame-header-quicksearch
-
-} /* /#frame-header  */
+#ajax-spinner {
+  display: none;
+}
