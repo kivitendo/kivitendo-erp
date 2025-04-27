@@ -1,0 +1,9 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE P %]
+
+<h1>[% 'Select Stock Counting' | $T8 %]</h1>
+
+<form method="post" id="count_form" action="controller.pl">
+  [% P.select_tag('stock_counting_item.counting_id', SELF.countings, title_key='name') %]
+</form>

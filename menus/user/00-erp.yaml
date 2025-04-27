@@ -556,6 +556,20 @@
   params:
     action: Inventory/stocktaking
 - parent: warehouse
+  id: warehouse_stock_counting
+  name: Stock Counting
+  order: 470
+  access: warehouse_management
+  params:
+    action: StockCounting/select_counting
+- parent: warehouse
+  id: warehouse_stock_counting_reconciliation
+  name: Stock Counting Reconciliations
+  order: 480
+  access: warehouse_management
+  params:
+    action: StockCountingReconciliation/list
+- parent: warehouse
   id: warehouse_reports
   name: Reports
   order: 500
@@ -590,6 +604,14 @@
   access: warehouse_contents | warehouse_management
   params:
     action: Inventory/stocktaking_journal
+- parent: warehouse_reports
+  id: warehouse_stock_counting_items
+  name: Stock Counting Items
+  order: 500
+  access: warehouse_management
+  params:
+    action: StockCounting/list
+    group_counting_items: 1
 - id: general_ledger
   name: General Ledger
   icon: gl
@@ -1359,6 +1381,13 @@
   params:
     action: list_warehouses
 - parent: system
+  id: system_stock_countings
+  name: Stock Countings
+  order: 2320
+  params:
+    action: SimpleSystemSetting/list
+    type: stock_counting
+- parent: system
   id: system_shops
   name: Web shops
   order: 2350
@@ -1624,6 +1653,13 @@
   order: 400
   params:
     action: Project/test_page
+- parent: develop
+  id: warehouse_test
+  name: Warehouse Test
+  access: developer
+  order: 430
+  params:
+    action: Warehouse/test_page
 - parent: develop
   id: ckeditor_test
   name: CKEditor5 Test
