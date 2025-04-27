@@ -1,0 +1,10 @@
+[% USE L %]
+
+[% BLOCK filter_toggle_panel %]
+[%- FILTER_HTML %]
+[% END %]
+
+<div class="wrapper">
+  [% SET display_status = 'open' %]
+  [% INCLUDE 'common/toggle_panel.html' %]
+</div><!-- /.wrapper -->
