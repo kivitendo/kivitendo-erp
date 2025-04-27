@@ -36,6 +36,7 @@
 package AP;
 
 use SL::DATEV qw(:CONSTANTS);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
@@ -48,6 +49,8 @@ use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
 use SL::Util qw(trim);
 use SL::DB;
+use SL::XMLInvoice;
+use SL::Locale::String qw(t8);
 use Data::Dumper;
 use List::Util qw(sum0);
 use strict;
@@ -61,6 +64,225 @@ sub post_transaction {
 
   $::lxdebug->leave_sub;
   return $rc;
+}
+
+sub post_save_metadata {
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $rc = SL::DB->client->with_transaction(\&_post_save_metadata, $self, $myconfig, $form, $provided_dbh, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+# Save all metadata items
+sub _post_save_metadata {
+  $main::lxdebug->enter_sub();
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+  my ($query, @values, $invoices, @processed_invoice_ids, $i);
+
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
+
+  $query = qq|
+    SELECT * from acc_trans
+    WHERE (trans_id = $form->{id}) and (chart_link not like 'AP_tax%')
+    ORDER BY acc_trans_id
+    LIMIT $form->{rowcount};
+    |;
+
+  my $sth = prepare_execute_query($form, $dbh, $query);
+
+  if ( $sth->rows != $form->{rowcount} ) {
+      SL::Helper::Flash::flash(t8("Form row count ($form->{rowcount}) does not match query row count ($sth->rowcount), not saving metadata.", $i));
+  }
+
+  $i=1;
+  while ( my $ref = $sth->fetchrow_hashref("NAME_lc") ) {
+    my %params_row = %params;
+    $params_row{'acc_trans_id'} = $ref->{"acc_trans_id"};
+    $params_row{'row'} = $i;
+
+    my $rc = SL::DB->client->with_transaction(\&_save_metadata_item, $self, $myconfig, $form, $provided_dbh, %params_row);
+    push @processed_invoice_ids, $form->{"invoice_id_$i"};
+    $i++;
+  }
+
+
+  # search for orphaned invoice items
+  unless ( scalar @processed_invoice_ids == 0 ) {
+    $query  = sprintf 'SELECT id FROM invoice WHERE trans_id = ? AND NOT id IN (%s)', join ', ', ("?") x scalar @processed_invoice_ids;
+    @values = (conv_i($form->{id}), map { conv_i($_) } @processed_invoice_ids);
+    my @orphaned_ids = map { $_->{id} } selectall_hashref_query($form, $dbh, $query, @values);
+    if (scalar @orphaned_ids) {
+      # clean up invoice items
+      $query  = sprintf 'DELETE FROM invoice WHERE id IN (%s)', join ', ', ("?") x scalar @orphaned_ids;
+      do_query($form, $dbh, $query, @orphaned_ids);
+    }
+  }
+
+  $main::lxdebug->leave_sub();
+}
+
+# Save a single metadata item
+sub _save_metadata_item {
+  $main::lxdebug->enter_sub();
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+  my $acc_trans_id = defined $params{'acc_trans_id'} ? $params{'acc_trans_id'} : undef;
+  my $i = $params{'row'};
+
+  my ($invoice, $query, $parts_id, $vendor_partno, @values);
+
+  # Look the Invoice object up in case it exists already
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
+  $invoice = SL::DB::Manager::InvoiceItem->get_first(
+    where => [
+       trans_id => conv_i($form->{id}),
+       position => $i
+     ]
+  );
+  $form->{"invoice_id_$i"} = ref $invoice eq 'SL::DB::InvoiceItem' ? $invoice->{id} : undef;
+
+  if ( (!$form->{"invoice_id_$i"}) and  (!$params{'acc_trans_id'}) ) {
+     SL::Helper::Flash::flash(t8("No existing invoice item found for row #1 and no acc_trans_id provided. Cannot create invoice item without acc_trans_id.", $i));
+  }
+
+  # create detail record in invoice table
+  if (!$form->{"invoice_id_$i"}) {
+    # there is no persistent id, therefore create one with all necessary constraints
+    my $q_invoice_id = qq|SELECT nextval('invoiceid')|;
+    my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
+    do_statement($form, $h_invoice_id, $q_invoice_id);
+    $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
+    my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, acc_trans_id,  position) values (?, ?, ?, ?)|;
+    do_query($form, $dbh, $q_create_invoice_id,
+             conv_i($form->{"invoice_id_$i"}),
+             conv_i($form->{id}), $acc_trans_id,
+             conv_i($i));
+    $h_invoice_id->finish();
+  }
+
+  # Try to look up internal article number if a vendor part number exists
+  if ( $form->{"vendor_partno_$i"} ) {
+    my $makemodel = SL::DB::Manager::MakeModel->get_first(
+      where => [
+         make => conv_i($form->{vendor_id}),
+         model => $form->{"vendor_partno_$i"}
+       ]
+    );
+    $parts_id = ref $makemodel eq 'SL::DB::MakeModel' ? $makemodel->{parts_id} : undef;
+  }
+
+  $query = <<SQL;
+    UPDATE invoice SET parts_id = ?, description = ?, qty = ?,
+                       vendor_partno = ?, project_id = ?
+    WHERE id = ?
+SQL
+
+  @values = ($parts_id,
+             $form->{"description_$i"}, $form->{"quantity_$i"} * 1,
+             $form->{"vendor_partno_$i"},
+             conv_i($form->{"project_id_$i"}),
+             conv_i($form->{"invoice_id_$i"}));
+  do_query($form, $dbh, $query, @values);
+
+  $main::lxdebug->leave_sub();
+  return unless $i;
+}
+
+sub post_update_zugferd {
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+  $main::lxdebug->enter_sub();
+
+  my $rc = SL::DB->client->with_transaction(\&_post_update_zugferd, $self, $myconfig, $form, $provided_dbh, %params);
+
+  $::lxdebug->leave_sub;
+  return $rc;
+}
+
+sub _post_update_zugferd {
+  $main::lxdebug->enter_sub();
+  my ($self, $myconfig, $form, $provided_dbh, %params) = @_;
+  my $dbh = $provided_dbh || SL::DB->client->dbh;
+  my $data;
+  my %res;
+  my @items;
+
+  foreach my $file ( SL::File->get_all(object_type => "purchase_invoice", object_id => $form->{"id"}) ) {
+    my $filename = $file->file_name;
+
+
+    if ( $filename =~ m/pdf$/i ) {
+      %res = %{SL::ZUGFeRD->extract_from_pdf($file->get_file)};
+    } elsif ( $filename =~ m/xml$/i ){
+      %res = %{SL::ZUGFeRD->extract_from_xml($file->get_content)};
+    }
+
+
+    # first parseable XML bill wins if there are multiple attachments
+    last if (defined $res{'result'}) and ($res{'result'} == SL::ZUGFeRD::RES_OK());
+  }
+
+  # no useable XML payload attach to invoice
+  return if ( (!defined $res{'result'}) or ($res{'result'} != SL::ZUGFeRD::RES_OK()) );
+
+  $data = $res{'invoice_xml'};
+  @items = @{$data->items};
+
+  # sanity check: make sure the number of rows lines up
+  return if ( (scalar @items) != ($form->{rowcount} - 1) );
+
+  for my $i (0 .. $form->{rowcount} - 2) {
+    my $j = $i+1;
+    $form->{"description_$j"} = $items[$i]{'description'};
+    $form->{"quantity_$j"} =  conv_i($items[$i]{'quantity'});
+    $form->{"vendor_partno_$j"} = $items[$i]{'vendor_partno'};
+  }
+
+  $::lxdebug->leave_sub;
+}
+
+
+sub load_metadata {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database
+  my $dbh = SL::DB->client->dbh;
+
+  # retrieve invoice
+  my $query = qq|SELECT position, parts_id, vendor_partno, description, qty
+              FROM invoice
+              WHERE trans_id = ?
+              ORDER BY position;|;
+
+  my $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id"}));
+
+  my $i=1;
+  while ( my $ref = $sth->fetchrow_hashref("NAME_lc") ) {
+    # pretty print internal part number
+    if ( $ref->{"parts_id"} ) {
+      my $part = SL::DB::Manager::Part->get_first(
+        where => [ id => $ref->{"parts_id"} ]
+      );
+      if ( ref $part eq "SL::DB::Part" ) {
+        $form->{"partno_$i"} = $part->{partnumber};
+        $form->{"parts_id_$i"} = $part->{id};
+      } else {
+        $form->{"partno_$i"} = undef;
+      }
+    }
+    $form->{"description_$i"} = $ref->{description};
+    $form->{"quantity_$i"} = $ref->{qty};
+    $form->{"vendor_partno_$i"} = $ref->{vendor_partno};
+
+    $i++;
+  }
+
+  $sth->finish();
+
+  $main::lxdebug->leave_sub();
 }
 
 sub _post_transaction {
@@ -211,20 +433,28 @@ sub _post_transaction {
 
     # add individual transactions
     for my $i (1 .. $form->{rowcount}) {
+      my $position = $i;
+
       if ($form->{"amount_$i"} != 0) {
-        my $project_id;
+        my ($project_id, $new_acc_trans, %params_row);
+        %params_row = %params;
+
+        $params_row{'row'} = $i;
+
         $project_id = conv_i($form->{"project_id_$i"});
 
         # insert detail records in acc_trans
-        $query =
-          qq|INSERT INTO acc_trans | .
-          qq|  (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)| .
-          qq|VALUES (?, ?,   ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
-        @values = ($form->{id}, $form->{"AP_amount_chart_id_$i"},
-                   $form->{"amount_$i"}, conv_date($form->{transdate}),
-                   $project_id, $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
-                   $form->{"AP_amount_chart_id_$i"});
-        do_query($form, $dbh, $query, @values);
+        $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $form->{id},
+                                             chart_id   => $form->{"AP_amount_chart_id_$i"},
+                                             chart_link => $form->{"AP_amount_chart_id_$i"},
+                                             amount     => $form->{"amount_$i"},
+                                             transdate  => conv_date($form->{transdate}),
+                                             project_id => $project_id,
+                                             taxkey     => $form->{"taxkey_$i"},
+                                             tax_id     => conv_i($form->{"tax_id_$i"}))->save;
+        $params_row{'acc_trans_id'} = $new_acc_trans->{'acc_trans_id'};
+
+        my $rc = SL::DB->client->with_transaction(\&_save_metadata_item, $self, $myconfig, $form, $provided_dbh, %params_row);
 
         if ($form->{"tax_$i"} != 0 && !$form->{"reverse_charge_$i"}) {
           # insert detail records in acc_trans

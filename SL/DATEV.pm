@@ -555,7 +555,8 @@ sub generate_datev_data {
          ar.department_id,
          ar.notes,
          project.projectnumber as projectnumber, project.description as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description as ivdescription, iv.qty as ivqty
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
@@ -564,6 +565,7 @@ sub generate_datev_data {
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = ar.department_id)
        LEFT JOIN project     ON (project.id     = ar.globalproject_id)
+       LEFT JOIN invoice iv  ON (iv.acc_trans_id = ac.acc_trans_id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -584,7 +586,8 @@ sub generate_datev_data {
          ap.department_id,
          ap.notes,
          project.projectnumber as projectnumber, project.description as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description, iv.qty
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
@@ -593,6 +596,7 @@ sub generate_datev_data {
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = ap.department_id)
        LEFT JOIN project     ON (project.id     = ap.globalproject_id)
+       LEFT JOIN invoice iv  ON (iv.acc_trans_id  = ac.acc_trans_id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -613,13 +617,15 @@ sub generate_datev_data {
          gl.department_id,
          gl.notes,
          '' as projectnumber, '' as projectdescription,
-         department.description as departmentdescription
+         department.description as departmentdescription,
+         iv.description, iv.qty
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
        LEFT JOIN tax t   ON (ac.tax_id    = t.id)
        LEFT JOIN chart tc    ON (t.chart_id     = tc.id)
        LEFT JOIN department  ON (department.id  = gl.department_id)
+       LEFT JOIN invoice iv ON (iv.acc_trans_id  = ac.acc_trans_id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -902,6 +908,7 @@ sub generate_datev_lines {
     my $datevautomatik = 0;
     my $taxkey         = 0;
     my $charttax       = 0;
+    my $shortname      = "";
     my $ustid          ="";
     my ($haben, $soll);
     for (my $i = 0; $i < $trans_lines; $i++) {
@@ -929,6 +936,23 @@ sub generate_datev_lines {
       } else {
         $soll = $i;
       }
+      if ($transaction->[$i]->{'ivdescription'}) {
+        $datev_data{description} = $transaction->[$i]->{'ivdescription'};
+      }
+      if ($transaction->[$i]->{'ivqty'}) {
+        $datev_data{quantity} = $transaction->[$i]->{'ivqty'};
+      }
+      if ($transaction->[$i]->{'vendor_id'}) {
+        my $res = SL::DB::Manager::Vendor->get_first(
+          where => [id => $transaction->[$i]->{'vendor_id'}]
+        );
+        $shortname = ref $res eq 'SL::DB::Vendor' ? $res->shortname : "";
+      } elsif ($transaction->[$i]->{'customer_id'}) {
+          my $res = SL::DB::Manager::Customer->get_first(
+            where => [id => $transaction->[$i]->{'customer_id'}]
+          );
+        $shortname = ref $res eq 'SL::DB::Customer' ? $res->shortname : "";
+      }
     }
 
     if ($trans_lines >= 2) {
@@ -944,9 +968,28 @@ sub generate_datev_lines {
       $datev_data{kost1} = $transaction->[$haben]->{'departmentdescription'};
       $datev_data{kost2} = $transaction->[$haben]->{'projectdescription'};
 
-      if ($transaction->[$haben]->{'name'} ne "") {
-        $datev_data{buchungstext} = $transaction->[$haben]->{'name'};
+      if ( ($transaction->[$haben]->{'name'} ne "") or ($shortname ne "") ) {
+        $buchungstext = $shortname ? $shortname : $transaction->[$haben]->{'name'};
+        $buchungstext =~ s/\s*$//g;
+
+        if ( $datev_data{'description'} ) {
+          my $len = 60;
+
+          # Enforce length constraint on vendor/customer name
+          $buchungstext = (length($buchungstext) > 20) ? substr($buchungstext, 0, 19) : $buchungstext;
+
+          $buchungstext .= "|" ;
+          if ( $datev_data{quantity} and $datev_data{quantity} != 1 ) {
+            $buchungstext .= sprintf("%g", $datev_data{quantity});
+          }
+          $buchungstext .= "|" ;
+          $len = $len - length($buchungstext);
+          $buchungstext .= substr($datev_data{description}, 0, $len-1);
+        }
+
+        $datev_data{buchungstext} = $buchungstext;
       }
+
       if (($transaction->[$haben]->{'ustid'} // '') ne "") {
         $datev_data{ustid} = SL::VATIDNr->normalize($transaction->[$haben]->{'ustid'});
       }

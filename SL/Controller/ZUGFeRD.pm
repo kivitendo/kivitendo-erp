@@ -276,6 +276,9 @@ sub build_ap_transaction_form_defaults {
     $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
     $item_form{"amount_${row}"}                      = $net_total;
     $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+    $item_form{"description_${row}"}                 = $item{'description'};
+    $item_form{"quantity_${row}"}                    = $item{'quantity'};
+    $item_form{"vendor_partno_${row}"}               = $item{'vendor_partno'};
   }
   $item_form{rowcount} = $row;
 
