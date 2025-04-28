@@ -12,12 +12,25 @@ sub handle {
   my ($http_auth_login,     $http_auth_password) = $self->_parse_http_basic_auth;
   my ($http_headers_client, $http_headers_login) = $self->_parse_http_headers_auth;
 
-  my $login = $::form->{'{AUTH}login'} // $http_auth_login // $http_headers_login // $::auth->get_session_value('login');
+  my ($login, $password, $client_id);
+  ($login, $password, $client_id) = ($http_auth_login, $http_auth_password, $::auth->get_default_client_id) if $http_auth_login;
+  ($login, $password, $client_id) = ($http_headers_login, \'dummy!', $http_headers_client)                  if !$login && $http_headers_login; # ') make emacs happy
+  ($login, $password, $client_id) = ($param{login}, $param{password}, $param{client_id})                    if !$login && defined $param{login};
+
+  my $session_login     = $::auth->get_session_value('login');
+  my $session_client_id = $::auth->get_session_value('client_id');
+  my $session_mismatch   = defined $login     && $session_login     && ($login     ne $session_login);
+  $session_mismatch    ||= defined $client_id && $session_client_id && ($client_id ne $session_client_id);
+
+  if ($session_mismatch) {
+    $::auth->destroy_session;
+    $::auth->create_or_refresh_session;
+    return $self->_error(%param);
+  }
+
+  ($login, $password, $client_id) = ($session_login, undef, $session_client_id) if !$login;
 
   return $self->_error(%param) if !defined $login;
-
-  my $client_id = $::form->{'{AUTH}client_id'} // $http_headers_client // $::auth->get_session_value('client_id') // $::auth->get_default_client_id;
-
   return $self->_error(%param) if !$client_id || !$::auth->set_client($client_id);
 
   %::myconfig = User->get_default_myconfig($::auth->read_user(login => $login));
@@ -35,10 +48,7 @@ sub handle {
     : SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
   my $ok   =  $::auth->is_api_token_cookie_valid;
-  $ok    ||=                            $http_headers_login && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, \'dummy!'));
-  $ok    ||=  $::form->{'{AUTH}login'}                      && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $::form->{'{AUTH}password'}));
-  $ok    ||= !$::form->{'{AUTH}login'} &&  $http_auth_login && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $http_auth_password));
-  $ok    ||= !$::form->{'{AUTH}login'} && !$http_auth_login && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, undef));
+  $ok    ||=  SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $password);
 
   return $self->_error(%param) if !$ok;
 
