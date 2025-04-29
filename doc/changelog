@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2025-03-28 - Release 3.9.2 beta
+2025-04-29 - Release 3.9.2
 
 Größere neue Features:
 
@@ -127,6 +127,7 @@ Kleinere neue Features und Detailverbesserungen:
 745	Filter bei Zeiterfassung in erp-yaml vorkonfigurieren
 753	Design4.0: Verlauf der Hintergrund-Job-Ausführungen anzeigen, pre Fehlermeldung läuft über
 754	CSV-Import: bei Multiplex-Importen wird das Datumsformat ignoriert
+758	Reklamation: Aktualisieren aus Stammdaten geht nicht
 
 
 
