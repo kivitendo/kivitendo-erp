@@ -3,6 +3,11 @@
 [%- USE LxERP %]
 [%- USE L %][%- USE P -%]
   <tr>
+    <td>
+      [%- P.button_tag('kivi.SalesPurchase.delete_positions()', LxERP.t8('Delete marked positions')) %]
+    </td>
+  </tr>
+  <tr>
    <td>
     <table width="100%">
      <tr valign="bottom">
