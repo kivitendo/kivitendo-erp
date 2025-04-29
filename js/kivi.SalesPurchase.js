@@ -382,4 +382,18 @@ namespace('kivi.SalesPurchase', function(ns) {
       }
     });
   };
+
+  this.delete_positions = function() {
+    let running_numbers = $('.deletion_checkbox:checked').map(function() {return this.value;}).get();
+
+    if (running_numbers.length == 0) {
+      return;
+    }
+
+    running_numbers.forEach(function(i) {
+      $('#partnumber_' + i).val('');
+    });
+
+    $('#update_button').click();
+  };
 });
