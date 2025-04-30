@@ -1205,7 +1205,7 @@ sub action_transfer_stock_default {
       'delivery_order_item_id' => $item->id,
       'warehouse_id'           => $part->warehouse_id || $default_warehouse_id,
       'bin_id'                 => $part->bin_id       || $default_bin_id,
-      'unit'                   => $part->unit,
+      'unit'                   => $item->unit,
       'qty'                    => $qty,
       # added in check transfer_request out direction if possible
       'chargenumber'           => undef, # $item->serialnumber, # Is not used in delivery order
