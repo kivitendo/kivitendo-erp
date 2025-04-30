@@ -1282,7 +1282,6 @@ sub action_transfer_stock_default {
 
     $parts_qty{$part->id} += $qty if $qty;
     push @transfer_requests, {
-      'delivery_order_item' => $item,
       'warehouse_id'        => $part->warehouse_id || $default_warehouse_id,
       'bin_id'              => $part->bin_id       || $default_bin_id,
       'unit'                => $item->unit,
@@ -1342,10 +1341,13 @@ sub action_transfer_stock_default {
       # entsprechende defaults holen
       # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
       # lagerplatz wegbuchen!
-      foreach (@transfer_requests) {
-        if ($_->{delivery_order_item}->parts_id eq $part_id){
-          $_->{bin_id}        = $default_bin_id_ignore_onhand;
-          $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
+      for my $idx (0 .. scalar @transfer_requests - 1) {
+        my $transfer_request = $transfer_requests[$idx];
+        next unless $transfer_request->{qty}; # empty request
+
+        if ($items[$idx]->parts_id eq $part_id){
+          $transfer_request->{bin_id}        = $default_bin_id_ignore_onhand;
+          $transfer_request->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
         }
       }
       delete %parts_errors{$part_id};
