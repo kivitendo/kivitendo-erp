@@ -2242,11 +2242,6 @@ sub generate_pdf {
 
   my @errors = ();
 
-  foreach my $item (@{ $order->items }) {
-    my $part = SL::DB::Part->load_cached($item->parts_id);
-    $item->part($part);
-  }
-
   my $print_form = Form->new('');
   $print_form->{type}        = $order->type;
   $print_form->{formname}    = $params->{formname} || $order->type;

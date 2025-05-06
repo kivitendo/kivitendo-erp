@@ -87,6 +87,8 @@ sub flatten_to_form {
   my $format_percent = $params{format_amounts} ? 3 : 0;
   my $format_noround = $params{format_amounts} ? 4 : 0;
   foreach my $item (@{ $self->items_sorted }) {
+    my $part = SL::DB::Part->load_cached($item->parts_id);
+    $item->part($part);
     next if _has($item, 'assemblyitem');
 
     $idx++;
