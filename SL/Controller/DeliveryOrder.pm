@@ -2243,7 +2243,7 @@ sub generate_pdf {
   my @errors = ();
 
   foreach my $item (@{ $order->items }) {
-    my $part = SL::DB::Manager::Part->find_by(id => $item->parts_id);
+    my $part = SL::DB::Part->load_cached($item->parts_id);
     $item->part($part);
   }
 
