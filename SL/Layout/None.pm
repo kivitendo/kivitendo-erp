@@ -32,6 +32,7 @@ sub static_javascripts {
     kivi.js
   ),
   'locale/'. $::myconfig{countrycode} .'.js',
+   $::lx_office_conf{devel}->{hot_reload} ? 'hotreload.js' : (),
 }
 
 sub static_stylesheets {

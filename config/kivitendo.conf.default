@@ -372,6 +372,13 @@ superuser_password =
 # database ID or its name.
 client =
 
+# Enable hot reloading. This injects client side javascript to allow for
+# automatic page reloads on changes.
+# For usage details see scripts/hotreload-server.js
+# This is meant to be used during local development only. Do not use in
+# production.
+hot_reload = 0
+
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
 # will be replaced by the file name configured for $::lxdebug.
