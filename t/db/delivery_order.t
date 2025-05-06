@@ -9,6 +9,7 @@ use Carp;
 use Data::Dumper;
 use Support::TestSetup;
 use Test::Exception;
+use Time::HiRes;
 
 use SL::DB::Order;
 use SL::DB::Customer;
@@ -49,10 +50,27 @@ is scalar @{ $supplier_delivery_order->items }, 0, "supplier delivery order igno
 is $supplier_delivery_order->vendor_id, $order1->vendor_id, "supplier delivery order keeps vendor";
 
 
-test_performance();
+test_performance(400);
+#my @timings;
+#my $runtime;
+#my $noitems;
+#$noitems = 400;
+#$runtime = clock (sub {test_performance($noitems);});
+#push @timings, [$noitems, $runtime];
+##$noitems = 4;
+##$runtime = clock (sub {test_performance($noitems);});
+##push @timings, [$noitems, $runtime];
+#$main::lxdebug->dump(0, 'timings', @timings);
+#
+#sub clock (&) {
+#  my $s = [Time::HiRes::gettimeofday()];
+#  $_[0]->();
+#  Time::HiRes::tv_interval($s);
+#}
 
 
 sub test_performance {
+  my ($noitems) = shift;
 
   #my $template = 'templates/' . ( +{ SL::Template->available_templates }->{print_templates}[0] );
   #$main::lxdebug->dump(0, 'templates', +{ SL::Template->available_templates });
@@ -63,15 +81,16 @@ sub test_performance {
   #diag('tem ', $::instance_conf->get_templates);
 
 
-  my $part1 = SL::Dev::Part::new_part(   partnumber => 'T4254')->save;
-  my $part2 = SL::Dev::Part::new_service(partnumber => 'Serv1')->save;
+  my @orderitems;
+  for (1..$noitems) {
+    my $part1 = SL::Dev::Part::new_part(partnumber => "T4254-$_")->save;
+    push @orderitems, SL::Dev::Record::create_order_item(part => $part1, qty => 3, sellprice => 70);
+  }
+
   my $order = SL::Dev::Record::create_sales_order(
       save         => 1,
       taxincluded  => 0,
-      orderitems => [
-      SL::Dev::Record::create_order_item(part => $part1, qty =>  3, sellprice => 70),
-      SL::Dev::Record::create_order_item(part => $part2, qty => 10, sellprice => 50),
-      ]
+      orderitems   => \@orderitems,
       );
 
   my $delivery_order = SL::DB::DeliveryOrder->new_from($order);
@@ -90,6 +109,8 @@ sub test_performance {
   my $docontroller = SL::Controller::DeliveryOrder->new;
   $docontroller->load_order;
   my $pdf;
+
+  my $tstart = [Time::HiRes::gettimeofday()];
   my @errors = SL::Controller::DeliveryOrder::generate_pdf($docontroller->order, \$pdf, {
       format => 'pdf',
       formname => 'sales_delivery_order',
@@ -97,6 +118,8 @@ sub test_performance {
 #printer_id => undef,
 #groupitems => 0,
       });
+  my $runtime = Time::HiRes::tv_interval($tstart);
+
   if (scalar @errors) {
     diag('Generating the document failed: ', $errors[0]);
   }
@@ -109,6 +132,9 @@ sub test_performance {
 
 #sleep(900);
 
+  open(MEAS, '>>', 'users/time-measurement-printing');
+  print MEAS "$noitems $runtime\n";
+  close(MEAS);
 }
 
 
