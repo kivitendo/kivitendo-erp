@@ -9411,24 +9411,8 @@ file_name = users/kivitendo-debug.log</programlisting>
 
         <para>
          Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
-         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
-         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
-         übergeben werden.
-        </para>
-      </sect2>
-
-      <sect2 id="dev-programmatic-api-calls.client_selection" xreflabel="Mandantenauswahl bei programmatischen API-Aufrufen">
-        <title>Wahl des Mandanten</title>
-
-        <para>
-         Der zu verwendende Mandant kann als Parameter <varname>{AUTH}client_id</varname> mit jedem Request mitgeschickt werden. Der Wert
-         muss dabei die Datenbank-ID des Mandanten sein. kivitendo prüft, ob der Account, der über die Authentifizierungsinformationen
-         übergeben wurde, Zugriff auf den angegebenen Mandanten hat.
-        </para>
-
-        <para>
-         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
-         keinen solchen, kommt es zu einer Fehlermeldung.
+         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es die HTTP-»Basic«-Authentifizierung.
+         Der zu verwendende Mandant ist der Standard-Mandant.
         </para>
       </sect2>
 
@@ -9450,27 +9434,6 @@ file_name = users/kivitendo-debug.log</programlisting>
          Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
          erfolgen.
         </para>
-      </sect2>
-
-      <sect2 id="dev-programmatic-api-calls.authentication_via_parameters" xreflabel="Programmatische API-Aufrufe mit Parametern authentifizieren">
-        <title>Authentifizierung mit Parametern</title>
-
-        <para>
-         Für diese Methode müssen jedem Request zwei Parameter mitgegeben werden: <varname>{AUTH}login</varname> und
-         <varname>{AUTH}password</varname>. Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei
-         Benutzung über den Webbrowser, ob dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
-        </para>
-
-        <para>
-         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
-         erfolgen.
-        </para>
-
-        <note>
-         <para>
-          Die Verwendung dieser Methode ist veraltet. Statt dessen sollte die oben erwähnte HTTP-»Basic«-Authentifizierung verwendet werden.
-         </para>
-        </note>
       </sect2>
 
       <sect2 id="dev-programmatic-api-calls.examples">
