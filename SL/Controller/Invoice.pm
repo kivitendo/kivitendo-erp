@@ -176,6 +176,27 @@ sub action_update_exchangerate {
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
+
+# load the second row for one or more items
+#
+# This action gets the html code for all items second rows by rendering a template for
+# the second row and sets the html code via client js.
+sub action_load_second_rows {
+  my ($self) = @_;
+
+  $self->recalc();
+
+  foreach my $item_id (@{ $::form->{item_ids} }) {
+    my $idx  = first_index { $_ eq $item_id } @{ $::form->{items} };
+    my $item = $self->record->items_sorted->[$idx];
+
+    $self->js_load_second_row($item, $item_id);
+  }
+
+  $self->js->run('kivi.Invoice.init_row_handlers');
+  $self->js->render();
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
@@ -512,6 +533,16 @@ sub build_tax_rows {
     );
   }
   return $rows_as_html;
+}
+
+sub js_load_second_row {
+  my ($self, $item, $item_id) = @_;
+
+  my $row_as_html = $self->p->render('invoice/tabs/_second_row', ITEM => $item, TYPE => $self->record->record_type);
+
+  $self->js
+    ->html('#second_row_' . $item_id, $row_as_html)
+    ->data('#second_row_' . $item_id, 'loaded', 1);
 }
 
 sub js_redisplay_line_values {
