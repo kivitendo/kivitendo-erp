@@ -3,6 +3,13 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf vx.x.x
+
+Die Möglichkeit des programatischen API-Aufrufs mit einer
+Authentifizierung mit Parametern wurde entfernt. Dazu kann
+nun die Authentifizierung mit HTTP-Basic-Authentifizierung
+oder über HTTP-Headers verwendet werden.
+
 Upgrade auf v3.9.2
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
