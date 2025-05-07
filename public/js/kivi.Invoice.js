@@ -723,11 +723,11 @@ namespace('kivi.Invoice', function(ns) {
     if (name_info   !== '') { info += ' (' + name_info + ')' }
 
     if (!$('#follow_up_rowcount').length) {
-      $('<input type="hidden" name="follow_up_rowcount"        id="follow_up_rowcount">').appendTo('#record_form');
-      $('<input type="hidden" name="follow_up_trans_id_1"      id="follow_up_trans_id_1">').appendTo('#record_form');
-      $('<input type="hidden" name="follow_up_trans_type_1"    id="follow_up_trans_type_1">').appendTo('#record_form');
-      $('<input type="hidden" name="follow_up_trans_info_1"    id="follow_up_trans_info_1">').appendTo('#record_form');
-      $('<input type="hidden" name="follow_up_trans_subject_1" id="follow_up_trans_subject_1">').appendTo('#record_form');
+      $('<input type="hidden" name="follow_up_rowcount"        id="follow_up_rowcount">').appendTo('#invoice_form');
+      $('<input type="hidden" name="follow_up_trans_id_1"      id="follow_up_trans_id_1">').appendTo('#invoice_form');
+      $('<input type="hidden" name="follow_up_trans_type_1"    id="follow_up_trans_type_1">').appendTo('#invoice_form');
+      $('<input type="hidden" name="follow_up_trans_info_1"    id="follow_up_trans_info_1">').appendTo('#invoice_form');
+      $('<input type="hidden" name="follow_up_trans_subject_1" id="follow_up_trans_subject_1">').appendTo('#invoice_form');
     }
     $('#follow_up_rowcount').val(1);
     $('#follow_up_trans_id_1').val(id);
