@@ -227,7 +227,7 @@
       <tr>
         <th>[% 'Credit Note' | $T8 %]</th>
         <!-- <th>[% 'Credit Note Number' | $T8 %]</th> -->
-        <td>[% L.date_tag('record.transdate', SELF.record.transdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("transdate")', class='wi-date') %]</td>
+        <td>[% L.date_tag('record.transdate', SELF.record.transdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("record_transdate")', class='wi-date') %]</td>
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
