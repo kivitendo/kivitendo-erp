@@ -2176,10 +2176,10 @@ Kleinere neue Features und Detailverbesserungen:
   Loginseite per URL den Parameter "{AUTH}client=foobar" mit, wird nun stattdessen der
   Mandant "foobar" vorausgewählt. (Der Name muß natürlich in der Liste
   vorkommen). Damit kann man sich ein Bookmark für einen bestimmten Mandanten setzen:
-  controller.pl?action=LoginScreen/login&{AUTH}client=foobar
+  controller.pl?action=LoginScreen/user_login&{AUTH}client=foobar
   Übergibt man als Parameter "{AUTH}login=Tom" wird auch das Benutzerfeld
   vorausgefüllt, Beispiel:
-  controller.pl?action=LoginScreen/login&{AUTH}login=Tom&{AUTH}client=foobar
+  controller.pl?action=LoginScreen/user_login&{AUTH}login=Tom&{AUTH}client=foobar
 
 - Benutzerdefinierte Variablen vom Typ "Kunde/Lieferant" und "Ware" werden
   jetzt mit Pickern ausgewählt, nicht mehr mit L-selects.
