@@ -176,6 +176,40 @@ sub action_update_exchangerate {
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
+# redisplay item rows if they are sorted by an attribute
+sub action_reorder_items {
+  my ($self) = @_;
+
+  my %sort_keys = (
+    partnumber   => sub { $_[0]->part->partnumber },
+    description  => sub { $_[0]->description },
+    qty          => sub { $_[0]->qty },
+    sellprice    => sub { $_[0]->sellprice },
+    discount     => sub { $_[0]->discount },
+    cvpartnumber => sub { $_[0]->{cvpartnumber} },
+  );
+
+  $self->get_item_cvpartnumber($_) for @{$self->record->items_sorted};
+
+  my $method = $sort_keys{$::form->{order_by}};
+  my @to_sort = map { { old_pos => $_->position, order_by => $method->($_) } } @{ $self->record->items_sorted };
+  if ($::form->{sort_dir}) {
+    if ( $::form->{order_by} =~ m/qty|sellprice|discount/ ){
+      @to_sort = sort { $a->{order_by} <=> $b->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $a->{order_by} cmp $b->{order_by} } @to_sort;
+    }
+  } else {
+    if ( $::form->{order_by} =~ m/qty|sellprice|discount/ ){
+      @to_sort = sort { $b->{order_by} <=> $a->{order_by} } @to_sort;
+    } else {
+      @to_sort = sort { $b->{order_by} cmp $a->{order_by} } @to_sort;
+    }
+  }
+  $self->js
+    ->run('kivi.Invoice.redisplay_items', \@to_sort)
+    ->render;
+}
 
 # load the second row for one or more items
 #
