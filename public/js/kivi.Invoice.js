@@ -461,7 +461,7 @@ namespace('kivi.Invoice', function(ns) {
 
     $('#' + order_by + '_header_id a').append('<img border=0 data-sort-dir=' + dir + ' src=' + src + ' alt="' + kivi.t8('sort items') + '">');
 
-    var data = $('#record_form').serializeArray();
+    var data = $('#invoice_form').serializeArray();
     data.push({ name: 'action',   value: 'Invoice/reorder_items' },
               { name: 'order_by', value: order_by              },
               { name: 'sort_dir', value: dir                   });
