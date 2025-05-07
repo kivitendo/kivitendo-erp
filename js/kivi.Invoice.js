@@ -309,7 +309,7 @@ namespace('kivi.Invoice', function(ns) {
   };
 
   ns.load_second_row = function(row) {
-    var item_id_dom = $(row).find('[name="item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="items[+]"]');
     var div_elt     = $(row).find('[name="second_row"]');
 
     if ($(div_elt).data('loaded') == 1) {
