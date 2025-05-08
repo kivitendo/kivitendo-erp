@@ -20,10 +20,10 @@
         <img src="image/spinner-blue.gif" alt="[% LxERP.t8('Loading...') %]">
      </span>
    </div>
-   <div class="frame-header-client-box">
-    <span title="[% 'Client' | $T8 %]" class="client">[% AUTH.client.name | html %]</span>
-   </div>
    <span class="frame-header-element frame-header-right">
+    <div class="frame-header-client-box">
+     <span title="[% 'Client' | $T8 %]" class="client">[% AUTH.client.name | html %]</span>
+    </div>
     <span><a href="am.pl?action=config" title="[% 'User' | $T8 %]: [% MYCONFIG.login | html %] / [% 'Client' | $T8 %]: [% AUTH.client.name | html %]"><!-- [% #MYCONFIG.login | html %] / [% #AUTH.client.name | html %] --><img alt="[% 'User' | $T8 %]/[% 'Client' | $T8 %]" src="image/header-icon-user.png"></a></span>
      <span><a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]"><img alt="[% 'Logout' | $T8 %]" src="image/header-icon-logout.png"></a></span>
    </span>
