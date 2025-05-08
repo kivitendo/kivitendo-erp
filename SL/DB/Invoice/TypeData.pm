@@ -53,13 +53,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'ar_transactions',
+      edit => 'ar_transactions',
     },
     features => {
       price_tax   => 1,
@@ -90,13 +93,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'ar_transactions',
+      edit => 'ar_transactions',
     },
     features => {
       price_tax   => 1,
@@ -134,13 +140,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 0,
       has_marge      => 1,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit' ,
     },
     features => {
       price_tax   => 1,
@@ -178,13 +187,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 0,
       has_marge      => 1,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,
@@ -222,13 +234,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,
@@ -266,13 +281,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 0,
       has_marge      => 1,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,
@@ -310,13 +328,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,
@@ -354,13 +375,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 1,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,
@@ -398,13 +422,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 1,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_sale" => 1 ],
     rights => {
-      # TODO
+      view => 'sales_invoice_view',
+      edit => 'invoice_edit',
     },
     features => {
       price_tax   => 1,

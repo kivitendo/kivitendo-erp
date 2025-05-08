@@ -48,13 +48,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'ap_transactions',
+      edit => 'ap_transactions',
     },
     features => {
       price_tax   => 1,
@@ -77,6 +80,8 @@ my %type_data = (
       advance_payment     => 0,
       credit_note         => 0,
       reclamation         => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     properties => {
       customervendor => "vendor",
@@ -91,7 +96,8 @@ my %type_data = (
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'ap_transactions',
+      edit => 'ap_transactions',
     },
     features => {
       price_tax   => 1,
@@ -125,13 +131,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'purchase_invoice_view',
+      edit => 'ap_transactions' ,
     },
     features => {
       price_tax   => 1,
@@ -165,13 +174,16 @@ my %type_data = (
       worflow_needed => 1,
       is_credit_note => 0,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'purchase_invoice_view',
+      edit => 'ap_transactions' ,
     },
     features => {
       price_tax   => 1,
@@ -205,13 +217,16 @@ my %type_data = (
       worflow_needed => 0,
       is_credit_note => 1,
       has_marge      => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     defaults => {
       # TODO
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'purchase_invoice_view',
+      edit => 'ap_transactions' ,
     },
     features => {
       price_tax   => 1,
@@ -237,6 +252,8 @@ my %type_data = (
       advance_payment      => 0,
       credit_note          => 0,
       reclamation          => 0,
+      show_serialno  => 1,
+      show_reqdate   => 1,
     },
     properties => {
       customervendor => "vendor",
@@ -251,7 +268,8 @@ my %type_data = (
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
-      # TODO
+      view => 'purchase_invoice_view',
+      edit => 'ap_transactions' ,
     },
     features => {
       price_tax   => 1,
