@@ -20,8 +20,8 @@ sub javascripts_inline {
     datefmt      => $datefmt,
     focus        => $::request->layout->focus,
     ajax_spinner => 1,
-    hot_reload   => $::lx_office_conf{devel}->{hot_reload},
-    hot_reload_server_port => $::lx_office_conf{devel}->{hot_reload_server_port},
+    hot_reload   => $::lx_office_conf{'devel/hot_reload'}->{enabled},
+    hot_reload_server_port => $::lx_office_conf{'devel/hot_reload'}->{server_port},
   );
 }
 
@@ -34,7 +34,7 @@ sub static_javascripts {
     kivi.js
   ),
   'locale/'. $::myconfig{countrycode} .'.js',
-   $::lx_office_conf{devel}->{hot_reload} ? 'hotreload.js' : (),
+   $::lx_office_conf{'devel/hot_reload'}->{enabled} ? 'hotreload.js' : (),
 }
 
 sub static_stylesheets {
