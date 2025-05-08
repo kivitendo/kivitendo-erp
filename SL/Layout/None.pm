@@ -20,6 +20,8 @@ sub javascripts_inline {
     datefmt      => $datefmt,
     focus        => $::request->layout->focus,
     ajax_spinner => 1,
+    hot_reload   => $::lx_office_conf{devel}->{hot_reload},
+    hot_reload_server_port => $::lx_office_conf{devel}->{hot_reload_server_port},
   );
 }
 

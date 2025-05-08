@@ -16,6 +16,8 @@
 // Usage:
 // 1) enable hot_reload in the kivitendo.conf
 //    (this injects the minimal javascript required on the client side)
+//    NOTE: if you change the port in the config, you should change it in the script
+//    below as well
 // 2) run this server script alongside your regular web server using:
 //
 //      bun run hotreload-server.js

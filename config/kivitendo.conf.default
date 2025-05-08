@@ -375,9 +375,11 @@ client =
 # Enable hot reloading. This injects client side javascript to allow for
 # automatic page reloads on changes.
 # For usage details see scripts/hotreload-server.js
+# If you change the port below it has to be changed in the script as well.
 # This is meant to be used during local development only. Do not use in
 # production.
 hot_reload = 0
+hot_reload_server_port = 7575
 
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
