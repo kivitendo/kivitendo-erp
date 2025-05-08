@@ -4,6 +4,9 @@
 [% USE T8 %]
 
 <form method="post" id="list_automatic_form" class="box">
+
+[% INCLUDE 'common/flash.html' %]
+
 [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
 [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
 [% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
