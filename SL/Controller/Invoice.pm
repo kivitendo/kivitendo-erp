@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::Helper::Flash qw(flash flash_later);
 use SL::DB::Invoice;
 use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::PurchaseInvoice;
@@ -31,7 +32,7 @@ __PACKAGE__->run_before('check_auth');
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
   'scalar --get_set_init' => [ qw(
-    record valid_types type cv p all_price_factors search_cvpartnumber
+    record valid_types cv p all_price_factors search_cvpartnumber
     show_update_button part_picker_classification_ids is_final_version
     type_data
   ) ],
@@ -39,9 +40,11 @@ use Rose::Object::MakeMethods::Generic (
 
 
 sub check_auth {
-  my ($self) = validate_pos(@_, { isa => 'SL::Controller::Invoice' }, 1);
+  my ($self) = @_;
 
-  return 1 if  $::auth->assert('ar_transactions', 1); # may edit all invoices
+  # TODO: add view, and exceptions for globalproject etc.
+
+  return 1 if  $::auth->assert($self->type_data->rights('edit'), 1); # may edit all invoices
   my @ids = listify($::form->{id});
   $::auth->assert() unless has_rights_through_projects(\@ids);
   return 1;
@@ -209,6 +212,55 @@ sub action_reorder_items {
   $self->js
     ->run('kivi.Invoice.redisplay_items', \@to_sort)
     ->render;
+}
+
+# save the order in a session variable and redirect to the part controller
+sub action_create_part {
+  my ($self) = @_;
+
+  my $previousform = $::auth->save_form_in_session(non_scalars => 1);
+
+  my $callback     = $self->url_for(
+    action       => 'return_from_create_part',
+    type         => $self->record->record_type, # type is needed for check_auth on return
+    previousform => $previousform,
+  );
+
+  flash_later('info', t8('You are adding a new part while you are editing another document. You will be redirected to your document when saving the new part or aborting this form.'));
+
+  my @redirect_params = (
+    controller    => 'Part',
+    action        => 'add',
+    part_type     => $::form->{add_item}->{create_part_type},
+    callback      => $callback,
+    inline_create => 1,
+  );
+
+  $self->redirect_to(@redirect_params);
+}
+
+sub action_return_from_create_part {
+  my ($self) = @_;
+
+  $self->{created_part} = SL::DB::Part->new(
+    id => delete $::form->{new_parts_id}
+  )->load if $::form->{new_parts_id};
+
+  $::auth->restore_form_from_session(delete $::form->{previousform});
+
+  $self->record($self->init_record);
+  $self->reinit_after_new_invoice();
+
+  if ($self->record->id) {
+    $self->pre_render();
+    $self->render(
+      'invoice/form',
+      title => $self->type_data->text('edit'),
+      %{$self->{template_args}}
+    );
+  } else {
+    $self->action_add;
+  }
 }
 
 # load the second row for one or more items
@@ -410,6 +462,31 @@ sub action_files_pdf_export {
   }
   $self->_create_and_send_zip(\@file_names_and_file_paths);
 }
+
+sub reinit_after_new_invoice {
+  my ($self) = @_;
+
+  # change form type
+  $::form->{type} = $self->record->type;
+  $self->type_data($self->init_type_data);
+  $self->cv($self->init_cv);
+  $self->check_auth;
+
+  $self->setup_custom_shipto_from_form($self->record, $::form);
+
+  foreach my $item (@{$self->record->items_sorted}) {
+    # set item ids to new fake id, to identify them as new items
+    $item->{new_fake_id} = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+
+    # trigger rendering values for second row as hidden, because they
+    # are loaded only on demand. So we need to keep the values from the
+    # source.
+    $item->{render_second_row} = 1;
+  }
+
+  $self->recalc();
+}
+
 
 sub pre_render {
   my ($self) = @_;
@@ -1195,6 +1272,12 @@ sub init_show_update_button {
   my ($self) = @_;
 
   !!SL::Helper::UserPreferences::UpdatePositions->new()->get_show_update_button();
+}
+
+sub init_cv {
+  my ($self) = @_;
+
+  return $self->type_data->properties('customervendor');
 }
 
 sub init_type_data {
