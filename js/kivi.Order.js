@@ -447,18 +447,18 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.renumber_positions = function() {
-    var position = 0;
-    var subposition = 0;
+    var pos_level0 = 0;
+    var pos_level1 = 0;
     var subtotal_active = 0;
     $('.row_entry').each(function(idx, elt) {
       var $div = $(elt).find('[name="position_subposition"]');
       if (!subtotal_active) {
-        position += 1;
-        subposition = 0;
-        $div.html(position);
+        pos_level0 += 1;
+        pos_level1 = 0;
+        $div.html(pos_level0);
       } else {
-        subposition += 1;
-        $div.html(position + '.' + subposition);
+        pos_level1 += 1;
+        $div.html(pos_level0 + '.' + pos_level1);
       }
       subtotal_active ^= $(elt).find('[name="subtotal[]"]').val() == 1;
     });
