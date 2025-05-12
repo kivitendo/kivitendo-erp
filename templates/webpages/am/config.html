@@ -218,6 +218,13 @@
      </tr>
 
      <tr>
+      <th align="right">[% 'Always show longdescription in record positions' | $T8 %]</th>
+      <td>
+        [% L.select_tag('show_longdescription_always', [ [ 'default', LxERP.t8('Use settings from client configuration') ], [ 0, LxERP.t8('No') ], [ 1, LxERP.t8('Yes') ] ], default=show_longdescription_always) %]
+      </td>
+     </tr>
+
+     <tr>
       <th align="right">[% 'Quick Searches that will be shown in the header for this user' | $T8 %]</th>
       <td colspan=2>
         <div class="clearfix">

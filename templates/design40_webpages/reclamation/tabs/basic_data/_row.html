@@ -65,8 +65,14 @@
                      ITEM.description,
                      size='40',
                      class='wi-lightwide') %]
-      [%- L.hidden_tag("reclamation.reclamation_items[].longdescription", ITEM.longdescription) %]
-      [%- L.button_tag("kivi.Reclamation.show_longdescription_dialog(this)", LxERP.t8("L"), class="wi-tiny neutral") %]
+      [%- IF show_longdescription_always %]
+        [% L.textarea_tag("reclamation.reclamation_items[].longdescription",
+                          ITEM.longdescription,
+                          class='texteditor texteditor-resize-height-to-content wi-wider') %]
+      [%- ELSE %]
+        [%- L.hidden_tag("reclamation.reclamation_items[].longdescription", ITEM.longdescription) %]
+        [%- L.button_tag("kivi.Reclamation.show_longdescription_dialog(this)", LxERP.t8("L"), class="wi-tiny neutral") %]
+      [%- END %]
     </td>
     <td>[% L.select_tag("reclamation.reclamation_items[].reason_id",
                         SELF.reclamation.valid_reclamation_reasons,

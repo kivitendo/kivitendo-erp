@@ -74,8 +74,16 @@
                      ITEM.description,
                      size='40',
                      style='width: 300px') %]
-      [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
-      [%- L.button_tag("kivi.DeliveryOrder.show_longdescription_dialog(this)", LxERP.t8("L")) %]
+      [%- IF show_longdescription_always %]
+        [% L.textarea_tag("order.orderitems[].longdescription",
+                          ITEM.longdescription,
+                          size='40',
+                          style='width: 600px; height: 80px;',
+                          class='texteditor') %]
+      [%- ELSE %]
+        [%- L.hidden_tag("order.orderitems[].longdescription", ITEM.longdescription) %]
+        [%- L.button_tag("kivi.DeliveryOrder.show_longdescription_dialog(this)", LxERP.t8("L")) %]
+      [%- END %]
     </td>
     [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
     <td nowrap>

@@ -607,6 +607,12 @@
       <td>[% L.select_tag('defaults.layout_style', [['', LxERP.t8('Automatic')], ['desktop', LxERP.t8('desktop version')]], default=SELF.defaults.layout_style, with_empty=0) %]</td>
       <td class="long-desc">[% 'The layout style normally is choosen by the user agent string the browser sends. Here you can force the desktop or mobile version. Users can override this setting in their user preferences.' | $T8 %]</td>
     </tr>
+    <tr><th class="caption">[% 'Long Description' | $T8 %]</th></tr>
+    <tr>
+      <th>[% 'Always show longdescription in record positions' | $T8 %]</th>
+      <td>[% L.yes_no_tag('show_longdescription_always', SELF.show_longdescription_always) %]</td>
+      <td class="long-desc">[% 'Show the longdescription always directly in the record\'s position row if enabled. Users can override this setting in their user preferences.' | $T8 %]</td>
+    </tr>
   </tbody>
 </table>
 

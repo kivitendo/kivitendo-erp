@@ -552,6 +552,13 @@ namespace('kivi.Reclamation', function(ns) {
     kivi.SalesPurchase.edit_longdescription_with_params(params);
   };
 
+  ns.longdescription_trigger_change = function(item_id) {
+    let row          = $('#item_' + item_id).parents("tbody").first();
+    let longtext_elt = $(row).find('[name="reclamation.reclamation_items[].longdescription"]');
+
+    $(longtext_elt).change();
+  };
+
   ns.price_chooser_item_row = function(clicked) {
     if (!ns.check_cv()) return;
     var row         = $(clicked).parents("tbody").first();
