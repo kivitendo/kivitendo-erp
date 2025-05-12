@@ -447,32 +447,23 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.renumber_positions = function() {
-    $('.row_entry [name="position"]').each(function(idx, elt) {
-      $(elt).html(idx+1);
-    });
     var position = 0;
-    var subtotal_header = 0;
     var subposition = 0;
+    var subtotal_active = 0;
     $('.row_entry').each(function(idx, elt) {
-      var $sub = $(elt).find('[name="position_subposition"]');
-      var $st  = $(elt).find('[name="subtotal[]"]');
-      if ($st.val() == 1 && !subtotal_header) {
-        subtotal_header = idx+1;
-        position = parseInt(position);
+      var $div = $(elt).find('[name="position_subposition"]');
+      if (!subtotal_active) {
         position += 1;
         subposition = 0;
-      } else if (subtotal_header) {
-        subposition += 1;
-        position = parseInt(position);
-        position = position + "." + subposition;
+        $div.html(position);
       } else {
-        position = parseInt(position);
-        position++;
+        subposition += 1;
+        $div.html(position + '.' + subposition);
       }
-      $sub.html(position);
-      if ($st.val() == 1 && subtotal_header && (subtotal_header != idx+1)) {
-        subtotal_header = 0;
-      }
+      subtotal_active ^= $(elt).find('[name="subtotal[]"]').val() == 1;
+    });
+    $('.row_entry [name="position"]').each(function(idx, elt) {
+      $(elt).html(idx+1);
     });
     $('.row_entry').each(function(idx, elt) {
       $(elt).data("position", idx+1);
