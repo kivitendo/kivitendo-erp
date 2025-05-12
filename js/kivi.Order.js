@@ -312,7 +312,7 @@ namespace('kivi.Order', function(ns) {
 
   ns.on_subtotal_change = function(event) {
     $(event.target).parents('tbody.row_entry.listrow')
-      .find('[name=\"subtotal[]\"]')
+      .find('[name="subtotal[]"]')
       .val(event.target.value);
     ns.renumber_positions();
   }
