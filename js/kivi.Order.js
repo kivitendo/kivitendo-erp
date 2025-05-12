@@ -444,6 +444,11 @@ namespace('kivi.Order', function(ns) {
       $(elt).html(idx+1);
     });
     $('.row_entry').each(function(idx, elt) {
+      var $sub = $(elt).find('[name="position_subposition"]');
+      var $st  = $(elt).find('[name="subtotal[]"]');
+      $sub.html("p " + idx + " s: " + $st.val());
+    });
+    $('.row_entry').each(function(idx, elt) {
       $(elt).data("position", idx+1);
     });
   };
