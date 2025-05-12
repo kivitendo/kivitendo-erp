@@ -310,6 +310,13 @@ namespace('kivi.Order', function(ns) {
     html_elt.html(price_str);
   };
 
+  ns.on_subtotal_change = function(event) {
+    $(event.target).parents('tbody.row_entry.listrow')
+      .find('[name=\"subtotal[]\"]')
+      .val(event.target.value);
+    ns.renumber_positions();
+  }
+
   ns.load_second_row = function(row) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
     var div_elt     = $(row).find('[name="second_row"]');
