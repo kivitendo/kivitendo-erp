@@ -310,6 +310,13 @@ namespace('kivi.Order', function(ns) {
     html_elt.html(price_str);
   };
 
+  ns.on_subtotal_change = function(event) {
+    $(event.target).parents('tbody.row_entry.listrow')
+      .find('[name="subtotal[]"]')
+      .val(event.target.value);
+    ns.renumber_positions();
+  }
+
   ns.load_second_row = function(row) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
     var div_elt     = $(row).find('[name="second_row"]');
@@ -440,6 +447,21 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.renumber_positions = function() {
+    var pos_level0 = 0;
+    var pos_level1 = 0;
+    var subtotal_active = 0;
+    $('.row_entry').each(function(idx, elt) {
+      var $div = $(elt).find('[name="position_subposition"]');
+      if (!subtotal_active) {
+        pos_level0 += 1;
+        pos_level1 = 0;
+        $div.html(pos_level0);
+      } else {
+        pos_level1 += 1;
+        $div.html(pos_level0 + '.' + pos_level1);
+      }
+      subtotal_active ^= $(elt).find('[name="subtotal[]"]').val() == 1;
+    });
     $('.row_entry [name="position"]').each(function(idx, elt) {
       $(elt).html(idx+1);
     });
@@ -488,7 +510,7 @@ namespace('kivi.Order', function(ns) {
     // selection by data does not seem to work if data is changed at runtime
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
-      if ($(elt).data("position") == wanted_pos) {
+      if ($(elt).find('[name="position_subposition"]').html() == wanted_pos) {
         insert_before_item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
         return false;
       }
@@ -1044,4 +1066,5 @@ $(function() {
 
   $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
 
+  kivi.Order.renumber_positions();
 });
