@@ -510,7 +510,7 @@ namespace('kivi.Order', function(ns) {
     // selection by data does not seem to work if data is changed at runtime
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
-      if ($(elt).data("position") == wanted_pos) {
+      if ($(elt).find('[name="position_subposition"]').html() == wanted_pos) {
         insert_before_item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
         return false;
       }
