@@ -373,6 +373,66 @@ sub action_add_item {
   $self->js->render();
 }
 
+# add item rows for multiple items at once
+sub action_add_multi_items {
+  my ($self) = @_;
+
+  my @form_attr = grep { $_->{qty_as_number} } @{ $::form->{add_items} };
+  return $self->js->render() unless scalar @form_attr;
+
+  my @items;
+  foreach my $attr (@form_attr) {
+    my $item = new_item($self->record, $attr);
+    push @items, $item;
+    if ( $item->part->is_assortment ) {
+      foreach my $assortment_item ( @{$item->part->assortment_items} ) {
+        my $attr = { parts_id => $assortment_item->parts_id,
+                     qty      => $assortment_item->qty * $item->qty, # TODO $form_attr->{unit}
+                     unit     => $assortment_item->unit,
+                     description => $assortment_item->part->description,
+                   };
+        my $item = new_item($self->record, $attr);
+
+        # set discount to 100% if item isn't supposed to be charged, overwriting any customer discount
+        $item->discount(1) unless $assortment_item->charge;
+        push @items, $item;
+      }
+    }
+  }
+  $self->record->add_items(@items);
+
+  $self->recalc();
+
+  foreach my $item (@items) {
+    $self->get_item_cvpartnumber($item);
+    my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
+    my $row_as_html = $self->p->render('invoice/tabs/_row',
+                                       ITEM => $item,
+                                       ID   => $item_id,
+                                       SELF => $self,
+    );
+
+    if ($::form->{insert_before_item_id}) {
+      $self->js
+        ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
+    } else {
+      $self->js
+        ->append('#row_table_id', $row_as_html);
+    }
+  }
+
+  $self->js
+    ->run('kivi.Part.close_picker_dialogs')
+    ->run('kivi.Invoice.init_row_handlers')
+    ->run('kivi.Invoice.renumber_positions')
+    ->focus('#add_item_parts_id_name');
+
+  $self->js->run('kivi.Invoice.row_table_scroll_down') if !$::form->{insert_before_item_id};
+
+  $self->js_redisplay_amounts_and_taxes;
+  $self->js->render();
+}
+
 # called if a unit in an existing item row is changed
 sub action_unit_changed {
   my ($self) = @_;
