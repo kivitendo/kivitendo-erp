@@ -239,6 +239,16 @@ sub action_create_part {
   $self->redirect_to(@redirect_params);
 }
 
+# show the popup to choose a price/discount source
+sub action_price_popup {
+  my ($self) = @_;
+
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{item_ids} };
+  my $item = $self->record->items_sorted->[$idx];
+
+  $self->render_price_dialog($item);
+}
+
 sub action_return_from_create_part {
   my ($self) = @_;
 
@@ -1050,6 +1060,22 @@ sub get_part_texts {
   $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
 
   return $texts;
+}
+
+sub render_price_dialog {
+  my ($self, $record_item) = @_;
+
+  my $price_source = SL::PriceSource->new(record_item => $record_item, record => $self->record);
+
+  $self->js
+    ->run(
+      'kivi.io.price_chooser_dialog',
+      t8('Available Prices'),
+      $self->render('invoice/tabs/_price_sources_dialog', { output => 0 }, price_source => $price_source)
+    )
+    ->reinit_widgets;
+
+  $self->js->render;
 }
 
 # load or create a new record object
