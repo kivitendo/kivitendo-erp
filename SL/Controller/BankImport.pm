@@ -300,7 +300,7 @@ sub _check_sepa_automatic {
                             ? sum map  {$_->payment_type eq 'with_skonto_pt' && !$sei->invoice_booked_skonto_amount
                                          ? $_->invoice_open_amount_less_skonto
                                          : $_->invoice_open_amount }
-                                  grep {$_->collected_payment} @{ $sei->sepa_export->sepa_export_item }
+                                  grep {$_->collected_payment && $_->end_to_end_id eq $sei->end_to_end_id} @{ $sei->sepa_export->sepa_export_item }
                             # single sepa item with or without skonto
                             : $sei->payment_type eq 'with_skonto_pt' && !$sei->invoice_booked_skonto_amount
                             ? $sei->invoice_open_amount_less_skonto
