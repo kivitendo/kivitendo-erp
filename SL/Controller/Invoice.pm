@@ -306,6 +306,46 @@ sub action_load_second_rows {
   $self->js->render();
 }
 
+# update description, notes and sellprice from master data
+sub action_update_row_from_master_data {
+  my ($self) = @_;
+
+  foreach my $item_id (@{ $::form->{item_ids} }) {
+    my $idx   = first_index { $_ eq $item_id } @{ $::form->{item_ids} };
+    my $item  = $self->record->items_sorted->[$idx];
+    my $texts = get_part_texts($item->part, $self->record->language_id);
+
+    $item->description($texts->{description});
+    $item->longdescription($texts->{longdescription});
+
+    my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($self->record, $item, ignore_given => 1);
+    $item->sellprice($price_src->price);
+    $item->active_price_source($price_src);
+    $item->discount($discount_src->discount);
+    $item->active_discount_source($discount_src);
+
+    my $price_editable = $::auth->assert($self->type_data->rights('edit'), 1);
+
+    $self->js
+      ->run('kivi.Invoice.set_price_and_source_text',    $item_id, $price_src   ->source, $price_src   ->source_description, $item->sellprice_as_number, $price_editable)
+      ->run('kivi.Invoice.set_discount_and_source_text', $item_id, $discount_src->source, $discount_src->source_description, $item->discount_as_percent, $price_editable)
+      ->html('.row_entry:has(#item_' . $item_id . ') [name = "partnumber"] a', $item->part->partnumber)
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "record.items[].description"]', $item->description)
+      ->val ('.row_entry:has(#item_' . $item_id . ') [name = "record.items[].longdescription"]', $item->longdescription);
+
+    if ($self->search_cvpartnumber) {
+      $self->get_item_cvpartnumber($item);
+      $self->js->html('.row_entry:has(#item_' . $item_id . ') [name = "cvpartnumber"]', $item->{cvpartnumber});
+    }
+  }
+
+  $self->recalc();
+  $self->js_redisplay_line_values;
+  $self->js_redisplay_amounts_and_taxes;
+
+  $self->js->render();
+}
+
 # add an item row for a new item entered in the input row
 sub action_add_item {
   my ($self) = @_;
