@@ -306,7 +306,8 @@ sub _check_sepa_automatic {
                             ? $sei->invoice_open_amount_less_skonto
                             : $sei->invoice_open_amount;
 
-  return ($transaction->{amount} == $invoice_open_amount && abs ($invoice_open_amount) == $sei->amount) ? $sei : undef;
+  return (abs ($transaction->{amount} - $invoice_open_amount) < 0.01 && abs( abs ($invoice_open_amount) - $sei->amount < 0.01 )) ? $sei : undef;
+
 }
 
 sub init_bank_accounts {
