@@ -60,7 +60,7 @@ sub bank_transfer_add {
     if ($invoice->{open_amount} < 0) {
       $invoice->{credit_note} = 1;
     }
-    my $prefix;
+
     my $prefix = $invoice->{vc_vc_id} ? $invoice->{vc_vc_id} . ": " : '';
     $prefix   .=  $invoice->{credit_note}
                 ? $::locale->text('Credit Note')
