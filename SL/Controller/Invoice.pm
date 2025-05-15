@@ -13,7 +13,8 @@ use SL::Model::Record;
 
 use Archive::Zip;
 use Params::Validate qw(:all);
-use List::MoreUtils qw(any first_index);
+use List::Util qw(first sum0);
+use List::MoreUtils qw(any first_index pairwise);
 
 use SL::DB::File;
 use SL::DB::Invoice;
@@ -166,6 +167,18 @@ sub action_update_item_input_row {
     ->attr    ('#add_item_discount_as_percent', 'title',       $discount_src->source_description)
     ->render;
 }
+
+# recalculate all linetotals, amounts and taxes and redisplay them
+sub action_recalc_amounts_and_taxes {
+  my ($self) = @_;
+
+  $self->recalc();
+
+  $self->js_redisplay_line_values;
+  $self->js_redisplay_amounts_and_taxes;
+  $self->js->render();
+}
+
 
 sub action_update_exchangerate {
   my ($self) = @_;
@@ -799,7 +812,18 @@ sub js_redisplay_cvpartnumbers {
 sub recalc {
   my ($self) = @_;
 
+  my %pat = $self->record->calculate_prices_and_taxes();
+
   $self->{taxes} = [];
+  foreach my $tax_id (keys %{ $pat{taxes_by_tax_id} }) {
+    my $netamount = sum0 map { $pat{amounts}->{$_}->{amount} } grep { $pat{amounts}->{$_}->{tax_id} == $tax_id } keys %{ $pat{amounts} };
+
+    push(@{ $self->{taxes} }, { amount    => $pat{taxes_by_tax_id}->{$tax_id},
+                                netamount => $netamount,
+                                tax       => SL::DB::Tax->new(id => $tax_id)->load });
+  }
+  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->record->items_sorted}, @{$pat{items}};
+
   # TODO: calculate see 'sub form_footer' in is/ir.pl
 }
 
