@@ -536,8 +536,8 @@ sub read_user {
   my %menustyle_map = ( xml => 'new', v4 => 'v3' );
   $user_data{menustyle} = $menustyle_map{lc($user_data{menustyle} || '')} || $user_data{menustyle};
 
-  # The 'Win2000.css' stylesheet has been removed.
-  $user_data{stylesheet} = 'kivitendo.css' if ($user_data{stylesheet} || '') =~ m/win2000/i;
+  # The 'kivitendo.css' and 'Win2000.css' stylesheets have been removed.
+  $user_data{stylesheet} = 'design40.css' if ($user_data{stylesheet} || '') =~ m/win2000|kivitendo\.css/i;
 
   # Set default language if selected language does not exist (anymore).
   $user_data{countrycode} = $::lx_office_conf{system}->{language} unless $user_data{countrycode} && -d "locale/$user_data{countrycode}";
