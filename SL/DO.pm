@@ -390,6 +390,7 @@ SQL
 }
 
 sub save {
+  die 'USED BUT NOT EXPECTED';
   my ($self) = @_;
   $main::lxdebug->enter_sub();
 
@@ -400,6 +401,7 @@ sub save {
 }
 
 sub _save {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my ($self)   = @_;
@@ -702,6 +704,7 @@ SQL
 }
 
 sub mark_orders_if_delivered {
+  die 'USED BUT NOT EXPECTED';
   my ($self, %params) = @_;
 
   Common::check_params(\%params, qw(do_id type));
@@ -723,6 +726,7 @@ sub mark_orders_if_delivered {
 }
 
 sub close_orders {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $self     = shift;
@@ -753,6 +757,7 @@ sub close_orders {
 }
 
 sub delete {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my ($self)   = @_;
@@ -778,6 +783,7 @@ sub delete {
 }
 
 sub delete_transfers {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my ($self)   = @_;
@@ -810,6 +816,7 @@ sub delete_transfers {
 }
 
 sub retrieve {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $self     = shift;
@@ -1303,6 +1310,7 @@ sub get_item_availability {
 
 
 sub check_stock_availability {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $self     = shift;
@@ -1354,6 +1362,7 @@ sub check_stock_availability {
 }
 
 sub transfer_in_out {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $self     = shift;
@@ -1402,6 +1411,7 @@ sub transfer_in_out {
 }
 
 sub is_marked_as_delivered {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $self     = shift;
