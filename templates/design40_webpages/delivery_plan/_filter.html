@@ -11,7 +11,7 @@
 <div class="wrapper">
 <table id='filter_table' class="tbl-horizontal">
   <caption>[% 'Order & Articles' | $T8 %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
   <tbody>
     <tr>
       <th>[% 'Number' | $T8 %]</th>
@@ -50,9 +50,9 @@
 </table>
 
 <table class="tbl-horizontal">
-	<caption>[% IF SELF.vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
-	<tbody>
+  <caption>[% IF SELF.vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-mediumsmall"> </colgroup>
+  <tbody>
     [% IF SELF.vc == 'customer' %]
       <tr>
         <th>[% 'Customer' | $T8 %]</th>
@@ -82,13 +82,13 @@
         <td>[% L.input_tag('filter.order.vendor.vendornumber:substr::ilike', filter.order.vendor.vendornumber_substr__ilike, class='wi-mediumsmall') %]</td>
       </tr>
     [% END %]
-	</tbody>
+  </tbody>
 </table>
 
 <table class="tbl-horizontal">
-	<caption>[% 'Handling' | $T8 %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
-	<tbody>
+  <caption>[% 'Handling' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
     <tr>
       <th>[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
       <td class="wi-date">[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
@@ -113,7 +113,7 @@
            class      => 'wi-lightwide') %]
       </td>
     </tr>
-	</tbody>
+  </tbody>
 </table>
 
 </div><!-- /.wrapper -->
