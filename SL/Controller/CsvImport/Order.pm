@@ -8,6 +8,7 @@ use List::MoreUtils qw(any none);
 use SL::Helper::Csv;
 use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::OrderItem;
 use SL::DB::Part;
 use SL::DB::PaymentTerm;
@@ -326,6 +327,7 @@ sub handle_order {
     push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor missing');
   }
 
+  $self->handle_type($entry);
   $self->check_contact($entry);
   $self->check_language($entry);
   $self->check_payment($entry);
@@ -377,6 +379,21 @@ sub check_language {
   }
 
   return 1;
+}
+
+sub handle_type {
+  my ($self, $entry) = @_;
+
+  if (!exists $entry->{raw_data}->{record_type}) {
+    # if no type is present - set to sales order or purchase
+    # order depending on customer/vendor
+
+    $entry->{object}->record_type(
+      $entry->{object}->customer_id ? SALES_ORDER_TYPE :
+      $entry->{object}->vendor_id   ? PURCHASE_ORDER_TYPE
+                                    : undef
+    );
+  }
 }
 
 sub handle_item {
