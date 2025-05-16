@@ -42,7 +42,7 @@ sub send_email {
     ENCODING    => 'utf8',
   }) || die("Could not create Template instance");
 
-  my $file_name = $self->data->{template} || 'templates/webpages/failed_background_jobs_report/email.txt';
+  my $file_name = $self->data->{template} || 'templates/design40_webpages/failed_background_jobs_report/email.txt';
   my $body;
   $template->process($file_name, { SELF => $self }, \$body);
 
@@ -107,7 +107,7 @@ have failed between the last run and the current time.
 If that search yields results then an email will be sent listing the
 jobs that failed and the error messages they produced. The template
 used for the email's body defaults to the file
-C<templates/webpages/failed_background_jobs_report/email.txt> but can
+C<templates/design40_webpages/failed_background_jobs_report/email.txt> but can
 be overridden in the configuration.
 
 This background job is not active by default. You have to add and
@@ -131,7 +131,7 @@ recipients
 
 =item * C<template> – optional; a file name pointing to the template
 file used for the email's body. This defaults to
-C<templates/webpages/failed_background_jobs_report/email.txt>.
+C<templates/design40_webpages/failed_background_jobs_report/email.txt>.
 
 =back
 
