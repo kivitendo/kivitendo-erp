@@ -88,7 +88,7 @@ sub init_profile {
     my $prof = $p->{profile};
     if ($p->{row_ident} eq $self->_order_column) {
       # no need to handle
-      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma quotation amount netamount)};
+      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma amount netamount)};
     }
     if ($p->{row_ident} eq $self->_item_column) {
       # no need to handle
