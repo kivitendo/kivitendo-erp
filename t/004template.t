@@ -38,7 +38,7 @@ use File::Slurp;
 use Template;
 use Test::More tests => ( scalar(@referenced_files));
 
-my $template_path = 'templates/webpages/';
+my $template_path = 'templates/design40_webpages/';
 
 # Capture the TESTOUT from Test::More or Test::Builder for printing errors.
 # This will handle verbosity for us automatically.

@@ -32,7 +32,7 @@ sub test_file_content {
 my @files        = glob('*.pl');
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.pm$/;   }, 'SL');
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.pl$/;   },  qw(bin/mozilla sql/Pg-upgrade2 scripts));
-find(sub { push(@files, $File::Find::name) if $_ =~ /\.html$/; }, 'templates/webpages');
+find(sub { push(@files, $File::Find::name) if $_ =~ /\.html$/; }, 'templates/design40_webpages');
 
 test_file_content($_) for @files;
 

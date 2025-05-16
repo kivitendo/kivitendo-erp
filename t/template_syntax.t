@@ -11,7 +11,7 @@ use Template;
 use Template::Provider;
 use Test::More tests => ( scalar(@referenced_files));
 
-my $template_path = 'templates/webpages/';
+my $template_path = 'templates/design40_webpages/';
 
 my $provider = Template::Provider->new(Support::TestSetup::template_config());
 
