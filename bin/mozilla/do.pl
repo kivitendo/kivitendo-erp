@@ -63,13 +63,6 @@ use strict;
 
 # end of main
 
-sub check_do_access_for_edit {
-  validate_type($::form->{type});
-
-  my $right = SL::DB::DeliveryOrder::TypeData::get3($::form->{type}, "rights", "edit");
-  $main::auth->assert($right);
-}
-
 sub check_do_access {
   validate_type($::form->{type});
 
