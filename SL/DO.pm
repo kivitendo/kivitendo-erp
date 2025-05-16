@@ -389,6 +389,36 @@ SQL
   $main::lxdebug->leave_sub();
 }
 
+sub close_orders {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(ids));
+
+  if (('ARRAY' ne ref $params{ids}) || !scalar @{ $params{ids} }) {
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  SL::DB->client->with_transaction(sub {
+    my $dbh      = $params{dbh} || SL::DB->client->dbh;
+
+    my $query    = qq|UPDATE delivery_orders SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar(@{ $params{ids} })) . qq|)|;
+
+    do_query($form, $dbh, $query, map { conv_i($_) } @{ $params{ids} });
+    1;
+  }) or die { SL::DB->client->error };
+
+  $form->new_lastmtime('delivery_orders');
+
+  $main::lxdebug->leave_sub();
+}
+
 sub order_details {
   $main::lxdebug->enter_sub();
 
