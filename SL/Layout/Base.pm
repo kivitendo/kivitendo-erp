@@ -41,7 +41,7 @@ sub init_sublayouts_by_name {
 }
 
 sub webpages_path {
-  "templates/webpages";
+  "templates/design40_webpages";
 }
 
 sub webpages_fallback_path {
