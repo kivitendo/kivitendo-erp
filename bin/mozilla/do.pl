@@ -78,6 +78,7 @@ sub check_do_access {
 }
 
 sub set_headings {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -101,6 +102,7 @@ sub set_headings {
 }
 
 sub add {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access_for_edit();
@@ -128,6 +130,7 @@ sub add {
 }
 
 sub add_from_reclamation {
+  die 'USED BUT NOT EXPECTED';
 
   require SL::DB::Reclamation;
   my $reclamation = SL::DB::Reclamation->new(id => $::form->{from_id})->load;
@@ -142,6 +145,7 @@ sub add_from_reclamation {
 }
 
 sub edit {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -200,6 +204,7 @@ sub edit {
 }
 
 sub order_links {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -235,6 +240,7 @@ sub order_links {
 }
 
 sub prepare_order {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -275,6 +281,7 @@ sub prepare_order {
 }
 
 sub setup_do_action_bar {
+  die 'USED BUT NOT EXPECTED';
   my @transfer_qty   = qw(kivi.SalesPurchase.delivery_order_check_transfer_qty);
   my @req_trans_desc = qw(kivi.SalesPurchase.check_transaction_description) x!!$::instance_conf->get_require_transaction_description_ps;
   my $is_customer    = $::form->{vc} eq 'customer';
@@ -480,6 +487,7 @@ sub setup_do_orders_action_bar {
 }
 
 sub form_header {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -575,6 +583,7 @@ sub form_header {
 }
 
 sub form_footer {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -597,6 +606,7 @@ sub form_footer {
 }
 
 sub update_delivery_order {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -1007,6 +1017,7 @@ sub orders {
 }
 
 sub save {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my (%params) = @_;
@@ -1104,6 +1115,7 @@ sub save {
 }
 
 sub delete {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access_for_edit();
@@ -1130,6 +1142,7 @@ sub delete {
   $main::lxdebug->leave_sub();
 }
 sub delete_transfers {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access_for_edit();
@@ -1402,6 +1415,7 @@ sub invoice_multi {
 }
 
 sub save_and_reclamation {
+  die 'USED BUT NOT EXPECTED';
   my $form     = $main::form;
   my $id       = $form->{id};
   my $type     = $form->{type};
@@ -1422,6 +1436,7 @@ sub save_and_reclamation {
 }
 
 sub save_as_new {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access_for_edit();
@@ -1448,6 +1463,7 @@ sub save_as_new {
 }
 
 sub calculate_stock_in_out {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1479,6 +1495,7 @@ sub calculate_stock_in_out {
 }
 
 sub get_basic_bin_wh_info {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $stock_info = shift;
@@ -1496,6 +1513,7 @@ sub get_basic_bin_wh_info {
 }
 
 sub stock_in_out_form {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1510,6 +1528,7 @@ sub stock_in_out_form {
 }
 
 sub redo_stock_info {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my %params    = @_;
@@ -1531,6 +1550,7 @@ sub redo_stock_info {
 }
 
 sub update_stock_in {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1550,6 +1570,7 @@ sub update_stock_in {
 }
 
 sub stock_in_form {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1562,6 +1583,7 @@ sub stock_in_form {
 }
 
 sub display_stock_in_form {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $stock_info = shift;
@@ -1600,6 +1622,7 @@ sub display_stock_in_form {
 }
 
 sub _stock_in_out_set_qty_display {
+  die 'USED BUT NOT EXPECTED';
   my $stock_info       = shift;
   my $form             = $::form;
   my $all_units        = AM->retrieve_all_units();
@@ -1609,6 +1632,7 @@ sub _stock_in_out_set_qty_display {
 }
 
 sub set_stock_in {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1640,6 +1664,7 @@ sub set_stock_in {
 }
 
 sub stock_out_form {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1688,6 +1713,7 @@ sub stock_out_form {
 }
 
 sub set_stock_out {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1739,6 +1765,7 @@ sub set_stock_out {
 }
 
 sub transfer_in {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1810,6 +1837,7 @@ sub transfer_in {
 }
 
 sub transfer_out {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1925,6 +1953,7 @@ sub transfer_out {
 }
 
 sub mark_closed {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1939,6 +1968,7 @@ sub mark_closed {
 }
 
 sub display_form {
+  die 'USED BUT NOT EXPECTED';
   $::lxdebug->enter_sub;
 
   check_do_access();
@@ -1961,18 +1991,22 @@ sub display_form {
 }
 
 sub yes {
+  die 'USED BUT NOT EXPECTED';
   call_sub($main::form->{yes_nextsub});
 }
 
 sub no {
+  die 'USED BUT NOT EXPECTED';
   call_sub($main::form->{no_nextsub});
 }
 
 sub update {
+  die 'USED BUT NOT EXPECTED';
   call_sub($main::form->{update_nextsub} || $main::form->{nextsub} || 'update_delivery_order');
 }
 
 sub dispatcher {
+  die 'USED BUT NOT EXPECTED';
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -1988,6 +2022,7 @@ sub dispatcher {
 }
 
 sub transfer_out_default {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -1998,6 +2033,7 @@ sub transfer_out_default {
 }
 
 sub transfer_in_default {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -2013,6 +2049,7 @@ sub transfer_in_default {
 # Auslagern. Falls nicht wird entsprechend eine Fehlermeldung
 # generiert. Offen Chargennummer / bestbefore wird nicht berücksichtigt
 sub transfer_in_out_default {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -2170,6 +2207,7 @@ sub transfer_in_out_default {
 }
 
 sub sort {
+  die 'USED BUT NOT EXPECTED';
   $main::lxdebug->enter_sub();
 
   check_do_access();
