@@ -122,13 +122,12 @@ init_db();
   ($out, $err, @ret) = make_request('ir', 'edit', id => $id );
   is $ret[0], 1, "'$description' did not cause an error";
   warn $err if $err;
-
   my $q = HTML::Query->new(text => $out);
   is $q->query('input[name=paid_1]')->size, 1, "out '$description' contains paid_1";
   is $q->query('input[name=paid_1]')->first->attr('value'), '2,00', "out '$description' paid_1 is 2,00 (the dollar amount, not the internal 5.00€)";
 
-  is $q->query('#ui-tabs-basic-data tr.invtotal th')->first->as_text, 'Summe', "'$description' - total present";
-  is $q->query('#ui-tabs-basic-data tr.invtotal td')->first->as_text, '2,38', "'$description' - total should be 2.00 * 1.19 = 2.38";
+  is $q->query('#ui-tabs-basic-data th.invtotal')->first->as_text, 'Summe', "'$description' - total present";
+  is $q->query('#ui-tabs-basic-data td.invtotal')->first->as_text, '2,38', "'$description' - total should be 2.00 * 1.19 = 2.38";
   is $q->query('#ui-tabs-basic-data input[name=oldtotalpaid]')->first->attr('value'), '2', "'$description' - totalpaid should be 2,00 in dollar, not the internal value";
 };
 
