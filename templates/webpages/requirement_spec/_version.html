@@ -1,9 +1,0 @@
-[%- USE L -%][%- USE LxERP -%][%- USE HTML -%]
-[% L.hidden_tag('current_version_id', requirement_spec.version.id) %]
-[% LxERP.t8("Current version") %]:
-[% IF !requirement_spec.version.id %]
- [% LxERP.t8("Working copy without version") %]
-[% ELSE %]
- [% LxERP.t8("Version") %] [% HTML.escape(requirement_spec.version.version_number) %]
- [% LxERP.t8("dated") %] [% HTML.escape(requirement_spec.version.itime.to_kivitendo(precision='minute')) %]
-[%- END -%]
