@@ -10,6 +10,16 @@ Authentifizierung mit Parametern wurde entfernt. Dazu kann
 nun die Authentifizierung mit HTTP-Basic-Authentifizierung
 oder über HTTP-Headers verwendet werden.
 
+In kivitendo.conf sollte der Parameter stylesheet = design40
+gesetzt werden. Die Stilvorlage kivitendo ist nicht mehr
+verfügbar. Ebenso müssen folgende E-Mail-Vorlagen ersetzt werden:
+  email_template = templates/webpages/task_server/failure_notification_email.txt
+  email_template = templates/webpages/oe/periodic_invoices_email.txt
+Die nun gültigen Vorlagen lauten:
+  email_template = templates/design40_webpages/task_server/failure_notification_email.txt
+  email_template = templates/design40_webpages/oe/periodic_invoices_email.txt
+
+
 Upgrade auf v3.9.2
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
