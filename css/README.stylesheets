@@ -14,7 +14,7 @@ Some notes about stylesheets:
 
   so common libraries can be put higher here, to be included by any stylesheet
 
-* 'kivitendo' is used as the fallback style if no style was found or the style
+* 'design40' is used as the fallback style if no style was found or the style
   chosen was invalid.
 
 * Pay attention to the position of relative image urls. Most should not be
