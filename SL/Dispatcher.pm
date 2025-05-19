@@ -555,7 +555,7 @@ sub _cache_file_modification_times {
   };
 
   my $cwd = POSIX::getcwd();
-  File::Find::find($wanted, map { "${cwd}/${_}" } qw(config bin SL templates/webpages));
+  File::Find::find($wanted, map { "${cwd}/${_}" } qw(config bin SL templates/design40_webpages));
   map { my $name = "${cwd}/${_}"; $fcgi_file_cache{$name} = (stat $name)[9] } qw(admin.pl dispatcher.fpl);
 }
 
