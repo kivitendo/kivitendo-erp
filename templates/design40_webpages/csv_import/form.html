@@ -343,6 +343,20 @@
         [% LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
       </p>
     [% END %]
+    [%- IF SELF.type == 'delivery_orders' %]
+      <p>
+        [2]:
+        [% LxERP.t8('If "record_type" is not given, it will be set to "sales_delivery_order" if a customer is given, else to "purchase_delivery_order" if a vendor is given') %]<br>
+        [% LxERP.t8('You can specify the "record_type" in the CSV file. Valid types are "sales_delivery_order", "purchase_delivery_order", "supplier_delivery_order" or "rma_delivery_order".') %]<br>
+      </p>
+    [%- END -%]
+    [%- IF SELF.type == 'orders' %]
+      <p>
+        [3]:
+        [% LxERP.t8('If "record_type" is not given, it will be set to "sales_order" if a customer is given, else to "purchase_order" if a vendor is given') %]<br>
+        [% LxERP.t8('You can specify the "record_type" in the CSV file. Valid types are "sales_order", "purchase_order", "sales_quotation", "request_quotation", "purchase_quotation_intake", "sales_order_intake", or "purchase_order_confirmation".') %]<br>
+      </p>
+    [%- END -%]
   [% END %][%# IF SELF.type == … %]
   <p>[% L.submit_tag('action_download_sample', LxERP.t8('Download sample file')) %]</p>
 [% END # panel_3 %]

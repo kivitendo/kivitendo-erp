@@ -122,6 +122,7 @@ sub setup_displayable_columns {
                                  { name => 'notes',                   description => $::locale->text('Notes')                                 },
                                  { name => 'ordnumber',               description => $::locale->text('Order Number')                          },
                                  { name => 'quonumber',               description => $::locale->text('Quotation Number')                      },
+                                 { name => 'record_type',             description => $::locale->text('Order Type') . ' [3]'                   },
                                  { name => 'reqdate',                 description => $::locale->text('Reqdate')                               },
                                  { name => 'salesman_id',             description => $::locale->text('Salesman (database ID)')                },
                                  { name => 'shippingpoint',           description => $::locale->text('Shipping Point')                        },
@@ -291,7 +292,9 @@ sub check_objects {
                           { header => $::locale->text('Data type'), method => 'datatype' });
 
   $self->add_info_columns($self->_order_column,
-                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name'     },
+                          { header => $::locale->text('Record Type'),     method => 'record_type' });
+
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->_order_column,
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment delivery_term language department globalproject taxzone cp currency));
@@ -394,6 +397,8 @@ sub handle_type {
                                     : undef
     );
   }
+
+  $entry->{info_data}->{record_type} = $::locale->text($entry->{object}->record_type);
 }
 
 sub handle_item {
