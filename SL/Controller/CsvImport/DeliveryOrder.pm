@@ -218,7 +218,7 @@ sub setup_displayable_columns {
                                  { name => 'language',                description => $::locale->text('Language (name)')                       },
                                  { name => 'language_id',             description => $::locale->text('Language (database ID)')                },
                                  { name => 'notes',                   description => $::locale->text('Notes')                                 },
-                                 { name => 'record_type',             description => $::locale->text('Delivery Order Type')                   },
+                                 { name => 'record_type',             description => $::locale->text('Delivery Order Type') . ' [2]'          },
                                  { name => 'ordnumber',               description => $::locale->text('Order Number')                          },
                                  { name => 'payment',                 description => $::locale->text('Payment terms (name)')                  },
                                  { name => 'payment_id',              description => $::locale->text('Payment terms (database ID)')           },
@@ -425,7 +425,9 @@ sub check_objects {
                           { header => $::locale->text('Data type'), method => 'datatype' });
 
   $self->add_info_columns($self->_order_column,
-                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name' },
+                          { header => $::locale->text('Record Type'),     method => 'record_type' });
+
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->_order_column,
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment delivery_term language department globalproject taxzone cp currency));
@@ -692,6 +694,7 @@ sub handle_type {
                                        PURCHASE_DELIVERY_ORDER_TYPE
     );
   }
+  $entry->{info_data}->{record_type} = $::locale->text($entry->{object}->record_type);
 }
 
 sub handle_order_sources {
