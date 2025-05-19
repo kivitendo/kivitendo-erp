@@ -1,4 +1,4 @@
-use Test::More tests => 28;
+use Test::More tests => 34;
 
 use strict;
 
@@ -11,6 +11,8 @@ use List::MoreUtils qw(none any);
 
 use SL::Controller::CsvImport;
 use_ok 'SL::Controller::CsvImport::DeliveryOrder';
+
+use SL::DB::DeliveryOrder::TypeData qw(:types);
 
 use SL::Dev::ALL qw(:ALL);
 
@@ -98,6 +100,56 @@ $entry = $entries->[2];
 is $entry->{object}->parts_id,    $parts[1]->id,     'simple import: part 2: parts_id';
 is $entry->{object}->qty,         10,                'simple import: part 2: qty';
 
+$entries = undef;
+
+#####
+# test handling of record type
+#####
+$file = \<<EOL;
+datatype;customer;vendor
+datatype;description;qty
+datatype
+DeliveryOrder;TestCustomer1
+OrderItem;TestPart1;5
+DeliveryOrder;;TestVendor1
+OrderItem;TestPart2;10
+EOL
+
+$entries = do_import($file);
+
+$entry = $entries->[0];
+is $entry->{object}->record_type, SALES_DELIVERY_ORDER_TYPE, 'record type is sales order when customer given';
+
+$entry = $entries->[2];
+is $entry->{object}->record_type, PURCHASE_DELIVERY_ORDER_TYPE, 'record type is purchase order when vendor given';
+
+$entries = undef;
+
+$file = \<<EOL;
+datatype;customer;vendor;record_type
+datatype;description;qty
+datatype
+DeliveryOrder;TestCustomer1;;sales_delivery_order
+OrderItem;TestPart1;1
+DeliveryOrder;;TestVendor1;purchase_delivery_order
+OrderItem;TestPart2;2
+DeliveryOrder;TestVendor11;;supplier_delivery_order
+OrderItem;TestPart1;3
+DeliveryOrder;;TestCustomer1;rma_delivery_order
+OrderItem;TestPart1;4
+EOL
+
+$entries = do_import($file);
+
+$entry = $entries->[0];
+is $entry->{object}->record_type, SALES_DELIVERY_ORDER_TYPE, '"sales_delivery_order" as explicitly given record type works';
+$entry = $entries->[2];
+is $entry->{object}->record_type, PURCHASE_DELIVERY_ORDER_TYPE, '"purchase_delivery_order" as explicitly given record type works';
+$entry = $entries->[4];
+is $entry->{object}->record_type, SUPPLIER_DELIVERY_ORDER_TYPE, '"supplier_delivery_order" as explicitly given record type works';
+$entry = $entries->[6];
+is $entry->{object}->record_type, RMA_DELIVERY_ORDER_TYPE, '"rma_delivery_order" as explicitly given record type works';
+$entry = $entries->[8];
 
 $entries = undef;
 clear_up;
