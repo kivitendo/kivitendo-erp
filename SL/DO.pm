@@ -419,6 +419,205 @@ sub close_orders {
   $main::lxdebug->leave_sub();
 }
 
+sub retrieve {
+  $main::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  # connect to database
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my ($query, $query_add, @values, $sth, $ref);
+
+  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
+                                          dbh    => $dbh);
+
+  my $vc   = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+
+  my $mode = !$params{ids} ? 'default' : ref $params{ids} eq 'ARRAY' ? 'multi' : 'single';
+
+  if ($mode eq 'default') {
+    $ref = selectfirst_hashref_query($form, $dbh, qq|SELECT current_date AS transdate|);
+    map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+    # if reqdate is not set from oe-workflow, set it to transdate (which is current date)
+    $form->{reqdate} ||= $form->{transdate};
+
+    # get last name used
+    $form->lastname_used($dbh, $myconfig, $vc) unless $form->{"${vc}_id"};
+
+    $main::lxdebug->leave_sub();
+
+    return 1;
+  }
+
+  my @do_ids              = map { conv_i($_) } ($mode eq 'multi' ? @{ $params{ids} } : ($params{ids}));
+  my $do_ids_placeholders = join(', ', ('?') x scalar(@do_ids));
+
+  # retrieve order for single id
+  # NOTE: this query is intended to fetch all information only ONCE.
+  # so if any of these infos is important (or even different) for any item,
+  # it will be killed out and then has to be fetched from the item scope query further down
+  $query =
+    qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate, dord.tax_point,
+         dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
+         e.name AS employee, dord.employee_id, dord.salesman_id,
+         dord.${vc}_id, cv.name AS ${vc},
+         dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
+         d.description AS department, dord.language_id,
+         dord.shipto_id, dord.billing_address_id,
+         dord.itime, dord.mtime,
+         dord.globalproject_id, dord.delivered, dord.transaction_description,
+         dord.taxzone_id, dord.taxincluded, dord.payment_id, (SELECT cu.name FROM currencies cu WHERE cu.id=dord.currency_id) AS currency,
+         dord.delivery_term_id, dord.itime::DATE AS insertdate
+       FROM delivery_orders dord
+       JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
+       LEFT JOIN employee e ON (dord.employee_id = e.id)
+       LEFT JOIN department d ON (dord.department_id = d.id)
+       WHERE dord.id IN ($do_ids_placeholders)|;
+  $sth = prepare_execute_query($form, $dbh, $query, @do_ids);
+
+  delete $form->{"${vc}_id"};
+  my $pos = 0;
+  $form->{ordnumber_array} = ' ';
+  $form->{cusordnumber_array} = ' ';
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    if ($form->{"${vc}_id"} && ($ref->{"${vc}_id"} != $form->{"${vc}_id"})) {
+      $sth->finish();
+      $main::lxdebug->leave_sub();
+
+      return 0;
+    }
+
+    map { $form->{$_} = $ref->{$_} } keys %$ref if ($ref);
+    $form->{donumber_array} .= $form->{donumber} . ' ';
+    $pos = index($form->{ordnumber_array},' ' . $form->{ordnumber} . ' ');
+    if ($pos == -1) {
+      $form->{ordnumber_array} .= $form->{ordnumber} . ' ';
+    }
+    $pos = index($form->{cusordnumber_array},' ' . $form->{cusordnumber} . ' ');
+    if ($pos == -1) {
+      $form->{cusordnumber_array} .= $form->{cusordnumber} . ' ';
+    }
+  }
+  $sth->finish();
+  $form->{mtime}   ||= $form->{itime};
+  $form->{lastmtime} = $form->{mtime};
+  $form->{donumber_array} =~ s/\s*$//g;
+  $form->{ordnumber_array} =~ s/ //;
+  $form->{ordnumber_array} =~ s/\s*$//g;
+  $form->{cusordnumber_array} =~ s/ //;
+  $form->{cusordnumber_array} =~ s/\s*$//g;
+
+  $form->{saved_donumber} = $form->{donumber};
+  $form->{saved_ordnumber} = $form->{ordnumber};
+  $form->{saved_cusordnumber} = $form->{cusordnumber};
+
+  # if not given, fill transdate with current_date
+  $form->{transdate} = $form->current_date($myconfig) unless $form->{transdate};
+
+  if ($mode eq 'single') {
+    $query = qq|SELECT s.* FROM shipto s WHERE s.trans_id = ? AND s.module = 'DO'|;
+    $sth   = prepare_execute_query($form, $dbh, $query, $form->{id});
+
+    $ref   = $sth->fetchrow_hashref("NAME_lc");
+    $form->{$_} = $ref->{$_} for grep { m{^shipto(?!_id$)} } keys %$ref;
+    $sth->finish();
+
+    if ($ref->{shipto_id}) {
+      my $cvars = CVar->get_custom_variables(
+        dbh      => $dbh,
+        module   => 'ShipTo',
+        trans_id => $ref->{shipto_id},
+      );
+      $form->{"shiptocvar_$_->{name}"} = $_->{value} for @{ $cvars };
+    }
+
+    # get printed, emailed and queued
+    $query = qq|SELECT s.printed, s.emailed, s.spoolfile, s.formname FROM status s WHERE s.trans_id = ?|;
+    $sth   = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
+
+    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
+      $form->{printed} .= "$ref->{formname} " if $ref->{printed};
+      $form->{emailed} .= "$ref->{formname} " if $ref->{emailed};
+      $form->{queued}  .= "$ref->{formname} $ref->{spoolfile} " if $ref->{spoolfile};
+    }
+    $sth->finish();
+    map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
+
+  } else {
+    delete $form->{id};
+  }
+
+  # retrieve individual items
+  # this query looks up all information about the items
+  # stuff different from the whole will not be overwritten, but saved with a suffix.
+  $query =
+    qq|SELECT doi.id AS delivery_order_items_id,
+         p.partnumber, p.part_type, p.listprice, doi.description, doi.qty,
+         doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.notes AS partnotes,
+         doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
+         doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
+         doi.price_factor_id, doi.price_factor, doi.marge_price_factor, doi.pricegroup_id,
+         doi.active_price_source, doi.active_discount_source,
+         pr.projectnumber, dord.transdate AS dord_transdate, dord.donumber,
+         pg.partsgroup
+       FROM delivery_order_items doi
+       JOIN parts p ON (doi.parts_id = p.id)
+       JOIN delivery_orders dord ON (doi.delivery_order_id = dord.id)
+       LEFT JOIN project pr ON (doi.project_id = pr.id)
+       LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
+       WHERE doi.delivery_order_id IN ($do_ids_placeholders)
+       ORDER BY doi.delivery_order_id, doi.position|;
+
+  $form->{form_details} = selectall_hashref_query($form, $dbh, $query, @do_ids);
+
+  # Retrieve custom variables.
+  foreach my $doi (@{ $form->{form_details} }) {
+    my $cvars = CVar->get_custom_variables(dbh        => $dbh,
+                                           module     => 'IC',
+                                           sub_module => 'delivery_order_items',
+                                           trans_id   => $doi->{delivery_order_items_id},
+                                          );
+    map { $doi->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
+
+    my $makemodel = SL::DB::Manager::MakeModel->find_by(parts_id => $doi->{id}, make =>$form->{vendor_id});
+    $doi->{vendor_partnumber} = $makemodel->model if $makemodel;
+  }
+  if ($mode eq 'single') {
+    my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
+
+    $query =
+      qq|SELECT id as delivery_order_items_stock_id, qty, unit, bin_id,
+                warehouse_id, chargenumber, bestbefore
+         FROM delivery_order_items_stock
+         WHERE delivery_order_item_id = ?|;
+    my $sth = prepare_query($form, $dbh, $query);
+
+    foreach my $doi (@{ $form->{form_details} }) {
+      do_statement($form, $sth, $query, conv_i($doi->{delivery_order_items_id}));
+      my $requests = [];
+      while (my $ref = $sth->fetchrow_hashref()) {
+        push @{ $requests }, $ref;
+      }
+
+      $doi->{"stock_${in_out}"} = SL::YAML::Dump($requests);
+    }
+
+    $sth->finish();
+  }
+
+  Common::webdav_folder($form);
+
+  $main::lxdebug->leave_sub();
+
+  return 1;
+}
+
 sub order_details {
   $main::lxdebug->enter_sub();
 
