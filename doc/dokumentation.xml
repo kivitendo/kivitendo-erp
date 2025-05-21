@@ -10498,6 +10498,109 @@ $some_hash{42}    = 54;</programlisting>
       </orderedlist>
     </sect1>
 
+    <sect1 id="devel.design40.design-40-lesscss-anpassen">
+      <title>Design 4.0 Less/CSS Anpassen</title>
+      <sect2 id="devel.design40.einführung">
+        <title>Einführung</title>
+        <para>
+          Das Design 4.0 ist mit Less aufgebaut. Less Erweitert CSS um
+          einige nützliche Funktionen. Mehr dazu siehe:
+          <ulink url="https://lesscss.org/">Getting started |
+          Less.js</ulink> (Englisch)
+        </para>
+        <para>
+          Die Less Dateien befinden sich unter:
+          <literal>css/design40/less</literal>
+        </para>
+      </sect2>
+      <sect2 id="devel.design40.less-kompilieren">
+        <title>Less kompilieren</title>
+        <para>
+          Da der Browser keine Less Dateien versteht müssen diese zu CSS
+          kompiliert werden. Der zu verwendende compiler heisst lessc. Unter
+          Debian kann dieser installiert werden mit:
+        </para>
+        <programlisting>
+    sudo apt install node-less
+    </programlisting>
+        <para>
+          Zum kompilieren der Dateien aus dem Verzeichnis der less Dateien
+          den folgenden Befehl ausführen:
+        </para>
+        <programlisting>
+    lessc -x style.less ../style.css
+    </programlisting>
+        <para>
+          Dies produziert das neue style sheet oder gibt einen Fehler aus.
+        </para>
+      </sect2>
+      <sect2 id="devel.design40.lokale-anpassungen-nicht-entwicklung">
+        <title>Lokale Anpassungen (nicht Entwicklung)</title>
+        <para>
+          Für lokale Anpassungen sollten die folgenden Dateien verwendet
+          werden:
+        </para>
+        <itemizedlist spacing="compact">
+          <listitem>
+            <para>
+              custom-variables.less (überschreibt Variablen in
+              variable.less)
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              custom.less (überschreibt am Ende alle originalen
+              Kivitendo-LESS-Inhalte)
+            </para>
+          </listitem>
+        </itemizedlist>
+        <para>
+          Diese Dateien können leer sein, wenn Sie die Kivitendo-CSS-Inhalte
+          nicht anpassen möchten. Die originalen Custom-Dateien enthalten
+          nur Kommentare und deaktivierte Beispielcode.
+        </para>
+        <para>
+          Nach dem anpassen müssen die less Dateien wie oben beschrieben neu
+          kompiliert werden.
+        </para>
+        <sect3 id="devel.design40.beispiel-für-anpassung-von-farben">
+          <title>Beispiel für Anpassung von Farben</title>
+          <para>
+            Siehe dazu die Beispieldatei unter:
+            <literal>css/design40/less/custom_less_variables-example.less</literal>
+          </para>
+          <figure>
+            <title>Screenshot mit einigen Variablennamen beschriftet</title>
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/kivitendo-color-variables.png" />
+              </imageobject>
+              <textobject><phrase>Screenshot mit einigen Variablennamen
+              beschriftet</phrase></textobject>
+            </mediaobject>
+          </figure>
+        </sect3>
+      </sect2>
+      <sect2 id="devel.design40.weiteres">
+        <title>Weiteres</title>
+        <para>
+          Weitere Informationen siehe auch:
+          <literal>css/design40/less/READ_ME.md</literal>
+        </para>
+        <para>
+          HTML Entwickler Dokumentation Kivitendo-CSS (Design 4.0) unter:
+          <emphasis>DEVELOPER TOOLS → CSS Dokumentation</emphasis>
+          (<literal>css/design40/manual/index.html</literal>)
+        </para>
+        <tip>
+          <para>
+            Die HTML Seiten können auch als Live Test Seiten für das
+            Design verwendet werden.
+          </para>
+        </tip>
+      </sect2>
+    </sect1>
+
     <sect1 id="devel.build-doc" xreflabel="Dokumentation erstellen">
       <title>Dokumentation erstellen</title>
 
