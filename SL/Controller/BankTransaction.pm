@@ -332,7 +332,7 @@ sub action_ajax_payment_suggestion {
   my ($self) = @_;
 
   # based on a BankTransaction ID and a Invoice or PurchaseInvoice ID passed via $::form,
-  # create an HTML blob to be used by the js function add_invoices in templates/webpages/bank_transactions/list.html
+  # create an HTML blob to be used by the js function add_invoices in templates/design40_webpages/bank_transactions/list.html
   # and return encoded as JSON
 
   croak("Need bt_id") unless $::form->{bt_id};

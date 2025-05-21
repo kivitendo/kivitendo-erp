@@ -194,7 +194,7 @@ What is rendered and how C<$template> is interpreted is determined
 both by C<$template>'s reference type and by the supplied options.
 
 If C<$template> is a normal scalar (not a reference) then it is meant
-to be a template file name relative to the C<templates/webpages>
+to be a template file name relative to the C<templates/design40_webpages>
 directory. The file name to use is determined by the C<type> option.
 
 If C<$template> is a reference to a scalar then the referenced
