@@ -992,7 +992,6 @@ sub send_email {
       }
 
     } else {
-
       if ($self->{attachment_policy} eq 'merge_file') {
         my $id = $::form->{id} ? $::form->{id} : undef;
         my $latest_documents  = SL::DB::Manager::File->get_all(query =>
@@ -1019,7 +1018,6 @@ sub send_email {
           }
           SL::Helper::CreatePDF->merge_pdfs(file_names => $files, out_path => $self->{tmpfile});
         }
-
       }
       push @{ $mail->{attachments} }, { path => $self->{tmpfile},
                                         id   => $self->{print_file_id},
