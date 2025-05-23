@@ -92,6 +92,8 @@ sub action_edit {
   my ($self) = @_;
   die "No 'id' was given." unless $::form->{id};
 
+  $self->load_record();
+
   $self->pre_render();
   $self->render(
     'invoice/form',
@@ -1213,6 +1215,37 @@ sub render_price_dialog {
     ->reinit_widgets;
 
   $self->js->render;
+}
+
+sub load_record {
+  my ($self) = @_;
+
+
+  return if !$::form->{id};
+
+  die "type needed" unless $::form->{type};
+  my $record_type = $::form->{type};
+  my $db_class;
+  if      (any { $record_type eq $_ } (@{SL::DB::Invoice::TypeData->valid_types})) {
+    $db_class = 'SL::DB::Invoice';
+  } elsif (any { $record_type eq $_ } (@{SL::DB::PurchaseInvoice::TypeData->valid_types})) {
+    $db_class = 'SL::DB::PurchaseInvoice';
+  } else {
+    die "type has invalid value '$record_type'";
+  }
+
+  $self->record($db_class->new(
+    id => $::form->{id}
+  )->load(
+    with => [
+      'invoiceitems',
+      'invoiceitems.part',
+    ]
+  ));
+
+  #$self->reinit_after_new_order();
+
+  return $self->record;
 }
 
 # load or create a new record object
