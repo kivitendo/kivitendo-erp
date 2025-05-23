@@ -85,11 +85,13 @@
           [%- IF is_final_version %]
             [% options = [
                  [ "old_file", LxERP.t8("Send the last version for this record") ],
+                 [ "merge_file", LxERP.t8("Merge all PDF files which are in the tab 'Documents', place created doc first.") ],
                  [ "no_file",  no_file_label ], ]
             %]
           [%- ELSE %]
             [% options = [
                  [ "old_file", LxERP.t8("Send the last or create the first version for this record") ],
+                 [ "merge_file", LxERP.t8("Merge all PDF files which are in the tab 'Documents', place created doc first.") ],
                  [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
                  [ "no_file",  no_file_label ], ]
             %]

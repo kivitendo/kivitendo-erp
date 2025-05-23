@@ -2396,6 +2396,7 @@ $self->{texts} = {
   'Memo'                        => '',
   'Merchandise'                 => 'Merchandise',
   'Merchandise (typeabbreviation)' => 'M',
+  'Merge all PDF files which are in the tab \'Documents\', place created doc first.' => '',
   'Message'                     => '',
   'Meta tag description'        => '',
   'Meta tag keywords'           => '',
