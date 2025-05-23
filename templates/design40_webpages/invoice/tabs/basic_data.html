@@ -396,9 +396,7 @@
       <th>[% 'Extended'     | $T8 %]</th>
     </tr>
   </thead>
-    ITEMSSSDFLKJHBÖSIDFJHBÖSKDJFHÖSIDJFHB! for [% SELF.record.items_sorted.size %]
   [% FOREACH item = SELF.record.items_sorted %]
-    JHDSBFLSKJDBFKSJDBF
     [% PROCESS invoice/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
   <tfoot>
