@@ -1241,7 +1241,7 @@ sub make_record {
       record_type  => $record_type,
       currency_id  => $::instance_conf->get_currency_id(),
     );
-    # $record = SL::Model::Record->update_after_new($record)
+    $record = SL::Model::Record->update_after_new($record);
   }
 
   my $cv_id_method = $record->type_data->properties('customervendor'). '_id';
