@@ -91,6 +91,28 @@
       </tr>
       [%- END %]
       [% PROCESS invoice/tabs/_business_info_row.html SELF=SELF %]
+      [%- IF SELF.type_data.properties('is_customer') %]
+      <tr>
+        <th>[% 'Credit Limit' | $T8 %]</th>
+        <td>
+          [% SET creditremaining = SELF.record.customer.creditremaining %]
+          <span class="data wi-wide">[% LxERP.format_amount(SELF.record.customer.creditlimit, 0, '0') %], [% 'Remaining' | $T8 %]
+            <span class="plus[% IF creditremaining < 0 %]0[% ELSE %]1[% END %]">[% LxERP.format_amount(creditremaining, 0 ,'0') %]</span>
+          </span>
+        </td>
+      </tr>
+      [%- END %]
+      [% IF SELF.record.sepa_exports.as_list.size %]
+        <tr>
+          <th>[% LxERP.t8("SEPA exports") %]</th>
+          <td>
+           [% FOREACH export = SELF.record.sepa_exports.as_list %]
+             <a href="sepa.pl?action=bank_transfer_edit&vc=customer&id=[% HTML.url(export.id) %]">[% HTML.escape(export.id) %]</a>
+             [% UNLESS loop.last %], [% END %]
+           [% END %]
+          </td>
+        </tr>
+      [% END %]
       <tr>
         <th>[% 'Steuersatz' | $T8 %]</th>
         <td>[% L.select_tag('record.taxzone_id', SELF.all_taxzones, default=SELF.record.taxzone_id, title_key='description', class='recalc wi-lightwide') %]</td>
