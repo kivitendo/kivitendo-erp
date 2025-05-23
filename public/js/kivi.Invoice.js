@@ -43,7 +43,7 @@ namespace('kivi.Invoice', function(ns) {
     }
   };
 
-  ns.save = function(params) {
+  ns.post = function(params) {
     if (!ns.check_cv()) return;
 
     const action             = params.action;
