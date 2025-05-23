@@ -13,7 +13,7 @@ use SL::Model::Record;
 
 use Archive::Zip;
 use Params::Validate qw(:all);
-use List::Util qw(first sum0);
+use List::Util qw(first sum0 none);
 use List::MoreUtils qw(any first_index pairwise);
 
 use SL::DB::File;
@@ -660,7 +660,7 @@ sub pre_render {
 
   if ($self->record->record_number && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
-      type     => $self->type,
+      type     => $self->record->type,
       number   => $self->record->record_number,
     );
     my @all_objects = $webdav->get_all_objects;
@@ -877,7 +877,7 @@ sub setup_action_bar {
   my $may_edit_create         = $::auth->assert('invoice_edit', 1);
   my $factur_x_enabled        = $self->record && $self->type_data->properties('is_customer') && $self->record->customer
                              && $self->record->customer->create_zugferd_invoices_for_this_customer;
-  my $locked                  = $self->record->transdate && $self->record->transdate <= $::instance_conf->get_closedto;
+  my $locked                  = $self->record->transdate && $self->record->transdate <= SL::DB::Default->get->closedto;
 
   my $is_linked_bank_transaction = $self->record->id
       && SL::DB::Default->get->payments_changeable != 0
@@ -887,19 +887,19 @@ sub setup_action_bar {
       && !$self->record->id && $::form->{convert_from_record_type_ref} ne 'SL::DB::DeliveryOrder';  # TODO make this more robust
 
   my $has_further_invoice_for_advance_payment;
-  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+  if ($self->record->id && $self->record->type eq "invoice_for_advance_payment") {
     my $lr          = $self->record->linked_records(direction => 'to', to => ['Invoice']);
     $has_further_invoice_for_advance_payment = any {'SL::DB::Invoice' eq ref $_ && "invoice_for_advance_payment" eq $_->type} @$lr;
   }
 
   my $has_final_invoice;
-  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+  if ($self->record->id && $self->record->type eq "invoice_for_advance_payment") {
     my $lr          = $self->record->linked_records(direction => 'to', to => ['Invoice']);
     $has_final_invoice = any {'SL::DB::Invoice' eq ref $_ && "final_invoice" eq $_->invoice_type} @$lr;
   }
 
   my $is_invoice_for_advance_payment_from_order;
-  if ($self->record->id && $self->type eq "invoice_for_advance_payment") {
+  if ($self->record->id && $self->record->type eq "invoice_for_advance_payment") {
     my $lr          = $self->record->linked_records(direction => 'from', from => ['Order']);
     $is_invoice_for_advance_payment_from_order = scalar @$lr >= 1;
   }
@@ -1077,7 +1077,7 @@ sub setup_action_bar {
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create       ? t8('You must not print this invoice.')
                     : !$self->record->id      ? t8('This invoice has not been posted yet.')
-                    : $self->type_data->properties('is_customer') && $self->customer && $self->customer->postal_invoice ? t8('This customer wants a postal invoices.')
+                    : $self->type_data->properties('is_customer') && $self->record->customer->postal_invoice ? t8('This customer wants a postal invoices.')
                     :                     undef,
         ],
         action => [ t8('Factur-X/ZUGFeRD'),
