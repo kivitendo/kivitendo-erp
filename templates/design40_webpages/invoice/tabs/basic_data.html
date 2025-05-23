@@ -147,42 +147,40 @@
     </tbody>
   </table>
 
-  <table class="tbl-horizontal col">
-    <caption>[% 'Terms' | $T8 %]</caption>
-    <colgroup><col class="wi-mediumsmall"><col class="wi-lightwide"></colgroup>
-    <tbody>
-      <tr>
-        <td colspan="2">
-          <span class="label above">[% 'Payment Terms' | $T8 %]</span>
-          [% L.select_tag('record.payment_id',
-                            SELF.all_payment_terms,
-                            default = SELF.record.payment_id,
-                            with_empty = 1,
-                            title_key = 'description',
-                            class = 'wi-mediumsmall-lightwide') %]
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
-          [% L.select_tag('record.delivery_term_id',
-                            SELF.all_delivery_terms,
-                            default = SELF.record.delivery_term_id,
-                            with_empty = 1,
-                            title_key = 'description',
-                            class = 'wi-mediumsmall-lightwide') %]
-        </td>
-      </tr>
-      <tr id="taxincluded_row_id" [% IF !SELF.taxes.size %]class="hidden"[% END %]>
-        <th><label for="record.taxincluded">[% 'Tax Included' | $T8 %]</label></th>
-        <td>[% L.yes_no_tag('record.taxincluded', SELF.record.taxincluded, class='recalc') %]</td>
-      </tr>
-    </tbody>
-  </table>
-
 </div><!-- /.col -->
 
 <table class="tbl-horizontal col">
+  <caption>[% 'Terms' | $T8 %]</caption>
+  <colgroup><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      <td colspan="2">
+        <span class="label above">[% 'Payment Terms' | $T8 %]</span>
+        [% L.select_tag('record.payment_id',
+                          SELF.all_payment_terms,
+                          default = SELF.record.payment_id,
+                          with_empty = 1,
+                          title_key = 'description',
+                          class = 'wi-mediumsmall-lightwide') %]
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
+        [% L.select_tag('record.delivery_term_id',
+                          SELF.all_delivery_terms,
+                          default = SELF.record.delivery_term_id,
+                          with_empty = 1,
+                          title_key = 'description',
+                          class = 'wi-mediumsmall-lightwide') %]
+      </td>
+    </tr>
+    <tr id="taxincluded_row_id" [% IF !SELF.taxes.size %]class="hidden"[% END %]>
+      <th><label for="record.taxincluded">[% 'Tax Included' | $T8 %]</label></th>
+      <td>[% L.yes_no_tag('record.taxincluded', SELF.record.taxincluded, class='recalc') %]</td>
+    </tr>
+  </tbody>
+
   <caption>[% 'Notes' | $T8 %]</caption>
   <colgroup><col class="wi-wide"></colgroup>
   <tbody>
@@ -376,7 +374,9 @@
       <th>[% 'Extended'     | $T8 %]</th>
     </tr>
   </thead>
+    ITEMSSSDFLKJHBÖSIDFJHBÖSKDJFHÖSIDJFHB! for [% SELF.record.items_sorted.size %]
   [% FOREACH item = SELF.record.items_sorted %]
+    JHDSBFLSKJDBFKSJDBF
     [% PROCESS invoice/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
   <tfoot>
