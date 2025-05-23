@@ -589,7 +589,9 @@ sub bank_transfer_download_sepa_xml {
                                  'reference_date' => $item->{reference_date},
                                  'execution_date' => $requested_execution_date,
                                  'end_to_end_id'  => $item->{end_to_end_id},
-                                 'date_of_signature' => $item->{mandate_date_of_signature}, });
+                                 'date_of_signature' => $item->{mandate_date_of_signature},
+                                 'mandate_used'      => $item->{vc_mandate_used},
+                               });
   }
 
   # Store the message ID used in each of the entries in order to

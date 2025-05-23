@@ -5,7 +5,7 @@ use utf8;
 
 use Carp;
 use Encode;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(all any);
 use List::Util qw(first sum);
 use POSIX qw(strftime);
 use XML::Writer;
@@ -246,7 +246,7 @@ sub to_xml {
       $xml->startTag('LclInstrm');
       $xml->dataElement('Cd', 'CORE');
       $xml->endTag('LclInstrm');
-      $xml->dataElement('SeqTp', 'OOFF');
+      $xml->dataElement('SeqTp', (all { $_->{mandate_used} } @{ $transaction_group->{transactions} }) ? 'RCUR' : 'FRST');
     }
     $xml->endTag('PmtTpInf');
 

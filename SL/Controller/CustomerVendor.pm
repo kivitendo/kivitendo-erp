@@ -235,6 +235,15 @@ sub _save {
       if ( $self->{cv}->customernumber ) {
         $cvs_by_nr = SL::DB::Manager::Customer->get_all(query => [customernumber => $self->{cv}->customernumber]);
       }
+
+      if ($self->{cv}->id) {
+        # reset field "mandate_used" if mandate ID is changed
+        my $existing_customer = SL::DB::Customer->new(id => $self->{cv}->id)->load;
+
+        if ($existing_customer->mandator_id ne $self->{cv}->mandator_id) {
+          $self->{cv}->mandate_used(0);
+        }
+      }
     }
 
     foreach my $entry (@{$cvs_by_nr}) {

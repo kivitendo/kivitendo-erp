@@ -120,8 +120,8 @@ sub _create_export {
 
   my $q_item_id = qq|SELECT nextval('id')|;
   my $h_item_id = prepare_query($form, $dbh, $q_item_id);
-  my $c_mandate = $params{vc} eq 'customer' ? ', vc_mandator_id, vc_mandate_date_of_signature' : '';
-  my $p_mandate = $params{vc} eq 'customer' ? ', ?, ?' : '';
+  my $c_mandate = $params{vc} eq 'customer' ? ', vc_mandator_id, vc_mandate_date_of_signature, vc_mandate_used' : '';
+  my $p_mandate = $params{vc} eq 'customer' ? ', ?, ?, (SELECT mandate_used FROM customer WHERE id = (SELECT customer_id FROM ar WHERE id = ?))' : '';
 
   my $q_insert =
     qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
@@ -133,6 +133,21 @@ sub _create_export {
                                       ?,           ?,                        ?,           ?,
                                       ?,           ? ${p_mandate})|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
+
+  my ($q_update_customer, $h_update_customer);
+  if ($params{vc} eq 'customer') {
+    $q_update_customer = qq|
+      UPDATE customer
+      SET mandate_used = true
+      WHERE id = (
+        SELECT customer_id
+        FROM ar
+        WHERE ar.id = ?
+      )
+|;
+
+    $h_update_customer = prepare_query($form, $dbh, $q_update_customer);
+  }
 
   my $q_reference =
     qq|SELECT arap.invnumber,
@@ -189,13 +204,20 @@ sub _create_export {
     };
     push(@values, $transfer->{payment_type});
 
-    push @values, $transfer->{vc_mandator_id}, conv_date($transfer->{vc_mandate_date_of_signature}) if $params{vc} eq 'customer';
+    if ($params{vc} eq 'customer') {
+      push @values, $transfer->{vc_mandator_id}, conv_date($transfer->{vc_mandate_date_of_signature}), conv_i($transfer->{"${arap}_id"});
+    }
 
     do_statement($form, $h_insert, $q_insert, @values);
+
+    if ($h_update_customer) {
+      do_statement($form, $h_update_customer, $q_update_customer, conv_i($transfer->{"${arap}_id"}));
+    }
   }
 
   $h_insert->finish();
   $h_item_id->finish();
+  $h_update_customer->finish if $h_update_customer;
 
   return $export_id;
 }

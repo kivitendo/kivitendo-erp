@@ -29,6 +29,7 @@ __PACKAGE__->meta->columns(
   vc_depositor                 => { type => 'text' },
   vc_iban                      => { type => 'varchar', length => 100 },
   vc_mandate_date_of_signature => { type => 'date' },
+  vc_mandate_used              => { type => 'boolean', default => 'true', not_null => 1 },
   vc_mandator_id               => { type => 'text' },
 );
 

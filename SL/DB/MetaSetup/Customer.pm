@@ -49,6 +49,7 @@ __PACKAGE__->meta->columns(
   language                  => { type => 'text' },
   language_id               => { type => 'integer' },
   mandate_date_of_signature => { type => 'date' },
+  mandate_used              => { type => 'boolean', default => 'false', not_null => 1 },
   mandator_id               => { type => 'text' },
   mtime                     => { type => 'timestamp' },
   name                      => { type => 'text', not_null => 1 },
