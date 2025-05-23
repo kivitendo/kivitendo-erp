@@ -87,6 +87,19 @@ sub action_add {
   );
 }
 
+# edit an existing order
+sub action_edit {
+  my ($self) = @_;
+  die "No 'id' was given." unless $::form->{id};
+
+  $self->pre_render();
+  $self->render(
+    'invoice/form',
+    title => $self->type_data->text('edit'),
+    %{$self->{template_args}}
+  );
+}
+
 # set form elements in respect to a changed customer or vendor
 #
 # This action is called on an change of the customer/vendor picker.
