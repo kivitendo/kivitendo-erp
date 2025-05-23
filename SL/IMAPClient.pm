@@ -15,6 +15,7 @@ use File::MimeInfo::Magic;
 use Encode qw(encode decode);
 use Encode::IMAPUTF7;
 use SL::Locale;
+use Try::Tiny;
 
 use SL::SessionFile;
 use SL::Locale::String qw(t8);
@@ -124,6 +125,14 @@ sub update_emails_from_folder {
       type     => HASHREF | UNDEF,
       optional => 1,
     },
+    skip_broken_mime_mails => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
+    not_imported_imap_flag => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
   });
   my $folder_path = $params{folder} || $self->{base_folder};
 
@@ -133,6 +142,8 @@ sub update_emails_from_folder {
       base_folder_path     => $folder_path,
       folder_strings       => [$folder_string],
       email_journal_params => $params{email_journal_params},
+      skip_broken_mime_mails => $params{skip_broken_mime_mails},
+      not_imported_imap_flag => $params{not_imported_imap_flag},
     );
 
   return $email_import;
@@ -149,6 +160,10 @@ sub update_emails_from_subfolders {
       type     => HASHREF | UNDEF,
       optional => 1,
     },
+    skip_broken_mime_mails => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
   });
   my $base_folder_path = $params{base_folder} || $self->{base_folder};
 
@@ -162,6 +177,7 @@ sub update_emails_from_subfolders {
       base_folder_path     => $base_folder_path,
       folder_strings       => \@subfolder_strings,
       email_journal_params => $params{email_journal_params},
+      skip_broken_mime_mails => $params{skip_broken_mime_mails},
     );
 
   return $email_import;
@@ -176,8 +192,16 @@ sub _update_emails_from_folder_strings {
       type     => HASHREF | UNDEF,
       optional => 1,
     },
-  });
+    skip_broken_mime_mails => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
+    not_imported_imap_flag => {
+      type     => SCALAR | UNDEF,
+      optional => 1,
+    },
 
+  });
   my $dbh = SL::DB->client->dbh;
 
   my $email_import;
@@ -211,19 +235,31 @@ SQL
       next unless @new_msg_uids;
 
       $email_import ||= $self->_create_email_import(folder_path => $params{base_folder_path})->save();
-
       foreach my $new_uid (@new_msg_uids) {
         my $new_email_string = $self->{imap_client}->message_string($new_uid);
-        my $email = Email::MIME->new($new_email_string);
-        my $email_journal = $self->_create_email_journal(
-          email                => $email,
-          email_import         => $email_import,
-          uid                  => $new_uid,
-          folder_string        => $folder_string,
-          folder_uidvalidity   => $folder_uidvalidity,
-          email_journal_params => $params{email_journal_params},
-        );
-        $email_journal->save();
+        my $email;
+        try {
+          $email = Email::MIME->new($new_email_string);
+          my $email_journal = $self->_create_email_journal(
+            email                => $email,
+            email_import         => $email_import,
+            uid                  => $new_uid,
+            folder_string        => $folder_string,
+            folder_uidvalidity   => $folder_uidvalidity,
+            email_journal_params => $params{email_journal_params},
+          );
+          $email_journal->save();
+        } catch {
+
+          $self->{imap_client}->set_flag($params{not_imported_imap_flag}, [$new_uid])
+            if $params{not_imported_imap_flag};
+
+          my ($headers, $body) = split /\n\n/, $new_email_string;
+          my @subjects = grep {/^subject: +/i} (split /\n/, $headers);
+
+          die t8("Error while attempting to parse email.\nUID: '#1'\n'#2'\nError reported: '#3'", $new_uid, $subjects[0], $_)
+            unless $params{skip_broken_mime_mails};
+        }
       }
     }
   });
@@ -750,6 +786,10 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
   Updates the emails for a folder. Checks which emails are missing and
   fetches these from the IMAP server. Returns the created email import object.
+  Accepts some optional params, for instance <Cskip_broken_mime_mails> which
+  silently surpresses error message if a email is not MIME compatible.
+  This is useful if loads of emails needs to be imported and the importer
+  doesn´t really care about some not parseable mails.
 
 =item C<update_emails_from_subfolders>
 
