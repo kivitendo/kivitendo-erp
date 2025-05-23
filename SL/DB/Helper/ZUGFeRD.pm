@@ -817,7 +817,6 @@ sub import_zugferd_data {
       can => qw(metadata items)
     }
   );
-
   my %metadata = %{$zugferd_parser->metadata};
   my @items = @{$zugferd_parser->items};
 
@@ -837,6 +836,11 @@ sub import_zugferd_data {
            $metadata{'taxnumber'},
            $metadata{'vendor_name'},
   ) unless $vendor;
+  # before wrongly guessing stuff, just load template or die .. move upwards -> DONE!
+  # TODO get_first is a bit dangerous too ...
+  my %template_params;
+  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
+  die t8("There is no template for this vendor. Cannot automatically process the ZUGFeRD data.");
 
 
   # Check IBAN specified on bill matches the one we've got in
@@ -886,9 +890,6 @@ sub import_zugferd_data {
   die t8(
     "No tax found for chart #1", $default_ap_amount_chart->displayable_name
   ) unless scalar @{$taxes};
-  # before wrongly guessing stuff, just load template or die .. move upwards!
-  my %template_params;
-  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
   if ($template_ap) {
     $template_params{globalproject_id}        = $template_ap->project_id;
     $template_params{payment_id}              = $template_ap->payment_id;
