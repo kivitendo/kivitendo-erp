@@ -52,7 +52,7 @@ my %type_data = (
       show_reqdate   => 1,
     },
     defaults => {
-      # TODO
+      duedate => sub { DateTime->today_local },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -92,7 +92,7 @@ my %type_data = (
       has_marge      => 0,
     },
     defaults => {
-      # TODO
+      duedate => sub {  },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -135,7 +135,7 @@ my %type_data = (
       show_reqdate   => 1,
     },
     defaults => {
-      # TODO
+      duedate => sub {  },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -178,7 +178,7 @@ my %type_data = (
       show_reqdate   => 1,
     },
     defaults => {
-      # TODO
+      duedate => sub {  },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -221,7 +221,7 @@ my %type_data = (
       show_reqdate   => 1,
     },
     defaults => {
-      # TODO
+      duedate => sub {  },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
@@ -264,7 +264,7 @@ my %type_data = (
       has_marge      => 0,
     },
     defaults => {
-      # TODO
+      duedate => sub {  },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
     rights => {
