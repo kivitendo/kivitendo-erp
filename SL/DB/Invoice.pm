@@ -299,7 +299,7 @@ sub new_from {
 sub post {
   my ($self, %params) = @_;
 
-  die "not an invoice" unless $self->invoice;
+  die "not an invoice" unless $self->type_data->properties('is_invoice');
 
   require SL::DB::Chart;
   if (!$params{ar_id}) {

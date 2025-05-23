@@ -102,6 +102,31 @@ sub action_edit {
   );
 }
 
+# post the record
+sub action_post {
+  my ($self) = @_;
+
+  $self->post();
+
+  flash_later('info', $self->type_data->text('posted'));
+
+  my @redirect_params;
+  if ($::form->{back_to_caller}) {
+    @redirect_params = $::form->{callback} ? ($::form->{callback})
+                                           : (controller => 'LoginScreen', action => 'user_login');
+
+  } else {
+    @redirect_params = (
+      action   => 'edit',
+      type     => $self->record->record_type,
+      id       => $self->record->id,
+      callback => $::form->{callback},
+    );
+  }
+
+  $self->redirect_to(@redirect_params);
+}
+
 # set form elements in respect to a changed customer or vendor
 #
 # This action is called on an change of the customer/vendor picker.
@@ -601,6 +626,67 @@ sub action_files_pdf_export {
   $self->_create_and_send_zip(\@file_names_and_file_paths);
 }
 
+# post the record
+#
+# And delete items that are deleted in the form.
+#
+# currently only supports posting new invoices, not updating old ones
+sub post {
+  my ($self) = @_;
+
+  my $is_new = !$self->record->id;
+
+  # TODO: converted from
+#   set_record_link_conversions($self->record,
+#     delete $::form->{RECORD_TYPE_REF()}
+#       => delete $::form->{RECORD_ID()},
+#     delete $::form->{RECORD_ITEM_TYPE_REF()}
+#       => delete $::form->{RECORD_ITEM_ID()},
+#   );
+#
+#   my @converted_from_oe_ids;
+#   if ($self->order->{RECORD_TYPE_REF()} eq 'SL::DB::Order'
+#       && $self->order->{RECORD_ID()}) {
+#     @converted_from_oe_ids = split ' ', $self->order->{RECORD_ID()};
+#   }
+#
+#   my $objects_to_close = scalar @converted_from_oe_ids
+#                        ? SL::DB::Manager::Order->get_all(where => [
+#                            id => \@converted_from_oe_ids,
+#                            or => [  record_type => SALES_QUOTATION_TYPE(),
+#                                     record_type => REQUEST_QUOTATION_TYPE(),
+#                                    (record_type => PURCHASE_QUOTATION_INTAKE_TYPE()) x $self->order->is_type(PURCHASE_ORDER_TYPE()),
+#                                    (record_type => PURCHASE_ORDER_TYPE())            x $self->order->is_type(PURCHASE_ORDER_CONFIRMATION_TYPE())  ]
+#                            ])
+#                        : undef;
+
+  my $items_to_delete  = scalar @{ $self->item_ids_to_delete || [] }
+                       ? SL::DB::Manager::InvoiceItem->get_all(where => [id => $self->item_ids_to_delete])
+                       : undef;
+
+  SL::Model::Record->save($self->record,
+                          save_method          => 'post',
+                          with_validity_token  => { scope => SL::DB::ValidityToken::SCOPE_INVOICE_POST(), token => $::form->{form_validity_token} },
+                          delete_custom_shipto => $self->record->custom_shipto && ($self->is_custom_shipto_to_delete || $self->record->custom_shipto->is_empty),
+                          items_to_delete      => $items_to_delete,
+                          #                          objects_to_close     => $objects_to_close,
+                          #                          link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
+                          set_project_in_linked_requirement_specs                => 1,
+  );
+
+  if ($::form->{email_journal_id}) {
+    my $email_journal = SL::DB::EmailJournal->new(
+      id => delete $::form->{email_journal_id}
+    )->load;
+    $email_journal->link_to_record_with_attachment(
+      $self->record,
+      delete $::form->{email_attachment_id}
+    );
+  }
+
+  delete $::form->{form_validity_token};
+}
+
 sub reinit_after_new_invoice {
   my ($self) = @_;
 
@@ -675,7 +761,7 @@ sub pre_render {
 
   if ($self->record->record_number && $::instance_conf->get_webdav) {
     my $webdav = SL::Webdav->new(
-      type     => $self->record->type,
+      type     => $self->record->record_type,
       number   => $self->record->record_number,
     );
     my @all_objects = $webdav->get_all_objects;
@@ -922,20 +1008,10 @@ sub setup_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('Update'),
-        submit    => [ '#form', { action => "update" } ],
-        disabled  => !$may_edit_create ? t8('You must not change this invoice.')
-                   : $locked           ? t8('The billing period has already been locked.')
-                   :                     undef,
-        id        => 'update_button',
-        accesskey => 'enter',
-      ],
-
       combobox => [
         action => [
           t8('Post'),
-          submit   => [ '#form', { action => "post" } ],
+          call     => [ 'kivi.Invoice.post', { action => "post" } ],
           checks   => [ 'kivi.validate_form' ],
           confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
           disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
@@ -948,7 +1024,7 @@ sub setup_action_bar {
         ],
         action => [
           t8('Post and Close'),
-          submit   => [ '#form', { action => "post_and_close" } ],
+          call     => [ 'kivi.Invoice.post', { action => "post_and_close" } ],
           checks   => [ 'kivi.validate_form' ],
           confirm  => t8('The invoice is not linked with a sales delivery order. Post anyway?') x !!$warn_unlinked_delivery_order,
           disabled => !$may_edit_create                         ? t8('You must not change this invoice.')
@@ -961,7 +1037,7 @@ sub setup_action_bar {
         ],
         action => [
           t8('Post Payment'),
-          submit   => [ '#form', { action => "post_payment" } ],
+          call     => [ 'kivi.Invoice.post', { action => "post_payment" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create           ? t8('You must not change this invoice.')
                     : !$self->record->id          ? t8('This invoice has not been posted yet.')
@@ -970,7 +1046,7 @@ sub setup_action_bar {
           only_if  => $self->type_data->show_menu('post_payment'),
         ],
         action => [ t8('Mark as paid'),
-          submit   => [ '#form', { action => "mark_as_paid" } ],
+          submit   => [ '#invoice_form', { action => "mark_as_paid" } ],
           confirm  => t8('This will remove the invoice from showing as unpaid even if the unpaid amount does not match the amount. Proceed?'),
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$self->record->id ? t8('This invoice has not been posted yet.')
@@ -981,7 +1057,7 @@ sub setup_action_bar {
 
       combobox => [
         action => [ t8('Storno'),
-          submit   => [ '#form', { action => "storno" } ],
+          submit   => [ '#invoice_form', { action => "storno" } ],
           confirm  => t8('Do you really want to cancel this invoice?'),
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create   ? t8('You must not change this invoice.')
@@ -992,7 +1068,7 @@ sub setup_action_bar {
                     : undef,
         ],
         action => [ t8('Delete'),
-          submit   => [ '#form', { action => "delete" } ],
+          submit   => [ '#invoice_form', { action => "delete" } ],
           confirm  => t8('Do you really want to delete this object?'),
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create        ? t8('You must not change this invoice.')
@@ -1011,7 +1087,7 @@ sub setup_action_bar {
         action => [ t8('Workflow') ],
         action => [
           t8('Use As New'),
-          submit   => [ '#form', { action => "use_as_new" } ],
+          submit   => [ '#invoice_form', { action => "use_as_new" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create ? t8('You must not change this invoice.')
                     : !$self->record->id ? t8('This invoice has not been posted yet.')
@@ -1019,7 +1095,7 @@ sub setup_action_bar {
         ],
         action => [
           t8('Further Invoice for Advance Payment'),
-          submit   => [ '#form', { action => "further_invoice_for_advance_payment" } ],
+          submit   => [ '#invoice_form', { action => "further_invoice_for_advance_payment" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
                     : !$self->record->id                         ? t8('This invoice has not been posted yet.')
@@ -1031,7 +1107,7 @@ sub setup_action_bar {
         ],
         action => [
           t8('Final Invoice'),
-          submit   => [ '#form', { action => "final_invoice" } ],
+          submit   => [ '#invoice_form', { action => "final_invoice" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create                          ? t8('You must not change this invoice.')
                     : !$self->record->id                               ? t8('This invoice has not been posted yet.')
@@ -1043,7 +1119,7 @@ sub setup_action_bar {
         ],
         action => [
           t8('Credit Note'),
-          submit   => [ '#form', { action => "credit_note" } ],
+          submit   => [ '#invoice_form', { action => "credit_note" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create              ? t8('You must not change this invoice.')
                     : $self->type_data->properties('is_credit_note') ? t8('Credit notes cannot be converted into other credit notes.')
@@ -1053,13 +1129,13 @@ sub setup_action_bar {
         ],
         action => [
           t8('Sales Order'),
-          submit   => [ '#form', { action => "order" } ],
+          submit   => [ '#invoice_form', { action => "order" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
         ],
         action => [
           t8('Reclamation'),
-          submit   => ['#form', { action => "sales_reclamation" }], # can't call Reclamation directly
+          submit   => ['#invoice_form', { action => "sales_reclamation" }], # can't call Reclamation directly
           disabled => !$self->record->id ? t8('This invoice has not been posted yet.') : undef,
           only_if  => $self->type_data->show_menu('reclamation') && !$self->record->storno,
         ],
@@ -1096,7 +1172,7 @@ sub setup_action_bar {
                     :                     undef,
         ],
         action => [ t8('Factur-X/ZUGFeRD'),
-          submit   => [ '#form', { action => "download_factur_x_xml" } ],
+          submit   => [ '#invoice_form', { action => "download_factur_x_xml" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create  ? t8('You must not print this invoice.')
                     : !$self->record->id ? t8('This invoice has not been posted yet.')
