@@ -269,7 +269,8 @@ sub save {
 
     $_->delete for @{ $params{items_to_delete} || [] };
 
-    $record->save(cascade => 1);
+    my $save_method = $params{save_method} // 'save';
+    $record->$save_method(cascade => 1);
 
     if ($params{objects_to_close} && @{$params{objects_to_close}}) {
       $_->update_attributes(closed => 1) for @{$params{objects_to_close}};
