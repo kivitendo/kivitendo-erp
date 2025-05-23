@@ -32,12 +32,6 @@ $( KiviLatex.required_packages_for_html )$
 
 \setkomavar{title}{\vkreklamation~\nr~$( KiviLatex.filter(reclamation.record_number) )$}
 
-$( IF (reclamation.cv_record_number) )$%
-  %\setkomavar*{yourref}{\ihreReclamationsnummer}
-  \setkomavar{yourref}{$( KiviLatex.filter(reclamation.cv_record_number) )$}
-$( END )$%
-\setkomavar{transaction}{$( KiviLatex.filter(reclamation.transaction_description) )$}
-
 %TODO(Tamino): look at shipto
 $( IF (reclamation.shipto_id) )$%
 \makeatletter
