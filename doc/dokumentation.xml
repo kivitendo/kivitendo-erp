@@ -3092,9 +3092,9 @@ sales_order.tex* </td>
 	<tr>
 		<td> <literallayout>Beistelllieferschein
 Retourenlieferschein
-Einkaufslieferschein</literallayout> </td><td> supplier_delivery_order.tex
- rma_delivery_order.tex*
-purchase_delivery_order.tex* </td><td> Lieferschein </td><td> sales_delivery_order.tex </td>
+Einkaufslieferschein</literallayout> </td><td> <literallayout>supplier_delivery_order.tex
+rma_delivery_order.tex*
+purchase_delivery_order.tex*</literallayout> </td><td> Lieferschein </td><td> sales_delivery_order.tex </td>
 	</tr>
 	<tr>
 		<td> Einkaufsreklamation </td><td> purchase_reclamation.tex </td><td> Verkaufsreklamation </td><td> sales_reclamation.tex </td>
@@ -3104,11 +3104,11 @@ purchase_delivery_order.tex* </td><td> Lieferschein </td><td> sales_delivery_ord
 Anzahlungsrechnung
 Schlussrechnung
 Rechnungskopie
-Stornorechnung</literallayout> </td><td> invoice.tex
+Stornorechnung</literallayout> </td><td> <literallayout>invoice.tex
 invoice_for_advance_payment.tex*
 final_invoice.tex*
 invoice_copy.tex*
-storno_invoice.tex* </td>
+storno_invoice.tex*</literallayout> </td>
 	</tr>
 	<tr>
 		<td> </td><td> </td><td> Proformarechnung </td><td> proforma.tex </td>
