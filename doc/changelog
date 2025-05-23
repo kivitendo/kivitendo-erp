@@ -10,6 +10,9 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Alle PDFs die sich im Reiter Dokumente befinden können beim E-Mail-Versand
+  zu einem PDF im Anhang zusammengefasst werden.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
