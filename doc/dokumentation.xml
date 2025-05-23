@@ -3030,6 +3030,26 @@ years: 1
         <para>Hierbei handelt es sich um einen auf Industriekunden zugeschnitten LaTeX
         Druckvorlagensatz auf Basis des Druckvorlagensatzes marei.</para>
 
+        <itemizedlist>
+          <listitem>
+            <para>Die Felder in der Infobox oben rechts auf den Belegen lassen sich
+            flexibel anpassen</para>
+          </listitem>
+
+          <listitem>
+            <para>Belegtitel (Überschriften) sind linksbündig und kleiner als im
+            LaTeX KOMA-script Standard</para>
+          </listitem>
+
+          <listitem>
+            <para>Als optional markierten Positionen sind auf den Belegen als solche
+            gekennzeichnet</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Die Dokumentenklasse kiviletter.sty wird nicht modifiziert, um die
+        Wartung zu erleichtern.</para>
+
         <simplesect>
           <title>Struktur der Belegtypen</title>
           <para>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
