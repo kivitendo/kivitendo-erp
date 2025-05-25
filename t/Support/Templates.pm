@@ -59,7 +59,7 @@ $num_actual_files = 0;
 
 # Scan for the template available languages and include paths
 #{
-#    opendir(DIR, "templates/webpages") || die "Can't open  'templates': $!";
+#    opendir(DIR, "templates/design40_webpages") || die "Can't open  'templates': $!";
 #    my @files = grep { /^[a-z-]+$/i } readdir(DIR);
 #    closedir DIR;
 #
@@ -119,7 +119,7 @@ sub find_actual_files {
   return @files;
 }
 
-@include_paths = qw(templates/webpages);
+@include_paths = qw(templates/design40_webpages);
 
 foreach my $include_path (@include_paths) {
   $actual_files{$include_path} = [ find_actual_files($include_path) ];
