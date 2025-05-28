@@ -268,6 +268,7 @@ Example:
   from_date: 01.01.2022
   to_date: 01.07.2022
   email_subject: To-Do
+  base_url: https://meinkivi.firma.de/kivi/
 
 =over 4
 
@@ -314,6 +315,15 @@ provide a text or a html template.
 It defaults to the one given in the kvitendo configuration file (see above).
 
 email_template: templates/my_templates/my_reminder_template.txt
+
+=item C<base_url>
+
+The base URI of your kivitendo server with protocol (http://)
+
+Example (format depends on your settings):
+
+base_url: https://kivi.foo.bz/kivitendo-erp/
+
 
 =back
 
