@@ -53,7 +53,8 @@ sub run {
   foreach my $follow_up (@$follow_ups) {
 
     # add link
-    $follow_up->{link} = URI->new_abs('fu.pl?action=edit&id=' . $follow_up->id, $::form->_get_request_uri);
+    my $base_url = $self->params->{base_url} //  $::form->_get_request_uri;
+    $follow_up->{link} = URI->new_abs('fu.pl?action=edit&id=' . $follow_up->id, $base_url);
 
     foreach my $employee (@{ $follow_up->created_for_employees }) {
       next if $employee->deleted;
@@ -116,6 +117,7 @@ sub initialize_params {
     email_from     => $::lx_office_conf{follow_up_reminder}->{email_from},
     email_subject  => $::lx_office_conf{follow_up_reminder}->{email_subject},
     email_template => $::lx_office_conf{follow_up_reminder}->{email_template},
+    base_url       => undef,
   );
 
   # check user input param names
