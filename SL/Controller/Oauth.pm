@@ -145,7 +145,12 @@ sub action_create {
   my $email = $::form->{config}->{email};
   $self->config(SL::DB::OauthToken->new());
   $self->config->{email} = $email;
-  my $redirect_uri = 'http://localhost:8080/';
+
+  my $redirect_uri = $::form->{config}->{redirect_uri};
+  $redirect_uri .= '/' if ($redirect_uri !~ m/\/$/);
+  $redirect_uri .= 'oauth.pl';
+  # TODO doc: $redirect_uri muss in der Whitelist der Gegenseite enthalten sein
+  $redirect_uri = 'http://localhost:8080';
 
   if ($::form->{config}->{authcode} eq '') {
     my $verifier = random_bytes_base64(90, q{});
@@ -173,11 +178,126 @@ $main::lxdebug->dump(0, 'step 1 verifier: ', $verifier);
     $self->config->{verifier} = $verifier;
     $self->config->{challenge} = $challenge;
     $self->config->{authorize_link} = $url . '?' . $query;
-  } else {
+
     my $tok = SL::DB::OauthToken->new();
-    my $authcode = $::form->{config}->{authcode};
+    $tok->registration('microsoft');
+    $tok->authflow('authcode');
+    $tok->email($email);
+    $tok->redirect_uri($redirect_uri);
+    $tok->tokenstate($verifier);
+    $tok->save();
+  } else {
+    #my $tok = SL::DB::OauthToken->new();
+    #my $authcode = $::form->{config}->{authcode};
+    #$self->config->{authcode} = $authcode;
+    #my $verifier = $::form->{config}->{verifier};
+    #if (!$verifier) { die 'no $verfifier set'; }
+    #my $params = {
+    #  client_id     => $reg->{client_id},
+    #  tenant        => $reg->{tenant},
+    #  scope                 => $reg->{scope},
+    #  grant_type    => 'authorization_code',
+    #  code          => $authcode,
+    #  client_secret => $reg->{client_secret},
+    #  redirect_uri          => $redirect_uri,
+    #  code_verifier => $verifier,
+    #};
+    #my $url         = $reg->{token_endpoint};
+    #my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+    #$main::lxdebug->dump(0, 'params', $query);
+
+    #my $client = REST::Client->new();
+    #$client->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+    #my $ret = $client->POST($url, $query);
+    #my $response_code = $ret->responseCode();
+    #$main::lxdebug->dump(0, 'response', $ret->responseContent());
+    #die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
+
+    #my $content = from_json($ret->responseContent());
+
+    #$main::lxdebug->dump(0, 'cont', $content);
+
+    #die "Server returned error_code $content->{error_code}" if (exists $content->{error_code});
+
+    #my $expiration = DateTime->now()->add(seconds => $content->{expires_in}); # Shall we refresh after half of the time?
+    #$tok->access_token_expiration($expiration);
+    #$tok->access_token($content->{access_token});
+    #$tok->refresh_token($content->{refresh_token}) if (exists $content->{refresh_token});
+
+    #$tok->{registration} = 'microsoft';
+    #$tok->{authflow} = 'authcode';
+    #$tok->{email} = $email;
+
+
+    #$tok->save();
+
+    #$self->config->{message} = "Token received: $content";
+
+  }
+
+  $self->setup_list_action_bar();
+  $self->render('oauth/form', title => 'Add new OAuth2 token');
+  #die($main::lxdebug->dump(0, 'ver', [$::form, $verifier, $challenge, $url . '?' . $query]));
+}
+
+
+sub action_consume_authorization_code {
+  my ($self) = @_;
+
+  my $tok;
+  foreach my $t (@{SL::DB::Manager::OauthToken->get_all()}) {
+    #$main::lxdebug->dump(0, 'TOK', $t);
+
+    $tok = $t if ($t->tokenstate);
+  }
+  my $reg = $registrations->{microsoft}; #$tok->{registration}};
+
+  my $email = $tok->email; #$::form->{config}->{email};
+  $self->config($tok);
+  $self->config->{email} = $email;
+
+  #my $redirect_uri = $self->config->{redirect_uri};
+  #$redirect_uri .= '/' if ($redirect_uri !~ m/\/$/);
+  #$redirect_uri .= 'oauth.pl';
+
+  #$redirect_uri = 'http://localhost:8080/';
+
+  my $authcode = $::form->{code};
+
+  my $verifier = $tok->tokenstate;
+  my $redirect_uri = $tok->redirect_uri;
+
+  if ($authcode eq '') {
+    #my $verifier = random_bytes_base64(90, q{});
+    #my $challenge = sha256_base64($verifier);
+    #$challenge =~ tr/+\//-_/; # URL safe BASE64: replace '+' -> '-' and '/' -> '_'
+
+    ### use Crypt::Digest::SHA256 qw(sha256_b64u)
+    ### my $challenge = sha256_b64u($verifier); # URL-safe BASE64
+
+    #my $params = {
+    #  client_id     => $reg->{client_id},
+    #  tenant        => $reg->{tenant},
+    #  scope                 => $reg->{scope},
+    #  login_hint            => $email,
+    #  response_type         => 'code',
+    #  redirect_uri          => $redirect_uri,
+    #  code_challenge        => $challenge,
+    #  code_challenge_method => 'S256',
+    #};
+    #my $url         = $reg->{authorize_endpoint};
+    #my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+
+    #$main::lxdebug->dump(0, 'step 1 verifier: ', $verifier);
+
+    #$self->config->{verifier} = $verifier;
+    #$self->config->{challenge} = $challenge;
+    #$self->config->{authorize_link} = $url . '?' . $query;
+  } else {
+    #my $tok = SL::DB::OauthToken->new();
+    #my $authcode = $::form->{config}->{authcode};
     $self->config->{authcode} = $authcode;
-    my $verifier = $::form->{config}->{verifier};
+    #my $verifier = $::form->{config}->{verifier};
     if (!$verifier) { die 'no $verfifier set'; }
     my $params = {
       client_id     => $reg->{client_id},
@@ -211,10 +331,11 @@ $main::lxdebug->dump(0, 'step 1 verifier: ', $verifier);
     $tok->access_token($content->{access_token});
     $tok->refresh_token($content->{refresh_token}) if (exists $content->{refresh_token});
 
-    $tok->{registration} = 'microsoft';
-    $tok->{authflow} = 'authcode';
-    $tok->{email} = $email;
+    #$tok->{registration} = 'microsoft';
+    #$tok->{authflow} = 'authcode';
+    #$tok->{email} = $email;
 
+    $tok->tokenstate(undef);
 
     $tok->save();
 

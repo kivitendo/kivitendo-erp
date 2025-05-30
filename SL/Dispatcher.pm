@@ -481,6 +481,7 @@ sub _route_request {
 
   return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        $self->_route_dispatcher_request)
        : $script_name =~ m/controller\.pl/  ? (type => 'controller', $self->_route_controller_request)
+       : $script_name =~ m/oauth\.pl/       ? (type => 'controller', $self->_route_oauth_controller_request)
        :                                      (type => 'old',        controller => $script_name, action => $::form->{action});
 }
 
@@ -539,6 +540,11 @@ sub _route_controller_request {
   };
 
   return (controller => $controller, action => $action, request_type => $request_type);
+}
+
+sub _route_oauth_controller_request {
+  my ($self) = @_;
+  return (controller => 'Oauth', action => 'consume_authorization_code', request_type => 'html');
 }
 
 sub _cache_file_modification_times {
