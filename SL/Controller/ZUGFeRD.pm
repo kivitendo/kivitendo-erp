@@ -10,6 +10,7 @@ use SL::XMLInvoice;
 use SL::VATIDNr;
 use SL::ZUGFeRD;
 use SL::SessionFile;
+use SL::Helper::Number qw(_format_total);
 
 use XML::LibXML;
 use List::Util qw(first);
@@ -255,29 +256,81 @@ sub build_ap_transaction_form_defaults {
     "No tax found for chart #1", $default_ap_amount_chart->displayable_name
   ) unless scalar @{$taxes};
 
-  # parse items
-  my $row = 0;
+
   my %item_form = ();
-  foreach my $i (@items) {
-    $row++;
+  if ($parser->can('tax_totals')) {
+    # use tax totals instead to fill in the ap lines
+    my $tax_totals = $parser->tax_totals;
 
-    my %item = %{$i};
+    my $row = 0;
+    for my $tax_row (@$tax_totals) {
+      $row++;
 
-    my $net_total = $::form->format_amount(\%::myconfig, $item{'subtotal'}, 2);
+      my $tax;
+      if ($tax_row->{category_code} =~ /S/) {
+        # Standard tax
+        my $tax_rate = $tax_row->{tax_rate} / 100;
+        $tax = first { $tax_rate == $_->rate } @$taxes;
+        die t8('Can not find a tax for tax rate #1', $tax_rate) unless $tax;
+      } elsif ($tax_row->{category_code} =~ /[ZE]/) {
+        # Zero tax or tax Exempt
+        $tax = first { 0 == $_->rate } @$taxes;
+        die t8('Can not find a tax for tax rate #1', 0) unless $tax;
+      } else {
+        die t8('Tax category code #1 is not supported at the moment', $tax_row->{category_code});
+      }
 
-    my $tax_rate = $item{'tax_rate'};
-    $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+      $item_form{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+      $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
+      $item_form{"amount_${row}"}                      = _format_total($tax_row->{net_amount});
+      $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+    }
 
-    my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
-    $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
-    $tax    //= $taxes->[0];
+    # special case: untaxed positions like deposit don't show up in the tax blocks
+    # invariant:
+    # net_amount + tax + [UntaxedAmount] = amount
 
-    $item_form{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
-    $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
-    $item_form{"amount_${row}"}                      = $net_total;
-    $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+    my $untaxed_delta = $metadata{gross_total} - $metadata{net_total} - $metadata{tax_total};
+    if ($untaxed_delta > 0.005) {
+      $row++;
+
+      # Zero tax or tax Exempt
+      my $tax = first { 0 == $_->rate } @$taxes;
+      die t8('Can not find a tax for tax rate #1', 0) unless $tax;
+
+      $item_form{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+      $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
+      $item_form{"amount_${row}"}                      = _format_total($untaxed_delta);
+      $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+    }
+
+    $item_form{rowcount} = $row;
+
+  } else {
+
+    # parse items
+    my $row = 0;
+    foreach my $i (@items) {
+      $row++;
+
+      my %item = %{$i};
+
+      my $net_total = $::form->format_amount(\%::myconfig, $item{'subtotal'}, 2);
+
+      my $tax_rate = $item{'tax_rate'};
+      $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
+
+      my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
+      $tax    //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
+      $tax    //= $taxes->[0];
+
+      $item_form{"AP_amount_chart_id_${row}"}          = $default_ap_amount_chart->id;
+      $item_form{"previous_AP_amount_chart_id_${row}"} = $default_ap_amount_chart->id;
+      $item_form{"amount_${row}"}                      = $net_total;
+      $item_form{"taxchart_${row}"}                    = $tax->id . '--' . $tax->rate;
+    }
+    $item_form{rowcount} = $row;
   }
-  $item_form{rowcount} = $row;
 
   return {
     vendor_id            => $vendor->id,
