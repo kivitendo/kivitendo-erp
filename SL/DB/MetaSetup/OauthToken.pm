@@ -16,8 +16,10 @@ __PACKAGE__->meta->columns(
   id                      => { type => 'serial', not_null => 1 },
   itime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
+  redirect_uri            => { type => 'text' },
   refresh_token           => { type => 'text', not_null => 1 },
   registration            => { type => 'text', not_null => 1 },
+  tokenstate              => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
