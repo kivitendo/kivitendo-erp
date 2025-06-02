@@ -249,6 +249,33 @@ sub all_transactions {
     push(@arvalues, like($form->{reference}));
     push(@apvalues, like($form->{reference}));
   }
+  if ($form->{id}) {
+    my $id = $::form->parse_amount(\%::myconfig, $form->{id}, 0, 0);
+    $glwhere .= qq| AND g.id = ?|;
+    $arwhere .= qq| AND a.id = ?|;
+    $apwhere .= qq| AND a.id = ?|;
+    push(@glvalues, conv_i($id));
+    push(@arvalues, conv_i($id));
+    push(@apvalues, conv_i($id));
+  }
+  if ($form->{total}) {
+    $glwhere .= qq| AND g.id in (select trans_id from acc_trans where trans_id in (select id from gl) and amount = ?)|;
+    $arwhere .= qq| AND a.amount = ?|;
+    $apwhere .= qq| AND a.amount = ?|;
+    my $total = $::form->parse_amount(\%::myconfig, $form->{total}, 2, 0);
+    push(@glvalues, $total);
+    push(@arvalues, $total);
+    push(@apvalues, $total);
+  }
+  if ($form->{netamount}) {
+    $glwhere .= qq| AND g.id in (select trans_id from acc_trans where trans_id in (select id from gl) and amount = ?)|;
+    $arwhere .= qq| AND a.netamount = ?|;
+    $apwhere .= qq| AND a.netamount = ?|;
+    my $netamount = $::form->parse_amount(\%::myconfig, $form->{netamount}, 2, 0);
+    push(@glvalues, $netamount);
+    push(@arvalues, $netamount);
+    push(@apvalues, $netamount);
+  }
 
   if ($form->{department_id}) {
     $glwhere .= qq| AND g.department_id = ?|;
