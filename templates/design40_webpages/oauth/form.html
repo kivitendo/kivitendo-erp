@@ -8,36 +8,42 @@
 
 <form action="controller.pl" method="post" id="form">
 [% L.hidden_tag("id", SELF.config.id) %]
+[% L.hidden_tag("registration", SELF.config.registration) %]
 
 <div class="wrapper">
 
 [% L.hidden_tag("config.verifier", SELF.config.verifier) %]
 
+<p>[% SELF.config.message %]</p>
+
 <table class="tbl-horizontal">
   <tbody>
-    <tr><th>reg</th><td>microsoft</td></tr>
-    <tr><th>authflow</th><td>authcode</td></tr>
+    <tr><th>regstration</th><td>[% SELF.config.registration %]</td></tr>
+    [% IF SELF.config.registration == 'microsoft' %]
+      <tr>
+        <th>[% 'E-Mail' | $T8 %]</th>
+        <td>[% L.input_tag("config.email", SELF.config.email, "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>
+      </tr>
+    [% END %]
     <tr>
-      <th>[% 'E-Mail' | $T8 %]</th>
-      <td>[% L.input_tag("config.email", SELF.config.email, "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>
+      <th>client_id</th>
+      <td>[% L.input_tag("config.client_id", SELF.config.client_id, "data-validate"="required", "data-title"=LxERP.t8("client_id"), size=50) %]</td>
+    </tr>
+    <tr>
+      <th>client_secret</th>
+      <td>[% L.input_tag("config.client_secret", SELF.config.client_secret, "data-validate"="required", "data-title"=LxERP.t8("client_secret"), size=50) %]</td>
+    </tr>
+    <tr>
+      <th>scope</th>
+      <td>[% L.input_tag("config.scope", SELF.config.scope, "data-validate"="required", "data-title"=LxERP.t8("scope"), size=50) %]</td>
     </tr>
     <tr>
       <th>redirect_uri</th>
       <td>[% L.input_tag("config.redirect_uri", SELF.config.redirect_uri, "data-validate"="required", "data-title"=LxERP.t8("redirect_uri"), size=50) %]</td>
-      <td>URL, unter welcher Sie kivitendo jetzt gerade aufrufen. z.B. https://kivitendo.de/kivitendo-erp/</td>
+      <td>URL, unter welcher Sie kivitendo jetzt gerade aufrufen. z.B. https://kivitendo.de/kivitendo-erp/ allerdings ohne oauth.pl am Ende. I.d.R. erfordert die Gegenseite, dass dort exakt dieselbe URL hinterlegt ist.</td>
     </tr>
-    <tr><th>debug: verifier</th><td>[% SELF.config.verifier %]</td></tr>
-    <tr><th>debug: challenge</th><td>[% SELF.config.challenge %]</td></tr>
-    <tr><th>Rufen Sie diesen Link auf:</th><td>[% L.link(SELF.config.authorize_link, HTML.escape(SELF.config.authorize_link)) %]</td></tr>
-    <tr><th>authcode</th><td>[% L.textarea_tag("config.authcode", SELF.config.code, cols=80, rows=8) %]</td></tr>
-    <tr><th></th><td>[% SELF.config.message %]</td></tr>
   </tbody>
 </table>
-
-
-
-
-
 
 
 </div><!-- /.wrapper -->
