@@ -164,6 +164,7 @@ my %kivitendo_package_names = (
   letter_draft                   => 'letter_draft',
   makemodel                      => 'make_model',
   notes                          => 'note',
+  oauth_tokens                   => 'oauth_token',
   order_statuses                 => 'order_status',
   orderitems                     => 'order_item',
   oe                             => 'order',
