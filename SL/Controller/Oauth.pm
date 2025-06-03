@@ -165,6 +165,14 @@ sub action_create {
   ## use Crypt::Digest::SHA256 qw(sha256_b64u)
   ## my $challenge = sha256_b64u($verifier); # URL-safe BASE64
 
+  my $tok = SL::DB::OauthToken->new();
+  $tok->registration('microsoft');
+  $tok->authflow('authcode');
+  $tok->email($email);
+  $tok->redirect_uri($redirect_uri);
+  $tok->tokenstate(random_bytes_base64(14, q{}));
+  $tok->verifier($verifier);
+
   my $params = {
     client_id     => $reg->{client_id},
     tenant        => $reg->{tenant},
@@ -174,6 +182,7 @@ sub action_create {
     redirect_uri          => $redirect_uri,
     code_challenge        => $challenge,
     code_challenge_method => 'S256',
+    state                 => $tok->tokenstate,
   };
   my $url         = $reg->{authorize_endpoint};
   my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
@@ -182,12 +191,6 @@ sub action_create {
   $self->config->{challenge} = $challenge;
   $self->config->{authorize_link} = $url . '?' . $query;
 
-  my $tok = SL::DB::OauthToken->new();
-  $tok->registration('microsoft');
-  $tok->authflow('authcode');
-  $tok->email($email);
-  $tok->redirect_uri($redirect_uri);
-  $tok->tokenstate($verifier);
   $tok->save();
 
   $self->setup_list_action_bar();
@@ -202,7 +205,7 @@ sub action_consume_authorization_code {
   foreach my $t (@{SL::DB::Manager::OauthToken->get_all()}) {
     #$main::lxdebug->dump(0, 'TOK', $t);
 
-    $tok = $t if ($t->tokenstate);
+    $tok = $t if ($t->tokenstate eq $::form->{state});
   }
   my $reg = $registrations->{microsoft}; #$tok->{registration}};
 
@@ -212,7 +215,7 @@ sub action_consume_authorization_code {
 
   my $authcode = $::form->{code};
 
-  my $verifier = $tok->tokenstate;
+  my $verifier = $tok->verifier;
   my $redirect_uri = $tok->redirect_uri;
 
   $self->config->{authcode} = $authcode;
