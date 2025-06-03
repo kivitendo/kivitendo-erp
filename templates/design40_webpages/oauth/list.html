@@ -8,29 +8,25 @@
     <tr>
       <th>id</th>
       <th>[% 'registration' | $T8 %]</th>
-      <th>authflow</th>
+      <th>scope</th>
       <th>email</th>
       <th>state</th>
-      <th>access_token_expiration</th>
+      <th>expires in (s)</th>
       <th>access_token</th>
       <th>refresh_token</th>
-      <th>itime</th>
-      <th>mtime</th>
     </tr>
   </thead>
   <tbody>
     [%- FOREACH tok = TOKENS %]
     <tr id="tzone_id_[% tok.id %]">
-      <td>[% tok.id %]</td>
-      <td>[% tok.registration %]</td>
-      <td>[% tok.authflow %] [% tok.redirect_uri %]</td>
-      <td>[% tok.email %]</td>
-      <td style="max-width: 20ch; word-break: break-all;">[% tok.tokenstate %]</td>
-      <td>[% tok.access_token_expiration %]</td>
-      <td style="max-width: 80ch; word-break: break-all;">[% tok.access_token %]</td>
-      <td style="max-width: 32ch; word-break: break-all;">[% tok.refresh_token %]</td>
-      <td>[% tok.itime %]</td>
-      <td>[% tok.mtime %]</td>
+      <td>[% HTML.escape(tok.id) %]</td>
+      <td>[% HTML.escape(tok.registration) %]</td>
+      <td>[% HTML.escape(tok.scope) %]</td>
+      <td>[% HTML.escape(tok.email) %]</td>
+      <td>[% HTML.escape(tok.tokenstate) %]</td>
+      <td>[% HTML.escape(tok.expiration) %]</td>
+      <td>[% HTML.escape(tok.access_token) %]</td>
+      <td>[% HTML.escape(tok.refresh_token) %]</td>
     </tr>
     [%- END %]
   </tbody>

@@ -1,0 +1,11 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<p>Rufen Sie diesen Link auf:<p>
+
+[% L.link(SELF.config.authorize_link, HTML.escape(SELF.config.authorize_link)) %]
