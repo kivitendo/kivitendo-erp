@@ -62,6 +62,7 @@ sub test_file {
 
   ok $invoice->metadata->{vendor_name}, "$filename contains vendor name";
   ok $invoice->metadata->{gross_total}, "$filename contains net_total";
+  ok $invoice->metadata->{tax_total}, "$filename contains tax_total";
   ok $invoice->metadata->{net_total}, "$filename contains net_total";
   ok $invoice->metadata->{transdate}, "$filename contains transdate";
   ok $invoice->metadata->{currency}, "$filename contains currency";
