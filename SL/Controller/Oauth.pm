@@ -24,20 +24,12 @@ __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_config', only => [ qw(edit update delete) ]);
 
 
-sub test {
-  my $t = SL::DB::OauthToken->new();
-  $t->{registration} = 'microsoft';
-  $t->{authflow} = 'authcode';
-  $t->{email} = 'a';
-  $t->{access_token_expiration} = DateTime->now;
-  $t->{access_token} = 'a';
-  $t->{refresh_token} = 'b';
-  $t->save;
-}
 
 sub access_token_valid {
   my ($tok) = @_;
-  return $tok->{access_token_expiration} > DateTime->now();
+  my $exp = $tok->access_token_expiration;
+  my $now = DateTime->now;
+  return $exp > $now;
 }
 
 my $registrations = {
@@ -45,7 +37,6 @@ my $registrations = {
     authorize_endpoint => 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
     devicecode_endpoint => 'https://login.microsoftonline.com/common/oauth2/v2.0/devicecode',
     token_endpoint => 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
-    # redirect_uri => 'https://login.microsoftonline.com/common/oauth2/nativeclient',
     tenant => 'common',
     imap_endpoint => 'outlook.office365.com',
     smtp_endpoint => 'smtp.office365.com',
@@ -56,43 +47,68 @@ my $registrations = {
     client_id => '08162f7c-0fd2-4200-a84a-f25a4db0b584',
     client_secret => 'TxRBilcHdC6WGBee]fs?QR:SJ8nI[g82',
   },
+  atlassian_jira => {
+    authorize_endpoint => 'https://auth.atlassian.com/authorize',
+    token_endpoint => 'https://auth.atlassian.com/oauth/token',
+    scope => 'offline_access read:jira-work read:servicedesk-request',
+    client_id => '',
+    client_secret => '',
+  },
 };
+
+sub set_access_refresh_token {
+  my ($tok, $content) = @_;
+
+  my $expiration = DateTime->now;
+  $expiration->add(seconds => $content->{expires_in});
+  $tok->access_token_expiration($expiration);
+  $tok->access_token($content->{access_token});
+  $tok->refresh_token($content->{refresh_token}) if (exists $content->{refresh_token});
+}
 
 sub refresh {
   my ($tok) = @_;
 
   my $reg = $registrations->{$tok->{registration}};
 
-  my $params = {
-    client_id     => $reg->{client_id},
-    client_secret => $reg->{client_secret},
-    tenant        => $reg->{tenant},
-    grant_type    => 'refresh_token',
-    refresh_token => $tok->{refresh_token},
-  };
-
-  my $url         = $reg->{token_endpoint};
-  my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
-  $main::lxdebug->dump(0, 'params', $query);
-
   my $client = REST::Client->new();
-  $client->addHeader('Content-Type', 'application/x-www-form-urlencoded');
-  my $ret = $client->POST($url, $query);
+  my $params;
+  my $query;
+
+  if ($tok->registration eq 'microsoft') {
+    $params = {
+      grant_type    => 'refresh_token',
+      client_id     => $tok->client_id,
+      client_secret => $tok->client_secret,
+      tenant        => $reg->{tenant},
+      refresh_token => $tok->refresh_token,
+    };
+
+    $query = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+    $client->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+  } elsif ($tok->registration eq 'atlassian_jira') {
+     $params = {
+      grant_type    => 'refresh_token',
+      client_id     => $tok->client_id,
+      client_secret => $tok->client_secret,
+      refresh_token => $tok->refresh_token,
+    };
+
+    $query = to_json($params);
+    $client->addHeader('Content-Type', 'application/json');
+  }
+
+  my $ret = $client->POST($reg->{token_endpoint}, $query);
   my $response_code = $ret->responseCode();
   die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
 
   my $content = from_json($ret->responseContent());
 
-  $main::lxdebug->dump(0, 'cont', $content);
-
   die "Server returned error_code $content->{error_code}" if (exists $content->{error_code});
 
-  my $expiration = DateTime->now()->add(seconds => $content->{expires_in}); # Shall we refresh after half of the time?
-  $tok->access_token_expiration($expiration);
-  $tok->access_token($content->{access_token});
-  $tok->refresh_token($content->{refresh_token}) if (exists $content->{refresh_token});
-  $tok->save();
+  set_access_refresh_token($tok, $content);
 
+  $tok->save();
 }
 
 
@@ -113,6 +129,64 @@ sub imap_sasl_string {
   return $oauth_sign;
 }
 
+sub http_bearer_auth_header {
+  my ($db_id) = @_;
+
+  my $tok = SL::DB::Manager::OauthToken->find_by(id => $db_id);
+
+  if (!access_token_valid($tok)) {
+    refresh($tok);
+  }
+
+  return 'Bearer ' . $tok->access_token;
+}
+
+sub atlassian_jira_cloudid {
+  my ($token_db_id) = @_;
+
+  my $bearer = http_bearer_auth_header($token_db_id);
+  my $client = REST::Client->new();
+  $client->addHeader('Authorization', $bearer);
+  $client->addHeader('Accept', 'application/json');
+  my $ret = $client->GET('https://api.atlassian.com/oauth/token/accessible-resources');
+  my $response_code = $ret->responseCode();
+  die "HTTP $response_code" unless $response_code eq '200';
+
+  my $accessible_resources = from_json($ret->responseContent);
+  my $cloudid = $accessible_resources->[0]{id};
+
+  #return $cloudid;
+
+  my $url;
+  #$url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/project/search";
+  #$ret = $client->GET($url);
+  #$response_code = $ret->responseCode();
+  #die "HTTP $response_code" unless $response_code eq '200';
+  #return from_json($ret->responseContent);
+
+  my $maxResults = 100;
+  my $fields = "summary";
+  my $jql = 'textfields ~ "Test case*"';
+  $url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/search/jql?jql=" . uri_encode($jql) . "&maxResults=100&fields=id%2Cassignee%2Cauthor%2Ccreator%2Csummary%2Cresolution%2Cstatus%2Cpriority%2Ccreated%2Cupdated&expand=&reconcileIssues=";
+  $ret = $client->GET($url);
+  $response_code = $ret->responseCode();
+  die "HTTP $response_code" unless $response_code eq '200';
+  my $c = from_json($ret->responseContent);
+  $main::lxdebug->dump(0, 'content', $c);
+  my @a = map({{
+    key        => $_->{key},
+    summary    => $_->{fields}->{summary},
+    creator    => $_->{fields}->{creator}->{displayName},
+    assignee   => $_->{fields}->{assignee}->{displayName},
+    priority   => $_->{fields}->{priority}->{name},
+    created    => $_->{fields}->{created},
+    updated    => $_->{fields}->{updated},
+    status     => $_->{fields}->{status}->{name},
+    resolution => $_->{fields}->{resolution}->{name},
+  }} @{$c->{issues}});
+  return \@a;
+}
+
 
 #
 # actions
@@ -121,151 +195,172 @@ sub imap_sasl_string {
 sub action_list {
   my ($self) = @_;
 
-  my $tokens = SL::DB::Manager::OauthToken->get_all();
+  my $now = DateTime->now;
 
-  foreach my $tok (@{$tokens}) {
-    $tok->tokenstate($tok->tokenstate ? (length($tok->tokenstate) . ' bytes') : 'OK');
-    $tok->access_token(length($tok->access_token) . ' bytes');
-    $tok->refresh_token(length($tok->refresh_token) . ' bytes');
-  }
+  my @tokens = map({ {
+    id            => $_->id,
+    registration  => $_->registration,
+    scope         => $_->scope,
+    email         => $_->email,
+    tokenstate    => $_->tokenstate ? 'waiting for auth code' : 'OK',
+    access_token  => $_->access_token ? (length($_->access_token) . ' bytes') : 'missing',
+    refresh_token => $_->refresh_token ? (length($_->refresh_token) . ' bytes') : 'missing',
+    expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
+  } } @{SL::DB::Manager::OauthToken->get_all()});
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
                 title    => t8('List of OAuth2 tokens'),
-                TOKENS => $tokens);
+                TOKENS => \@tokens);
 }
 
 sub action_new {
   my ($self) = @_;
 
+  my $regtype = $::form->{oauth_type};
+  my $reg = $registrations->{$regtype};
+
   $self->config(SL::DB::OauthToken->new());
-  $self->setup_list_action_bar();
+  $self->config->{registration} = $::form->{oauth_type};
+  $self->config->{$_} = $reg->{$_} for qw(client_id client_secret scope);
+  $self->setup_add_action_bar();
   $self->render('oauth/form', title => 'Add new OAuth2 token');
+}
+
+sub random_b64u {
+  # URL safe BASE64: replace '+' -> '-' and '/' -> '_'
+  my ($n) = @_;
+  my $b64 = random_bytes_base64($n, q{});
+  $b64 =~ tr/+\//-_/;
+  return $b64;
+}
+
+sub sha256_b64u {
+  my ($x) = @_;
+  my $hash = sha256_base64($x);
+  $hash =~ tr/+\//-_/;
+  return $hash;
 }
 
 sub action_create {
   my ($self) = @_;
 
-  my $reg = $registrations->{microsoft}; #$tok->{registration}};
+  my $regtype = $::form->{registration};
 
-  my $email = $::form->{config}->{email};
+
   $self->config(SL::DB::OauthToken->new());
-  $self->config->{email} = $email;
 
   my $redirect_uri = $::form->{config}->{redirect_uri};
   $redirect_uri .= '/' if ($redirect_uri !~ m/\/$/);
   $redirect_uri .= 'oauth.pl';
-  # TODO doc: $redirect_uri muss in der Whitelist der Gegenseite enthalten sein
-  $redirect_uri = 'http://localhost:8080';
 
-  my $verifier = random_bytes_base64(90, q{});
-  my $challenge = sha256_base64($verifier);
-  $challenge =~ tr/+\//-_/; # URL safe BASE64: replace '+' -> '-' and '/' -> '_'
-
-  ## use Crypt::Digest::SHA256 qw(sha256_b64u)
-  ## my $challenge = sha256_b64u($verifier); # URL-safe BASE64
-
+  my $reg = $registrations->{$regtype};
   my $tok = SL::DB::OauthToken->new();
-  $tok->registration('microsoft');
+  $tok->registration($regtype);
   $tok->authflow('authcode');
-  $tok->email($email);
   $tok->redirect_uri($redirect_uri);
-  $tok->tokenstate(random_bytes_base64(14, q{}));
-  $tok->verifier($verifier);
+  $tok->tokenstate(random_b64u(14));
 
-  my $params = {
-    client_id     => $reg->{client_id},
-    tenant        => $reg->{tenant},
-    scope                 => $reg->{scope},
-    login_hint            => $email,
-    response_type         => 'code',
-    redirect_uri          => $redirect_uri,
-    code_challenge        => $challenge,
-    code_challenge_method => 'S256',
-    state                 => $tok->tokenstate,
-  };
+  $tok->$_($::form->{config}->{$_}) for qw(client_id client_secret scope);
+
+  my $params;
+  if ($regtype eq 'microsoft') {
+    $tok->email($::form->{config}->{email});
+    $self->config->{email} = $tok->email;
+    $tok->verifier(random_bytes_base64(90, q{}));
+    my $challenge = sha256_b64u($tok->verifier);
+
+    $params = {
+      client_id             => $tok->client_id,
+      tenant                => $reg->{tenant},
+      scope                 => $tok->scope,
+      login_hint            => $tok->email,
+      response_type         => 'code',
+      redirect_uri          => $tok->redirect_uri,
+      code_challenge        => $challenge,
+      code_challenge_method => 'S256',
+      state                 => $tok->tokenstate,
+    };
+  } elsif ($regtype eq 'atlassian_jira') {
+    $params = {
+      client_id     => $tok->client_id,
+      scope         => $tok->scope,
+      redirect_uri  => $tok->redirect_uri,
+      state         => $tok->tokenstate,
+      audience      => 'api.atlassian.com',
+      response_type => 'code',
+      prompt        => 'consent',
+    };
+  }
   my $url         = $reg->{authorize_endpoint};
   my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
 
-  $self->config->{verifier} = $verifier;
-  $self->config->{challenge} = $challenge;
   $self->config->{authorize_link} = $url . '?' . $query;
 
   $tok->save();
 
-  $self->setup_list_action_bar();
-  $self->render('oauth/form', title => 'Add new OAuth2 token');
+  $self->render('oauth/forward', title => 'Add new OAuth2 token');
 }
 
 
 sub action_consume_authorization_code {
   my ($self) = @_;
 
-  my $tok;
-  foreach my $t (@{SL::DB::Manager::OauthToken->get_all()}) {
-    #$main::lxdebug->dump(0, 'TOK', $t);
+  my $search_state = $::form->{state};
+  my $tok = SL::DB::Manager::OauthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
+  my $reg = $registrations->{$tok->{registration}};
 
-    $tok = $t if ($t->tokenstate eq $::form->{state});
-  }
-  my $reg = $registrations->{microsoft}; #$tok->{registration}};
-
-  my $email = $tok->email;
   $self->config($tok);
-  $self->config->{email} = $email;
+  $self->config->{email} = $tok->email;
 
   my $authcode = $::form->{code};
 
-  my $verifier = $tok->verifier;
-  my $redirect_uri = $tok->redirect_uri;
-
-  $self->config->{authcode} = $authcode;
-  if (!$verifier) { die 'no $verfifier set'; }
-  my $params = {
-    client_id     => $reg->{client_id},
-    tenant        => $reg->{tenant},
-    scope                 => $reg->{scope},
-    grant_type    => 'authorization_code',
-    code          => $authcode,
-    client_secret => $reg->{client_secret},
-    redirect_uri          => $redirect_uri,
-    code_verifier => $verifier,
-  };
-  my $url         = $reg->{token_endpoint};
-  my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
-  $main::lxdebug->dump(0, 'params', $query);
-
   my $client = REST::Client->new();
-  $client->addHeader('Content-Type', 'application/x-www-form-urlencoded');
-  my $ret = $client->POST($url, $query);
+  my $query;
+
+  if ($tok->registration eq 'microsoft') {
+    my $params = {
+      client_id     => $tok->client_id,
+      tenant        => $reg->{tenant},
+      scope         => $tok->scope,
+      grant_type    => 'authorization_code',
+      code          => $authcode,
+      client_secret => $tok->client_secret,
+      redirect_uri  => $tok->redirect_uri,
+      code_verifier => $tok->verifier,
+    };
+    $query = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+
+    $client->addHeader('Content-Type', 'application/x-www-form-urlencoded');
+  } elsif ($tok->registration eq 'atlassian_jira') {
+     my $params = {
+      grant_type    => 'authorization_code',
+      client_id     => $tok->client_id,
+      client_secret => $tok->client_secret,
+      code          => $authcode,
+      redirect_uri  => $tok->redirect_uri,
+    };
+    $query = to_json($params);
+
+    $client->addHeader('Content-Type', 'application/json');
+  }
+  my $ret = $client->POST($reg->{token_endpoint}, $query);
   my $response_code = $ret->responseCode();
-  $main::lxdebug->dump(0, 'response', $ret->responseContent());
   die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
 
   my $content = from_json($ret->responseContent());
 
-  $main::lxdebug->dump(0, 'cont', $content);
-
   die "Server returned error_code $content->{error_code}" if (exists $content->{error_code});
 
-  my $expiration = DateTime->now()->add(seconds => $content->{expires_in}); # Shall we refresh after half of the time?
-  $tok->access_token_expiration($expiration);
-  $tok->access_token($content->{access_token});
-  $tok->refresh_token($content->{refresh_token}) if (exists $content->{refresh_token});
-
-  #$tok->{registration} = 'microsoft';
-  #$tok->{authflow} = 'authcode';
-  #$tok->{email} = $email;
+  set_access_refresh_token($tok, $content);
 
   $tok->tokenstate(undef);
 
   $tok->save();
 
-  $self->config->{message} = "Token received: $content";
+  $self->config->{message} = 'Token received: database ID ' . $tok->id;
 
-
-  $self->setup_list_action_bar();
   $self->render('oauth/form', title => 'Add new OAuth2 token');
-  #die($main::lxdebug->dump(0, 'ver', [$::form, $verifier, $challenge, $url . '?' . $query]));
 }
 
 #
@@ -277,7 +372,7 @@ sub check_auth {
 }
 
 
-sub setup_list_action_bar {
+sub setup_add_action_bar {
   my ($self) = @_;
 
   for my $bar ($::request->layout->get('actionbar')) {
@@ -285,13 +380,25 @@ sub setup_list_action_bar {
      action => [
         t8('Save'),
         submit    => [ '#form', { action => 'Oauth/create' } ],
-#        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_list_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      link => [
+        t8('Add') . ': Atlassian Jira',
+        link => $self->url_for(action => 'new', oauth_type => 'atlassian_jira'),
       ],
 
       link => [
-        t8('Add'),
-        link => $self->url_for(action => 'new'),
+        t8('Add') . ': Microsoft E-Mail',
+        link => $self->url_for(action => 'new', oauth_type => 'microsoft'),
       ],
     );
   }
