@@ -610,6 +610,13 @@
   <td>[% L.select_tag('defaults.layout_style', [['', LxERP.t8('Automatic')], ['desktop', LxERP.t8('desktop version')]], default=SELF.defaults.layout_style, with_empty=0) %]</td>
   <td>[% 'The layout style normally is choosen by the user agent string the browser sends. Here you can force the desktop or mobile version. Users can override this setting in their user preferences.' | $T8 %]</td>
  </tr>
+ <tr><td class="listheading" colspan="4">[% 'ZUGFeRD Import' | $T8 %]</td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8("Import total amounts into ap transaction instead of positions") %]</td>
+   <td>[% L.yes_no_tag("defaults.zugferd_ap_transaction_use_totals", SELF.defaults.zugferd_ap_transaction_use_totals) %]</td>
+   <td>[% LxERP.t8("If an imported invoice has contains any discounts, the position method will not work reliably.") %]</td>
+  </tr>
+
 
 </table>
 </div>
