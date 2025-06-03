@@ -258,8 +258,9 @@ sub build_ap_transaction_form_defaults {
 
 
   my %item_form = ();
-  if ($parser->can('tax_totals')) {
+  if ($self->use_totals_for_ap_transaction($parser)) {
     # use tax totals instead to fill in the ap lines
+
     my $tax_totals = $parser->tax_totals;
 
     my $row = 0;
@@ -307,6 +308,7 @@ sub build_ap_transaction_form_defaults {
     $item_form{rowcount} = $row;
 
   } else {
+    # else: try to replicate the items in the ap transaction
 
     # parse items
     my $row = 0;
@@ -347,6 +349,14 @@ sub build_ap_transaction_form_defaults {
     paid_1_suggestion    => $::form->format_amount(\%::myconfig, $metadata{'total'}, 2),
     %item_form,
   },
+}
+
+sub use_totals_for_ap_transaction {
+  my ($self, $parser) = @_;
+
+  return 0 if !$parser->can('tax_totals');
+
+  return $::instance_conf->get_zugferd_ap_transaction_use_totals;
 }
 
 sub check_auth {

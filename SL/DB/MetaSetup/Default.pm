@@ -247,6 +247,7 @@ __PACKAGE__->meta->columns(
   weightunit                                => { type => 'varchar', length => 5 },
   workflow_po_ap_chart_id                   => { type => 'integer' },
   yearend_method                            => { type => 'text', default => 'default', not_null => 1 },
+  zugferd_ap_transaction_use_totals         => { type => 'boolean', default => 'false', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
