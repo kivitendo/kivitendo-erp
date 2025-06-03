@@ -4,6 +4,7 @@
 
 ALTER TABLE oauth_token ADD COLUMN tokenstate TEXT;
 ALTER TABLE oauth_token ADD COLUMN redirect_uri TEXT;
+ALTER TABLE oauth_token ADD COLUMN verifier TEXT;
 ALTER TABLE oauth_token alter column access_token drop NOT NULL;
 ALTER TABLE oauth_token alter column access_token_expiration drop NOT NULL;
 ALTER TABLE oauth_token alter column refresh_token drop NOT NULL;
