@@ -226,6 +226,16 @@ sub parse_xml {
         }
       }
     }
+
+    # ZUGFeRD 1.0 doesn't really define what an item needs to have so it's possible to have purely informal items with only a note but without
+    # name, qty or price. In ZUGFeRD 2.0 these are mandatory.
+    #
+    # To have any chance of parsing these in a business context, we filter out those that have _none_.
+
+    next if !defined $line_item{description}
+         && !defined $line_item{quantity}
+         && !defined $line_item{subtotal};
+
     push @items, \%line_item;
   }
 
