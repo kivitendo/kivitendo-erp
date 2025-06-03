@@ -83,6 +83,7 @@ use SL::DB::Letter;
 use SL::DB::LetterDraft;
 use SL::DB::MakeModel;
 use SL::DB::Note;
+use SL::DB::OauthToken;
 use SL::DB::Object::Hooks;
 use SL::DB::Object;
 use SL::DB::Order;
