@@ -6,6 +6,7 @@ use warnings;
 use parent qw(SL::XMLInvoice::Base);
 
 use constant ITEMS_XPATH => '//cac:InvoiceLine';
+use constant TAX_TOTALS_XPATH => '//cac:TaxTotal/cac:TaxSubtotal';
 
 =head1 NAME
 
@@ -83,6 +84,7 @@ sub scalar_xpaths {
     iban => '//cac:PayeeFinancialAccount/cbc:ID',
     invnumber => '//cbc:ID',
     net_total => '//cac:LegalMonetaryTotal/cbc:TaxExclusiveAmount',
+    tax_total => '//cac:TaxTotal/cbc:TaxAmount',
     transdate => '//cbc:IssueDate',
     type => '//cbc:InvoiceTypeCode',
     taxnumber => '//cac:AccountingSupplierParty/cac:Party/cac:PartyTaxScheme/cbc:CompanyID',
@@ -105,6 +107,15 @@ sub item_xpaths {
   };
 }
 
+sub tax_totals_xpaths {
+  return {
+    'tax_amount'    => './cbc:TaxAmount',
+    'type_code'     => './cac:TaxCategory/cac:TaxScheme/cbc:ID',
+    'net_amount'    => './cbc:TaxableAmount',
+    'category_code' => './cac:TaxCategory/cbc:ID',
+    'tax_rate'      => './cac:TaxCategory/cbc:Percent',
+  };
+}
 
 # Metadata accessor method
 sub metadata {
@@ -118,6 +129,12 @@ sub items {
   return $self->{_items};
 }
 
+# Taxes list accessor method
+sub tax_totals {
+  my $self = shift;
+  return $self->{_taxes};
+}
+
 sub _xpath_context {
   my $xc = XML::LibXML::XPathContext->new;
   $xc->registerNs(cac => 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2');
@@ -125,7 +142,6 @@ sub _xpath_context {
   $xc->registerNs(cbc => 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2');
   $xc;
 }
-
 
 # Data keys we return
 sub _data_keys {
@@ -211,7 +227,36 @@ sub parse_xml {
     push @items, \%line_item;
   }
 
+  my @taxes;
+  $self->{_taxes} = \@taxes;
 
+  foreach my $tax ( $xc->findnodes(TAX_TOTALS_XPATH, $self->{dom}) ) {
+    my %tax_item;
+    foreach my $key ( keys %{$self->tax_totals_xpaths} ) {
+      my $xpath = ${$self->tax_totals_xpaths}{$key};
+      unless ( $xpath ) {
+        # Skip keys without xpath expression
+        $tax_item{$key} = undef;
+        next;
+      }
+      my $value = $xc->find($xpath, $tax);
+      if ( $value ) {
+        # Get rid of extraneous white space
+        $value = $value->string_value;
+        $value =~ s/\n|\r//g;
+        $value =~ s/\s{2,}/ /g;
+        $tax_item{$key} = $value;
+      } else {
+        $tax_item{$key} = undef;
+      }
+    }
+
+    # UBL doesn't have the full amount for tax entries, so add it later
+    # net_amount and tax_amount (in xml TaxableAmount and TaxAmount) are both mandatory, see XRechnung v3.0.2 ch11.33.
+    $tax_item{amount} = $tax_item{net_amount} + $tax_item{tax_amount};
+
+    push @taxes, \%tax_item;
+  }
 }
 
 1;
