@@ -1,0 +1,44 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
+
+<form action='controller.pl' method='post' id='filter_form'>
+ <div class="wrapper">
+
+  [% BLOCK filter_toggle_panel %]
+   <table id='filter_table' class='tbl-horizontal'>
+    <tbody>
+     <tr>
+      <th align="right">[% 'Stock Counting' | $T8 %]</th>
+      <td>
+       [% L.select_tag('filter.counting_id', SELF.countings,
+                       default    => filter.counting_id,
+                       title_key  => 'name',
+                       value_key  => 'id',
+                       with_empty => 1,
+                       class      => 'wi-lightwide') %]
+      </td>
+     </tr>
+     <tr>
+      <th align="right">[% 'Group Counting Items' | $T8 %]</th>
+      <td>
+       [% L.checkbox_tag('group_counting_items', checked = FORM.group_counting_items, for_submit = 1) %]
+      </td>
+     </tr>
+    </body>
+   </table>
+
+   [% L.hidden_tag('sort_by', FORM.sort_by) %]
+   [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+   [% L.hidden_tag('page', FORM.page) %]
+
+   <div class="buttons">
+    [% L.button_tag('$("#filter_form").clearForm()', LxERP.t8('Reset')) %]
+   </div>
+
+   [% END # /BLOCK filter_toggle_panel %]
+
+   [% INCLUDE 'common/toggle_panel.html' %]
+
+ </div>
+</form>
