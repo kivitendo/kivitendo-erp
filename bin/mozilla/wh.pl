@@ -47,7 +47,7 @@ use SL::Helper::Flash qw(flash flash_later);
 use SL::IC;
 use SL::WH;
 use SL::OE;
-use SL::Helper::Inventory qw(get_stock produce_assembly allocate_for_assembly check_allocations_for_assembly);
+use SL::Helper::Inventory qw(get_onhand produce_assembly allocate_for_assembly check_allocations_for_assembly);
 use SL::Helper::Inventory::Allocation;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -399,11 +399,11 @@ sub create_assembly {
     $form->{bestbefore} = '';
   }
 
-  # Check if there are more than one chargenumber for one part of an assembly.
-  # In this case let the user select the wanted chargenumbers.
+  # Check if there are more than one chargenumber or more then 1 valid bestbefore for one part of an assembly.
+  # In this case let the user select the wanted chargenumbers/bestbefore inventories.
   my $stocked_wh_id = $::instance_conf->get_produce_assembly_same_warehouse ? $form->{warehouse_id} : undef;
-  my @stocked_by    = qw(part warehouse bin chargenumber); # Or 'for_allocate'? That would include 'bestbefore'.
-  my $stocked_parts = get_stock(part         => [ map { $_->part } @{$assembly->assemblies} ],
+  my @stocked_by    = qw(part warehouse bin chargenumber bestbefore);
+  my $stocked_parts = get_onhand(part        => [ map { $_->part } @{$assembly->assemblies} ],
                                 warehouse    => $stocked_wh_id,
                                 by           => \@stocked_by,
                                 with_objects => [qw(part warehouse bin)]);
