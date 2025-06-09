@@ -699,7 +699,8 @@ sub order_details {
        weight weight_nofmt lineweight lineweight_nofmt
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_bestbefore
-       si_qty si_qty_nofmt si_unit);
+       si_qty si_qty_nofmt si_unit
+       partsgroup);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @prepared_arrays);
 
