@@ -1,7 +1,0 @@
-[%- USE HTML %]
-[%- SET var_valid = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) _ '_valid' -%]
-[%- IF var.partsgroup_filtered %]
-<input type="hidden" name="[% var_valid %]" value="[% HTML.escape(var.valid) %]">
-[%- ELSE %]
-<input type=checkbox name='[% var_valid %]'[% IF var.valid %] checked[% END %]>
-[%- END %]

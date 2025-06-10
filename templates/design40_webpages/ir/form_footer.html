@@ -45,8 +45,8 @@
       [% ELSE %]
         <th colspan="3"></th>
       [% END %]
-      <th>[% 'Total' | $T8 %]</th>
-      <td class="numeric">[% LxERP.format_amount(invtotal, 2) %]</td>
+      <th class="invtotal">[% 'Total' | $T8 %]</th>
+      <td class="invtotal numeric">[% LxERP.format_amount(invtotal, 2) %]</td>
     </tr>
   </tfoot>
 </table>

@@ -1,8 +1,0 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE P -%]
-<div id="sub-function-block-[% requirement_spec_item.id %]" class="sub-function-block[%- IF requirement_spec_item.is_flagged -%] flagged[%- END -%]">
-
- <div id="sub-function-block-content-[%- requirement_spec_item.id -%]" class="sub-function-block-content sub-function-block-context-menu">
-  [% INCLUDE 'requirement_spec_item/_function_block_content_top.html' id_prefix='sub-' %]
-  [% INCLUDE 'requirement_spec_item/_function_block_content_bottom.html' id_prefix='sub-' %]
- </div>
-</div>

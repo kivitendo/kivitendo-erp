@@ -3,7 +3,7 @@ Hallo,
 [% IF history -%]
 der folgende Hintergrundjob ist bei kivitendo für den Mandanten [% client.name %] fehlgeschlagen:
 
-Paketname:  [% history.package_name %]
+Paketname:  [% history.package_name %] / [% history.description %]
 Ausgeführt: [% history.run_at_as_timestamp %]
 Fehler:     [% history.error_col %]
 
