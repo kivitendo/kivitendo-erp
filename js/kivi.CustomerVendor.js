@@ -155,8 +155,8 @@ namespace('kivi.CustomerVendor', function(ns) {
       }
 
       source_address = source_address || '';
-      var query      = source_address !== '' ? 'saddr=' + encodeURIComponent(source_address) + '&daddr=' : 'q=';
-      var url        = 'https://maps.google.com/maps?' + query + encodeURIComponent(searchString);
+      var query      = source_address !== '' ? 'point=' + encodeURIComponent(source_address) + '&point=' : 'point=';
+      var url        = 'https://navi.graphhopper.org/?' + query + encodeURIComponent(searchString);
 
       window.open(url, '_blank');
       window.focus();
