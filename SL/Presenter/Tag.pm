@@ -13,7 +13,7 @@ our @EXPORT_OK = qw(
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
   div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim
-  input_email_tag);
+  input_email_tag context_help_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -532,6 +532,15 @@ sub input_email_tag {
   return '<span>' . $html . '</span>';
 }
 
+sub context_help_tag {
+  my ($text, %params) = @_;
+
+  my $class    = $params{class} // 'context-help';
+  my $tt_class = $params{html} ? 'tooltipster-html' : 'tooltipster';
+
+  img_tag(src => 'image/icons/svg/question.svg', class => "$class $tt_class", title => $text);
+}
+
 sub javascript {
   my ($data) = @_;
   html_tag('script', $data, type => 'text/javascript');
@@ -1001,6 +1010,15 @@ Example:
         default="4",
       },
   ) %]
+
+=item C<context_help_tag $tooltip, %params>
+
+This creates a small circled question mark in the size of the current text with
+the given text as a mouse-over tooltip .
+
+If C<params> contains C<html>, then the tooltip is rendered as html. If
+C<params> contains a C<class>, then this is used instead of the default css
+class C<context-help>.
 
 =back
 
