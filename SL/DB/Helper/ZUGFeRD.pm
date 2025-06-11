@@ -625,7 +625,20 @@ sub _applicable_header_trade_agreement {
   #     <ram:ApplicableHeaderTradeAgreement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
-  $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id)) if $self->customer->c_vendor_routing_id;
+  # BuyerReference must always be given in XRechnung v3.0.2 BT-10.
+  # Factur-X doesn't really say anything about it and only has it as optional in the schema.
+  # Technically this means that the Factur-X:conformant profile doesn't have to include it, but validators seem to be overzealous here.
+  # To be on the safe side put a fallback in there for conformant profiles, but be strict about it in XRechnung complant profiles.
+  if ($standards_ids{ $self->{_zugferd}->{profile} } =~ /compliant/) {
+    if (!defined $self->customer->c_vendor_routing_id) {
+      die t8("Can not create an EN16931 compliant ZUGFeRD export without a routing id (Leitweg ID)");
+    } else {
+      $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id));
+    }
+  } else {
+    my $buyer_reference = $self->customer->c_vendor_routing_id || $self->cusordnumber || $self->customer->ustid || '';
+    $params{xml}->dataElement("ram:BuyerReference", _u8($buyer_reference));
+  }
 
   _seller_trade_party($self, %params);
   _buyer_trade_party($self, %params);

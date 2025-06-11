@@ -223,7 +223,10 @@
       </tr>
       <tr>
         <th>[% 'Our routing id at customer' | $T8 %]</th>
-        <td>[% L.input_tag_trim('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
+        <td>
+          [% L.input_tag_trim('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]
+          [% P.context_help_tag(LxERP.t8('Mandatory for exports with XRechnung profile. Note: Despite being optional for Factur-X profile exports, some validators expect it to be present, so the UStID will be used as a fallback.')) %]
+        </td>
       </tr>
     [% END %]
 <!-- </tbody> -->
