@@ -113,11 +113,18 @@
             <a href="[% IF SELF.cv.homepage.match('http[s]?:\/\/') %][% ELSE %]https://[% END %][% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open in new window' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>[% ELSE %][% 'Homepage' | $T8 %][% END %]</th>
       <td>[% L.input_tag_trim('cv.homepage', SELF.cv.homepage, class='wi-lightwide', title = LxERP.t8('Example: http://kivitendo.de')) %]</td>
     </tr>
-
     [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th><label for="cv_postal_invoice">[% 'Postal Invoice' | $T8 %]</label></th>
+      <td>[% L.checkbox_tag('cv.postal_invoice', checked = SELF.cv.postal_invoice, for_submit=1) %]</td>
+    </tr>
     <tr>
       <th>[% 'Email of the invoice recipient' | $T8 %]</th>
       <td>[% P.input_email_tag('cv.invoice_mail', SELF.cv.invoice_mail, class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Email of the dunning recipient' | $T8 %]</th>
+      <td>[% P.input_email_tag('cv.dunning_mail', SELF.cv.dunning_mail, class='wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Email of the delivery order recipient' | $T8 %]</th>

@@ -91,6 +91,10 @@
         <th>[% 'E-mail' | $T8 %]</th>
         <td>[% L.input_tag_trim('additional_billing_address.email', SELF.additional_billing_address.email, class="wi-wide") %]</td>
       </tr>
+      <tr>
+        <th>[% 'Email of the dunning recipient' | $T8 %]</th>
+        <td>[% L.input_tag_trim('cv.dunning_mail', SELF.cv.dunning_mail, class="wi-wide") %]</td>
+      </tr>
     </tbody>
   </table>
 
