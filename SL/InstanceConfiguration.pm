@@ -248,10 +248,6 @@ Returns the configuration for WebDAV
 
 Returns the configuration for storing documents in the corresponding WebDAV folder
 
-=item C<get_vertreter>
-
-Returns the configuration for "vertreter"
-
 =item C<get_parts_show_image>
 
 Returns the configuarion for show image in parts

@@ -234,7 +234,6 @@ __PACKAGE__->meta->columns(
   vendor_ustid_taxnummer_unique             => { type => 'boolean', default => 'false' },
   vendornumber                              => { type => 'text' },
   version                                   => { type => 'varchar', length => 8 },
-  vertreter                                 => { type => 'boolean', default => 'false' },
   warehouse_id                              => { type => 'integer' },
   warehouse_id_ignore_onhand                => { type => 'integer' },
   warn_no_delivery_order_for_invoice        => { type => 'boolean', default => 'false' },
