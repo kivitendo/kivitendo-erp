@@ -255,7 +255,6 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
   delete @{$profile}{qw(business datevexport language payment delivery_term taxincluded terms)};
-  delete @{$profile}{qw(salesman salesman_id salesman_login)} if $::instance_conf->get_vertreter;
 
   return $profile;
 }
@@ -314,11 +313,9 @@ sub setup_displayable_columns {
                                  { name => 'zipcode',           description => $::locale->text('Zipcode')                         },
                                 );
 
-  if (!$::instance_conf->get_vertreter) {
     $self->add_displayable_columns({ name => 'salesman',       description => $::locale->text('Salesman') },
                                    { name => 'salesman_id',    description => $::locale->text('Salesman (database ID)') },
                                    { name => 'salesman_login', description => $::locale->text('Salesman (login)') });
-  }
 }
 
 # TODO:

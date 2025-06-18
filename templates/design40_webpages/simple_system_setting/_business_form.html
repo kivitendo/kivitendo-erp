@@ -15,12 +15,6 @@
         <th> [%- LxERP.t8("Customernumberinit") %] </th>
         <td> [% L.input_tag("object.customernumberinit", SELF.object.customernumberinit, style=style) %] </td>
       </tr>
-      [%- IF LXCONFIG.features.vertreter %] 
-      <tr>
-        <th> [%- LxERP.t8("Representative") %] </th>
-        <td> [% L.checkbox_tag("object.salesman", "value", 1, "checked", SELF.object.salesman, for_submit=1) %] </td>
-      </tr>
-      [%- END %] 
     </tbody>
   </table>
 </div>

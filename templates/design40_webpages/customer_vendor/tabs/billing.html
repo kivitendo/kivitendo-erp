@@ -132,24 +132,12 @@
   <caption>[% IF ( SELF.is_vendor() ) %][% 'Vendor' | $T8 %][% ELSE %][% 'Customer' | $T8 %][% END %] [% 'Info & Status' | $T8 %]</caption>
   <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
   <tbody>
-    [% IF ( 0 && INSTANCE_CONF.get_vertreter ) %]
-      <tr>
-        <th>[% IF SELF.is_vendor() %] [% 'Type of Vendor' | $T8 %] [% ELSE %] [% 'Type of Customer' | $T8 %] [% END %]</th>
-        <td>[% L.select_tag('cv.business_id', SELF.all_business, value_key = 'id', title_key = 'description', default = SELF.cv.business_id, with_empty=1, class='wi-lightwide') %]</td>
-      </tr>
-      <tr>
-        <th>[% 'Representative' | $T8 %]</th>
-        <td>[% L.select_tag('cv.salesman_id', SELF.all_salesman_customers, default=SELF.cv.salesman_id, value_key='id', title_key='name', with_empty=1, class='wi-lightwide') %]</td>
-      </tr>
-    [% END %]
     <!-- PENDENT: zweimal das gleiche Feld aber nicht wirklich angezeigt? Anschauen!!!!!! -->
-    [% IF ( !INSTANCE_CONF.get_vertreter ) %]
       <tr>
         <th>[% IF ( SELF.is_vendor() ) %][% 'Type of Vendor' | $T8 %][% ELSE %][% 'Type of Customer' | $T8 %][% END %]</th>
         <td>[% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty=1, class='wi-lightwide') %]</td>
       </tr>
-    [% END %]
-    [% IF ( SELF.is_customer() && !INSTANCE_CONF.get_vertreter ) %]
+    [% IF ( SELF.is_customer() ) %]
       <th>[% 'Salesman' | $T8 %]</th>
       <td>
         [% L.select_tag('cv.salesman_id', SELF.all_salesmen, default = SELF.cv.salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1, class='wi-lightwide') %]
