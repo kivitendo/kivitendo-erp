@@ -14,7 +14,7 @@ use Rose::Object::MakeMethods::Generic (
 
 sub get_height {
   my $value = $_[0]->user_prefs->get('height');
-  return !defined($value) ? 25 : $value;
+  return !defined($value) ? 0 : $value;
 }
 
 sub store_height {
