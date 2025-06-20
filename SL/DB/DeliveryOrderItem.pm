@@ -32,6 +32,11 @@ __PACKAGE__->meta->add_relationship(
       with_objects => [ 'inventory' ]
     },
   },
+  taxkey => {
+    type         => 'many to one',
+    class        => 'SL::DB::TaxKey',
+    key_columns  => { taxkey_id => 'id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;

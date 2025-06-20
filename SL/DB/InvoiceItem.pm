@@ -34,6 +34,12 @@ __PACKAGE__->meta->add_relationships(
     class          => 'SL::DB::PurchaseInvoice',
     column_map     => { trans_id => 'id' },
   },
+
+  taxkey => {
+    type        => 'many to one',
+    class          => 'SL::DB::TaxKey',
+    key_columns    => { taxkey_id => 'id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
