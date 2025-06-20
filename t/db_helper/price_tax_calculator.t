@@ -154,6 +154,11 @@ sub test_default_invoice_one_item_19_tax_not_included() {
   is($item->marge_total,        1.02,             "${title}: item marge_total");
   is($item->marge_percent,      17.4358974358974, "${title}: item marge_percent");
   is($item->marge_price_factor, 1,                "${title}: item marge_price_factor");
+  is($item->linetotal,          5.85,             "${title}: item linetotal");
+  is($item->linetotal_cost,     4.83,             "${title}: item linetotal_cost");
+  is($item->sellprice_taxable,  2.34,             "${title}: item sellprice_taxable");
+  is($item->tax_amount,         1.1115,           "${title}: item tax_amount");
+  is($item->taxkey_id,          $taxkey->id,      "${title}: item taxkey");
 
   is($invoice->netamount,       5.85,             "${title}: netamount");
   is($invoice->amount,          6.96,             "${title}: amount");
@@ -180,14 +185,6 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     taxes_by_tax_id                              => {
       $tax->id                                   => 1.1115,
     },
-    items                                        => [
-      { linetotal                                => 5.85,
-        linetotal_cost                           => 4.83,
-        sellprice                                => 2.34,
-        tax_amount                               => 1.1115,
-        taxkey_id                                => $taxkey->id,
-      },
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
@@ -230,10 +227,20 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
   is($item1->marge_total,        1.02,             "${title}: item1 marge_total");
   is($item1->marge_percent,      17.4358974358974, "${title}: item1 marge_percent");
   is($item1->marge_price_factor, 1,                "${title}: item1 marge_price_factor");
+  is($item1->linetotal,          5.85,             "${title}: item1 linetotal");
+  is($item1->linetotal_cost,     4.83,             "${title}: item1 linetotal_cost");
+  is($item1->sellprice_taxable,  2.34,             "${title}: item1 sellprice_taxable");
+  is($item1->tax_amount,         1.1115,           "${title}: item1 tax_amount");
+  is($item1->taxkey_id,          $taxkey1->id,     "${title}: item1 taxkey");
 
   is($item2->marge_total,        5.09,             "${title}: item2 marge_total");
   is($item2->marge_percent,      43.6535162950257, "${title}: item2 marge_percent");
   is($item2->marge_price_factor, 1,                "${title}: item2 marge_price_factor");
+  is($item2->linetotal,          11.66,            "${title}: item2 linetotal");
+  is($item2->linetotal_cost,     6.57,             "${title}: item2 linetotal_cost");
+  is($item2->sellprice_taxable,  9.714,            "${title}: item2 sellprice_taxable");
+  is($item2->tax_amount,         0.8162,           "${title}: item2 tax_amount");
+  is($item2->taxkey_id,          $taxkey2->id,     "${title}: item2 taxkey");
 
   is($invoice->netamount,        5.85 + 11.66,     "${title}: netamount");
   is($invoice->amount,           6.96 + 12.48,     "${title}: amount");
@@ -267,20 +274,6 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
       $tax->id                                    => 1.1115,
       $tax7->id                                   => 0.8162,
     },
-    items                                        => [
-      { linetotal                                => 5.85,
-        linetotal_cost                           => 4.83,
-        sellprice                                => 2.34,
-        tax_amount                               => 1.1115,
-        taxkey_id                                => $taxkey1->id,
-      },
-      { linetotal                                => 11.66,
-        linetotal_cost                           => 6.57,
-        sellprice                                => 9.714,
-        tax_amount                               => 0.8162,
-        taxkey_id                                => $taxkey2->id,
-      },
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
@@ -334,14 +327,29 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
   is($item1->marge_total,        3.34,               "${title}: item1 marge_total");
   is($item1->marge_percent,      63.3776091081594,   "${title}: item1 marge_percent");
   is($item1->marge_price_factor, 1,                  "${title}: item1 marge_price_factor");
+  is($item1->linetotal,          5.27,               "${title}: item1 linetotal");
+  is($item1->linetotal_cost,     1.93,               "${title}: item1 linetotal_cost");
+  is($item1->sellprice_taxable,  5.27,               "${title}: item1 sellprice_taxable");
+  is($item1->tax_amount,         1.0013,             "${title}: item1 tax_amount");
+  is($item1->taxkey_id,          $taxkeys{$item1->parts_id}->id, "${title}: item1 taxkey");
 
   is($item2->marge_total,        3.30,               "${title}: item2 marge_total");
   is($item2->marge_percent,      63.0975143403442,   "${title}: item2 marge_percent");
   is($item2->marge_price_factor, 1,                  "${title}: item2 marge_price_factor");
+  is($item2->linetotal,          5.23,               "${title}: item2 linetotal");
+  is($item2->linetotal_cost,     1.93,               "${title}: item2 linetotal_cost");
+  is($item2->sellprice_taxable,  5.23,               "${title}: item2 sellprice_taxable");
+  is($item2->tax_amount,         0.9937,             "${title}: item2 tax_amount");
+  is($item2->taxkey_id,          $taxkeys{$item2->parts_id}->id,       "${title}: item2 taxkey");
 
   is($item3->marge_total,        2.82,               "${title}: item3 marge_total");
   is($item3->marge_percent,      59.3684210526316,   "${title}: item3 marge_percent");
   is($item3->marge_price_factor, 1,                  "${title}: item3 marge_price_factor");
+  is($item3->linetotal,          4.75,               "${title}: item3 linetotal");
+  is($item3->linetotal_cost,     1.93,               "${title}: item3 linetotal_cost");
+  is($item3->sellprice_taxable,  4.75,               "${title}: item3 sellprice_taxable");
+  is($item3->tax_amount,         0.9025,             "${title}: item3 tax_amount");
+  is($item3->taxkey_id,          $taxkeys{$item3->parts_id}->id,       "${title}: item3 taxkey");
 
   is($invoice->netamount,        5.27 + 5.23 + 4.75, "${title}: netamount");
 
@@ -373,26 +381,6 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     taxes_by_tax_id                              => {
       $tax->id                                   => 2.89750,
     },
-    items                                        => [
-      { linetotal                                => 5.27,
-        linetotal_cost                           => 1.93,
-        sellprice                                => 5.27,
-        tax_amount                               => 1.0013,
-        taxkey_id                                => $taxkeys{$item1->parts_id}->id,
-      },
-      { linetotal                                => 5.23,
-        linetotal_cost                           => 1.93,
-        sellprice                                => 5.23,
-        tax_amount                               => 0.9937,
-        taxkey_id                                => $taxkeys{$item2->parts_id}->id,
-      },
-      { linetotal                                => 4.75,
-        linetotal_cost                           => 1.93,
-        sellprice                                => 4.75,
-        tax_amount                               => 0.9025,
-        taxkey_id                                => $taxkeys{$item3->parts_id}->id,
-      }
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
@@ -416,6 +404,12 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
 
   my $title = 'default invoice, one item, sellprice, rounding, discount';
   my %data  = $invoice->calculate_prices_and_taxes;
+
+  is($item->linetotal,          3.49,                "${title}: item linetotal");
+  is($item->linetotal_cost,     0,                   "${title}: item linetotal_cost");
+  is($item->sellprice_taxable,  0.58,                "${title}: item sellprice_taxable");
+  is($item->tax_amount,         0.6631,              "${title}: item tax_amount");
+  is($item->taxkey_id,          $taxkeys{$item->parts_id}->id, "${title}: item taxkey");
 
   is($invoice->netamount,         3.49,              "${title}: netamount");
 
@@ -444,14 +438,6 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
     taxes_by_tax_id                              => {
       $tax->id                                   => 0.66310,
     },
-    items                                        => [
-      { linetotal                                => 3.49,
-        linetotal_cost                           => 0,
-        sellprice                                => 0.58,
-        tax_amount                               => 0.6631,
-        taxkey_id                                => $taxkeys{$item->parts_id}->id,
-      },
-    ],
     rounding                                     =>  0,
   }, "${title}: calculated data");
 }
@@ -469,6 +455,12 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
 
   my $title = 'default invoice, one item, 19% tax not included, rounding, discount, huge qty';
   my %data  = $invoice->calculate_prices_and_taxes;
+
+  is($item->linetotal,          9700,                "${title}: item linetotal");
+  is($item->linetotal_cost,     0,                   "${title}: item linetotal_cost");
+  is($item->sellprice_taxable,  0.1,                 "${title}: item sellprice_taxable");
+  is($item->tax_amount,         1843,                "${title}: item tax_amount");
+  is($item->taxkey_id,          $taxkeys{$item->parts_id}->id, "${title}: item taxkey");
 
   is($invoice->netamount,         9700,              "${title}: netamount");
 
@@ -497,14 +489,6 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
     taxes_by_tax_id                              => {
       $tax->id                                   => 1843,
     },
-    items                                        => [
-      { linetotal                                => 9700,
-        linetotal_cost                           => 0,
-        sellprice                                => 0.1,
-        tax_amount                               => 1843,
-        taxkey_id                                => $taxkeys{$item->parts_id}->id,
-      },
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
@@ -534,6 +518,12 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
   my $title = 'default invoice one item 19 tax not included rounding discount big qty low sellprice';
   my %data  = $invoice->calculate_prices_and_taxes;
 
+  is($item->linetotal,          67.56,                         "${title}: item linetotal");
+  is($item->linetotal_cost,     19301.93,                      "${title}: item linetotal_cost");
+  is($item->sellprice_taxable,  0.007,                         "${title}: item sellprice_taxable");
+  is($item->tax_amount,         12.8364,                       "${title}: item tax_amount");
+  is($item->taxkey_id,          $taxkeys{$item->parts_id}->id, "${title}: item taxkey");
+
   is($invoice->netamount,                 67.56,    "${title}: netamount");
 
   is($invoice->amount,                    80.40,    "${title}: amount");
@@ -561,14 +551,6 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
     taxes_by_tax_id                              => {
       $tax->id                                   => 12.8364,
     },
-    items                                        => [
-      { linetotal                                => 67.56,
-        linetotal_cost                           => 19301.93,
-        sellprice                                => 0.007,
-        tax_amount                               => 12.8364,
-        taxkey_id                                => $taxkeys{$item->parts_id}->id,
-      },
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
@@ -599,11 +581,21 @@ sub test_default_order_two_items_19_one_optional() {
   is($item->marge_total,        1.02,             "${title}: item marge_total");
   is($item->marge_percent,      17.4358974358974, "${title}: item marge_percent");
   is($item->marge_price_factor, 1,                "${title}: item marge_price_factor");
+  is($item->linetotal,          5.85,             "${title}: item linetotal");
+  is($item->linetotal_cost,     4.83,             "${title}: item linetotal_cost");
+  is($item->sellprice_taxable,  2.34,             "${title}: item sellprice_taxable");
+  is($item->tax_amount,         1.1115,           "${title}: item tax_amount");
+  is($item->taxkey_id,          $taxkey->id,      "${title}: item taxkey");
 
   # optional items have a linetotal and marge, but ...
   is($item_optional->marge_total,        1.02,             "${title}: item optional marge_total");
   is($item_optional->marge_percent,      17.4358974358974, "${title}: item optional marge_percent");
   is($item_optional->marge_price_factor, 1,                "${title}: item optional marge_price_factor");
+  is($item_optional->linetotal,          5.85,             "${title}: item linetotal");
+  is($item_optional->linetotal_cost,     4.83,             "${title}: item linetotal_cost");
+  is($item_optional->sellprice_taxable,  2.34,             "${title}: item sellprice_taxable");
+  is($item_optional->tax_amount,         1.1115,           "${title}: item tax_amount");
+  is($item_optional->taxkey_id,          $taxkey->id,      "${title}: item taxkey");
 
   # ... should not be calculated for the record sum
   is($order->netamount,       5.85,             "${title}: netamount");
@@ -634,20 +626,6 @@ sub test_default_order_two_items_19_one_optional() {
     taxes_by_tax_id                              => {
       $tax->id                                   => 1.1115,
     },
-    items                                        => [
-      { linetotal                                => 5.85,
-        linetotal_cost                           => 4.83,
-        sellprice                                => 2.34,
-        tax_amount                               => 1.1115,
-        taxkey_id                                => $taxkey->id,
-      },
-      { linetotal                                => 5.85,
-        linetotal_cost                           => 4.83,
-        sellprice                                => 2.34,
-        tax_amount                               => 1.1115,
-        taxkey_id                                => $taxkey->id,
-      },
-    ],
     rounding                                    =>  0,
   }, "${title}: calculated data");
 }
