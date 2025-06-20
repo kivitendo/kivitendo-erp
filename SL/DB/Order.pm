@@ -637,6 +637,7 @@ sub new_from {
                                                           ordnumber parts_id price_factor price_factor_id pricegroup_id
                                                           project_id qty reqdate sellprice serialnumber ship subtotal transdate unit
                                                           optional recurring_billing_mode position
+                                                          linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
                                                        )),
                                                    custom_variables => \@custom_variables,
       );
@@ -647,6 +648,7 @@ sub new_from {
           discount lastcost longdescription parts_id price_factor
           price_factor_id pricegroup_id project_id qty reqdate sellprice
           serialnumber unit position
+          linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
         )),
         custom_variables => \@custom_variables,
       );

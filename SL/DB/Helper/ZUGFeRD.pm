@@ -211,10 +211,10 @@ sub _tax_rate_and_code {
 sub _line_item {
   my ($self, %params) = @_;
 
-  my $item_ptc = $params{ptc_data}->{items}->[$params{line_number}];
+  my $item     = $params{item};
 
-  my $taxkey   = $item_ptc->{taxkey_id} ? SL::DB::TaxKey->load_cached($item_ptc->{taxkey_id}) : undef;
-  my $tax      = $item_ptc->{taxkey_id} ? SL::DB::Tax->load_cached($taxkey->tax_id)           : undef;
+  my $taxkey   = $item->taxkey;
+  my $tax      = $taxkey ? $taxkey->tax : undef;
   my %tax_info = _tax_rate_and_code($self->taxzone, $tax);
 
   # <ram:IncludedSupplyChainTradeLineItem>
@@ -226,25 +226,25 @@ sub _line_item {
   $params{xml}->endTag;
 
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
-  $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
-  $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
-  $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
-    if $params{item}->longdescription_as_stripped_html;
+  $params{xml}->dataElement("ram:SellerAssignedID", _u8($item->part->partnumber));
+  $params{xml}->dataElement("ram:Name",             _u8($item->description));
+  $params{xml}->dataElement("ram:Description",      _u8($item->longdescription_as_stripped_html))
+    if $item->longdescription_as_stripped_html;
   $params{xml}->endTag;
 
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
+  $params{xml}->dataElement("ram:ChargeAmount", _r2($item->sellprice_taxable));
   $params{xml}->endTag;
   $params{xml}->startTag("ram:NetPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
+  $params{xml}->dataElement("ram:ChargeAmount", _r2($item->sellprice_taxable));
   $params{xml}->endTag;
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeAgreement>
 
   #   <ram:SpecifiedLineTradeDelivery>
   $params{xml}->startTag("ram:SpecifiedLineTradeDelivery");
-  $params{xml}->dataElement("ram:BilledQuantity", $params{item}->qty, unitCode => _unit_code($params{item}->unit));
+  $params{xml}->dataElement("ram:BilledQuantity", $item->qty, unitCode => _unit_code($item->unit));
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeDelivery>
 
@@ -261,7 +261,7 @@ sub _line_item {
 
   #     <ram:SpecifiedTradeSettlementLineMonetarySummation>
   $params{xml}->startTag("ram:SpecifiedTradeSettlementLineMonetarySummation");
-  $params{xml}->dataElement("ram:LineTotalAmount", _r2($item_ptc->{linetotal}));
+  $params{xml}->dataElement("ram:LineTotalAmount", _r2($item->linetotal));
   $params{xml}->endTag;
   #     </ram:SpecifiedTradeSettlementLineMonetarySummation>
 
@@ -299,15 +299,15 @@ sub _taxes {
 
   my %taxkey_info;
 
-  foreach my $item (@{ $params{ptc_data}->{items} }) {
-    $taxkey_info{$item->{taxkey_id}} //= {
+  foreach my $item ($self->items_sorted) {
+    $taxkey_info{$item->taxkey_id} //= {
       linetotal  => 0,
       tax_amount => 0,
     };
-    my $info             = $taxkey_info{$item->{taxkey_id}};
-    $info->{taxkey}    //= SL::DB::TaxKey->load_cached($item->{taxkey_id});
+    my $info             = $taxkey_info{$item->taxkey_id};
+    $info->{taxkey}    //= $item->taxkey;
     $info->{tax}       //= SL::DB::Tax->load_cached($info->{taxkey}->tax_id);
-    $info->{linetotal}  += $item->{linetotal};
+    $info->{linetotal}  += $item->linetotal;
   }
 
   foreach my $taxkey_id (sort keys %taxkey_info) {
