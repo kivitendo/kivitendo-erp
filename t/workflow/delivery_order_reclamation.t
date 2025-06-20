@@ -227,6 +227,7 @@ pairwise  { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
+    taxkey_id
     )) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
@@ -253,6 +254,7 @@ pairwise  { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id delivery_order_id
     itime mtime
+    taxkey_id
     )) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
@@ -291,6 +293,7 @@ my @different_record_item_values = qw(
   id delivery_order_id reclamation_id itime mtime
   cusordnumber marge_price_factor ordnumber transdate orderer_id
   description reason_description_ext reason_description_int reason_id
+  linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
 );
 
 # sales

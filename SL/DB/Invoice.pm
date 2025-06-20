@@ -185,7 +185,10 @@ sub new_from {
 
   if (ref($source) eq 'SL::DB::Order') {
     @columns      = qw(quonumber delivery_customer_id delivery_vendor_id tax_point);
-    @item_columns = qw(subtotal);
+    @item_columns = qw(
+      subtotal
+      linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
+    );
 
     $item_parent_id_column = 'trans_id';
     $item_parent_column    = 'order';

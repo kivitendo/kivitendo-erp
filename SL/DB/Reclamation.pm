@@ -467,7 +467,7 @@ sub new_from {
     $reclamation->{RECORD_ID()} = $source->id;
   };
 
-  my $items = delete($params{items}) || $source->items;
+  my $items = delete($params{items}) || $source->items_sorted;
 
   my @items = map { SL::DB::ReclamationItem->new_from($_, $from_to->{to}, no_linked_records => $params{no_linked_records}); } @{ $items };
 
