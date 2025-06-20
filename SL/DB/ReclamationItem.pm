@@ -23,6 +23,14 @@ use SL::DB::Helper::CustomVariables (
   },
 );
 
+__PACKAGE__->meta->add_relationship(
+  taxkey => {
+    type        => 'many to one',
+    class       => 'SL::DB::TaxKey',
+    key_columns => { taxkey_id => 'id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(reclamation_id)]);

@@ -20,6 +20,14 @@ use SL::DB::Helper::CustomVariables (
 use SL::Helper::ShippedQty;
 use Rose::DB::Object::Helpers qw(as_tree strip);
 
+__PACKAGE__->meta->add_relationship(
+  taxkey => {
+    type        => 'many to one',
+    class       => 'SL::DB::TaxKey',
+    key_columns => { taxkey_id => 'id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
