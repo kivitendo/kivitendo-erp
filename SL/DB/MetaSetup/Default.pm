@@ -117,6 +117,7 @@ __PACKAGE__->meta->columns(
   fxloss_accno_id                           => { type => 'integer' },
   gl_add_doc                                => { type => 'boolean', default => 'false', not_null => 1 },
   gl_changeable                             => { type => 'integer', default => 2, not_null => 1 },
+  gln                                       => { type => 'text' },
   global_bcc                                => { type => 'text', default => '' },
   id                                        => { type => 'serial', not_null => 1 },
   income_accno_id                           => { type => 'integer' },
