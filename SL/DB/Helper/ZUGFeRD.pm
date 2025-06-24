@@ -28,6 +28,7 @@ use SL::Locale::String qw(t8);
 
 use SL::Controller::ZUGFeRD;
 
+use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any pairwise);
@@ -767,6 +768,23 @@ sub _validate_data {
   if (_is_profile($self, PROFILE_XRECHNUNG())) {
     if (!$self->customer->c_vendor_routing_id) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 2.0'));
+    }
+  }
+
+  #
+  # GS1 GTIN/EAN/GLN/ILN and ISBN-13 all use the same check digits
+  #
+  if ($self->customer->gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->customer->gln)) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Customer GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->customer->gln));
+  }
+
+  if ($::instance_conf->get_gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($::instance_conf->get_gln)) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Client config GLN check digit mismatch. #1 does not seem to be a valid GLN.', $::instance_conf->get_gln));
+  }
+
+  for my $item ($self->items_sorted) {
+    if ($item->part->ean && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($item->part->ean)) {
+        SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('EAN check digit mismatch for part #1. #2 does not seem to be a valid EAN.', $item->part->displayable_name, $item->part->ean));
     }
   }
 
