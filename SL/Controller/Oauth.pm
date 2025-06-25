@@ -142,7 +142,7 @@ sub http_bearer_auth_header {
 }
 
 sub atlassian_jira_cloudid {
-  my ($token_db_id) = @_;
+  my ($token_db_id, $jql) = @_;
 
   my $bearer = http_bearer_auth_header($token_db_id);
   my $client = REST::Client->new();
@@ -166,7 +166,7 @@ sub atlassian_jira_cloudid {
 
   my $maxResults = 100;
   my $fields = "summary";
-  my $jql = 'textfields ~ "Test case*"';
+  #my $jql = 'textfields ~ "Test case*"';
   $url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/search/jql?jql=" . uri_encode($jql) . "&maxResults=100&fields=id%2Cassignee%2Cauthor%2Ccreator%2Csummary%2Cresolution%2Cstatus%2Cpriority%2Ccreated%2Cupdated&expand=&reconcileIssues=";
   $ret = $client->GET($url);
   $response_code = $ret->responseCode();
