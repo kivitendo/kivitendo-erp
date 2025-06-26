@@ -89,7 +89,7 @@ sub _extract_zugferd_invoice_xml {
   while (@agenda) {
     my $item = shift @agenda;
 
-    if ($item->{Kids}) {
+    if ($item->realise->{Kids}) {
       my @kids = $item->{Kids}->realise->elements;
       push @agenda, @kids;
 
