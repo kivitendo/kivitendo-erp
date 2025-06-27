@@ -140,7 +140,7 @@ sub _calculate_item {
     $data->{amounts}->{ $chart->id }->{amount}  -= $tax_amount if $self->taxincluded;
   }
   my $linetotal_cost = 0;
-  my $linetotal_net = 0;
+  my $linetotal_net  = 0;
 
   if (!$linetotal) {
     $item->marge_total(  0) if $marge_calculations;
@@ -149,7 +149,7 @@ sub _calculate_item {
   } else {
     my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
     $linetotal_cost    = _round($lastcost * $item->qty / ( $marge_calculations ? $item->marge_price_factor : 1 ), 2);
-    $linetotal_net  = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
+    $linetotal_net     = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
 
     $item->marge_total(  $linetotal_net - $linetotal_cost) if $marge_calculations;
     $item->marge_percent($item->marge_total * 100 / $linetotal_net) if $marge_calculations;
