@@ -304,7 +304,7 @@ sub _taxes {
 
   my %taxkey_info;
 
-  foreach my $item ($self->items_sorted) {
+  foreach my $item (@{ $self->items_sorted }) {
     $taxkey_info{$item->taxkey_id} //= {
       linetotal  => 0,
       tax_amount => 0,
