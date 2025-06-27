@@ -17,8 +17,11 @@ __PACKAGE__->meta->columns(
   id                     => { type => 'serial', not_null => 1 },
   itime                  => { type => 'timestamp', default => 'now()' },
   lastcost               => { type => 'numeric', precision => 15, scale => 5 },
+  linetotal              => { type => 'numeric', precision => 15, scale => 5 },
+  linetotal_cost         => { type => 'numeric', precision => 15, scale => 5 },
   longdescription        => { type => 'text' },
   mtime                  => { type => 'timestamp' },
+  net_amount             => { type => 'numeric', precision => 15, scale => 5 },
   parts_id               => { type => 'integer', not_null => 1 },
   position               => { type => 'integer', not_null => 1 },
   price_factor           => { type => 'numeric', default => 1, precision => 15, scale => 5 },
@@ -32,7 +35,10 @@ __PACKAGE__->meta->columns(
   reclamation_id         => { type => 'integer', not_null => 1 },
   reqdate                => { type => 'date' },
   sellprice              => { type => 'numeric', precision => 15, scale => 5 },
+  sellprice_taxable      => { type => 'numeric', precision => 15, scale => 5 },
   serialnumber           => { type => 'text' },
+  tax_amount             => { type => 'numeric', precision => 15, scale => 5 },
+  taxkey_id              => { type => 'numeric', precision => 15, scale => 5 },
   unit                   => { type => 'varchar', length => 20 },
 );
 
