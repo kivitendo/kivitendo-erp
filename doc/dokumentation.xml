@@ -1005,36 +1005,6 @@ default_manager = german</programlisting>
               <para><ulink url="https://de.opensuse.org/PostgreSQL">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</ulink></para>
             </listitem>
           </itemizedlist>
-      <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
-        <title>Zeichensätze/die Verwendung von Unicode/UTF-8</title>
-
-        <para>kivitendo setzt zwingend voraus, dass die Datenbank
-        Unicode/UTF-8 als Encoding einsetzt. Bei aktuellen
-        Serverinstallationen braucht man hier meist nicht einzugreifen.</para>
-
-        <para>Das Encoding des Datenbankservers kann überprüft werden. Ist das
-        Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so braucht
-        man nichts weiteres diesbezüglich unternehmen. Zum Testen:</para>
-
-        <programlisting>su postgres
-echo '\l' | psql
-exit </programlisting>
-
-        <para>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
-        Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 9.3 mit dem folgenden Befehl
-        getan werden:</para>
-
-        <programlisting>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 9.3 clustername</programlisting>
-
-        <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete
-        Versionsnummer angepasst werden.</para>
-
-        <para>Unter anderen Distributionen gibt es ähnliche Methoden.</para>
-
-        <para>Das Encoding einer Datenbank kann in <command>psql</command> mit
-        <literal>\l</literal> geprüft werden.</para>
-      </sect2>
 
       <sect2 id="Änderungen-an-Konfigurationsdateien">
         <title>Änderungen an Konfigurationsdateien</title>
