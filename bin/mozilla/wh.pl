@@ -47,7 +47,7 @@ use SL::Helper::Flash qw(flash flash_later);
 use SL::IC;
 use SL::WH;
 use SL::OE;
-use SL::Helper::Inventory qw(get_stock produce_assembly allocate_for_assembly check_allocations_for_assembly);
+use SL::Helper::Inventory qw(get_onhand produce_assembly allocate_for_assembly check_allocations_for_assembly);
 use SL::Helper::Inventory::Allocation;
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
@@ -399,11 +399,11 @@ sub create_assembly {
     $form->{bestbefore} = '';
   }
 
-  # Check if there are more than one chargenumber for one part of an assembly.
-  # In this case let the user select the wanted chargenumbers.
+  # Check if there are more than one chargenumber or more then 1 valid bestbefore for one part of an assembly.
+  # In this case let the user select the wanted chargenumbers/bestbefore inventories.
   my $stocked_wh_id = $::instance_conf->get_produce_assembly_same_warehouse ? $form->{warehouse_id} : undef;
-  my @stocked_by    = qw(part warehouse bin chargenumber); # Or 'for_allocate'? That would include 'bestbefore'.
-  my $stocked_parts = get_stock(part         => [ map { $_->part } @{$assembly->assemblies} ],
+  my @stocked_by    = qw(part warehouse bin chargenumber bestbefore);
+  my $stocked_parts = get_onhand(part        => [ map { $_->part } @{$assembly->assemblies} ],
                                 warehouse    => $stocked_wh_id,
                                 by           => \@stocked_by,
                                 with_objects => [qw(part warehouse bin)]);
@@ -484,7 +484,7 @@ sub create_assembly {
       my %allocations_by_parts_id = map { my $p_id = $_->{parts_id}; $p_id => [grep { $_->{parts_id} == $p_id } @allocations] } @allocations;
 
       my %needed_by_parts_id = map { $_->{parts_id} => $_->qty * $form->{qty} } @{$assembly->assemblies};
-      create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id);
+      create_assembly_chargenumbers($form, \%stocked_by_parts_id, \%needed_by_parts_id, \%allocations_by_parts_id, $assembly);
       return $::lxdebug->leave_sub();
     }
 
@@ -538,13 +538,13 @@ sub render_produce_assembly_error {
 }
 
 sub create_assembly_chargenumbers {
-  my ($form, $stocked_by_parts_id, $needed_by_parts_id, $allocated_by_parts_id) = @_;
+  my ($form, $stocked_by_parts_id, $needed_by_parts_id, $allocated_by_parts_id, $assembly) = @_;
 
   setup_wh_create_assembly_chargenumbers_action_bar();
 
   my $hidden_vars = { map { $_ => $form->{$_} } qw(parts_id warehouse_id bin_id chargenumber qty unit comment) };
 
-  $form->{title} = $::locale->text('Select Chargenumbers');
+  $form->{title} = $::locale->text('Select Chargenumbers to produce quantity #1 of #2 #3', $form->{qty}, $assembly->partnumber, $assembly->description);
   $form->header;
 
   print $form->parse_html_template(
