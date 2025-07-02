@@ -211,6 +211,7 @@ my %kivitendo_package_names = (
   requirement_spec_types               => 'RequirementSpecType',
   requirement_spec_versions            => 'RequirementSpecVersion',
   requirement_specs                    => 'RequirementSpec',
+  secrets                        => 'secret',
   sepa_export                    => 'sepa_export',
   sepa_export_items              => 'sepa_export_item',
   sepa_export_message_ids        => 'SepaExportMessageId',
