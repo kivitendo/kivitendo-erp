@@ -326,6 +326,11 @@ email_from     = kivitendo Daemon <root@localhost>
 email_subject  = kivitendo: neue Wiedervorlagen für Sie von <%creator_name%>
 email_template = templates/mail/follow_up_notify/email_body.txt
 
+[secrets]
+# Passphase used to encrypt/decrypt secrets stored in the kivitendo client database.
+# While any length is allowed, it will get stretched into a 256bit AES key - more is better.
+master_key =
+
 [console]
 # Automatic login will only work if both "client" and "login" are
 # given.  "client" can be a client's database ID or its name. "login"
