@@ -1011,9 +1011,9 @@ sub send_email {
         # if uploaded documents exists, add ALL pdf files for later merging
         if (scalar @{ $latest_documents }) {
           my $files;
+          push @{ $files }, $self->{tmpfile};
           foreach my $latest_document (@{ $latest_documents }) {
             die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
-            push @{ $files }, $self->{tmpfile};
             push @{ $files }, $latest_document->file_versions_sorted->[-1]->get_system_location;
           }
           SL::Helper::CreatePDF->merge_pdfs(file_names => $files, out_path => $self->{tmpfile});
