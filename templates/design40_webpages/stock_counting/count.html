@@ -1,0 +1,58 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE P %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+<h1>[% 'Stock Counting' | $T8 %]</h1>
+
+<div class="wrapper">
+  <table class='tbl-horizontal'>
+    <tbody>
+      <tr>
+        <th>[% 'Stock Counting' | $T8 %]</th>
+        <td><span class="data">[% SELF.stock_counting_item.counting.name %]</span></td>
+      </tr>
+      <tr>
+        <th>[% 'Description' | $T8 %]</th>
+        <td><span class="data">[% SELF.stock_counting_item.counting.description %]</span></td>
+      </tr>
+      <tr>
+        <th>[% 'Part' | $T8 %]</th>
+        <td><span class="data">[% SELF.stock_counting_item.counting.part.displayable_name %]</span></td>
+      </tr>
+      <tr>
+        <th>[% 'Partsgroup' | $T8 %]</th>
+        <td><span class="data">[% SELF.stock_counting_item.counting.partsgroup.displayable_name %]</span></td>
+      </tr>
+      <tr>
+        <th>[% 'Vendor' | $T8 %]</th>
+        <td><span class="data">[% SELF.stock_counting_item.counting.vendor.displayable_name %]</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="wrapper">
+  <form method="post" name="count_form" id="count_form" action="controller.pl">
+    [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
+    <table class='tbl-horizontal'>
+      <tbody>
+        <tr>
+          <th>[% 'Bin' | $T8 %]</th>
+          <td>
+            [% IF SELF.stock_counting_item.counting.bin_id %]
+              <span class="data">[% SELF.stock_counting_item.counting.bin.full_description %]</span>
+              [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
+            [% ELSE %]
+              [% P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
+            [% END %]
+          </td>
+        </tr>
+        <tr>
+          <th>[% 'EAN' | $T8 %]</th>
+          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required') %]</td>
+        </tr>
+    </table>
+  </form>
+</div>

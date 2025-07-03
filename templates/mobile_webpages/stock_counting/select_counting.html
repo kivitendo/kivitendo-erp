@@ -1,0 +1,23 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE P %]
+
+<div class="section">
+  <div class="container">
+    <div class="z-depth-1 grey lighten-4 row" style="padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
+      <form method="post" name="count_form" action="controller.pl" target="_top" class="col s12">
+        <div class="row">
+          [% P.M.select_tag('stock_counting_item.counting_id', SELF.countings,
+                            class='col s12',
+                            title_key='name',
+                            label=LxERP.t8('Select a Stock Counting'))
+          %]
+        </div>
+        <div class="row">
+          [% P.hidden_tag("action", "StockCounting/start_counting") %]
+          [% P.M.submit_tag("btn_start", LxERP.t8("Start"), class="col s12", large=1) %]
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
