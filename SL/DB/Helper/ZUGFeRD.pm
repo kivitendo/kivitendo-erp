@@ -840,7 +840,8 @@ sub import_zugferd_data {
   # TODO get_first is a bit dangerous too ...
   my %template_params;
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
-  unless $template_ap die t8("There is no template for this vendor. Cannot automatically process the ZUGFeRD data.");
+
+  die t8("There is no template for this vendor. Cannot automatically process the ZUGFeRD data.") unless $template_ap;
 
 
   # Check IBAN specified on bill matches the one we've got in
