@@ -786,10 +786,10 @@ Mail can be sent from kivitendo via the sendmail command or the smtp protocol.
 
   Updates the emails for a folder. Checks which emails are missing and
   fetches these from the IMAP server. Returns the created email import object.
-  Accepts some optional params, for instance <Cskip_broken_mime_mails> which
+  Accepts some optional params, for instance C<skip_broken_mime_mails> which
   silently surpresses error message if a email is not MIME compatible.
   This is useful if loads of emails needs to be imported and the importer
-  doesn´t really care about some not parseable mails.
+  doesn't really care about some not parseable mails.
 
 =item C<update_emails_from_subfolders>
 
