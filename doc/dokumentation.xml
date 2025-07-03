@@ -1598,7 +1598,7 @@ monthly_strftime: '%Y-%m-%d'
             <para><literal>processed_imap_flag:</literal> Das hier eingetragenen Flag wird nach dem erfolgreichen Verarbeiten an der E-Mail gesetzt.</para>
           </listitem>
           <listitem>
-            <para><literal>not_processed_imap_flag:</literal> Dieses Flag wird gesetzt, falls die E-Mail nicht erfolgreich verarbeitet werden konnte (Verarbeitungsprozeß ist in <literal>process_imported_emails</literal> definiert.</para>
+            <para><literal>not_processed_imap_flag:</literal> Dieses Flag wird gesetzt, falls die E-Mail nicht erfolgreich verarbeitet werden konnte (Verarbeitungsprozess ist in <literal>process_imported_emails</literal> definiert.</para>
           </listitem>
           <listitem>
             <para><literal>record_type:</literal> Einträge im E-Mail-Journal können direkt einem Belegtypen zugeordnet werden. Wenn alle E-Mails, die mit einem Hintergrundjob importiert werden, den gleichen Belegtypen haben, kann man diesen hier festlegen und alle Einträge im E-Mail-Journal werden entsprechend zugeordnet. Für Eingangsrechnungen kann man hier bspw. 'ap_transaction' setzen.</para>
