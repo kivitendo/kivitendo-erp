@@ -32,6 +32,8 @@ unless (eval { require Config::Std; 1 }){
   SUSE: you may install the needed *.rpm package with:
     zypper install perl-Config-Std
 
+  Arch Linux: using yay
+    yay -S perl-config-std
 +------------------------------------------------------------------------------+
 EOL
 
@@ -50,6 +52,8 @@ unless (eval { require List::MoreUtils; 1 }){
   Red Hat/Fedora/CentOS: you may install the needed *.rpm package with:
     dnf install perl-List-MoreUtils
 
+  Arch Linux: using yay
+    yay -S perl-list-moreutils
 
 +------------------------------------------------------------------------------+
 EOL
@@ -82,6 +86,7 @@ my %install_methods = (
   apt    => { key => 'debian', install => 'sudo apt install', system => "Debian, Ubuntu" },
   yum    => { key => 'fedora', install => 'sudo yum install',     system => "RHEL, Fedora, CentOS" },
   zypper => { key => 'suse',   install => 'sudo zypper install',  system => "SLES, openSUSE" },
+  yay    =>  { key => 'arch', install => 'yay -S', system => "Arch Linux" },
   cpan   => { key => 'name',   install => "sudo cpan",            system => "CPAN" },
 );
 
@@ -241,7 +246,7 @@ sub check_pdfinfo {
     print_line($line, $ver_string, 'green');
   } else {
     print_line($line, 'not installed','red');
-    my %modinfo = ( debian => 'poppler-utils' );
+    my %modinfo = ( debian => 'poppler-utils', arch => 'poppler' );
     push @missing_modules, \%modinfo;
 
   }
