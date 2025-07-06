@@ -168,7 +168,7 @@ namespace('kivi.CustomerVendor', function(ns) {
       $widgetWrapper = $(widgetWrapper);
 
       $widgetWrapper
-        .html('<img class="icon-map" alt="'+ kivi.t8("Map") +'" title="'+ kivi.t8("Map") +'" />')
+        .html('<img class="icon-map" alt="'+ kivi.t8("Powered by Graphhopper API & Openstreetmap") +'" title="'+ kivi.t8("Powered by Graphhopper API & Openstreetmap") +'" />')
         .click(function() {
           showMap();
         });
