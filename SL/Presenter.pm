@@ -44,25 +44,7 @@ sub render {
   croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
 
   # Look for the file given by $template if $template is not a reference.
-  my $source;
-  if (!ref $template) {
-    my $webpages_path     = $::request->layout->webpages_path;
-    my $webpages_fallback = $::request->layout->webpages_fallback_path;
-
-    my $ext = $options->{type} eq 'text' ? 'txt' : $options->{type};
-
-    $source = first { -f } map { "${_}/${template}.${ext}" } grep { defined } $webpages_path, $webpages_fallback;
-
-    croak "Template file ${template} not found" unless $source;
-
-  } elsif (ref($template) eq 'SCALAR') {
-    # Normal scalar reference: hand over to Template
-    $source = $template;
-
-  } else {
-    # Instance of SL::Presenter::EscapedText. Get reference to its content.
-    $source = \$template->{text};
-  }
+  my $source = resolve_template($template, $options->{type});
 
   # If no processing is requested then return the content.
   if (!$options->{process}) {
@@ -97,6 +79,34 @@ sub render {
   $parser->process($source, \%params, \$output) || croak $parser->error;
 
   return is_escaped($output);
+}
+
+sub resolve_template {
+  my ($template, $type) = @_;
+  $type //= 'html';
+
+
+  my $source;
+  if (!ref $template) {
+    my $webpages_path     = $::request->layout->webpages_path;
+    my $webpages_fallback = $::request->layout->webpages_fallback_path;
+
+    my $ext = $type eq 'text' ? 'txt' : $type;
+
+    $source = first { -f } map { "${_}/${template}.${ext}" } grep { defined } $webpages_path, $webpages_fallback;
+
+    croak "Template file ${template} not found" unless $source;
+
+  } elsif (ref($template) eq 'SCALAR') {
+    # Normal scalar reference: hand over to Template
+    $source = $template;
+
+  } else {
+    # Instance of SL::Presenter::EscapedText. Get reference to its content.
+    $source = \$template->{text};
+  }
+
+  return $source;
 }
 
 sub get_template {
