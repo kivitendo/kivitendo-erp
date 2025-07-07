@@ -1554,7 +1554,10 @@ monthly_strftime: '%Y-%m-%d'
             <para><literal>username:</literal> Benutzername, für den IMAP-Server (häufig die E-Mail-Adresse)</para>
           </listitem>
           <listitem>
-            <para><literal>password:</literal> Passwort des Benutzers</para>
+            <para><literal>password_secret:</literal> Passwort des Benutzers als kivitendo Secrets (Siehe System -&gt; Secrets)</para>
+          </listitem>
+          <listitem>
+            <para><literal>password:</literal> Passwort des Benutzers (deprecated, password_secret sollte benutzt werden)</para>
           </listitem>
           <listitem>
             <para><literal>folder:</literal> Hier wird der Ordner eingetragen, aus dem die E-Mails importert werden sollen, bspw. 'INBOX'</para>
