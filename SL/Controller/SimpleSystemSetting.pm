@@ -9,6 +9,7 @@ use SL::Helper::Flash;
 use SL::Locale::String;
 use SL::DB::Default;
 use SL::System::Process;
+use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(type config) ],
@@ -441,13 +442,15 @@ sub create_or_update {
 sub render_form {
   my ($self, %params) = @_;
 
-  my $sub_form_template = SL::System::Process->exe_dir . '/templates/design40_webpages/simple_system_setting/_' . $self->type . '_form.html';
+  my $sub_form_template = eval {
+    SL::Presenter::resolve_template('simple_system_setting/_' . $self->type . '_form');
+  };
 
   $self->setup_render_form_action_bar;
   $self->render(
     'simple_system_setting/form',
     %params,
-    sub_form_template => (-f $sub_form_template ? $self->type : 'default'),
+    sub_form_template => ($sub_form_template ? $self->type : 'default'),
   );
 }
 
