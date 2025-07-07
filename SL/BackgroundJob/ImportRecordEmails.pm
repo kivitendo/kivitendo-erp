@@ -8,6 +8,7 @@ use parent qw(SL::BackgroundJob::Base);
 use SL::IMAPClient;
 use SL::DB::EmailJournal;
 use SL::DB::Manager::EmailImport;
+use SL::DB::Manager::Secret;
 use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
 use SL::Locale::String qw(t8);
@@ -24,6 +25,10 @@ sub sync_record_email_folder {
     if (defined $config->{$key}) {
       $imap_config{$key} = $config->{$key};
     }
+  }
+  if ($config->{password_secret}) {
+    my $secret = SL::DB::Manager::Secret->find_by(tag => $config->{password_secret});
+    $imap_config{password} = $secret->decrypt->() if $secret;
   }
 
   my $imap_client = SL::IMAPClient->new(%imap_config);
@@ -167,12 +172,13 @@ sub run {
       email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
       imported_imap_flag         => { type => SCALAR,   optional => 1, },
       # email config
-      hostname    => { type => SCALAR,  },
-      port        => { type => SCALAR,  optional => 1},
-      ssl         => { type => BOOLEAN, default  => 1},
-      username    => { type => SCALAR,  },
-      password    => { type => SCALAR,  },
-      base_folder => { type => SCALAR,  optional => 1},
+      hostname        => { type => SCALAR,  },
+      port            => { type => SCALAR,  optional => 1},
+      ssl             => { type => BOOLEAN, default  => 1},
+      username        => { type => SCALAR,  },
+      password_secret => { type => SCALAR,  optional => 1},
+      password        => { type => SCALAR,  optional => 1},
+      base_folder     => { type => SCALAR,  optional => 1},
 
     },
     called => "YAML Configuration for this Background Job invalid. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.",
@@ -219,9 +225,13 @@ required, hostname of IMAP server
 
 required, login for IMAP server
 
+=item password_secret
+
+required, password for login of IMAP server by tag from L<SL::DB::Secret>
+
 =item password
 
-required, password for login of IMAP server
+required, password for login of IMAP server (deprecated)
 
 =item port
 
