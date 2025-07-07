@@ -13,7 +13,7 @@
 
 
 % laufende Kopfzeile:
-\ourhead{\kundennummer}{<%customernumber%>}{\proformarechnung}{<%invnumber%>}{<%invdate%>}
+\ourhead{\kundennummer}{<%customernumber%>}{\proformarechnung}{<%ordnumber%>}{<%invdate%>}
 
 \setkomavar{info0}[\vorgangsbez]       {<%transaction_description%>}
 \setkomavar{info1}[\datum]             {<%invdate%>}
@@ -27,7 +27,7 @@
 \setkomavar{info9}[\textEmail]         {<%employee_email%>}
 \setkomavar{fromname}                  {<%employee_name%>}
 
-\setkomavar{title}{\proformarechnung~\nr~<%invnumber%>}
+\setkomavar{title}{\proformarechnung~\nr~<%ordnumber%>}
 
 <%if shiptoname%>%
   \makeatletter
