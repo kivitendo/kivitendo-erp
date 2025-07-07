@@ -1500,6 +1500,13 @@
   params:
     action: TaskServer/show
 - parent: system
+  id: system_secrets
+  name: Secrets
+  order: 2800
+  params:
+    action: SimpleSystemSetting/list
+    type: secret
+- parent: system
   id: system_audit_control
   name: Audit Control
   order: 2800
