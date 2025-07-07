@@ -289,6 +289,22 @@ my %supported_types = (
     ],
   },
 
+  secret => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_secret_form")
+    class  => 'Secret',
+    titles => {
+      list   => t8('Secrets'),
+      add    => t8('Add secret'),
+      edit    => t8('View secret'),
+      delete => t8('Delete secret'),
+    },
+    list_attributes => [
+      { method => 'tag',                          title => t8('Internal Name') },
+      { method => 'description',                  title => t8('Description') },
+    ],
+    readonly => 1,
+  },
+
   time_recording_article => {
     # Make locales.pl happy: $self->render("simple_system_setting/_time_recording_article_form")
     class  => 'TimeRecordingArticle',
@@ -504,6 +520,10 @@ sub setup_render_form_action_bar {
                     && (!$self->object->can("orphaned")       || $self->object->orphaned)
                     && (!$self->object->can("can_be_deleted") || $self->object->can_be_deleted);
 
+  # always allow save new
+  # only allow update if not disabled in config
+  my $hide_save     = !$is_new && $self->config->{readonly};
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
@@ -511,6 +531,7 @@ sub setup_render_form_action_bar {
         submit    => [ '#form', { action => 'SimpleSystemSetting/' . ($is_new ? 'create' : 'update') } ],
         checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
+        only_if   => !$hide_save,
       ],
 
       action => [
