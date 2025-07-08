@@ -11,9 +11,8 @@ use SL::Locale::String;
 use SL::Request qw(flatten);
 use REST::Client;
 use SL::MoreCommon qw(uri_encode);
-use Bytes::Random::Secure qw(random_bytes_base64);
-use Digest::SHA qw(sha256_base64);
-use MIME::Base64;
+use Crypt::Digest::SHA256 qw(sha256_b64u);
+use Crypt::PRNG qw(random_bytes_b64u);
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
@@ -227,21 +226,6 @@ sub action_new {
   $self->render('oauth/form', title => 'Add new OAuth2 token');
 }
 
-sub random_b64u {
-  # URL safe BASE64: replace '+' -> '-' and '/' -> '_'
-  my ($n) = @_;
-  my $b64 = random_bytes_base64($n, q{});
-  $b64 =~ tr/+\//-_/;
-  return $b64;
-}
-
-sub sha256_b64u {
-  my ($x) = @_;
-  my $hash = sha256_base64($x);
-  $hash =~ tr/+\//-_/;
-  return $hash;
-}
-
 sub action_create {
   my ($self) = @_;
 
@@ -259,7 +243,7 @@ sub action_create {
   $tok->registration($regtype);
   $tok->authflow('authcode');
   $tok->redirect_uri($redirect_uri);
-  $tok->tokenstate(random_b64u(14));
+  $tok->tokenstate(random_bytes_b64u(14));
 
   $tok->$_($::form->{config}->{$_}) for qw(client_id client_secret scope);
 
