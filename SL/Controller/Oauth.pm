@@ -26,13 +26,6 @@ my %providers = (
 );
 
 
-sub access_token_valid {
-  my ($tok) = @_;
-  my $exp = $tok->access_token_expiration;
-  my $now = DateTime->now;
-  return $exp > $now;
-}
-
 sub load_credentials {
   my ($reg) = @_;
   # TODO: load client_id, client_secret, tenant etc for this
@@ -60,7 +53,7 @@ sub imap_sasl_string {
 
   my $tok = SL::DB::Manager::OauthToken->find_by(id => $db_id);
 
-  if (!access_token_valid($tok)) {
+  if (!$tok->is_valid) {
     refresh($tok);
   }
 
@@ -70,64 +63,6 @@ sub imap_sasl_string {
   my $oauth_sign = encode_base64("user=". $username ."\x01auth=Bearer ". $access_token ."\x01\x01", '');
 
   return $oauth_sign;
-}
-
-sub http_bearer_auth_header {
-  my ($db_id) = @_;
-
-  my $tok = SL::DB::Manager::OauthToken->find_by(id => $db_id);
-
-  if (!access_token_valid($tok)) {
-    refresh($tok);
-  }
-
-  return 'Bearer ' . $tok->access_token;
-}
-
-sub atlassian_jira_cloudid {
-  my ($token_db_id, $jql) = @_;
-
-  my $bearer = http_bearer_auth_header($token_db_id);
-  my $client = REST::Client->new();
-  $client->addHeader('Authorization', $bearer);
-  $client->addHeader('Accept', 'application/json');
-  my $ret = $client->GET('https://api.atlassian.com/oauth/token/accessible-resources');
-  my $response_code = $ret->responseCode();
-  die "HTTP $response_code" unless $response_code eq '200';
-
-  my $accessible_resources = from_json($ret->responseContent);
-  my $cloudid = $accessible_resources->[0]{id};
-
-  #return $cloudid;
-
-  my $url;
-  #$url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/project/search";
-  #$ret = $client->GET($url);
-  #$response_code = $ret->responseCode();
-  #die "HTTP $response_code" unless $response_code eq '200';
-  #return from_json($ret->responseContent);
-
-  my $maxResults = 100;
-  my $fields = "summary";
-  #my $jql = 'textfields ~ "Test case*"';
-  $url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/search/jql?jql=" . uri_encode($jql) . "&maxResults=100&fields=id%2Cassignee%2Cauthor%2Ccreator%2Csummary%2Cresolution%2Cstatus%2Cpriority%2Ccreated%2Cupdated&expand=&reconcileIssues=";
-  $ret = $client->GET($url);
-  $response_code = $ret->responseCode();
-  die "HTTP $response_code" unless $response_code eq '200';
-  my $c = from_json($ret->responseContent);
-
-  my @a = map({{
-    key        => $_->{key},
-    summary    => $_->{fields}->{summary},
-    creator    => $_->{fields}->{creator}->{displayName},
-    assignee   => $_->{fields}->{assignee}->{displayName},
-    priority   => $_->{fields}->{priority}->{name},
-    created    => $_->{fields}->{created},
-    updated    => $_->{fields}->{updated},
-    status     => $_->{fields}->{status}->{name},
-    resolution => $_->{fields}->{resolution}->{name},
-  }} @{$c->{issues}});
-  return \@a;
 }
 
 
@@ -251,6 +186,15 @@ sub setup_list_action_bar {
       ],
     );
   }
+}
+
+
+sub access_token_for {
+  my ($target) = @_;
+
+  # wenn ja -> token
+  # wenn expired -> try refresh und token
+  # sonst: exception
 }
 
 1;
