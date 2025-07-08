@@ -21,4 +21,12 @@ sub set_access_refresh_token {
   $self->refresh_token($content->{refresh_token}) if exists $content->{refresh_token};
 }
 
+sub is_valid {
+  my ($self) = @_;
+
+  my $exp = $self->access_token_expiration;
+  my $now = DateTime->now;
+  return $exp > $now;
+}
+
 1;
