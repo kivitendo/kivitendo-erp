@@ -1,9 +1,9 @@
 - parent: ap
-  id: ap_add_purchase_quotation_intake_experimental
+  id: ap_add_purchase_quotation_intake
   name: Add Purchase Quotation Intake
   icon: rfq_add
   order: 150
-  access: request_quotation_edit & client/feature_experimental_order & client/show_purchase_quotation_intake
+  access: request_quotation_edit & client/show_purchase_quotation_intake
   params:
     action: Order/add
     type: purchase_quotation_intake

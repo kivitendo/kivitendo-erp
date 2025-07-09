@@ -28,6 +28,7 @@ use SL::Locale::String qw(t8);
 
 use SL::Controller::ZUGFeRD;
 
+use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any pairwise);
@@ -227,6 +228,7 @@ sub _line_item {
 
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
   $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
+  $params{xml}->dataElement("ram:GlobalID",         _u8($params{item}->part->ean), schemeID => '0160') if $params{item}->part->ean;
   $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
   $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
     if $params{item}->longdescription_as_stripped_html;
@@ -554,6 +556,8 @@ sub _seller_trade_party {
   #       <ram:SellerTradeParty>
   $params{xml}->startTag("ram:SellerTradeParty");
   $params{xml}->dataElement("ram:ID",   _u8($self->customer->c_vendor_id)) if ($self->customer->c_vendor_id // '') ne '';
+  # 0088 = GLN, 0060 = D-U-N-S, only one GlobalID allowed
+  $params{xml}->dataElement("ram:GlobalID", _u8($::instance_conf->get_gln), schemeID => '0088') if $::instance_conf->get_gln;
   $params{xml}->dataElement("ram:Name", _u8($::instance_conf->get_company));
 
   #         <ram:DefinedTradeContact>
@@ -598,6 +602,8 @@ sub _buyer_trade_party {
   #       <ram:BuyerTradeParty>
   $params{xml}->startTag("ram:BuyerTradeParty");
   $params{xml}->dataElement("ram:ID",   _u8($self->customer->customernumber));
+  # 0088 = GLN, 0060 = D-U-N-S, only one GlobalID allowed
+  $params{xml}->dataElement("ram:GlobalID", _u8($self->customer->gln), schemeID => '0088') if ($self->customer->gln // '') ne '';
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
   _buyer_contact_information($self, %params, contact => $self->contact) if ($self->cp_id);
@@ -625,7 +631,20 @@ sub _applicable_header_trade_agreement {
   #     <ram:ApplicableHeaderTradeAgreement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
-  $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id)) if $self->customer->c_vendor_routing_id;
+  # BuyerReference must always be given in XRechnung v3.0.2 BT-10.
+  # Factur-X doesn't really say anything about it and only has it as optional in the schema.
+  # Technically this means that the Factur-X:conformant profile doesn't have to include it, but validators seem to be overzealous here.
+  # To be on the safe side put a fallback in there for conformant profiles, but be strict about it in XRechnung compliant profiles.
+  if ($standards_ids{ $self->{_zugferd}->{profile} } =~ /compliant/) {
+    if (!defined $self->customer->c_vendor_routing_id) {
+      die t8("Can not create an EN16931 compliant ZUGFeRD export without a routing id (Leitweg ID)");
+    } else {
+      $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id));
+    }
+  } else {
+    my $buyer_reference = $self->customer->c_vendor_routing_id || $self->cusordnumber || $self->customer->ustid || '';
+    $params{xml}->dataElement("ram:BuyerReference", _u8($buyer_reference));
+  }
 
   _seller_trade_party($self, %params);
   _buyer_trade_party($self, %params);
@@ -749,6 +768,23 @@ sub _validate_data {
   if (_is_profile($self, PROFILE_XRECHNUNG())) {
     if (!$self->customer->c_vendor_routing_id) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 2.0'));
+    }
+  }
+
+  #
+  # GS1 GTIN/EAN/GLN/ILN and ISBN-13 all use the same check digits
+  #
+  if ($self->customer->gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->customer->gln)) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Customer GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->customer->gln));
+  }
+
+  if ($::instance_conf->get_gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($::instance_conf->get_gln)) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Client config GLN check digit mismatch. #1 does not seem to be a valid GLN.', $::instance_conf->get_gln));
+  }
+
+  for my $item (@{ $self->items_sorted }) {
+    if ($item->part->ean && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($item->part->ean)) {
+        SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('EAN check digit mismatch for part #1. #2 does not seem to be a valid EAN.', $item->part->displayable_name, $item->part->ean));
     }
   }
 

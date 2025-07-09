@@ -377,16 +377,18 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'sales_quotation') {
-    my $script = 'oe.pl';
-    my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental_order) {
-      $script = 'controller.pl';
-      $action = 'Order/edit';
-    }
     $link = {
-      'url'   => $script . '?action=' . $action . '&type=sales_quotation&id=' . $params{trans_id},
+      'url'   => 'controller.pl?action=Order/edit&type=sales_quotation&id=' . $params{trans_id},
       'title' => $locale->text('Sales quotation') . " $params{trans_info}",
     };
+
+  } elsif ($params{trans_type} eq 'sales_order_intake') {
+      my $script = 'controller.pl';
+      my $action = 'Order/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=sales_quotation_intake&id=' . $params{trans_id},
+        'title' => $locale->text('Order Intake') . " $params{trans_info}",
+      };
 
   } elsif ($params{trans_type} eq 'sales_delivery_order') {
 
@@ -403,16 +405,18 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'sales_order') {
-    my $script = 'oe.pl';
-    my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental_order) {
-      $script = 'controller.pl';
-      $action = 'Order/edit';
-    }
     $link = {
-      'url'   => $script . '?action=' . $action . '&type=sales_order&id=' . $params{trans_id},
+      'url'   => 'controller.pl?action=Order/edit&type=sales_order&id=' . $params{trans_id},
       'title' => $locale->text('Sales Order') . " $params{trans_info}",
     };
+
+  } elsif ($params{trans_type} eq 'sales_reclamation') {
+      my $script = 'controller.pl';
+      my $action = 'Reclamation/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=sales_reclamation&id=' . $params{trans_id},
+        'title' => $locale->text('Sales Reclamation') . " $params{trans_info}",
+      };
 
   } elsif ($params{trans_type} eq 'sales_invoice') {
     $link = {
@@ -439,28 +443,32 @@ sub link_details {
     };
 
   } elsif ($params{trans_type} eq 'request_quotation') {
-    my $script = 'oe.pl';
-    my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental_order) {
-      $script = 'controller.pl';
-      $action = 'Order/edit';
-    }
     $link = {
-      'url'   => $script . '?action=' . $action . '&type=request_quotation&id=' . $params{trans_id},
+      'url'   => 'controller.pl?action=Order/edit&type=request_quotation&id=' . $params{trans_id},
       'title' => $locale->text('Request quotation') . " $params{trans_info}",
     };
 
+  } elsif ($params{trans_type} eq 'purchase_quotation_intake') {
+      my $script = 'controller.pl';
+      my $action = 'Order/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=purchase_quotation_intake&id=' . $params{trans_id},
+        'title' => $locale->text('Quotation Intake') . " $params{trans_info}",
+      };
+
   } elsif ($params{trans_type} eq 'purchase_order') {
-    my $script = 'oe.pl';
-    my $action = 'edit';
-    if ($::instance_conf->get_feature_experimental_order) {
-      $script = 'controller.pl';
-      $action = 'Order/edit';
-    }
     $link = {
-      'url'   => $script . '?action=' . $action . '&type=purchase_order&id=' . $params{trans_id},
+      'url'   => 'controller.pl?action=Order/edit&type=purchase_order&id=' . $params{trans_id},
       'title' => $locale->text('Purchase Order') . " $params{trans_info}",
     };
+
+  } elsif ($params{trans_type} eq 'purchase_reclamation') {
+      my $script = 'controller.pl';
+      my $action = 'Reclamation/edit';
+      $link = {
+        'url'   => $script . '?action=' . $action . '&type=purchase_reclamation&id=' . $params{trans_id},
+        'title' => $locale->text('Purchase Reclamation') . " $params{trans_info}",
+      };
 
   } elsif ($params{trans_type} eq 'vendor_invoice') {
     $link = {

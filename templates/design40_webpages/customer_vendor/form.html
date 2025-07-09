@@ -31,7 +31,7 @@
         <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
       [% END %]
       [% IF INSTANCE_CONF.get_doc_storage %]
-        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% FORM.db == 'vendor' ? 'vendor' : 'customer' %]&object_id=[% SELF.cv.id %]">[% 'Attachments' | $T8 %]</a></li>
+        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% FORM.db == 'vendor' ? 'vendor' : 'customer' %]&object_id=[% HTML.escape(SELF.cv.id) %]">[% 'Attachments' | $T8 %]</a></li>
       [% END %]
       <li><a href="#vcnotes">[% 'Notes' | $T8 %]</a></li>
 

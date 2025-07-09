@@ -1,0 +1,3 @@
+-- @tag: release_3_9_2
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.9.2 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_9_1 defaults_email_subject_transaction_description defaults_order_item_input_position bank_accounts_add_qr_iban defaults_drop_feature_experimental_order update_employee_base_data defaults_drop_feature_experimental_assortment

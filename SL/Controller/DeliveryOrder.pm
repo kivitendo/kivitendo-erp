@@ -48,6 +48,8 @@ use SL::Model::Record;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
+use SL::Helper::Inventory;
+use SL::Helper::DateTime;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
@@ -80,7 +82,7 @@ __PACKAGE__->run_before('check_auth',
 __PACKAGE__->run_before('check_auth_for_edit',
   except => [ qw(
     update_stock_information edit
-    price_popup stock_in_out_dialog load_second_rows
+    stock_in_out_dialog load_second_rows
     ) ]);
 
 __PACKAGE__->run_before('get_unalterable_data',
@@ -204,6 +206,11 @@ sub action_delete {
 sub action_save {
   my ($self) = @_;
 
+  if ( $self->order->delivered ) {
+    $self->js->flash('error', t8('This record has already been delivered.'));
+    return $self->js->render();
+  }
+
   $self->save();
 
   flash_later('info', $self->type_data->text("saved"));
@@ -250,6 +257,22 @@ sub action_save_as_new {
 
   # save
   $self->action_save();
+}
+
+# close a already saved order (potentially already delivered)
+sub action_close_order {
+  my ($self) = @_;
+
+  $self->order->update_attributes(
+    closed => 1
+  );
+
+  $self->js
+    ->flash("info", t8("The record has been closed."))
+    ->run('kivi.ActionBar.setDisabled', '#close_order',
+          t8('This record has already been closed.'))
+    ->html('#data-status-line', delivery_order_status_line($self->order))
+    ->render
 }
 
 # print the order
@@ -947,12 +970,14 @@ sub action_return_from_create_part {
 sub action_stock_in_out_dialog {
   my ($self) = @_;
 
-  my $part    = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
-  my $unit    = SL::DB::Unit->load_cached($::form->{unit}) or die "need unit";
-  my $stock   = $::form->{stock};
-  my $row     = $::form->{row};
-  my $item_id = $::form->{item_id};
-  my $qty     = _parse_number($::form->{qty_as_number});
+  my $part        = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+  my $unit        = SL::DB::Unit->load_cached($::form->{unit}) or die "need unit";
+  my $stock       = $::form->{stock};
+  my $row         = $::form->{row};
+  my $item_id     = $::form->{item_id};
+  my $qty         = _parse_number($::form->{qty_as_number});
+  my $row_ui_id   = $::form->{row_ui_id};
+  my $next_button = $::form->{next_button} eq 'true';
 
   my $inout = $self->type_data->properties("transfer");
 
@@ -963,16 +988,18 @@ sub action_stock_in_out_dialog {
 
   my $delivered = $self->order->delivered;
   $self->render("delivery_order/stock_dialog", { layout => 0 },
-    WHCONTENTS => \@contents,
-    STOCK_INFO => $stock_info,
-    WAREHOUSES => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
-    part       => $part,
-    do_qty     => $qty,
-    do_unit    => $unit->name,
-    delivered  => $self->order->delivered,
-    row        => $row,
-    item_id    => $item_id,
-    in_out     => $inout,
+    WHCONTENTS  => \@contents,
+    STOCK_INFO  => $stock_info,
+    WAREHOUSES  => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
+    part        => $part,
+    do_qty      => $qty,
+    do_unit     => $unit->name,
+    delivered   => $self->order->delivered,
+    row         => $row,
+    item_id     => $item_id,
+    in_out      => $inout,
+    row_ui_id   => $row_ui_id,
+    next_button => $next_button,
   );
 }
 
@@ -1139,7 +1166,60 @@ sub action_transfer_stock {
     return $self->js->flash("error", t8("No stock to transfer"))->render;
   }
 
+  if ($inout eq 'out') { # check stock for enough qty
+    my @missing_qtys = SL::Helper::Inventory::check_stock_out_transfer_requests(
+      transfer_requests => \@transfer_requests,
+      default_transfer  => $default_transfer,
+    );
+
+    if (scalar @missing_qtys) {
+      my $error = t8('The stock is to low: #1.',
+        join(". ", map {
+              $_->{chargenumber} && $_->{bestbefore}
+            ? t8(
+                "For #1, #2 #3 are missing of batch with chargenumber #4 and bestbefore date of #5 in bin #6",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{chargenumber},
+                DateTime->from_ymdhms($_->{bestbefore})->to_kivitendo,
+                $_->{bin}->full_description,
+              )
+            : $_->{chargenumber}
+            ? t8(
+                "For #1, #2 #3 are missing of batch with chargenumber #4 in bin #5",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{chargenumber},
+                $_->{bin}->full_description,
+              )
+            : $_->{bestbefore}
+            ? t8(
+                "For #1, #2 #3 are missing with a bestbefore date of #4 in bin #5",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                DateTime->from_ymdhms($_->{bestbefore})->to_kivitendo,
+                $_->{bin}->full_description,
+              )
+            : t8(
+                "For #1, #2 #3 are missing in bin #4",
+                $_->{part}->displayable_name,
+                $::form->format_amount(\%::myconfig, $_->{missing_qty}),
+                $_->{part}->unit,
+                $_->{bin}->full_description,
+              )
+            ;
+          } @missing_qtys
+        )
+      );
+      return $self->js->flash("error", $error)->render;
+    }
+  }
+
   SL::DB->client->with_transaction(sub {
+
     $_->save for @transfer_requests;
     $self->order->update_attributes(delivered => 1);
   });
@@ -1173,7 +1253,7 @@ sub action_transfer_stock {
           t8('The parts for this order have already been transferred'))
     ->run('kivi.ActionBar.setEnabled', '#undo_transfer_action',
           t8('The parts for this order have already been transferred'))
-    ->replaceWith('#data-status-line', delivery_order_status_line($self->order))
+    ->html('#data-status-line', delivery_order_status_line($self->order))
     ->render;
 }
 
@@ -1202,10 +1282,9 @@ sub action_transfer_stock_default {
 
     $parts_qty{$part->id} += $qty if $qty;
     push @transfer_requests, {
-      'delivery_order_item' => $item,
       'warehouse_id'        => $part->warehouse_id || $default_warehouse_id,
       'bin_id'              => $part->bin_id       || $default_bin_id,
-      'unit'                => $part->unit,
+      'unit'                => $item->unit,
       'qty'                 => $qty,
       # added in check transfer_request out direction if possible
       'chargenumber'        => undef, # $item->serialnumber, # Is not used in delivery order
@@ -1262,10 +1341,13 @@ sub action_transfer_stock_default {
       # entsprechende defaults holen
       # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
       # lagerplatz wegbuchen!
-      foreach (@transfer_requests) {
-        if ($_->{delivery_order_item}->parts_id eq $part_id){
-          $_->{bin_id}        = $default_bin_id_ignore_onhand;
-          $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
+      for my $idx (0 .. scalar @transfer_requests - 1) {
+        my $transfer_request = $transfer_requests[$idx];
+        next unless $transfer_request->{qty}; # empty request
+
+        if ($items[$idx]->parts_id eq $part_id){
+          $transfer_request->{bin_id}        = $default_bin_id_ignore_onhand;
+          $transfer_request->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
         }
       }
       delete %parts_errors{$part_id};
@@ -1936,9 +2018,9 @@ sub setup_edit_action_bar {
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
-                    :                        undef,
+                    :                           undef,
         ],
         action => [
           t8('Save and Close'),
@@ -1951,8 +2033,18 @@ sub setup_edit_action_bar {
                 { name => 'back_to_caller', value => 1 },
               ],
             }],
-          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+          disabled => !$may_edit_create       ? t8('You do not have the permissions to access this function.')
                     : $self->order->delivered ? t8('This record has already been delivered.')
+                    :                           undef,
+        ],
+        action => [
+          t8('Mark as closed'),
+          id       => 'close_order',
+          call     => [ 'kivi.DeliveryOrder.close_order' ],
+          confirm  => t8('This will remove the delivery order from showing as open even if contents are not delivered. Proceed?'),
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id    ? t8('This object has not been saved yet.')
+                    : $self->order->closed ? t8('This record has already been closed.')
                     :                        undef,
         ],
         action => [

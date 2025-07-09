@@ -41,7 +41,7 @@ sub init_sublayouts_by_name {
 }
 
 sub webpages_path {
-  "templates/webpages";
+  "templates/design40_webpages";
 }
 
 sub webpages_fallback_path {
@@ -355,7 +355,8 @@ the ActionPlan.
 
 =item * webpages_path
 
-Overrides the default webpages path "templates/webpages". Used for mobile and design40 styles.
+Overrides the default webpages path "templates/design40_webpages". Used
+for mobile and design40 styles.
 
 Note that this does not have fallback behaviour by default. It is intended for
 stylesheets where the templates are so incompatible that a complete fork of the

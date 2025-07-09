@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>Kapitel 4. Entwicklerdokumentation</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.1: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="kivitendo 3.9.1: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch03s13.html" title="3.13. Zeiterfassung"><link rel="next" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 4. Entwicklerdokumentation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s13.html">Zurück</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 4. Entwicklerdokumentation"><div class="titlepage"><div><div><h2 class="title"><a name="d0e8446"></a>Kapitel 4. Entwicklerdokumentation</h2></div></div></div><div class="sect1" title="4.1. Globale Variablen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.globals"></a>4.1. Globale Variablen</h2></div></div></div><div class="sect2" title="4.1.1. Wie sehen globale Variablen in Perl aus?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8452"></a>4.1.1. Wie sehen globale Variablen in Perl aus?</h3></div></div></div><p>Globale Variablen liegen in einem speziellen namespace namens
+   <title>Kapitel 4. Entwicklerdokumentation</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.2: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="kivitendo 3.9.2: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch03s13.html" title="3.13. Zeiterfassung"><link rel="next" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 4. Entwicklerdokumentation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s13.html">Zurück</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 4. Entwicklerdokumentation"><div class="titlepage"><div><div><h2 class="title"><a name="d0e8579"></a>Kapitel 4. Entwicklerdokumentation</h2></div></div></div><div class="sect1" title="4.1. Globale Variablen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.globals"></a>4.1. Globale Variablen</h2></div></div></div><div class="sect2" title="4.1.1. Wie sehen globale Variablen in Perl aus?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8585"></a>4.1.1. Wie sehen globale Variablen in Perl aus?</h3></div></div></div><p>Globale Variablen liegen in einem speziellen namespace namens
         "main", der von überall erreichbar ist. Darüber hinaus sind bareword
         globs global und die meisten speziellen Variablen sind...
         speziell.</p><p>Daraus ergeben sich folgende Formen:</p><div class="variablelist"><dl><dt><span class="term">
@@ -25,7 +25,7 @@
               <code class="varname">$PACKAGE::form</code>.</p></dd><dt><span class="term">
                      <code class="literal">local $form</code>
                   </span></dt><dd><p>Alle Änderungen an <code class="varname">$form</code> werden am Ende
-              des scopes zurückgesetzt</p></dd></dl></div></div><div class="sect2" title="4.1.2. Warum sind globale Variablen ein Problem?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8553"></a>4.1.2. Warum sind globale Variablen ein Problem?</h3></div></div></div><p>Das erste Problem ist <span class="productname">FCGI</span>™.</p><p>
+              des scopes zurückgesetzt</p></dd></dl></div></div><div class="sect2" title="4.1.2. Warum sind globale Variablen ein Problem?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8686"></a>4.1.2. Warum sind globale Variablen ein Problem?</h3></div></div></div><p>Das erste Problem ist <span class="productname">FCGI</span>™.</p><p>
                <span class="productname">SQL-Ledger</span>™ hat fast alles im globalen
         namespace abgelegt, und erwartet, dass es da auch wiederzufinden ist.
         Unter <span class="productname">FCGI</span>™ müssen diese Sachen aber wieder
@@ -39,7 +39,7 @@
         dies hat, seit der Einführung, u.a. schon so manche langwierige
         Bug-Suche verkürzt. Da globale Variablen aber implizit mit Package
         angegeben werden, werden die nicht geprüft, und somit kann sich
-        schnell ein Tippfehler einschleichen.</p></div><div class="sect2" title="4.1.3. Kanonische globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8586"></a>4.1.3. Kanonische globale Variablen</h3></div></div></div><p>Um dieses Problem im Griff zu halten gibt es einige wenige
+        schnell ein Tippfehler einschleichen.</p></div><div class="sect2" title="4.1.3. Kanonische globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8719"></a>4.1.3. Kanonische globale Variablen</h3></div></div></div><p>Um dieses Problem im Griff zu halten gibt es einige wenige
         globale Variablen, die kanonisch sind, d.h. sie haben bestimmte
         vorgegebenen Eigenschaften, und alles andere sollte anderweitig
         umhergereicht werden.</p><p>Diese Variablen sind im Moment die folgenden neun:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
@@ -62,7 +62,7 @@
                      <code class="varname">$::request</code>
                   </p></li></ul></div><p>Damit diese nicht erneut als Müllhalde missbraucht werden, im
         Folgenden eine kurze Erläuterung der bestimmten vorgegebenen
-        Eigenschaften (Konventionen):</p><div class="sect3" title="4.1.3.1. $::form"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8650"></a>4.1.3.1. $::form</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ist ein Objekt der Klasse
+        Eigenschaften (Konventionen):</p><div class="sect3" title="4.1.3.1. $::form"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8783"></a>4.1.3.1. $::form</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ist ein Objekt der Klasse
               "<code class="classname">Form</code>"</p></li><li class="listitem"><p>Wird nach jedem Request gelöscht</p></li><li class="listitem"><p>Muss auch in Tests und Konsolenscripts vorhanden
               sein.</p></li><li class="listitem"><p>Enthält am Anfang eines Requests die Requestparameter vom
               User</p></li><li class="listitem"><p>Kann zwar intern über Requestgrenzen ein Datenbankhandle
@@ -110,7 +110,7 @@
   push @{ $form-&gt;{TEMPLATE_ARRAYS}{number} },          $form-&gt;{"partnumber_$i"};
   push @{ $form-&gt;{TEMPLATE_ARRAYS}{description} },     $form-&gt;{"description_$i"};
   # ...
-}</pre></div><div class="sect3" title="4.1.3.2. %::myconfig"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8734"></a>4.1.3.2. %::myconfig</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Das einzige Hash unter den globalen Variablen</p></li><li class="listitem"><p>Wird spätestens benötigt wenn auf die Datenbank
+}</pre></div><div class="sect3" title="4.1.3.2. %::myconfig"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8867"></a>4.1.3.2. %::myconfig</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Das einzige Hash unter den globalen Variablen</p></li><li class="listitem"><p>Wird spätestens benötigt wenn auf die Datenbank
               zugegriffen wird</p></li><li class="listitem"><p>Wird bei jedem Request neu erstellt.</p></li><li class="listitem"><p>Enthält die Userdaten des aktuellen Logins</p></li><li class="listitem"><p>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
               extern serialisiert werden, weil da auch der Datenbankzugriff
               für diesen user drinsteht.</p></li><li class="listitem"><p>Enthält unter anderem Datumsformat dateformat und
@@ -122,10 +122,10 @@
           überwiegend die Daten, die sich unter <span class="guimenu">Programm</span>
           -&gt; <span class="guimenuitem">Einstellungen</span> befinden, bzw. die
           Informationen über den Benutzer die über die
-          Administrator-Schnittstelle eingegeben wurden.</p></div><div class="sect3" title="4.1.3.3. $::locale"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8773"></a>4.1.3.3. $::locale</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "Locale"</p></li><li class="listitem"><p>Wird pro Request erstellt</p></li><li class="listitem"><p>Muss auch für Tests und Scripte immer verfügbar
+          Administrator-Schnittstelle eingegeben wurden.</p></div><div class="sect3" title="4.1.3.3. $::locale"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8906"></a>4.1.3.3. $::locale</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "Locale"</p></li><li class="listitem"><p>Wird pro Request erstellt</p></li><li class="listitem"><p>Muss auch für Tests und Scripte immer verfügbar
               sein.</p></li><li class="listitem"><p>Cached intern über Requestgrenzen hinweg benutzte
               Locales</p></li></ul></div><p>Lokalisierung für den aktuellen User. Alle Übersetzungen,
-          Zahlen- und Datumsformatierungen laufen über dieses Objekt.</p></div><div class="sect3" title="4.1.3.4. $::lxdebug"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8791"></a>4.1.3.4. $::lxdebug</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "LXDebug"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Muss immer verfügbar sein, in nahezu allen
+          Zahlen- und Datumsformatierungen laufen über dieses Objekt.</p></div><div class="sect3" title="4.1.3.4. $::lxdebug"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8924"></a>4.1.3.4. $::lxdebug</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "LXDebug"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Muss immer verfügbar sein, in nahezu allen
               Funktionen</p></li></ul></div><p>
                   <code class="varname">$::lxdebug</code> stellt Debuggingfunktionen
           bereit, wie "<code class="function">enter_sub</code>" und
@@ -135,7 +135,7 @@
           "<code class="function">message</code>" und "<code class="function">dump</code>" mit
           denen man flott Informationen ins Log (users/kivitendo-debug.log
           relativ zum kivitendo-Installationsverzeichnis) packen kann.</p><p>Beispielsweise so:</p><pre class="programlisting">$main::lxdebug-&gt;message(0, 'Meine Konfig:' . Dumper (%::myconfig));
-$main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{vc});</pre></div><div class="sect3" title="4.1.3.5. $::auth"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8828"></a>4.1.3.5. $::auth</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "SL::Auth"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Hat eine permanente DB Verbindung zur Authdatenbank</p></li><li class="listitem"><p>Wird nach jedem Request resettet.</p></li></ul></div><p>
+$main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{vc});</pre></div><div class="sect3" title="4.1.3.5. $::auth"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8961"></a>4.1.3.5. $::auth</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "SL::Auth"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Hat eine permanente DB Verbindung zur Authdatenbank</p></li><li class="listitem"><p>Wird nach jedem Request resettet.</p></li></ul></div><p>
                   <code class="varname">$::auth</code> stellt Funktionen bereit um die
           Rechte des aktuellen Users abzufragen. Obwohl diese Informationen
           vom aktuellen User abhängen wird das Objekt aus
@@ -144,7 +144,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           Dessen Einstellungen können über
           <code class="literal">$::auth-&gt;client</code> abgefragt werden; Rückgabewert
           ist ein Hash mit den Werten aus der Tabelle
-          <code class="literal">auth.clients</code>.</p></div><div class="sect3" title="4.1.3.6. $::lx_office_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8857"></a>4.1.3.6. $::lx_office_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
+          <code class="literal">auth.clients</code>.</p></div><div class="sect3" title="4.1.3.6. $::lx_office_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8990"></a>4.1.3.6. $::lx_office_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
               "<code class="classname">SL::LxOfficeConf</code>"</p></li><li class="listitem"><p>Global gecached</p></li><li class="listitem"><p>Repräsentation der
               <code class="filename">config/kivitendo.conf[.default]</code>-Dateien</p></li></ul></div><p>Globale Konfiguration. Configdateien werden zum Start gelesen
           und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass
@@ -154,16 +154,16 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
 file_name = users/kivitendo-debug.log</pre><p>ist der Key <code class="varname">file</code> im Programm als
           <code class="varname">$::lx_office_conf-&gt;{debug}{file}</code>
           erreichbar.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Zugriff auf die Konfiguration erfolgt im Moment über
-            Hashkeys, sind also nicht gegen Tippfehler abgesichert.</p></td></tr></table></div></div><div class="sect3" title="4.1.3.7. $::instance_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8893"></a>4.1.3.7. $::instance_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
+            Hashkeys, sind also nicht gegen Tippfehler abgesichert.</p></td></tr></table></div></div><div class="sect3" title="4.1.3.7. $::instance_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9026"></a>4.1.3.7. $::instance_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
               "<code class="classname">SL::InstanceConfiguration</code>"</p></li><li class="listitem"><p>wird pro Request neu erstellt</p></li></ul></div><p>Funktioniert wie <code class="varname">$::lx_office_conf</code>,
           speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
           ist hier eine Mandantendatenbank. Beispielsweise überprüft
           </p><pre class="programlisting">$::instance_conf-&gt;get_inventory_system eq 'perpetual'</pre><p>
-          ob die berüchtigte Bestandsmethode zur Anwendung kommt.</p></div><div class="sect3" title="4.1.3.8. $::dispatcher"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8914"></a>4.1.3.8. $::dispatcher</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
+          ob die berüchtigte Bestandsmethode zur Anwendung kommt.</p></div><div class="sect3" title="4.1.3.8. $::dispatcher"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9047"></a>4.1.3.8. $::dispatcher</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
               "<code class="varname">SL::Dispatcher</code>"</p></li><li class="listitem"><p>wird pro Serverprozess erstellt.</p></li><li class="listitem"><p>enthält Informationen über die technische Verbindung zum
               Server</p></li></ul></div><p>Der dritte Punkt ist auch der einzige Grund warum das Objekt
           global gespeichert wird. Wird vermutlich irgendwann in einem anderen
-          Objekt untergebracht.</p></div><div class="sect3" title="4.1.3.9. $::request"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8932"></a>4.1.3.9. $::request</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Hashref (evtl später Objekt)</p></li><li class="listitem"><p>Wird pro Request neu initialisiert.</p></li><li class="listitem"><p>Keine Unterstruktur garantiert.</p></li></ul></div><p>
+          Objekt untergebracht.</p></div><div class="sect3" title="4.1.3.9. $::request"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9065"></a>4.1.3.9. $::request</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Hashref (evtl später Objekt)</p></li><li class="listitem"><p>Wird pro Request neu initialisiert.</p></li><li class="listitem"><p>Keine Unterstruktur garantiert.</p></li></ul></div><p>
                   <code class="varname">$::request</code> ist ein generischer Platz um
           Daten "für den aktuellen Request" abzulegen. Sollte nicht für action
           at a distance benutzt werden, sondern um lokales memoizing zu
@@ -176,20 +176,20 @@ file_name = users/kivitendo-debug.log</pre><p>ist der Key <code class="varname">
               <code class="varname">$::request</code>
                      </p></li><li class="listitem"><p>Muss ich von anderen Teilen des Programms lesend drauf
               zugreifen? Dann <code class="varname">$::request</code>, aber Zugriff über
-              Wrappermethode</p></li></ul></div></div></div><div class="sect2" title="4.1.4. Ehemalige globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e8974"></a>4.1.4. Ehemalige globale Variablen</h3></div></div></div><p>Die folgenden Variablen waren einmal im Programm, und wurden
-        entfernt.</p><div class="sect3" title="4.1.4.1. $::cgi"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8979"></a>4.1.4.1. $::cgi</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil cookie Methoden nicht als
+              Wrappermethode</p></li></ul></div></div></div><div class="sect2" title="4.1.4. Ehemalige globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e9107"></a>4.1.4. Ehemalige globale Variablen</h3></div></div></div><p>Die folgenden Variablen waren einmal im Programm, und wurden
+        entfernt.</p><div class="sect3" title="4.1.4.1. $::cgi"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9112"></a>4.1.4.1. $::cgi</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil cookie Methoden nicht als
               Klassenfunktionen funktionieren</p></li><li class="listitem"><p>Aufruf als Klasse erzeugt Dummyobjekt was im
               Klassennamespace gehalten wird und über Requestgrenzen
               leaked</p></li><li class="listitem"><p>liegt jetzt unter
               <code class="varname">$::request-&gt;{cgi}</code>
-                     </p></li></ul></div></div><div class="sect3" title="4.1.4.2. $::all_units"><div class="titlepage"><div><div><h4 class="title"><a name="d0e8995"></a>4.1.4.2. $::all_units</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil einige Funktionen in Schleifen zum Teil
+                     </p></li></ul></div></div><div class="sect3" title="4.1.4.2. $::all_units"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9128"></a>4.1.4.2. $::all_units</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil einige Funktionen in Schleifen zum Teil
               ein paar hundert mal pro Request eine Liste der Einheiten
               brauchen, und de als Parameter durch einen Riesenstack von
               Funktionen geschleift werden müssten.</p></li><li class="listitem"><p>Liegt jetzt unter
               <code class="varname">$::request-&gt;{cache}{all_units}</code>
                      </p></li><li class="listitem"><p>Wird nur in
               <code class="function">AM-&gt;retrieve_all_units()</code> gesetzt oder
-              gelesen.</p></li></ul></div></div><div class="sect3" title="4.1.4.3. %::called_subs"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9014"></a>4.1.4.3. %::called_subs</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>wurde benutzt um callsub deep recursions
+              gelesen.</p></li></ul></div></div><div class="sect3" title="4.1.4.3. %::called_subs"><div class="titlepage"><div><div><h4 class="title"><a name="d0e9147"></a>4.1.4.3. %::called_subs</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>wurde benutzt um callsub deep recursions
               abzufangen.</p></li><li class="listitem"><p>Wurde entfernt, weil callsub nur einen Bruchteil der
               möglichen Rekursioenen darstellt, und da nie welche
               auftreten.</p></li><li class="listitem"><p>komplette recursion protection wurde entfernt.</p></li></ul></div></div></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s13.html">Zurück</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.13. Zeiterfassung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.2. Entwicklung unter FastCGI</td></tr></table></div></body></html>

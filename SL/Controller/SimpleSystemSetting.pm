@@ -32,6 +32,7 @@ my %supported_types = (
     list_attributes => [
       { method => 'name',                                      title => t8('Name'), },
       { method => 'iban',                                      title => t8('IBAN'), },
+      { method => 'qr_iban',                                   title => t8('QR-IBAN (Swiss)'), },
       { method => 'bank',                                      title => t8('Bank'), },
       { method => 'bank_code',                                 title => t8('Bank code'), },
       { method => 'bank_account_id',                           title => t8('Bank Account Id Number (Swiss)'), },
@@ -440,7 +441,7 @@ sub create_or_update {
 sub render_form {
   my ($self, %params) = @_;
 
-  my $sub_form_template = SL::System::Process->exe_dir . '/templates/webpages/simple_system_setting/_' . $self->type . '_form.html';
+  my $sub_form_template = SL::System::Process->exe_dir . '/templates/design40_webpages/simple_system_setting/_' . $self->type . '_form.html';
 
   $self->setup_render_form_action_bar;
   $self->render(

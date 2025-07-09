@@ -48,6 +48,7 @@ use SL::Helper::ShippedQty;
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::UpdatePositions;
+use SL::Helper::UserPreferences::ItemInputPosition;
 
 use SL::Controller::Helper::GetModels;
 
@@ -75,7 +76,8 @@ __PACKAGE__->run_before('check_auth',
 
 __PACKAGE__->run_before('check_auth_for_edit',
                         except => [ qw(edit price_popup load_second_rows close_quotations) ]);
-__PACKAGE__->run_before('get_basket_info_from_from');
+__PACKAGE__->run_before('get_basket_info_from_from',
+                        except => [ qw(close_quotations) ]);
 
 #
 # actions
@@ -479,14 +481,15 @@ sub action_save_and_show_email_dialog {
     )->render($self);
 
   my $form = Form->new;
-  $form->{$self->nr_key()}  = $self->order->number;
-  $form->{cusordnumber}     = $self->order->cusordnumber;
-  $form->{formname}         = $self->type;
-  $form->{type}             = $self->type;
-  $form->{language}         = '_' . $self->order->language->template_code if $self->order->language;
-  $form->{language_id}      = $self->order->language->id                  if $self->order->language;
-  $form->{format}           = 'pdf';
-  $form->{cp_id}            = $self->order->contact->cp_id if $self->order->contact;
+  $form->{$self->nr_key()}         = $self->order->number;
+  $form->{cusordnumber}            = $self->order->cusordnumber;
+  $form->{formname}                = $self->type;
+  $form->{type}                    = $self->type;
+  $form->{language}                = '_' . $self->order->language->template_code if $self->order->language;
+  $form->{language_id}             = $self->order->language->id                  if $self->order->language;
+  $form->{format}                  = 'pdf';
+  $form->{cp_id}                   = $self->order->contact->cp_id if $self->order->contact;
+  $form->{transaction_description} = $self->order->transaction_description;
 
   my $email_form;
   $email_form->{to} =
@@ -1024,9 +1027,11 @@ sub action_update_item_input_row {
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
+  my $texts = get_part_texts($item->part, $record->language_id);
+
   $self->js
     ->val     ('#add_item_unit',                $item->unit)
-    ->val     ('#add_item_description',         $item->part->description)
+    ->val     ('#add_item_description',         $texts->{description})
     ->val     ('#add_item_sellprice_as_number', '')
     ->attr    ('#add_item_sellprice_as_number', 'placeholder', $price_src->price_as_number)
     ->attr    ('#add_item_sellprice_as_number', 'title',       $price_src->source_description)
@@ -1066,7 +1071,7 @@ sub action_add_item {
       ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
   } else {
     $self->js
-      ->append('#row_table_id', $row_as_html);
+      ->before('#row_table_footer', $row_as_html);
   }
 
   if ( $item->part->is_assortment ) {
@@ -1096,7 +1101,7 @@ sub action_add_item {
           ->before ('.row_entry:has(#item_' . $::form->{insert_before_item_id} . ')', $row_as_html);
       } else {
         $self->js
-          ->append('#row_table_id', $row_as_html);
+          ->before('#row_table_footer', $row_as_html);
       }
     };
   };
@@ -1111,6 +1116,12 @@ sub action_add_item {
     ->focus('#add_item_parts_id_name');
 
   $self->js->run('kivi.Order.row_table_scroll_down') if !$::form->{insert_before_item_id};
+
+  # alternate scroll behaviour if item input below positions and unlimited scroll height
+  $self->js->run('kivi.Order.scroll_page_after_row_insert', $item_id)
+    if 0 == SL::Helper::UserPreferences::PositionsScrollbar->new()->get_height
+    && SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
+       // $::instance_conf->get_order_item_input_position;
 
   $self->js_redisplay_amounts_and_taxes;
   $self->js->render();
@@ -1930,15 +1941,17 @@ sub new_item {
 
   my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($record, $item, ignore_given => 0);
 
+  my $texts = get_part_texts($item->part, $record->language_id);
+
   my %new_attr;
-  $new_attr{description}            = $item->part->description     if ! $item->description;
+  $new_attr{description}            = $texts->{description}        if ! $item->description;
   $new_attr{qty}                    = 1.0                          if ! $item->qty;
   $new_attr{price_factor_id}        = $item->part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $item->part->notes           if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $texts->{longdescription}    if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
   $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
@@ -1947,9 +1960,7 @@ sub new_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $new_attr{custom_variables} = [];
 
-  my $texts = get_part_texts($item->part, $record->language_id, description => $new_attr{description}, longdescription => $new_attr{longdescription});
-
-  $item->assign_attributes(%new_attr, %{ $texts });
+  $item->assign_attributes(%new_attr);
 
   return $item;
 }
@@ -2058,6 +2069,22 @@ sub parse_phone_note {
   return $phone_note;
 }
 
+sub check_if_periodic_invoices_contact_matches_customer {
+  my ($self) = @_;
+
+  return if !$self->order->is_type(SL::DB::Order::SALES_ORDER_TYPE());
+
+  my $cfg = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $self->order->id);
+  return if !$cfg || !$cfg->email_recipient_contact_id;
+
+  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $cfg->email_recipient_contact_id);
+  return if !$contact;
+
+  if ($contact->cp_cv_id != $self->order->customer_id) {
+    $cfg->update_attributes(email_recipient_contact_id => undef);
+  }
+}
+
 # save the order
 #
 # And delete items that are deleted in the form.
@@ -2150,6 +2177,8 @@ sub save {
       $imap_client->create_folder_for_record(record => $self->order);
     }
   }
+
+  $self->check_if_periodic_invoices_contact_matches_customer;
 
   delete $::form->{form_validity_token};
 }
@@ -2258,6 +2287,8 @@ sub pre_render {
     $self->{template_args}->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
   }
   $self->{template_args}->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
+  $self->{template_args}->{order_item_input_position} = SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
+                                                      // $::instance_conf->get_order_item_input_position;
 
   $self->get_item_cvpartnumber($_) for @{$self->order->items_sorted};
 

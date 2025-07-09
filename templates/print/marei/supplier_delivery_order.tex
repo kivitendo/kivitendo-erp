@@ -17,7 +17,7 @@
 <%end%>
 
 % laufende Kopfzeile:
-\ourhead{}{}{\beistelllieferschein}{<%donumber%>}{<%dodate%>}
+\ourhead{}{}{\beistelllieferschein}{<%donumber%>}{<%transdate%>}
 
 \setkomavar*{date}{\datum}
 \setkomavar{date}{<%transdate%>}
@@ -30,7 +30,7 @@
 }
 <%if ordnumber%>
 	\setkomavar{orderID}{<%ordnumber%>}
-<%end template_meta.formname == "rma_delivery_order"%>%
+<%end ordnumber%>%
 <%if cusordnumber%>%
 	\setkomavar*{yourref}{\unsereBestellnummer}
 	\setkomavar{yourref}{<%cusordnumber%>}

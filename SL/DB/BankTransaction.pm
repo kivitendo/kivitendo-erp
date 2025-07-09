@@ -54,7 +54,7 @@ sub is_batch_transaction {
 
 
 sub get_agreement_with_invoice {
-  my ($self, $invoice, %params) = @_;
+  my ($self, $invoice) = @_;
 
   carp "get_agreement_with_invoice needs an invoice object as its first argument"
     unless ref($invoice) eq 'SL::DB::Invoice' or ref($invoice) eq 'SL::DB::PurchaseInvoice';
@@ -268,37 +268,27 @@ sub get_agreement_with_invoice {
     }
   }
 
-  # if there is exactly one non-executed sepa_export_item for the invoice
-  my $seis = $params{sepa_export_items}
-           ? [ grep { $invoice->id == ($invoice->is_sales ? $_->ar_id : $_->ap_id) } @{ $params{sepa_export_items} } ]
-           : $invoice->find_sepa_export_items({ executed => 0 });
+  my $seis = $invoice->find_sepa_export_items({ executed => 0 });
   if ($seis) {
-    if (scalar @$seis == 1) {
-      my $sei = $seis->[0];
-      # test for end to end id
-      if ($self->end_to_end_id && $self->end_to_end_id eq $sei->end_to_end_id) {
-        $agreement    += $points{end_to_end_id};
-        $rule_matches .= 'end_to_end_id(' . $points{'end_to_end_id'} . ') ';
-      }
 
-      # test for amount and id matching only, sepa transfer date and bank
-      # transaction date needn't match
-      if (abs($self->amount) == ($sei->amount)) {
-        $agreement    += $points{sepa_export_item};
-        $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
-      }
-    } else {
-      # zero or more than one sepa_export_item, do nothing for this invoice
-      # zero: do nothing, no sepa_export_item exists, no match
-      # more than one: does this ever apply? Currently you can't create sepa
-      # exports for invoices that already have a non-executed sepa_export
-      # TODO: Catch the more than one case. User is allowed to split
-      # payments for one invoice item in one sepa export.
+    # test if end to end id matches for any sepa export
+    if ($self->end_to_end_id &&
+        grep { $self->end_to_end_id eq $_->end_to_end_id } @{ $seis }) {
+      $agreement    += $points{end_to_end_id};
+      $rule_matches .= 'end_to_end_id(' . $points{'end_to_end_id'} . ') ';
+    }
+
+    # if there is exactly one non-executed sepa_export_item for the invoice
+    # test for amount and id matching only, sepa transfer date and bank
+    # transaction date needn't match
+    if (scalar @{ $seis } == 1 && $invoice->id       == $seis->[0]->arap_id
+                               && abs($self->amount) == $seis->[0]->amount  ) {
+      $agreement    += $points{sepa_export_item};
+      $rule_matches .= 'sepa_export_item(' . $points{'sepa_export_item'} . ') ';
     }
   }
-
   return ($agreement,$rule_matches);
-};
+}
 
 sub _check_string {
     my $bankstring = shift;

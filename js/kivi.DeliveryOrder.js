@@ -79,6 +79,20 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.close_order = function() {
+    let data = [];
+    let id = $("#id").val();
+
+    if (!id) {
+      alert(kivi.t8('This object has not been saved yet.'));
+      return;
+    }
+
+    data.push({ name: 'id', value: id });
+    data.push({ name: 'action', value: 'DeliveryOrder/close_order' });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
   ns.show_print_options = function(params) {
     if (!ns.check_cv()) return;
 
@@ -98,10 +112,30 @@ namespace('kivi.DeliveryOrder', function(ns) {
     });
   };
 
+  ns.stock_in_out_dialog_row_by_id = function(id) {
+    var $row = $("#row_table_id .row_entry").eq(id).find("tr").first().find("td").first();
+    return $row;
+  };
+
+  ns.next_stock_in_out_dialog = function(id) {
+    ns.save_updated_stock(false);
+
+    var $row = ns.stock_in_out_dialog_row_by_id(id);
+    var in_out = $("#stock_in_out_dialog").find("[name$=in_out]").val();
+
+    if ($row.length != 0)
+      ns.open_stock_in_out_dialog($row, in_out);
+  };
+
   ns.open_stock_in_out_dialog = function(clicked, in_out) {
     var $row = $(clicked).parents("tbody").first();
     var id = $row.find('[name="orderitem_ids[+]"]').val();
     $row.uniqueId();
+
+    var pos = $(clicked).parents('.row_entry').find('tr td div[name="position"]').text();
+
+    var $next_row = ns.stock_in_out_dialog_row_by_id(pos);
+    var next_button = ($next_row.length != 0);
 
     kivi.popup_dialog({
       id: "stock_in_out_dialog",
@@ -115,6 +149,8 @@ namespace('kivi.DeliveryOrder', function(ns) {
         stock:         $row.find("[name$=stock_info]").val(),
         item_id:       id,
         row:           $row.attr("id"),
+        row_ui_id:     pos,
+        next_button:   next_button,
       },
       dialog: { title: kivi.t8('Transfer stock') }
     });
@@ -145,7 +181,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.save_updated_stock = function() {
+  ns.save_updated_stock = function(close_dialog) {
     // stock information is saved in DOM as a yaml dump.
     // we don't want to do this in javascript so we do a tiny roundtrip to the backend
 
@@ -178,7 +214,9 @@ namespace('kivi.DeliveryOrder', function(ns) {
       (data) => {
         $("#" + row + " .data-stock-info").val(data.stock_info);
         $("#" + row + " .data-stock-qty").text(data.stock_qty)
-        $("#stock_in_out_dialog").dialog("close");
+        if (close_dialog) {
+          $("#stock_in_out_dialog").dialog("close");
+        }
       }
     );
   };
@@ -733,17 +771,12 @@ namespace('kivi.DeliveryOrder', function(ns) {
     var id   = $('#id').val();
     var type = $('#type').val();
 
-    var number_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'purchase_order') {
-      number_info = $('#order_ordnumber').val();
-    } else if ($('#type').val() == 'sales_quotation' || $('#type').val() == 'request_quotation') {
-      number_info = $('#order_quonumber').val();
-    }
+    var number_info = $('#order_donumber').val();
 
     var name_info = '';
-    if ($('#type').val() == 'sales_order' || $('#type').val() == 'sales_quotation') {
+    if ($('#order_customer_id_name').val()) {
       name_info = $('#order_customer_id_name').val();
-    } else if ($('#type').val() == 'purchase_order' || $('#type').val() == 'request_quotation') {
+    } else if ($('#order_vendor_id_name').val()) {
       name_info = $('#order_vendor_id_name').val();
     }
 
@@ -751,7 +784,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
     if (number_info !== '') { info += ' (' + number_info + ')' }
     if (name_info   !== '') { info += ' (' + name_info + ')' }
 
-    if (!$('#follow_up_rowcount').lenght) {
+    if (!$('#follow_up_rowcount').length) {
       $('<input type="hidden" name="follow_up_rowcount"        id="follow_up_rowcount">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_id_1"      id="follow_up_trans_id_1">').appendTo('#order_form');
       $('<input type="hidden" name="follow_up_trans_type_1"    id="follow_up_trans_type_1">').appendTo('#order_form');

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+"https://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
 <book id="kivitendo-documentation" lang="de">
-  <title>kivitendo 3.9.1: Installation, Konfiguration,
+  <title>kivitendo 3.9.2: Installation, Konfiguration,
   Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
@@ -1005,36 +1005,6 @@ default_manager = german</programlisting>
               <para><ulink url="https://de.opensuse.org/PostgreSQL">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</ulink></para>
             </listitem>
           </itemizedlist>
-      <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
-        <title>Zeichensätze/die Verwendung von Unicode/UTF-8</title>
-
-        <para>kivitendo setzt zwingend voraus, dass die Datenbank
-        Unicode/UTF-8 als Encoding einsetzt. Bei aktuellen
-        Serverinstallationen braucht man hier meist nicht einzugreifen.</para>
-
-        <para>Das Encoding des Datenbankservers kann überprüft werden. Ist das
-        Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so braucht
-        man nichts weiteres diesbezüglich unternehmen. Zum Testen:</para>
-
-        <programlisting>su postgres
-echo '\l' | psql
-exit </programlisting>
-
-        <para>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
-        Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 9.3 mit dem folgenden Befehl
-        getan werden:</para>
-
-        <programlisting>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 9.3 clustername</programlisting>
-
-        <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete
-        Versionsnummer angepasst werden.</para>
-
-        <para>Unter anderen Distributionen gibt es ähnliche Methoden.</para>
-
-        <para>Das Encoding einer Datenbank kann in <command>psql</command> mit
-        <literal>\l</literal> geprüft werden.</para>
-      </sect2>
 
       <sect2 id="Änderungen-an-Konfigurationsdateien">
         <title>Änderungen an Konfigurationsdateien</title>
@@ -1525,19 +1495,35 @@ systemctl enable kivitendo-task-server.service</programlisting>
         </itemizedlist>
 <sect2 id="Hintergrund-Job SetNumberRange">
   <title>SetNumberRange</title>
-  <para> Der Hintergrund-Job <literal>SetNumberRange</literal> akzeptiert im Feld <literal>Daten</literal> zwei Variablen nämlich <literal>digit_year</literal> sowieso <literal>multiplier</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
+  <para>Der Hintergrund-Job <literal>SetNumberRange</literal> kann entweder jährlich oder monatlich/täglich den Nummernkreis verändern. Der Standardmodus 'jährlich' kodiert die nächste Jahreszahl in alle Nummernkreise und initialisiert diese von Beginn, bpsw. 202500001. Zusätzlich bleiben Präfixe in den Nummernkreis erhalten und es gibt drei konfigurierbare Parameter in diesem Modus:</para>
+  <para>Der jährliche Modus (default) akzeptiert im Feld <literal>Daten</literal> drei optionale Parameter, nämlich <literal>digit_year</literal>, <literal>multiplier</literal> so wie <literal>current_year</literal>.</para><para> <literal>digit_year</literal> kann zwei Werte haben entweder 2 oder 4, darüber wird gesteuert ob die Jahreszahl zwei oder vierstellig kodiert wird (für 2019, dann entweder 19 oder 2019). Der Standardwert ist vierstellig.</para><para> <literal>multiplier</literal> ist ein Vielfaches von 10, darüber wird die erste Nummer im Nummernkreis (die Anzahl der Stellen) wie folgt bestimmt:</para>
   <programlisting>
 multiplier     Nummernkreis 2020
 10        ->   20200
 100       ->   202000
 1000      ->   2020000
 </programlisting>
+<para>Falls der Parameter <literal>current_year</literal> bspw. so gesetzt ist:
+<programlisting>current_year: 1</programlisting>
+ wird der Nummernkreis nicht um eins hochgezählt. Das ist sinnvoll wenn vom 31.12. auf den 01.01. sowieso keine Rechnungsläufe stattfinden und man die Nummernkreise dann am 01.01. des neuen Jahres automatisch hochsetzen möchte. </para>
+
 <para>Wir gehen jetzt beispielhaft von einer letzten Rechnungsnummer von RE2019456 aus. Demnach sollte ab Januar 2020 die erste Nummer RE2020001 sein. Da der Task auch Präfixe berücksichtigt, kann dies mit folgenden JSON-kodierten Werten umgesetzt werden:</para>
 <para><literal>Daten:</literal></para><programlisting>multiplier: 100
 digits_year: 4</programlisting>
-  <note>
-    <para>Der Hintergrundjob nimmt das aktuelle Jahr +1. Daher sollte der Hintergrundjob am 31.12. vor Mitternacht ausgeführt werden, damit im neuen Jahr die Nummernkreise korrekt sind.</para>
-  </note>
+<para>Dieser Job müsste dann zwingend vor Mitternacht des 31.12. ausgeführt werden.</para>
+<para><literal>Daten:</literal></para><programlisting>multiplier: 100
+digits_year: 4
+current_year: 1</programlisting>
+<para>Mit dieser Einstellung kann der Job auf 00:01h des 01.01. gesetzt werden.</para>
+<para>Der (wahrscheinliche) monatliche Modus wird über den Parameter <literal>monthly</literal> gesteuert und erzeugt standardmäßig folgende Nummernkreise JJ-MM-000, bspw. am 01.04.2025 25-04-000. Dieser Modus akzeptiert die zwei optionalen Parameter <literal>monthly_postfix</literal> für die Überlagerung am Ende der Zeichenkette und <literal>monthly_strftime</literal> für die beliebige Formatierung der strftime C-Methode, s.a. <ulink url='https://metacpan.org/pod/DateTime#strftime-Patterns'>strftime-Patterns</ulink>.
+Folgende Parameter erzeugen am 01.04.2025 folgenden Nummernkreis: 2025-04-01-A0001.
+<para><literal>Daten:</literal></para>
+<programlisting>
+monthly: 1
+monthly_postfix: '-A0001'
+monthly_strftime: '%Y-%m-%d'
+</programlisting>
+</para>
 
         </sect2>
         <sect2 id="Hintergrund-Job ImportRecordEmails">
@@ -1602,6 +1588,52 @@ username: alpha39@meine-domaene.de
 password: supipass8
             </programlisting>
         </para>
+        </sect2>
+        <sect2 id="Hintergrund-Job InventoryClearAll">
+          <title>InventoryClearAll</title>
+          <para>Besteht die Anforderung, vor einer Inventur sämtliche Lagerplätze mittels Korrekturbuchungen auf Bestand 0 zu bringen, so kann dies mit dem Hintergrund-Job <literal>InventoryClearAll</literal> erledigt werden.</para>
+          <note>Damit diese Korrekturbuchungen nur einmalig auf Nutzerwunsch ausgeführt werden und nicht ausversehen periodisch das Lager leer räumen, muss die Variable <literal>correction_date</literal> auf das aktuelle Datum gesetzt sein. Die Korrekturbuchungen können nicht ohne Weiteres rückgängig gemacht werden.
+          Nachdem der Job im Menü System -> Hintergrund-Jobs und Task-Server -> Aktuelle Hintergrund-Jobs anzeigen erfasst wurde, kann er einmalig ausgeführt werden, indem beim Bearbeiten der Button <literal>Speichern und Ausführen</literal> gewählt wird.</note>
+          <para>Im Feld Daten werden folgende Variablen akzeptiert:</para>
+          <itemizedlist>
+            <listitem>
+              <para><literal>correction_date:</literal> Das aktuelle Datum in der Form <literal>YYYY-MM-DD</literal>, sonst läuft der Job nicht</para>
+            </listitem>
+            <listitem>
+              <para><literal>comment:</literal> (optional) Wird in den Korrekturbuchungen als Kommentar gesetzt. Falls kein Wert gegeben ist, wird der Kommentar <literal>vor Inventur</literal> gesetzt</para>
+            </listitem>
+            <listitem>
+              <para><literal>dry_run:</literal> (optional) Falls <literal>dry_run: 1</literal> gesetzt ist, werden keine Korrekturbuchungen ausgeführt, die notwenigen Korrekturbuchungen werden lediglich im Ergebnis des Jobs angezeigt</para>
+            </listitem>
+            <listitem>
+              <para><literal>warehouse:</literal> (optional) Schränkt die Korrekturbuchungen auf ein bestimmtes Lager ein; andernfalls werden Korrekturbuchungen für alle Lager ausgeführt</para>
+            </listitem>
+          </itemizedlist>
+          <para>Ein Konfigurationsbeispiel ist:</para>
+          <programlisting>
+correction_date: 2025-03-11
+comment: vor Inventur
+dry_run: 1
+# warehouse: Stahllager Industriepark Gallin
+          </programlisting>
+        </sect2>
+        <sect2 id="Hintergrund-Job CloseQuotations">
+          <title>CloseQuotations</title>
+          <para>Gibt es viele alte offene Preisanfragen im Einkauf und Angebote im Verkauf, so können diese komfortabel mit dem Hintergrund-Job <literal>CloseQuotations</literal> geschlossen werden.</para>
+          <para>Im Feld Daten werden folgende Variablen akzeptiert:</para>
+          <itemizedlist>
+            <listitem>
+              <para><literal>dry_run:</literal> (optional) Falls <literal>dry_run: 1</literal> gesetzt ist, werden keine Belege geschlossen, die Nummern der betroffenen Belege werden lediglich im Ergebnis des Jobs angezeigt</para>
+            </listitem>
+            <listitem>
+              <para><literal>years:</literal> (optional) Anzahl der Jahre, die offene Preisanfragen und Angebote alt sein müssen, damit sie geschlossen werden. Standardwert: <literal>years: 1</literal> (ein Jahr)</para>
+            </listitem>
+          </itemizedlist>
+          <para>Ein Konfigurationsbeispiel ist:</para>
+          <programlisting>
+dry_run: 1
+years: 1
+          </programlisting>
         </sect2>
      </sect1>
 
@@ -3352,7 +3384,7 @@ password: supipass8
 
             <tip>
               <para>Für die Variante <emphasis role="bold">QR-IBAN mit
-              QR-Referenz</emphasis> muss dieses Konto unter IBAN eine gültige
+              QR-Referenz</emphasis> muss dieses Konto unter QR-IBAN (Schweiz) eine gültige
               <emphasis role="bold">QR-IBAN Nummer</emphasis> enthalten. Diese
               unterscheidet sich von der regulären IBAN.</para>
 
@@ -9349,24 +9381,8 @@ file_name = users/kivitendo-debug.log</programlisting>
 
         <para>
          Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
-         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
-         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
-         übergeben werden.
-        </para>
-      </sect2>
-
-      <sect2 id="dev-programmatic-api-calls.client_selection" xreflabel="Mandantenauswahl bei programmatischen API-Aufrufen">
-        <title>Wahl des Mandanten</title>
-
-        <para>
-         Der zu verwendende Mandant kann als Parameter <varname>{AUTH}client_id</varname> mit jedem Request mitgeschickt werden. Der Wert
-         muss dabei die Datenbank-ID des Mandanten sein. kivitendo prüft, ob der Account, der über die Authentifizierungsinformationen
-         übergeben wurde, Zugriff auf den angegebenen Mandanten hat.
-        </para>
-
-        <para>
-         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
-         keinen solchen, kommt es zu einer Fehlermeldung.
+         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es die HTTP-»Basic«-Authentifizierung.
+         Der zu verwendende Mandant ist der Standard-Mandant.
         </para>
       </sect2>
 
@@ -9388,27 +9404,6 @@ file_name = users/kivitendo-debug.log</programlisting>
          Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
          erfolgen.
         </para>
-      </sect2>
-
-      <sect2 id="dev-programmatic-api-calls.authentication_via_parameters" xreflabel="Programmatische API-Aufrufe mit Parametern authentifizieren">
-        <title>Authentifizierung mit Parametern</title>
-
-        <para>
-         Für diese Methode müssen jedem Request zwei Parameter mitgegeben werden: <varname>{AUTH}login</varname> und
-         <varname>{AUTH}password</varname>. Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei
-         Benutzung über den Webbrowser, ob dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
-        </para>
-
-        <para>
-         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
-         erfolgen.
-        </para>
-
-        <note>
-         <para>
-          Die Verwendung dieser Methode ist veraltet. Statt dessen sollte die oben erwähnte HTTP-»Basic«-Authentifizierung verwendet werden.
-         </para>
-        </note>
       </sect2>
 
       <sect2 id="dev-programmatic-api-calls.examples">

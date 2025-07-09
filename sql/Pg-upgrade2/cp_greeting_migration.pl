@@ -70,7 +70,7 @@ sub print_question {
   my ($self) = @_;
 
   $self->query_result;
-  # parse html form in /templates/webpages/dbupgrade/cp_greeting_update_form
+  # parse html form in /templates/design40_webpages/dbupgrade/cp_greeting_update_form
   print $::form->parse_html_template("dbupgrade/cp_greeting_update_form");
 }
 
