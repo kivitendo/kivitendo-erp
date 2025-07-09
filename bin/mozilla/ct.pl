@@ -83,6 +83,9 @@ sub search {
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
+  $::auth->assert('customer_report_view') if  $form->{IS_CUSTOMER};
+  $::auth->assert('vendor_report_view')   if !$form->{IS_CUSTOMER};
+
   $form->get_lists("business_types" => "ALL_BUSINESS_TYPES",
                    "salesmen"       => "ALL_SALESMEN");
   $form->{ALL_PAYMENT_TERMS} = SL::DB::Manager::PaymentTerm->get_all_sorted;
@@ -109,6 +112,8 @@ sub search {
 
 sub search_contact {
   $::lxdebug->enter_sub;
+
+  $::auth->assert('contact_person_report_view');
 
   $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
   ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
@@ -332,12 +337,7 @@ sub list_names {
       $row->{email}->{link} = 'mailto:' . E($ref->{email});
     }
 
-    my $base_url              = build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
-    if ($::instance_conf->get_feature_experimental_order) {
-      if ('oe' eq $ref->{module}) {
-        $base_url             = build_std_url("script=controller.pl", 'action=Order/edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
-      }
-    }
+    my $base_url              = build_std_url("script=controller.pl", 'action=Order/edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
 
     $row->{invnumber}->{link} = $base_url;
     $row->{ordnumber}->{link} = $base_url . "&type=${ordertype}";

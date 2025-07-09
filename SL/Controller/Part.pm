@@ -26,6 +26,7 @@ use SL::DB::PurchaseBasketItem;
 use SL::DB::Shop;
 use SL::Helper::Flash;
 use SL::Helper::PrintOptions;
+use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::JSON;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon qw(save_form);
@@ -253,6 +254,12 @@ sub action_use_as_new {
   $self->part($oldpart->clone_and_reset_deep);
   $self->parse_form(use_as_new => 1);
   $self->part->partnumber(undef);
+
+  if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    # No right to edit prices -> remove prices for new part.
+    $self->part->$_(undef) for qw(sellprice lastcost listprice);
+  }
+
   $self->render_form(use_as_new => 1);
 }
 
@@ -742,7 +749,9 @@ sub action_part_picker_search {
   $search_term  ||= $self->models->filtered->laundered->{all_with_makemodel_substr_multi__ilike};
   $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
 
-  $_[0]->render('part/part_picker_search', { layout => 0 }, search_term => $search_term);
+  my $all_as_list = SL::Helper::UserPreferences::PartPickerSearch->new()->get_all_as_list_default;
+
+  $_[0]->render('part/part_picker_search', { layout => 0 }, search_term => $search_term, all_as_list => $all_as_list);
 }
 
 sub action_part_picker_result {
@@ -1030,6 +1039,11 @@ sub parse_form {
 
   my $params = delete($::form->{part}) || { };
 
+  if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    # No right to set or change prices, so delete prices from params.
+    delete $params->{$_} for qw(sellprice_as_number lastcost_as_number listprice_as_number);
+  }
+
   delete $params->{id};
   $self->part->assign_attributes(%{ $params});
   $self->part->bin_id(undef) unless $self->part->warehouse_id;
@@ -1049,11 +1063,19 @@ sub parse_form {
     $self->part->add_assemblies( @{ $self->assembly_items } );
   };
 
+  # Update lastcost for assemblies
+  if ($self->part->is_assembly) {
+    my $lastcost_sum = $self->recalc_item_totals(part_type => $self->part->part_type, price_type => 'lastcost');
+    $self->part->lastcost($lastcost_sum);
+  }
+
   $self->part->translations([]) unless $params{use_as_new};
   $self->parse_form_translations;
 
-  $self->part->prices([]);
-  $self->parse_form_prices;
+  if ($::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+    $self->part->prices([]);
+    $self->parse_form_prices;
+  }
 
   $self->parse_form_customerprices;
   $self->parse_form_makemodels;
@@ -1113,6 +1135,12 @@ sub parse_form_makemodels {
                                      lastcost             => $::form->parse_amount(\%::myconfig, $makemodel->{lastcost_as_number}),
                                      sortorder            => $position,
                                    );
+
+    if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+      # No right to edit prices -> restore old lastcost.
+      $mm->lastcost($makemodels_map->{$id} ? $makemodels_map->{$id}->lastcost : undef);
+    }
+
     if ($makemodels_map->{$mm->id} && !$makemodels_map->{$mm->id}->lastupdate && $makemodels_map->{$mm->id}->lastcost == 0 && $mm->lastcost == 0) {
       # lastupdate isn't set, original lastcost is 0 and new lastcost is 0
       # don't change lastupdate
@@ -1186,6 +1214,12 @@ sub parse_form_customerprices {
                                      price                => $::form->parse_amount(\%::myconfig, $customerprice->{price_as_number}),
                                      sortorder            => $position,
                                    );
+
+    if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
+      # No right to edit prices -> restore old price.
+      $cu->price($customerprices_map->{$id} ? $customerprices_map->{$id}->price : undef);
+    }
+
     if ($customerprices_map->{$cu->id} && !$customerprices_map->{$cu->id}->lastupdate && $customerprices_map->{$cu->id}->price == 0 && $cu->price == 0) {
       # lastupdate isn't set, original price is 0 and new lastcost is 0
       # don't change lastupdate

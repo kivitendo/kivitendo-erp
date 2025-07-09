@@ -215,6 +215,11 @@
          [% L.input_tag('defaults.email_sender_dunning', SELF.defaults.email_sender_dunning, class='wi-wide') %]
        <div class ="description">[% 'Generic email send address for this record type.' | $T8 %]</div></td>
       </tr>
+      <tr>
+        <th>[% LxERP.t8('Email Subject Transaction Description') %]</th>
+        <td> [% L.yes_no_tag('defaults.email_subject_transaction_description', SELF.defaults.email_subject_transaction_description) %] </td>
+        <td class="long-desc"> [% LxERP.t8('Include the transaction description in the preset email subject.') %] </td>
+      </tr>
         <tr>
         <th class="caption" colspan="3">[% LxERP.t8("SEPA") %]</th>
       </tr>
@@ -241,16 +246,6 @@
 
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Experimental Features") %]</th>
-      </tr>
-      <tr>
-        <th>[% LxERP.t8('Order Controller') %]</th>
-        <td>[% L.yes_no_tag('defaults.feature_experimental_order', SELF.defaults.feature_experimental_order) %]</td>
-        <td class="long-desc">[% LxERP.t8('Replace legacy order controller with new one') %]</td>
-      </tr>
-      <tr>
-        <th>[% LxERP.t8('Assortment') %]</th>
-        <td>[% L.yes_no_tag('defaults.feature_experimental_assortment', SELF.defaults.feature_experimental_assortment) %]</td>
-        <td class="long-desc">[% LxERP.t8('Enable Assortment as new article type') %]</td>
       </tr>
     </tbody>
   </table>
@@ -440,6 +435,44 @@
         </td>
       </tr>
       <tr>
+        <th>[% LxERP.t8("Item input position for quotations and orders") %]</th>
+        <td>[% L.select_tag("defaults.order_item_input_position", [ [ 0, LxERP.t8('above the positions'), ], [ 1, LxERP.t8('below the positions') ] ], default=SELF.defaults.order_item_input_position) %]</td>
+        <td>[% LxERP.t8("Controls whether the default item input is above (default) or below the positions list in orders and quotations. Can be overridden by user preferences.") %]</td>
+      </tr>
+      <tr>
+        <th class="caption" colspan="3">[% 'Show certain sales and purchase documents' | $T8 %]</th>
+      </tr>
+      <tr>
+        <th>[% 'Show sales order intake' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_sales_order_intake", SELF.defaults.show_sales_order_intake) %]</td>
+        <td class="long-desc">[% 'When disabled, sales order intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase quotation intake' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_quotation_intake", SELF.defaults.show_purchase_quotation_intake) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase quotation intakes do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase order confirmation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_order_confirmation", SELF.defaults.show_purchase_order_confirmation) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase order confirmations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show sales reclamation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_sales_reclamation", SELF.defaults.show_sales_reclamation) %]</td>
+        <td class="long-desc">[% 'When disabled, sales reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show purchase reclamation' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_purchase_reclamation", SELF.defaults.show_purchase_reclamation) %]</td>
+        <td class="long-desc">[% 'When disabled, purchase reclamations do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Show invoice for payment in advance and final invoice' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.show_invoice_for_advance_payment", SELF.defaults.show_invoice_for_advance_payment) %]</td>
+        <td class="long-desc">[% 'When disabled, invoices for payment in advance and final invoices do not show up in the menu and in the workflow actions.' | $T8 %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% LxERP.t8('Transport and service costs reminder') %]</th>
       </tr>
       <tr>
@@ -573,6 +606,12 @@
       <th>[% 'Force a layout style' | $T8 %]</th>
       <td>[% L.select_tag('defaults.layout_style', [['', LxERP.t8('Automatic')], ['desktop', LxERP.t8('desktop version')]], default=SELF.defaults.layout_style, with_empty=0) %]</td>
       <td class="long-desc">[% 'The layout style normally is choosen by the user agent string the browser sends. Here you can force the desktop or mobile version. Users can override this setting in their user preferences.' | $T8 %]</td>
+    </tr>
+    <tr><th class="caption">[% 'ZUGFeRD Import' | $T8 %]</th></tr>
+    <tr>
+      <th align="right">[% LxERP.t8("Import total amounts into ap transaction instead of positions") %]</th>
+      <td>[% L.yes_no_tag("defaults.zugferd_ap_transaction_use_totals", SELF.defaults.zugferd_ap_transaction_use_totals) %]</td>
+      <td class="long-desc">[% LxERP.t8("If an imported invoice has contains any discounts, the position method will not work reliably.") %]</td>
     </tr>
   </tbody>
 </table>

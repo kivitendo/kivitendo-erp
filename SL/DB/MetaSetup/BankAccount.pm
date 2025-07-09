@@ -19,6 +19,7 @@ __PACKAGE__->meta->columns(
   id                              => { type => 'integer', not_null => 1, sequence => 'id' },
   name                            => { type => 'text' },
   obsolete                        => { type => 'boolean', default => 'false', not_null => 1 },
+  qr_iban                         => { type => 'text' },
   reconciliation_starting_balance => { type => 'numeric', precision => 15, scale => 5 },
   reconciliation_starting_date    => { type => 'date' },
   sortkey                         => { type => 'integer', not_null => 1 },

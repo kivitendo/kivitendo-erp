@@ -183,13 +183,13 @@
     <tbody>
       <tr>
         <td>
-          [% L.textarea_tag("notes", HTML.escape(notes), wrap="soft", rows=rows, class="wi-wide") %]
+          [% L.textarea_tag("notes", HTML.escape(notes), rows=rows, class="wi-wide") %]
         </td>
       </tr>
       <tr>
         <td>
           <span class="label above">[% 'Notes for customer' | $T8 %]</span>
-          [% L.textarea_tag("intnotes", HTML.escape(intnotes), wrap="soft", rows=rows, readonly=readonly, class="wi-wide") %]
+          [% L.textarea_tag("intnotes", HTML.escape(intnotes), rows=rows, readonly=readonly, class="wi-wide") %]
         </td>
       </tr>
     </tbody>
@@ -317,9 +317,9 @@
       </td>
       <td class="numeric">
         [% IF row.changeable %]
-          <input name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" size="11" type="text" data-validate="number" class="numeric">
+          <input name="paid_[% loop.count %]" id="payment_paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" size="11" type="text" data-validate="number" class="numeric">
         [% ELSE %]
-          [% row.paid | html %]<input type="hidden" name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]"> [% defaultcurrency %]
+          [% LxERP.format_amount(row.paid, 2) | html %]<input type="hidden" name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]"> [% defaultcurrency %]
         [% END %]
       </td>
       <td>
@@ -364,7 +364,7 @@
       <td></td>
       <td></td>
       <th class="right">[% 'Total' | $T8 %]</th>
-      <td align="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]  [% currency %] </td>
+      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]  [% currency %] </td>
       <td></td>
       [% IF show_exch %]
         <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
@@ -398,5 +398,5 @@
 </div><!-- ./tabwidget -->
 
 <script type="text/javascript">
- $('#ar_set_to_paid_missing').click(function(){ $('input[name^="paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
+ $('#ar_set_to_paid_missing').click(function(){ $('input[id^="payment_paid_"]:last').val("[% LxERP.format_amount(paid_missing, 2) %]") });
 </script>

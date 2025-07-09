@@ -948,13 +948,15 @@ sub orders {
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
+  # hide links to oe if no right
+  $form->{hide_oe_links} = !(   ($form->{vc} eq 'customer' && $::auth->assert('sales_order_reports_amounts',    1))
+                             || ($form->{vc} eq 'vendor'   && $::auth->assert('purchase_order_reports_amounts', 1)) );
+
   # escape callback for href
   my $callback = $form->escape($href);
 
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
-  my $edit_order_url = ($::instance_conf->get_feature_experimental_order)
-                     ? build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'))
-                     : build_std_url('script=oe.pl',         'action=edit',       'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
+  my $edit_order_url = build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
 
   my $idx            = 1;
 
@@ -971,8 +973,11 @@ sub orders {
       'valign'   => 'center',
       'align'    => 'center',
     };
-    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type});
-    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type}, callback => $form->{callback});
+
+    if (!$form->{hide_oe_links}) {
+      $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+    }
 
     foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {
       if (lc($report->{options}->{output_format}) eq 'html') {

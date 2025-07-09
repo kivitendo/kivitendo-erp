@@ -27,7 +27,7 @@ sub _extract_end_to_end_id {
   my ($parts) = @_;
 
   foreach my $value (values %{ $parts }) {
-    if ($value =~ m{^(?:endtoend:|eref\+) *(.+)}i) {
+    if ($value =~ m{^(?:end\W?to\W?end:|eref\+) *(.+)}i) {
       my $id = $1;
       return $id =~ m{notprovided}i ? undef : $id;
     }
@@ -82,7 +82,11 @@ sub parse {
 
       $local_bank_code      = $1;
       $local_account_number = $2;
-
+    } elsif  ($line->[0] =~ m{^:25:([A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?)/(\d+)}) {
+      # case SWIFT code with 11 chars :25:SOBKDEB2XXX/5436636296EUR
+      # https://stackoverflow.com/questions/3028150/what-is-proper-regex-expression-for-swift-codes
+      $local_bank_code      = $1;
+      $local_account_number = $2;
     } elsif ($line->[0] =~ m{^:61: (\d{2}) (\d{2}) (\d{2}) (\d{4})? (C|D|RC|RD) ([a-zA-Z]?) (\d+) (?:, (\d*))? N (.{3}) (.*)}x) {
       #                            1       2       3       4        5           6           7          8         9      10
       # :61:2008060806CR952,N051NONREF

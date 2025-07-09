@@ -35,7 +35,7 @@
     <tr>
       <th>[% 'Extended status' | $T8 %]</th>
       <td>
-        [% L.textarea_tag('extended_status', SELF.entry.extended_status, wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+        [% L.textarea_tag('extended_status', SELF.entry.extended_status, style="color:black; height:25px", class="wi-verywide", disabled=1) %]
       </td>
     </tr>
     <tr>
@@ -45,7 +45,7 @@
     <tr>
       <th>[% 'Headers' | $T8 %]</th>
       <td>
-        [% L.textarea_tag('headers', HTML.escape(SELF.entry.headers), wrap="soft", style="color:black; height:25px", class="wi-verywide", disabled=1) %]
+        [% L.textarea_tag('headers', HTML.escape(SELF.entry.headers), style="color:black; height:25px", class="wi-verywide", disabled=1) %]
       </td>
     </tr>
     <tr>

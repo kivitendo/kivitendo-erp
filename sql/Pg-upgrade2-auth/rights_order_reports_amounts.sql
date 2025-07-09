@@ -20,10 +20,12 @@ INSERT INTO auth.group_rights (group_id, "right", granted)
   SELECT DISTINCT(id), 'sales_order_reports_amounts', TRUE
     FROM auth.group
     LEFT JOIN auth.group_rights ON (auth.group.id = auth.group_rights.group_id)
-    WHERE "right" LIKE 'sales_order_edit' OR "right" LIKE 'sales_order_view';
+    WHERE ("right" LIKE 'sales_order_edit' AND granted = TRUE)
+       OR ("right" LIKE 'sales_order_view' AND granted = TRUE);
 
 INSERT INTO auth.group_rights (group_id, "right", granted)
   SELECT DISTINCT(id), 'purchase_order_reports_amounts', TRUE
     FROM auth.group
     LEFT JOIN auth.group_rights ON (auth.group.id = auth.group_rights.group_id)
-    WHERE "right" LIKE 'purchase_order_edit' OR "right" LIKE 'purchase_order_view';
+    WHERE ("right" LIKE 'purchase_order_edit' AND granted = TRUE)
+       OR ("right" LIKE 'purchase_order_view' AND granted = TRUE);

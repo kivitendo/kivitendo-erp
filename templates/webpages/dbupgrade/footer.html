@@ -1,9 +1,0 @@
-[%- USE T8 %]
-[% USE HTML %]<p>[% '...done' | $T8 %]</p>
-
-<form action="[% IF is_admin %]controller.pl[% ELSE %]login.pl[% END %]">
-
- <input type="hidden" name="action" value="[% IF is_admin %]Admin/apply_dbupgrade_scripts[% ELSE %]company_logo[% END %]">
-
- <p><input type="submit" value="[% 'Continue' | $T8 %]"></p>
-</form>

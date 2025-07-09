@@ -992,6 +992,33 @@ sub send_email {
       }
 
     } else {
+      if ($self->{attachment_policy} eq 'merge_file') {
+        my $id = $::form->{id} ? $::form->{id} : undef;
+        my $latest_documents  = SL::DB::Manager::File->get_all(query =>
+                                [
+                                  object_id   => $id,
+                                  file_type   => 'document',
+                                  mime_type   => 'application/pdf',
+                                  source      => 'uploaded',
+                                  or          => [
+                                                   object_type => 'gl_transaction',
+                                                   object_type => 'purchase_invoice',
+                                                   object_type => 'invoice',
+                                                   object_type => 'credit_note',
+                                                 ],
+                                ],
+                                  sort_by   => 'itime DESC');
+        # if uploaded documents exists, add ALL pdf files for later merging
+        if (scalar @{ $latest_documents }) {
+          my $files;
+          push @{ $files }, $self->{tmpfile};
+          foreach my $latest_document (@{ $latest_documents }) {
+            die "No file datatype:" . ref $latest_document unless (ref $latest_document eq 'SL::DB::File');
+            push @{ $files }, $latest_document->file_versions_sorted->[-1]->get_system_location;
+          }
+          SL::Helper::CreatePDF->merge_pdfs(file_names => $files, out_path => $self->{tmpfile});
+        }
+      }
       push @{ $mail->{attachments} }, { path => $self->{tmpfile},
                                         id   => $self->{print_file_id},
                                         type => "application/pdf",
@@ -1211,6 +1238,9 @@ sub generate_email_subject {
   $main::lxdebug->enter_sub();
   my ($self) = @_;
 
+  my $defaults = SL::DB::Default->get;
+
+  my $sep = ' / ';
   my $subject = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix  = $self->get_number_prefix_for_type();
 
@@ -1219,7 +1249,11 @@ sub generate_email_subject {
   }
 
   if ($self->{cusordnumber}) {
-    $subject = $self->get_cusordnumber_translation() . ' ' . $self->{cusordnumber} . ' / ' . $subject;
+    $subject = $self->get_cusordnumber_translation() . ' ' . $self->{cusordnumber} . $sep . $subject;
+  }
+
+  if ($defaults->email_subject_transaction_description) {
+    $subject .=  $sep . $self->{transaction_description} if $self->{transaction_description};
   }
 
   $main::lxdebug->leave_sub();
@@ -3206,6 +3240,8 @@ sub prepare_for_printing {
     DO->order_details(\%::myconfig, $self);
   } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order|purchase_quotation_intake/) {
     OE->order_details(\%::myconfig, $self);
+  } elsif ($self->{type} =~ /reclamation/) {
+    # skip reclamation here, legacy template arrays are added in the reclamation controller
   } else {
     IS->invoice_details(\%::myconfig, $self, $::locale);
   }
@@ -3356,9 +3392,7 @@ sub calculate_arap {
     my $tax_id = $self->{"tax_id_$i"};
 
     my $selected_tax = SL::DB::Manager::Tax->find_by(id => "$tax_id");
-
-    if ( $selected_tax && $selected_tax->taxkey ne '94') {
-
+    if ( $selected_tax && !$selected_tax->reverse_charge_chart_id) {
       if ( $buysell eq 'sell' ) {
         $self->{AR_amounts}{"tax_$i"} = $selected_tax->chart->accno if defined $selected_tax->chart;
       } else {
@@ -3369,7 +3403,7 @@ sub calculate_arap {
       $self->{"taxrate_$i"} = $selected_tax->rate;
     };
 
-    $self->{"taxkey_$i"} = $selected_tax->taxkey if $selected_tax->taxkey eq '94';
+    $self->{"taxkey_$i"} = $selected_tax->taxkey if ($selected_tax && $selected_tax->reverse_charge_chart_id);
 
     ($self->{"amount_$i"}, $self->{"tax_$i"}) = $self->calculate_tax($self->{"amount_$i"},$self->{"taxrate_$i"},$taxincluded,$roundplaces);
 

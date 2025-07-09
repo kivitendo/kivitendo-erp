@@ -574,7 +574,7 @@ sub action_save_stocktaking {
         stocktaking_cutoff_date => $::form->{cutoff_date_as_date},
       });
       1;
-    } or do { $transfer_error = $EVAL_ERROR->error; }
+    } or do { $transfer_error = ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR; }
   });
 
   return $self->js->flash('error', $transfer_error)->render()
@@ -1051,7 +1051,7 @@ stocked one or to take his counted quantity as the new stocked quantity.
 
 There is also a journal of stocktakings.
 
-Templates are located under C<templates/webpages/inventory/stocktaking>.
+Templates are located under C<templates/design40_webpages/inventory/stocktaking>.
 JavaScript functions can be found in C<js/kivi.Inventory.js>.
 
 =head1 FUNCTIONS

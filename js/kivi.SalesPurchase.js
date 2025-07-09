@@ -32,7 +32,7 @@ namespace('kivi.SalesPurchase', function(ns) {
     }
 
     var $container = $('#popup_edit_longdescription_input_container');
-    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" wrap="soft" style="width: ' + textarea_width + 'px; height: ' + textarea_height + 'px;"></textarea>');
+    var $edit      = $('<textarea id="popup_edit_longdescription_input" class="texteditor-in-dialog texteditor-space-for-toolbar" style="width: ' + textarea_width + 'px; height: ' + textarea_height + 'px;"></textarea>');
 
     $container.children().remove();
     $container.append($edit);
@@ -298,24 +298,25 @@ namespace('kivi.SalesPurchase', function(ns) {
     var vc_id = $(vc_id_selector).val();
 
     var data = {
-      action:       'show_sales_purchase_email_dialog',
-      cp_id:        $('#cp_id').val(),
-      direct_debit: $('#direct_debit').prop('checked') ? 1 : 0,
-      donumber:     $('#donumber').val(),
-      format:       $('#format').val(),
-      formname:     $('#formname').val(),
-      id:           $('#id').val(),
-      invnumber:    $('#invnumber').val(),
-      language_id:  $('#language_id').val(),
-      media:        'email',
-      ordnumber:    $('#ordnumber').val(),
-      cusordnumber: $('#cusordnumber').val(),
-      rowcount:     $('#rowcount').val(),
-      quonumber:    $('#quonumber').val(),
-      type:         $('#type').val(),
-      vc:           vc,
-      vc_id:        vc_id,
-      project_id:  $('#globalproject_id').val(),
+      action:                  'show_sales_purchase_email_dialog',
+      cp_id:                   $('#cp_id').val(),
+      direct_debit:            $('#direct_debit').prop('checked') ? 1 : 0,
+      donumber:                $('#donumber').val(),
+      format:                  $('#format').val(),
+      formname:                $('#formname').val(),
+      id:                      $('#id').val(),
+      invnumber:               $('#invnumber').val(),
+      language_id:             $('#language_id').val(),
+      media:                   'email',
+      ordnumber:               $('#ordnumber').val(),
+      cusordnumber:            $('#cusordnumber').val(),
+      rowcount:                $('#rowcount').val(),
+      quonumber:               $('#quonumber').val(),
+      transaction_description: $('#transaction_description').val(),
+      type:                    $('#type').val(),
+      vc:                      vc,
+      vc_id:                   vc_id,
+      project_id:              $('#globalproject_id').val(),
     };
 
     $('[name^=id_],[name^=partnumber_]').each(function(idx, elt) {

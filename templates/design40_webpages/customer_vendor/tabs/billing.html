@@ -11,7 +11,7 @@
 
 [% IF SELF.cv.name %]
 <h2 class="record-title" title="[% IF SELF.is_vendor() %][% 'Vendor Name' | $T8 %][% ELSE %][% 'Customer Name' | $T8 %][% END %]">
-  [% SELF.cv.name %] <small>[% IF SELF.cv.city; IF SELF.cv.name !=""; ", "; END ; SELF.cv.city ; END; %]</small>
+  [% HTML.escape(SELF.cv.name) %] <small>[% IF SELF.cv.city; IF SELF.cv.name !=""; ", "; END ; HTML.escape(SELF.cv.city) ; END; %]</small>
 </h2>
 [% END %]
 
@@ -60,7 +60,7 @@
     </tr>
     <tr>
       <th>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
-      <td>[% L.input_tag_trim('cv.zipcode', SELF.cv.zipcode, class='wi-verysmall') %][% L.input_tag_trim('cv.city', SELF.cv.city, class='wi-small', class='wi-lightwide--verysmall') %]</td>
+      <td>[% L.input_tag_trim('cv.zipcode', SELF.cv.zipcode, class='wi-verysmall') %][% L.input_tag_trim('cv.city', SELF.cv.city, class='wi-lightwide--verysmall') %]</td>
     </tr>
     <tr>
       <th>[% 'Country' | $T8 %]</th>
@@ -149,6 +149,12 @@
         <td>[% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty=1, class='wi-lightwide') %]</td>
       </tr>
     [% END %]
+    [% IF ( SELF.is_customer() && !INSTANCE_CONF.get_vertreter ) %]
+      <th>[% 'Salesman' | $T8 %]</th>
+      <td>
+        [% L.select_tag('cv.salesman_id', SELF.all_salesmen, default = SELF.cv.salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1, class='wi-lightwide') %]
+      </td>
+    [%- END %]
     <tr>
       <th>[% 'Language' | $T8 %]</th>
       <td>[% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key='description', with_empty=1, class='wi-lightwide') %]</td>
@@ -217,7 +223,10 @@
       </tr>
       <tr>
         <th>[% 'Our routing id at customer' | $T8 %]</th>
-        <td>[% L.input_tag_trim('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]</td>
+        <td>
+          [% L.input_tag_trim('cv.c_vendor_routing_id', SELF.cv.c_vendor_routing_id, size = 20) %]
+          [% P.context_help_tag(LxERP.t8('Mandatory for exports with XRechnung profile. Note: Despite being optional for Factur-X profile exports, some validators expect it to be present, so the UStID will be used as a fallback.')) %]
+        </td>
       </tr>
     [% END %]
 <!-- </tbody> -->

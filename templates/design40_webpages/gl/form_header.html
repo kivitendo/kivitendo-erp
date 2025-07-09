@@ -155,7 +155,7 @@
     </tr>
     <tr>
       <th>[%- IF id %][% 'Mitarbeiter' | $T8 %][% END %]</th>
-      <td>[%- IF id %][% L.input_tag('employee', employee, class='wi-normal', readonly=readonly, class='wi-wide') %][% END %]</td>
+      <td>[%- IF id %][% L.input_tag('employee', employee, readonly=readonly, class='wi-wide') %][% END %]</td>
     </tr>
     <tr>
       <th>[% 'MwSt. inkl.' | $T8 %]</th>

@@ -418,9 +418,16 @@ sub reference_account {
      SL::DB::Manager::AccTransaction->chart_link_filter("$link_filter")
   );
 
-  return undef unless ref $acc_trans;
+  my $id;
 
-  my $reference_account = SL::DB::Manager::Chart->find_by(id => $acc_trans->chart_id);
+  if (! $acc_trans) {
+    $id = $is_sales ? $::instance_conf->get_ar_chart_id : $::instance_conf->get_ap_chart_id;
+    return undef unless $id;
+  } else {
+    $id = $acc_trans->chart_id;
+  }
+
+  my $reference_account = SL::DB::Manager::Chart->find_by(id => $id);
 
   return $reference_account;
 }
@@ -618,10 +625,12 @@ sub _skonto_charts_and_tax_correction {
     my $skonto_netamount_rounded   = _round($skonto_netamount_unrounded);
     my $chart_id                   = $is_sales ? $tax->skonto_sales_chart->id : $tax->skonto_purchase_chart->id;
 
+    my $credit_note_multiplier = $self->is_credit_note ? -1 : 1;
     # entry net + tax for caller
     my $rec_net = {
       chart_id               => $chart_id,
-      skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded),
+      skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded)
+                                * $credit_note_multiplier,
     };
     push @skonto_charts, $rec_net;
     $total_skonto_rounded += $rec_net->{skonto_amount};
@@ -637,6 +646,12 @@ sub _skonto_charts_and_tax_correction {
     croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
     my $notes = SL::HTML::Util->strip($self->notes);
 
+    my $debit_state = ( $is_sales && !$self->is_credit_note)        ? 1
+                    : (!$is_sales && !$self->is_credit_note)        ? 0
+                    : $self->invoice_type eq 'purchase_credit_note' ? 1
+                    : $self->invoice_type eq 'credit_note'          ? 0
+                    : die "invalid type state";
+
     my $current_transaction = SL::DB::GLTransaction->new(
          employee_id    => $self->employee_id,
          transdate      => $params{transdate_obj},
@@ -647,13 +662,13 @@ sub _skonto_charts_and_tax_correction {
          imported       => 0, # not imported
          taxincluded    => 0,
       )->add_chart_booking(
-         chart  => $is_sales ? $debit : $credit,
+         chart  => $debit_state ? $debit : $credit,
          debit  => abs($skonto_taxamount_rounded),
          source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
          memo   => $params{memo},
          tax_id => 0,
       )->add_chart_booking(
-         chart  => $is_sales ? $credit : $debit,
+         chart  => $debit_state ? $credit : $debit,
          credit => abs($skonto_taxamount_rounded),
          source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
          memo   => $params{memo},

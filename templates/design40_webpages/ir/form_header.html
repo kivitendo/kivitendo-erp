@@ -215,12 +215,12 @@
         <th class="caption">[% 'Notes' | $T8 %]</th>
       </tr>
       <tr>
-        <td class="wi-wider">[% L.textarea_tag("notes", notes, wrap="soft", style="height:150px", class="texteditor wi-wider") %]</td>
+        <td class="wi-wider">[% L.textarea_tag("notes", notes, style="height:150px", class="texteditor wi-wider") %]</td>
       </tr>
       <tr>
         <td>
           <span class="label-above">[% 'Internal Notes' | $T8 %]</span>
-          [% L.textarea_tag("intnotes", intnotes, wrap="soft", class="wi-wider", style="width: 350px; height: 150px") %]
+          [% L.textarea_tag("intnotes", intnotes, class="wi-wider") %]
         </td>
       </tr>
       [% IF id && follow_ups.size %]

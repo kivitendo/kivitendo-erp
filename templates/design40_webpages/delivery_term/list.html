@@ -9,11 +9,11 @@
 <form method="post" action="controller.pl" id="form">
 <div class="wrapper">
 
-  [% IF !DELIVERY_TERMS.size %] 
+  [% IF !DELIVERY_TERMS.size %]
   <p>
-    [%- 'No delivery term has been created yet.' | $T8 %] 
+    [%- 'No delivery term has been created yet.' | $T8 %]
   </p>
-  [%- ELSE %] 
+  [%- ELSE %]
   <table id="delivery_term_list" class="tbl-list wi-moderate">
     <thead>
       <tr>
@@ -23,16 +23,16 @@
       </tr>
     </thead>
     <tbody>
-      [%- FOREACH delivery_term = DELIVERY_TERMS %] 
+      [%- FOREACH delivery_term = DELIVERY_TERMS %]
       <tr id="delivery_term_id_[% delivery_term.id %]">
-        <td class="center" class="dragdrop"> <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"> </td>
+        <td class="center dragdrop"> <img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"> </td>
         <td> <a href="[% SELF.url_for(action => 'edit', id => delivery_term.id) %]"> [%- HTML.escape(delivery_term.description) %] </a> </td>
         <td> [%- HTML.escape(delivery_term.description_long) %] </td>
       </tr>
-      [%- END %] 
+      [%- END %]
     </tbody>
   </table>
-  [%- END %] 
+  [%- END %]
 </div>
 </form>
 

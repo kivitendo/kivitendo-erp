@@ -50,6 +50,7 @@ sub check_objects {
     $self->check_currency($entry, take_default => 1);
     $self->join_purposes($entry);
     $self->join_remote_names($entry);
+    $self->extract_end_to_end_id($entry);
     $self->check_existing($entry) unless @{ $entry->{errors} };
   } continue {
     $i++;
@@ -57,6 +58,7 @@ sub check_objects {
 
   $self->add_info_columns({ header => $::locale->text('Bank account'), method => 'local_bank_name' });
   $self->add_raw_data_columns("currency", "currency_id") if grep { /^currency(?:_id)?$/ } @{ $self->csv->header };
+  $self->add_info_columns({ header => $::locale->text('End to end ID'), method => 'end_to_end_id' });
 }
 
 sub check_existing {
@@ -76,7 +78,16 @@ sub check_existing {
     # * amount
     # * local_bank_account_id (case flatrate bank charges for two accounts in one bank: same purpose, transdate, remote_account_number(empty), amount. Just different local_bank_account_id)
     my $num;
-    if ( $num = SL::DB::Manager::BankTransaction->get_all_count(query =>[ remote_account_number => $object->remote_account_number, transdate => $object->transdate, purpose => $object->purpose, amount => $object->amount, local_bank_account_id => $object->local_bank_account_id] ) ) {
+
+    my @conditions;
+
+    if ($object->end_to_end_id && $::instance_conf->get_check_bt_duplicates_endtoend) {
+      push @conditions, ( end_to_end_id => $object->end_to_end_id );
+    } else {
+      push @conditions, ( purpose => $object->purpose );
+    }
+
+    if ( $num = SL::DB::Manager::BankTransaction->get_all_count(query =>[ remote_account_number => $object->remote_account_number, transdate => $object->transdate, amount => $object->amount, local_bank_account_id => $object->local_bank_account_id, @conditions] ) ) {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing bank transaction in database'));
     };
   } else {
@@ -201,6 +212,19 @@ sub join_remote_names {
   my $remote_name = join(' ', $entry->{raw_data}->{remote_name},
                              $entry->{raw_data}->{remote_name_1} );
   $object->remote_name($remote_name);
+}
+
+sub extract_end_to_end_id {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  return if $object->purpose !~ m{\b(?:end\W?to\W?end:|eref\+) *([^ ]+)}i;
+
+  my $id = $1;
+
+  $object->end_to_end_id($id) if $id !~ m{notprovided}i;
+  $entry->{info_data}->{end_to_end_id} = $object->end_to_end_id;
 }
 
 sub check_auth {

@@ -3,6 +3,7 @@
   id: custom_data_export
   name: Custom report
   order: 9000
+  access: custom_data_report
   params:
     action: CustomDataExport/list
 - parent: system

@@ -614,6 +614,10 @@ sub ar_transactions {
     $where .= " AND a.taxzone_id = ?";
     push(@values, $form->{taxzone_id});
   }
+  if ($form->{department_id}) {
+    $where .= " AND a.department_id = ?";
+    push(@values, $form->{department_id});
+  }
   if ($form->{payment_id}) {
     $where .= " AND a.payment_id = ?";
     push(@values, $form->{payment_id});
@@ -626,7 +630,7 @@ sub ar_transactions {
   }
   if ($form->{"project_id"}) {
     $where .=
-      qq|AND ((a.globalproject_id = ?) OR EXISTS | .
+      qq| AND ((a.globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM invoice i | .
       qq|   WHERE i.project_id = ? AND i.trans_id = a.id) | .
       qq| OR EXISTS | .

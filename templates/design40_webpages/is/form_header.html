@@ -11,7 +11,7 @@
 
 <h1>
   [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
-  [% title %]
+  [% title %] [% invnumber %]
 </h1>
 
 <form method="post" id='form' name="invoice" action="[% script %]">
@@ -291,13 +291,13 @@
     </tr>
     <tr>
       <td class="wi-wide">
-        [% L.textarea_tag("notes", notes, wrap="soft", class="wi-wide texteditor", style="height:84px;") %]
+        [% L.textarea_tag("notes", notes, class="wi-wide texteditor") %]
       </td>
     </tr>
      <tr>
       <th>
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag("intnotes", intnotes, wrap="soft", class="wi-wide") %]
+        [% L.textarea_tag("intnotes", intnotes, class="wi-wide") %]
       </th>
     </tr>
   </tbody>

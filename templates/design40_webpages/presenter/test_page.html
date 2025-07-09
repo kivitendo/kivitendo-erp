@@ -22,4 +22,19 @@
                             dialog_defaults => defaults.dialog) %]
   <pre>presets: '1.2.2022', '3.4.2022', dialog: '2022', 'monthly', 'B', '6'</pre>
 
+
+  <h3>Context Help</h3>
+
+  [% P.context_help_tag("simple tooltip") %]<br>
+  Simple Text.[% P.context_help_tag("this is a context help") %]<br>
+  [% L.input_tag %][% P.context_help_tag("this is a context help") %]
+
+  <div style='font-size:30px'>
+  [% P.context_help_tag("simple tooltip in font size 30") %]<br>
+  Simple Text.[% P.context_help_tag("this is a context help with font size 30") %]
+  </div>
+
+  [% P.context_help_tag("<h1>tooltip html</h1><p>with content</p>", html=1) %]<br>
+  [% L.input_tag %][% P.context_help_tag("<h1>tooltip html</h1><p>with content</p>", html=1) %]
+
 </div>

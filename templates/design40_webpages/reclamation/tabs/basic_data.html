@@ -182,10 +182,9 @@
         </td>
       </tr>
 
-      <tr id="taxincluded_row_id" >
-        <th>[%- IF !SELF.taxes.size %]<label for="reclamation.taxincluded">[% 'Tax Included' | $T8 %]</label>[%- END %]</th>
-        <td>[%- IF !SELF.taxes.size %][% L.yes_no_tag('reclamation.taxincluded', SELF.reclamation.taxincluded, class='recalc') %][%- END %]
-        </td>
+      <tr id="taxincluded_row_id" [%- IF !SELF.taxes.size %]class="hidden"[% END %]>
+        <th><label for="reclamation.taxincluded">[% 'Tax Included' | $T8 %]</label></th>
+        <td>[% L.yes_no_tag('reclamation.taxincluded', SELF.reclamation.taxincluded, class='recalc') %]</td>
       </tr>
 
     </tbody>
@@ -199,13 +198,13 @@
   <tbody>
     <tr>
       <td class="wi-wide">
-        [% L.textarea_tag('reclamation.notes', SELF.reclamation.notes, wrap="soft", style="width: 350px; height: 150px", class="texteditor wi-wide") %]
+        [% L.textarea_tag('reclamation.notes', SELF.reclamation.notes, style="width: 350px; height: 150px", class="texteditor wi-wide") %]
       </td>
     </tr>
     <tr>
       <td>
         <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-        [% L.textarea_tag('reclamation.intnotes', SELF.reclamation.intnotes, wrap="soft", style="height: 150px", class="wi-wide") %]
+        [% L.textarea_tag('reclamation.intnotes', SELF.reclamation.intnotes, class="wi-wide") %]
       </td>
     </tr>
 
@@ -275,12 +274,12 @@
 
     <tr>
       <th>[% 'Tax point' | $T8 %]</th>
-      <td>[% L.date_tag('reclamation.tax_point_as_date', SELF.reclamation.tax_point_as_date, class="recalc", class='wi-date') %]</td>
+      <td>[% L.date_tag('reclamation.tax_point_as_date', SELF.reclamation.tax_point_as_date, class='recalc wi-date') %]</td>
     </tr>
 
     <tr>
       <th>[% 'Deadline' | $T8 %]</th>
-      <td>[% L.date_tag('reclamation.reqdate_as_date', SELF.reclamation.reqdate_as_date, class="recalc", class='wi-date') %]</td>
+      <td>[% L.date_tag('reclamation.reqdate_as_date', SELF.reclamation.reqdate_as_date, class='recalc wi-date') %]</td>
     </tr>
 
     <tr>

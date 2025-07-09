@@ -514,7 +514,7 @@ sub setup_is_action_bar {
                     : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                                              undef,
-          only_if  => $form->{type} eq "invoice_for_advance_payment",
+          only_if  => ($form->{type} eq "invoice_for_advance_payment" && $::instance_conf->get_show_invoice_for_advance_payment),
         ],
         action => [
           t8('Final Invoice'),
@@ -526,7 +526,7 @@ sub setup_is_action_bar {
                     : $has_final_invoice                         ? t8('This invoice has already a final invoice.')
                     : $is_invoice_for_advance_payment_from_order ? t8('This invoice was added from an order. See there.')
                     :                                              undef,
-          only_if  => $form->{type} eq "invoice_for_advance_payment",
+          only_if  => ($form->{type} eq "invoice_for_advance_payment" && $::instance_conf->get_show_invoice_for_advance_payment),
         ],
         action => [
           t8('Credit Note'),
@@ -548,7 +548,7 @@ sub setup_is_action_bar {
           t8('Reclamation'),
           submit   => ['#form', { action => "sales_reclamation" }], # can't call Reclamation directly
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-          only_if   => ($::form->{type} eq 'invoice' && !$::form->{storno}),
+          only_if  => ($::instance_conf->get_show_sales_reclamation && $::form->{type} eq 'invoice' && !$::form->{storno}),
         ],
       ], # end of combobox "Workflow"
 
@@ -644,6 +644,12 @@ sub form_header {
   $form->{salesman_id} ||= $current_employee->id;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
+
+  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
+    my $customer = SL::DB::Customer->load_cached($form->{customer_id});
+    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
+  }
+  $TMPL_VAR{taxincluded} = $form->{taxincluded};
 
   $form->get_lists("taxzones"      => ($form->{id} ? "ALL_TAXZONES" : "ALL_ACTIVE_TAXZONES"),
                    "currencies"    => "ALL_CURRENCIES",
@@ -784,11 +790,6 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
-    my $customer = SL::DB::Customer->load_cached($form->{customer_id});
-    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
-  }
-
   foreach my $item (@{ $form->{taxaccounts_array} }) {
     if ($form->{"${item}_base"}) {
       if ($form->{taxincluded}) {
@@ -915,7 +916,6 @@ sub update {
   my ($recursive_call) = @_;
 
   $form->{print_and_post} = 0         if $form->{second_run};
-  my $taxincluded         = $form->{taxincluded} ? "checked" : '';
   $form->{update} = 1;
 
   if (($form->{previous_customer_id} || $form->{customer_id}) != $form->{customer_id}) {
@@ -924,8 +924,6 @@ sub update {
     IS->get_customer(\%myconfig, $form);
     $::form->{billing_address_id} = $::form->{default_billing_address_id};
   }
-
-  $form->{taxincluded} ||= $taxincluded;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   if ($form->{defaultcurrency} ne $form->{currency}) {
