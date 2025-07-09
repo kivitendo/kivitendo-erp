@@ -345,7 +345,8 @@ sub action_download_attachment {
     $::form->error(t8('You do not have permission to access this entry.'));
   }
   my $ref = \$attachment->content;
-  if ( $attachment->file_id > 0 ) {
+  # hot hot fix don't offer some random version of this file if we have a real saved state in the email journal
+  if (!$ref && $attachment->file_id > 0 ) {
     my $file = SL::File->get(id => $attachment->file_id );
     $ref = $file->get_content if $file;
   }

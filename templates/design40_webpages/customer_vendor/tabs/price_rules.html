@@ -1,5 +1,6 @@
 [% USE T8 %]
 [% USE LxERP %]
+[% USE HTML %]
 [% USE L %]
 
 <div id="price_rules">
@@ -13,14 +14,14 @@
         kivi.CustomerVendor.inline_report(
           '#price_rules_customer_report', 
           'controller.pl', 
-          { action: 'PriceRule/list', 'filter.item_type_matches[].customer': [% SELF.cv.id %], 'filter.type': 'customer', inline: 1 }
+          { action: 'PriceRule/list', 'filter.item_type_matches[].customer': [% HTML.escape(SELF.cv.id) %], 'filter.type': 'customer', inline: 1 }
         );
       [% END %]
       [% IF SELF.is_vendor %]
         kivi.CustomerVendor.inline_report(
           '#price_rules_vendor_report', 
           'controller.pl', 
-          { action: 'PriceRule/list', 'filter.item_type_matches[].vendor': [% SELF.cv.id %], 'filter.type': 'vendor', inline: 1 }
+          { action: 'PriceRule/list', 'filter.item_type_matches[].vendor': [% HTML.escape(SELF.cv.id) %], 'filter.type': 'vendor', inline: 1 }
         );
       [% END %]
       }, 200);

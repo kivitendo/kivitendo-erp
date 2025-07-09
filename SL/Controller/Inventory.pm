@@ -1051,7 +1051,7 @@ stocked one or to take his counted quantity as the new stocked quantity.
 
 There is also a journal of stocktakings.
 
-Templates are located under C<templates/webpages/inventory/stocktaking>.
+Templates are located under C<templates/design40_webpages/inventory/stocktaking>.
 JavaScript functions can be found in C<js/kivi.Inventory.js>.
 
 =head1 FUNCTIONS

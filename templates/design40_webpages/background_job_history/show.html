@@ -34,17 +34,17 @@
     </tr>
     <tr>
       <th>[% LxERP.t8('Result') %]</th>
-      <td>[% HTML.escape(SELF.history.result) %]</td>
+      <td><pre class="pre-wrap">[% HTML.escape(SELF.history.result) %]</pre></td>
     </tr>
     <tr>
       <th>[% LxERP.t8('Error') %]</th>
-      <td>[% IF SELF.history.error_col %]<pre>[% HTML.escape(SELF.history.error_col) %]
+      <td>[% IF SELF.history.error_col %]<pre class="pre-wrap">[% HTML.escape(SELF.history.error_col) %]
       </pre>
       [% END %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8('Data') %]</th>
-      <td>[% IF SELF.history.data %]<pre>[% HTML.escape(SELF.history.data) %]
+      <td>[% IF SELF.history.data %]<pre class="pre-wrap">[% HTML.escape(SELF.history.data) %]
       </pre>
       [% END %]</td>
     </tr>

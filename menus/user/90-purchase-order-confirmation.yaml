@@ -1,9 +1,9 @@
 - parent: ap
-  id: ap_add_purchase_order_confirmation_experimental
+  id: ap_add_purchase_order_confirmation
   name: Add Purchase Order Confirmation
   icon: purchase_order_add
   order: 250
-  access: purchase_order_edit & client/feature_experimental_order & client/show_purchase_order_confirmation
+  access: purchase_order_edit & client/show_purchase_order_confirmation
   params:
     action: Order/add
     type: purchase_order_confirmation

@@ -523,7 +523,7 @@ sub check_missing_tax_bookings {
   # check tax bookings. all taxkey <> 0 should have tax bookings in acc_trans
 
   my $query = qq| select trans_id, chart.accno,transdate from acc_trans left join chart on (chart.id = acc_trans.chart_id)
-                    WHERE taxkey NOT IN (SELECT taxkey from tax where rate=0) AND trans_id NOT IN
+                    WHERE taxkey NOT IN (SELECT taxkey from tax where rate=0 OR reverse_charge_chart_id is not null) AND trans_id NOT IN
                     (select trans_id from acc_trans where chart_link ilike '%tax%' and trans_id IN
                     (SELECT trans_id from acc_trans where taxkey NOT IN (SELECT taxkey from tax where rate=0)))
                     AND transdate >= ? AND transdate <= ?|;

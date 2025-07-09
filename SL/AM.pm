@@ -57,6 +57,7 @@ use SL::Helper::UserPreferences::PositionsScrollbar;
 use SL::Helper::UserPreferences::PartPickerSearch;
 use SL::Helper::UserPreferences::TimeRecording;
 use SL::Helper::UserPreferences::UpdatePositions;
+use SL::Helper::UserPreferences::ItemInputPosition;
 
 use strict;
 
@@ -569,6 +570,10 @@ sub part_picker_search_all_as_list_default {
   SL::Helper::UserPreferences::PartPickerSearch->new()->get_all_as_list_default();
 }
 
+sub order_item_input_position {
+  SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position();
+}
+
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
@@ -617,6 +622,9 @@ sub save_preferences {
   }
   if (exists $form->{part_picker_search_all_as_list_default}) {
     SL::Helper::UserPreferences::PartPickerSearch->new()->store_all_as_list_default($form->{part_picker_search_all_as_list_default})
+  }
+  if (exists $form->{order_item_input_position}) {
+    SL::Helper::UserPreferences::ItemInputPosition->new()->store_order_item_input_position($form->{order_item_input_position})
   }
 
   $main::lxdebug->leave_sub();

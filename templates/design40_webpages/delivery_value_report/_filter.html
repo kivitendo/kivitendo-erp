@@ -53,9 +53,9 @@
 </table>
 
 <table class="tbl-horizontal">
-	<caption>[% 'Article' | $T8 %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
-	<tbody>
+  <caption>[% 'Article' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
     <tr>
       <th>[% 'Part Number' | $T8 %]</th>
       <td>[% L.input_tag('filter.part.partnumber:substr::ilike', filter.part.partnumber_substr__ilike, class='wi-normal') %]</td>
@@ -74,18 +74,16 @@
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.part,     value='part',     label=LxERP.t8('Part')) %]
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.service,  value='service',  label=LxERP.t8('Service')) %]
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assembly, value='assembly', label=LxERP.t8('Assembly')) %]
-       [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
-         [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
-       [% END %]
+       [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
      </td>
     </tr>
-	</tbody>
+  </tbody>
 </table>
 
 <table class="tbl-horizontal">
-	<caption>[% 'Handling & Dates' | $T8 %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
-	<tbody>
+  <caption>[% 'Handling & Dates' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
     <tr>
       <th>[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
       <td class="wi-date">[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
@@ -105,7 +103,7 @@
                        class      => 'wi-lightwide') %]
      </td>
     </tr>
-	</tbody>
+  </tbody>
 </table>
 
 <div class="buttons">

@@ -185,6 +185,7 @@ namespace("kivi").setupLocale({
 "There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?":"Einige der Lagerbewegungen sind nicht vollständig und Lagerbewegungen können nachträglich nicht mehr verändert werden. Möchten Sie wirklich fortfahren?",
 "There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"Es gibt einen oder mehrere Abschnitte ohne Artikelzuweisung; daher kann der neue Beleg noch nicht erstellt werden.",
 "This field must not be empty.":"Dieses Feld darf nicht leer sein.",
+"This object has not been saved yet.":"Das Objekt wurde noch nicht gespeichert.",
 "This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?":"Dieser Auftrag besitzt eine aktive Konfiguration für wiederkehrende Rechnungen. Wenn Sie jetzt speichern, so werden alle zukünftig hieraus erzeugten Rechnungen die Änderungen enthalten, nicht aber die bereits erzeugten Rechnungen. Möchten Sie speichern?",
 "This vendor has already a booking with this invoice number, do you really want to add the same invoice number again?":"Es gibt für diesen Lieferant schon einen Beleg mit dieser Rechnungsnummer. Möchten Sie wirklich eine weitere Buchung mit derselben Rechnungsnummer hinzufügen?",
 "Thu":"Do",

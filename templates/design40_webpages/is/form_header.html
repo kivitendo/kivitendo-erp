@@ -11,7 +11,7 @@
 
 <h1>
   [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
-  [% title %]
+  [% title %] [% invnumber %]
 </h1>
 
 <form method="post" id='form' name="invoice" action="[% script %]">

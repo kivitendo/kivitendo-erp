@@ -24,6 +24,7 @@ my @mappings = (
   [ 'MIN', qr{^min(?:ute)?$}i ],
   [ 'HUR', qr{^(?:h(?:our)?|std(?:unde)?)$}i ],
   [ 'DAY', qr{^(?:day|tag)$}i ],
+  [ 'WEE', qr{^(?:week|woche)$}i ],
   [ 'MON', qr{^mon(?:th|at|atlich)?$}i ],
   [ 'QAN', qr{^quart(?:er|al|alsweise)?$}i ],
   [ 'ANN', qr{^(?:yearly|annually|jährlich|Jahr)?$}i ],
@@ -38,6 +39,17 @@ my @mappings = (
   [ 'MLT', qr{^(?:ml|milli *liter|milli *litre)$}i ],
   [ 'LTR', qr{^(?:l|liter|litre)$}i ],
 
+  # digital information
+  [ 'C37', qr{^(?:kbit|kilobit?)$}i ],
+  [ 'D36', qr{^(?:mbit|megabit?)$}i ],
+  [ 'B68', qr{^(?:gbit|gigabit?)$}i ],
+  [ 'AD', qr{^(?:b|byte)$}i ],
+  [ '2P', qr{^(?:kb|kilobyte)$}i ],
+  [ '4L', qr{^(?:mb|megabyte)$}i ],
+  [ 'E34', qr{^(?:gb|gigabyte)$}i ],
+  [ 'E35', qr{^(?:tb|terabyte)$}i ],
+  [ 'E36', qr{^(?:pb|petabyte)$}i ],
+  
   # miscellaneous
   [ 'C62', qr{^(?:stck|stück|pieces?|pc|psch|pauschal|licenses?|lizenz(?:en)?)$}i ],
 );
