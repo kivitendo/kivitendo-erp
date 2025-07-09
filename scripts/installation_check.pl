@@ -13,11 +13,11 @@ BEGIN {
 
 use strict;
 use Getopt::Long;
-use List::MoreUtils qw(uniq);
 use Pod::Usage;
 use Term::ANSIColor;
 use Text::Wrap;
 
+my $exit_code = 0;
 unless (eval { require Config::Std; 1 }){
   print STDERR <<EOL ;
 +------------------------------------------------------------------------------+
@@ -35,8 +35,29 @@ unless (eval { require Config::Std; 1 }){
 +------------------------------------------------------------------------------+
 EOL
 
-  exit 72;
+  $exit_code = 72;
 }
+
+
+unless (eval { require List::MoreUtils; 1 }){
+  print STDERR <<EOL ;
++------------------------------------------------------------------------------+
+  Perl Modul List::MoreUtils could not be loaded.
+
+  Debian: you may install the needed *.deb package with:
+    apt install liblist-moreutils-perl
+
+  Red Hat/Fedora/CentOS: you may install the needed *.rpm package with:
+    dnf install perl-List-MoreUtils
+
+
++------------------------------------------------------------------------------+
+EOL
+
+  $exit_code = 72;
+}
+
+exit $exit_code if $exit_code;
 
 use SL::InstallationCheck;
 use SL::LxOfficeConf;
@@ -149,24 +170,9 @@ sub check_latex {
   # no pdfx -> no zugferd possible
   my $ret = kpsewhich('template/print/', 'sty', 'pdfx');
   die "Cannot use pdfx. Please install this package first (debian: apt install texlive-latex-extra)"  if $ret;
-  # check version 2018
-  my $latex = $::lx_office_conf{applications}->{latex} || 'pdflatex';
-  my $pdfx = (system ${latex} . ' --interaction=batchmode "\documentclass{minimal} \RequirePackage{pdfx} \csname @ifpackagelater\endcsname{pdfx}{2018/12/22}{}{\show\relax} \begin{document} \end{document}"');
-
-  print_result ("Looking for pdfx version 2018 or higher", !$pdfx);
-  push @missing_modules, \(name => 'pdfx') if $pdfx;
-
   if ($res) {
     check_template_dir($_) for SL::InstallationCheck::template_dirs($master_templates);
   }
-  print STDERR <<EOL if $pdfx;
-+------------------------------------------------------------------------------+
-  Your pdfx version is too old. You cannot use ZuGFeRD or modern (2018+)
-  templates. Please consider using a more recent LaTeX environment.
-  Verify with:
-  pdflatex --interaction=batchmode "\\RequirePackage{pdfx}[2018/12/22]"
-+------------------------------------------------------------------------------+
-EOL
 }
 
 sub check_template_dir {
@@ -176,7 +182,7 @@ sub check_template_dir {
   print_header("Checking LaTeX Dependencies for Master Templates '$dir'");
   kpsewhich($path, 'cls', $_) for SL::InstallationCheck::classes_from_latex($path, '\documentclass');
 
-  my @sty = sort { $a cmp $b } uniq (
+  my @sty = sort { $a cmp $b } List::MoreUtils::uniq (
     SL::InstallationCheck::classes_from_latex($path, '\usepackage'),
     qw(textcomp ulem embedfile)
   );

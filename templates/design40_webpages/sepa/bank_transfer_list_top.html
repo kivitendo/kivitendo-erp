@@ -1,1 +1,9 @@
+[%- USE LxERP -%][%- USE L -%]
 <form action="sepa.pl" method="post" id="form">
+  [% IF show_buttons %]
+
+    <p>
+      [% LxERP.t8("SEPA XML version") %]:
+      [% L.select_tag('sepa_xml_version', sepa_versions.versions, title_key='description', selected=sepa_versions.default) %]
+    </p>
+  [% END %]

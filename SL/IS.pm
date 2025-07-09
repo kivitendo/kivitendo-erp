@@ -628,9 +628,17 @@ sub invoice_details {
 
   # set variables for swiss QR bill, if feature enabled
   # handling errors gracefully (don't die if undef)
+  my $create_qrbill_invoices = $::instance_conf->get_create_qrbill_invoices;
   if ($::instance_conf->get_create_qrbill_invoices && $form->{formname} eq 'invoice') {
     my ($qr_account, $error) = get_qrbill_account();
-    $form->{qrbill_iban} = $qr_account->{iban};
+
+    # case 1: QR-Reference number and QR-IBAN
+    # case 2: without reference number and regular IBAN
+    if ($create_qrbill_invoices == 1) {
+      $form->{qrbill_iban} = $qr_account->{qr_iban};
+    } elsif ($create_qrbill_invoices == 2) {
+      $form->{qrbill_iban} = $qr_account->{iban};
+    }
 
     my $biller_country = $::instance_conf->get_address_country() || 'CH';
     my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
@@ -1178,6 +1186,8 @@ SQL
           }
           # no tax, no prob
           if ($tax and $tax->rate != 0) {
+            die "Need a valid chart id for table defaults column advance_payment_taxable_7"  if $tax->taxkey == 2 && ! $::instance_conf->get_advance_payment_taxable_7_id;
+            die "Need a valid chart id for table defaults column advance_payment_taxable_19" if $tax->taxkey == 3 && ! $::instance_conf->get_advance_payment_taxable_19_id;
             my $transfer_chart = $tax->taxkey == 2 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_7_id)->load
                               :  $tax->taxkey == 3 ? SL::DB::Chart->new(id => $::instance_conf->get_advance_payment_taxable_19_id)->load
                               :  undef;

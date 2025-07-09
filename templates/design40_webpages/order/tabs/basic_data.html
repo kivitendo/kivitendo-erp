@@ -169,9 +169,9 @@
                             class = 'wi-mediumsmall-lightwide') %]
         </td>
       </tr>
-      <tr id="taxincluded_row_id">
-        <th>[% IF !SELF.taxes.size %]<label for="order.taxincluded">[% 'Tax Included' | $T8 %]</label> [% END %]</th>
-        <td>[% IF !SELF.taxes.size %][% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %][% END %]</td>
+      <tr id="taxincluded_row_id" [% IF !SELF.taxes.size %]class="hidden"[% END %]>
+        <th><label for="order.taxincluded">[% 'Tax Included' | $T8 %]</label></th>
+        <td>[% L.yes_no_tag('order.taxincluded', SELF.order.taxincluded, class='recalc') %]</td>
       </tr>
       [% IF SELF.type == "sales_order" %]
         <tr>
@@ -195,10 +195,10 @@
   <colgroup><col class="wi-wide"></colgroup>
   <tbody>
     <tr>
-      <td class="wi-wide">[% L.textarea_tag('order.notes', SELF.order.notes, wrap="soft",rows=7, class="texteditor wi-wide") %]</td>
+      <td class="wi-wide">[% L.textarea_tag('order.notes', SELF.order.notes, rows=7, class="texteditor wi-wide") %]</td>
     </tr>
     <tr>
-      <td><span class="label above">[% 'Internal Notes' | $T8 %]</span>[% L.textarea_tag('order.intnotes', SELF.order.intnotes, wrap="soft", style="height: 150px", class="wi-wide") %]</td>
+      <td><span class="label above">[% 'Internal Notes' | $T8 %]</span>[% L.textarea_tag('order.intnotes', SELF.order.intnotes, class="wi-wide") %]</td>
     </tr>
   </tbody>
 </table>
@@ -355,7 +355,9 @@
 
 </div><!-- /.wrapper -->
 
-[% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- IF order_item_input_position == 0 -%]
+  [% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- END -%]
 
 [%- IF SELF.positions_scrollbar_height -%]
   [%- SET scroll_style = 'style="overflow-y: auto; height:' _ SELF.positions_scrollbar_height _ 'vh;"' -%]
@@ -370,9 +372,9 @@
     <tr>
       <th class="center">
         [% IF MYCONFIG.show_form_details %]
-          [% L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', "data-expanded"="1") %]
+          [% L.img_tag(src="image/collapse.svg", alt=LxERP.t8('Hide all details'), title=LxERP.t8('Hide all details'), id='expand_all', class='row-icon', "data-expanded"="1") %]
         [% ELSE %]
-          [% L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all') %]
+          [% L.img_tag(src="image/expand.svg", alt=LxERP.t8('Show all details'), title=LxERP.t8('Show all details'), id='expand_all', class='row-icon') %]
         [% END %]
       </th>
       <th>[% 'position'     | $T8 %] </th>
@@ -384,8 +386,7 @@
                       alt=LxERP.t8('Update from master data'),
                       title= LxERP.t8('Update from master data'),
                       onclick="if (!confirm('" _ LxERP.t8("Are you sure to update all positions from master data?") _ "')) return false; kivi.Order.update_all_rows_from_master_data();",
-                      id='update_from_master',
-                      class='expand') %]
+                      id='update_from_master', class='row-icon') %]
       </th>
       [%- END %]
       <th id="partnumber_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("partnumber")'> [% 'Partnumber'  | $T8 %]</a></th>
@@ -409,7 +410,11 @@
   [% FOREACH item = SELF.order.items_sorted %]
     [% PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
-  <tfoot>
+  <tfoot id="row_table_footer">
+    [%- IF order_item_input_position == 1 -%]
+      [% PROCESS order/tabs/_item_below_input.html SELF=SELF %]
+    [%- END -%]
+
     [% IF (SELF.type == "sales_quotation") || (SELF.type == "request_quotation")  || (SELF.type == "purchase_quotation_intake") %]
       [% SET add_col = 0 %]
     [% ELSE %]
@@ -448,6 +453,9 @@
     </tr>
   </tfoot>
 </table>
+[% IF order_item_input_position == 1 %]
+  [% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
+[%- END -%]
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
 

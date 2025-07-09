@@ -18,7 +18,7 @@ sub available_discounts {
 
   return if     $self->record->is_sales;
   return unless $self->record->vendor;
-  return unless $self->record->vendor->discount != 0;
+  return unless ($self->record->vendor->discount//0) != 0;
 
   SL::PriceSource::Discount->new(
     discount     => $self->record->vendor->discount,
@@ -78,4 +78,3 @@ sub best_discount {
 }
 
 1;
-

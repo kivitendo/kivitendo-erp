@@ -44,6 +44,13 @@ sub part_picker {
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'part_autocomplete';
 
+  # If there is no 'onClick' parameter, set it to 'this.select()',
+  # so that the user can type directly in the input field
+  # to search another part.
+  if (!grep { m{onclick}i } keys %params) {
+    $params{onClick} = 'this.select()';
+  }
+
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-part-picker-data' => JSON::to_json(\%params),

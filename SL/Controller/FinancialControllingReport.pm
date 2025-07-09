@@ -16,7 +16,7 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(project_types models) ],
 );
 
-__PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
+__PACKAGE__->run_before(sub { $::auth->assert('sales_financial_controlling'); });
 
 my %sort_columns = (
   ordnumber               => t8('Order'),
@@ -278,12 +278,7 @@ sub link_to {
   if ($object->isa('SL::DB::Order')) {
     my $type = $object->type;
     my $id   = $object->id;
-
-    if ($::instance_conf->get_feature_experimental_order) {
-      return "controller.pl?action=Order/$action&type=$type&id=$id";
-    } else {
-      return "oe.pl?action=$action&type=$type&vc=customer&id=$id";
-    }
+    return "controller.pl?action=Order/$action&type=$type&id=$id";
   }
   if ($object->isa('SL::DB::Customer')) {
     my $id     = $object->id;

@@ -316,7 +316,7 @@ sub _send_summary_email {
   return unless $template;
 
   my $email_template = $config{periodic_invoices}->{email_template};
-  my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/webpages") . "/oe/periodic_invoices_email.txt" );
+  my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/design40_webpages") . "/oe/periodic_invoices_email.txt" );
   my %params         = map { (uc($_) => $self->{$_}) } qw(posted_invoices printed_invoices printed_failed emailed_invoices emailed_failed disabled_orders);
 
   my $output;

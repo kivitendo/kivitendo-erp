@@ -30,7 +30,7 @@ __PACKAGE__->run_before('check_auth');
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_price_sources h_unit_name available_quick_search_modules
                                   all_project_statuses all_project_types zugferd_settings
-                                  posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options
+                                  posting_options payment_options accounting_options inventory_options profit_options balance_startdate_method_options yearend_options
                                   displayable_name_specs_by_module available_documents_with_no_positions) ],
 );
 
@@ -208,6 +208,11 @@ sub init_balance_startdate_method_options {
   return SL::DB::Helper::AccountingPeriod::get_balance_startdate_method_options;
 }
 
+sub init_yearend_options {
+  [ { title => t8("default"),         value => "default"   },
+    { title => t8("simple"),          value => "simple"    }, ]
+}
+
 sub init_all_price_sources {
   my @classes = SL::PriceSource::ALL->all_price_sources;
 
@@ -236,8 +241,6 @@ sub init_displayable_name_specs_by_module {
 }
 
 sub init_available_documents_with_no_positions {
-  return [] if !$::instance_conf->get_feature_experimental_order;
-
   my @docs = ( @{SL::DB::Order::TypeData::valid_types()},
                @{SL::DB::DeliveryOrder::TypeData::valid_types()},
                @{SL::DB::Reclamation::TypeData::valid_types()} );

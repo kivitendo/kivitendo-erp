@@ -25,11 +25,11 @@ use constant RES_ERR_FILE_OPEN => -1;
 use constant RES_ERR_NO_ATTACHMENT => -2;
 
 our @customer_settings = (
-  [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                    ],
-  [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\'')             ],
-  [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.0.05/ZUGFeRD 2.1.1 extended\' (test mode)') ],
-  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                    ],
-  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                        ],
+  [ 0,                                  t8('Do not create Factur-X/ZUGFeRD invoices')                                   ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 1, t8('Create with profile \'Factur-X 1.01.06/ZUGFeRD 2.2 extended\'')             ],
+  [ PROFILE_FACTURX_EXTENDED() * 2 + 2, t8('Create with profile \'Factur-X 1.01.06/ZUGFeRD 2.2 extended\' (test mode)') ],
+  [ PROFILE_XRECHNUNG()        * 2 + 1, t8('Create with profile \'XRechnung 2.0.0\'')                                   ],
+  [ PROFILE_XRECHNUNG()        * 2 + 2, t8('Create with profile \'XRechnung 2.0.0\' (test mode)')                       ],
 );
 
 sub convert_customer_setting {
@@ -89,7 +89,7 @@ sub _extract_zugferd_invoice_xml {
   while (@agenda) {
     my $item = shift @agenda;
 
-    if ($item->{Kids}) {
+    if ($item->realise->{Kids}) {
       my @kids = $item->{Kids}->realise->elements;
       push @agenda, @kids;
 
@@ -109,7 +109,7 @@ sub _extract_zugferd_invoice_xml {
 
         # Caveat: this will only ever catch the first attachment looking like
         #         an XML invoice.
-        if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
+        if ( $parser->{result} == SL::XMLInvoice::RES_OK ){
           return $parser;
         } else {
           push @res, t8(
@@ -158,7 +158,7 @@ sub extract_from_pdf {
   if (!defined $xmp) {
       push @warnings, $::locale->text('The file \'#1\' does not contain the required XMP meta data.', $file_name);
   } else {
-    my $dom = eval { XML::LibXML->load_xml(string => $xmp) };
+    my $dom = eval { XML::LibXML->load_xml(string => $xmp, expand_entities => 0) };
 
     push @warnings, $::locale->text('Parsing the XMP metadata failed.'), if !$dom;
 
@@ -225,7 +225,7 @@ sub extract_from_xml {
     message      => $invoice_xml->{message},
     metadata_xmp => undef,
     invoice_xml  => $invoice_xml,
-    warnings     => (),
+    warnings     => [],
   );
 
   return \%res;

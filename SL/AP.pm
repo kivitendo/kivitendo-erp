@@ -84,6 +84,7 @@ sub _post_transaction {
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
   $form->{taxincluded} = 0 unless $form->{taxincluded};
+  $form->{script}      = 'ap.pl' unless $form->{script};
 
   # make sure to have a id
   my ($query, $sth, @values);
@@ -412,7 +413,6 @@ sub _post_transaction {
 
       # update exchange rate record
       if (($form->{currency} ne $form->{defaultcurrency}) && !$exchangerate) {
-        $form->{script} = 'ap.pl';
         $form->update_exchangerate($dbh, $form->{currency},
                                    $form->{"datepaid_$i"},
                                    0, $form->{"exchangerate_$i"});
@@ -433,7 +433,7 @@ sub _post_transaction {
   }
 
   # hook for taxkey 94
-  $self->_reverse_charge($myconfig, $form);
+  $self->_reverse_charge($myconfig, $form) unless $payments_only;
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_ap_transaction) {
     my $datev = SL::DATEV->new(
@@ -554,7 +554,7 @@ sub ap_transactions {
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
-    qq|  a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
+    qq|  a.intnotes, a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, | .
@@ -661,6 +661,10 @@ sub ap_transactions {
   if ($form->{notes}) {
     $where .= " AND a.notes ILIKE ?";
     push(@values, like($form->{notes}));
+  }
+  if ($form->{intnotes}) {
+    $where .= " AND a.intnotes ILIKE ?";
+    push(@values, like($form->{intnotes}));
   }
   if ($form->{project_id}) {
     $where .=
@@ -773,7 +777,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone))) {
+  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone insertdate))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 

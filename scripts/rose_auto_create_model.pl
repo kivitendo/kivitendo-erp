@@ -495,7 +495,7 @@ sub drop_and_create_test_database {
     copies                   => '',
     menustyle                => 'v3',
     fax                      => '',
-    stylesheet               => 'lx-office-erp.css',
+    stylesheet               => 'design40.css',
     mandatory_departments    => 0,
     countrycode              => 'de',
   );

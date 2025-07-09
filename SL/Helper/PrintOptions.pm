@@ -70,13 +70,13 @@ sub get_print_options {
     ($form->{type} eq 'purchase_quotation_intake') ? (
       opthash("purchase_quotation_intake", $form->{PD}{purchase_quotation_intake},  $locale->text('Purchase Quotation Intake')),
     ) : undef,
-    ($form->{type} eq 'invoice') ? (
+    ($form->{type} eq 'invoice' && $form->{storno} && $form->{storno_id}) ? (
+      opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),
+    ) : undef,
+    ($form->{type} eq 'invoice' && !($form->{storno} && $form->{storno_id})) ? (
       opthash("invoice",             $form->{PD}{invoice},             $locale->text('Invoice')),
       opthash("proforma",            $form->{PD}{proforma},            $locale->text('Proforma Invoice')),
       opthash("invoice_copy",        $form->{PD}{invoice_copy},        $locale->text('Invoice Copy')),
-    ) : undef,
-    ($form->{type} eq 'invoice' && $form->{storno}) ? (
-      opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),
     ) : undef,
     ($form->{type} eq 'invoice_for_advance_payment') ? (
       opthash("invoice_for_advance_payment", $form->{PD}{invoice_for_advance_payment},      $locale->text('Invoice for Advance Payment')),

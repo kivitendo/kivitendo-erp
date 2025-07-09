@@ -30,7 +30,7 @@
   [%- FOREACH file = source.files %]
    <tr>
     [%- IF edit_attachments %]
-    <td>[%- P.M.checkbox_tag(checkname _ '[]', value=file.id _ '_' _ file.version, class=checkname, label=' ') %]</td>
+    <td>[%- P.M.checkbox_tag(checkname _ '[]', value=file.file_version.guid, class=checkname, label=' ') %]</td>
     [%- END %]
     <td>[% file.mtime_as_timestamp_s %][% L.hidden_tag("version[]", file.version) %]</td>
     <td><a href="controller.pl?action=File/download&id=[% file.id %][%- IF file.version %]&version=[%- file.version %][%- END %]">

@@ -29,6 +29,10 @@
   \renewcommand{\rechnung}{\schlussrechnung}
 <%end template_meta.formname == "final_invoice"%>
 
+<%if template_meta.formname == "storno_invoice"%>
+  \renewcommand{\rechnung}{\stornorechnung}
+<%end template_meta.formname == "storno_invoice"%>
+
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\rechnung}{<%invnumber%>}{<%invdate%>}
 
@@ -38,9 +42,17 @@
 \setkomavar{fromname}{<%employee_name%>}
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
+
+<%if template_meta.formname == "storno_invoice"%>%
+\setkomavar{title}{%
+  \rechung~ \nr ~<%invnumber%>%
+}
+<%else%>%
 \setkomavar{title}{%
   \rechnung~ \nr ~<%invnumber%>%
 }
+<%end template_meta.formname == "storno_invoice"%>%
+
 <%if ordnumber%>%
   \setkomavar*{myref}{\auftragsnummer}
   \setkomavar{myref}{<%ordnumber%>}
@@ -89,8 +101,8 @@
 \begin{letter}{%
   <%if billing_address_id%>%
     <%billing_address_name%> \strut\\%
-    <%if department_1%><%billing_address_department_1%>\\<%end if%>%
-    <%if department_2%><%billing_address_department_2%>\\<%end if%>%
+    <%if billing_address_department_1%><%billing_address_department_1%>\\<%end if%>%
+    <%if billing_address_department_2%><%billing_address_department_2%>\\<%end if%>%
     <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%me%>\strut\\%me%>\strut\\%me%>\strut\\%
     <%billing_address_street%>\strut\\%
     <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
@@ -110,7 +122,7 @@
   % Bei natürlichen Personen persönliche Anrede, sonst allgemeine Anrede.
   \opening{
     \Ifstr{<%cp_name%>}{}
-    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede}<%end if%>
+    {<%if natural_person%><%greeting%> <%name%>,<%else%>\anrede<%end if%>}
     {
       \Ifstr{<%cp_gender%>}{f}
       {\anredefrau}
@@ -153,7 +165,7 @@
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
-      \Ifstr{<%p_discount%>}{0}{}{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}%
+      \Ifstr{<%p_discount%>}{0}{}{{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}}%
       <%linetotal%>\tabularnewline%
     <%end number%>%
     }%
@@ -187,13 +199,15 @@
     \lieferungErfolgtAm ~<%deliverydate%>.
   }\\
 
-  <%if payment_terms%>%
-    \zahlung ~<%payment_terms%>\\
-  <%end payment_terms%>%
+  <%if template_meta.formname != "storno_invoice"%>%
+    <%if payment_terms%>%
+      \zahlung ~<%payment_terms%>\\
+    <%end payment_terms%>%
 
-  <%if delivery_term%>%
-    \lieferung ~<%delivery_term.description_long%>\\
-  <%end delivery_term%>%
+    <%if delivery_term%>%
+      \lieferung ~<%delivery_term.description_long%>\\
+    <%end delivery_term%>%
+  <%end template_meta.formname != "storno_invoice"%>%
 
   <%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>%
 

@@ -25,6 +25,7 @@ my @metasetups        = find_pms('SL/DB/MetaSetup');
 my %metasetup_content = map { ($_ => scalar(read_file("SL/DB/MetaSetup/$_"))) } @metasetups;
 my %db_content        = map { ($_ => scalar(read_file("SL/DB/$_")))           } @dbs;
 my $all_content       = read_file('SL/DB/Helper/ALL.pm');
+my $all_auth_content  = read_file('SL/DB/Helper/ALLAuth.pm');
 my $mapping_content   = read_file('SL/DB/Helper/Mappings.pm');
 
 sub test_db_has_metasetup {
@@ -45,6 +46,13 @@ sub test_db_included_in_all {
   foreach my $pm (@dbs) {
     my $base = basename($pm, '.pm');
     ok($all_content =~ m/\nuse\s+SL::DB::${base};/, "$pm has entry in SL::DB::Helper::ALL");
+  }
+}
+
+sub test_auth_db_included_in_all_auth {
+  foreach my $pm (grep { m{^Auth} } @dbs) {
+    my $base = basename($pm, '.pm');
+    ok($all_auth_content =~ m/\nuse\s+SL::DB::${base};/, "$pm has entry in SL::DB::Helper::ALLAuth");
   }
 }
 
@@ -88,6 +96,7 @@ sub test_db_contains_meta_initialize {
 test_db_has_metasetup();
 test_metasetup_has_db();
 test_db_included_in_all();
+test_auth_db_included_in_all_auth();
 test_use_in_all_exists_as_db();
 test_metasetup_has_table_to_class_mapping();
 test_db_contains_meta_initialize();

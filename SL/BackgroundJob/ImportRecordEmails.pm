@@ -12,14 +12,15 @@ use SL::Helper::EmailProcessing;
 use SL::Presenter::Tag qw(link_tag);
 use SL::Locale::String qw(t8);
 
-use Params::Validate qw(:all);
 use List::MoreUtils qw(any);
+use Params::Validate qw(:all);
+use Try::Tiny;
 
 sub sync_record_email_folder {
   my ($self, $config) = @_;
 
   my %imap_config;
-  foreach my $key (qw(enabled hostname port ssl username password base_folder)) {
+  foreach my $key (qw(enabled hostname port ssl username password)) {
     if (defined $config->{$key}) {
       $imap_config{$key} = $config->{$key};
     }
@@ -34,8 +35,15 @@ sub sync_record_email_folder {
     }
   );
   return "No emails to import." unless $email_import;
-
-  my $result = "Created email import with id " . $email_import->id . ".";
+  if ($config->{imported_imap_flag}) {
+    foreach my $email_journal (@{$email_import->email_journals}) {
+      $imap_client->set_flag_for_email(
+            email_journal => $email_journal,
+            flag          => $config->{imported_imap_flag},
+      );
+    }
+  }
+  my $result = "Created email import with id " . $email_import->id . " for ". scalar @{ $email_import->email_journals } . " emails.";
 
   if ($config->{process_imported_emails}) {
     my @function_names =
@@ -114,16 +122,13 @@ sub run {
   my ($self, $job_obj) = @_;
   $self->{job_obj} = $job_obj;
 
-  my $data = $job_obj->data_as_hash;
+  my $data;
 
-  my $record_type = $data->{record_type};
-  my $loaded_config = $::lx_office_conf{"record_emails_imap/record_type/$record_type"}
-    || $::lx_office_conf{record_emails_imap}
-    || {};
+  try {
+    $data = $job_obj->data_as_hash;
+  } catch { die t8("Invalid YAML Configuration for this job. Reason: malformed YAML Data: #1. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.", $_ ); };
 
-  # overwrite with background job data
-  $loaded_config->{$_} = $data->{$_} for keys %{$data};
-  my @config_params = %{$loaded_config};
+  my @config_params = %{$data};
 
   my %config = validate_with(
     params => \@config_params,
@@ -160,15 +165,17 @@ sub run {
       processed_imap_flag        => { type => SCALAR,   optional => 1, },
       not_processed_imap_flag    => { type => SCALAR,   optional => 1, },
       email_import_ids_to_delete => { type => ARRAYREF, optional => 1, },
+      imported_imap_flag         => { type => SCALAR,   optional => 1, },
       # email config
       hostname    => { type => SCALAR,  },
       port        => { type => SCALAR,  optional => 1},
-      ssl         => { type => BOOLEAN, },
+      ssl         => { type => BOOLEAN, default  => 1},
       username    => { type => SCALAR,  },
       password    => { type => SCALAR,  },
       base_folder => { type => SCALAR,  optional => 1},
+
     },
-    called => "data filed in Background Job or kivitendo.conf in [record_emails_imap] with type $record_type",
+    called => "YAML Configuration for this Background Job invalid. Please consult: Program -> Documentation -> HTML -> Configuration of Background-Jobs.",
   );
 
   my @results;
@@ -194,32 +201,87 @@ emails from a folder for records.
 
 =head1 SYNOPSIS
 
-This background job syncs emails from a folder for records. The emails are
-imported as email journals and can be processed with functions from
+This background job imports emails from an imap folder. The emails are
+imported into the email journal and can be processed with functions from
 SL::Helper::EmailProcessing.
 
 =head1 CONFIGURATION
 
-In kivitendo.conf the settings for the IMAP server can be specified. The
-default config is under [record_emails_imap]. The config for a specific record
-type is under [record_emails_imap/record_type/<record_type>]. The config for a
-specific record type overwrites the default config. The data fields can
-overwrite single configration values.
+The data field in the backgroundjob config contains all configuration values:
 
 =over 4
 
-=item record_type
+=item hostname
 
-The record type to set for each imported email journal. This is used to get
-a specific config under [record_emails_imap/record_type/<record_type>]. The
-default value is C<catch_all>
+required, hostname of IMAP server
+
+=item username
+
+required, login for IMAP server
+
+=item password
+
+required, password for login of IMAP server
+
+=item port
+
+optional Parameter IMAP port
 
 =item folder
 
-The folder to sync emails from. Sub folders are separated by a forward slash,
-e.g. 'INBOX/Archive'. Subfolders are not synced.
+required, The IMAP folder to import emails from. Sub folders are separated by a forward slash,
+e.g. 'INBOX/Archive'. Subfolders are not synced. Default is 'INBOX'.
+
+=item record_type
+
+optional, The record type to set for each imported email in the email journal.
+Default is catch-all. Valid types are the well-known types of kivitendo records, ie ar_transaction, ap_transaction
+
+=item process_imported_emails
+
+optional, more processing can be automatically done in the job.
+Valid actions are defined in SL::Helper::EmailProcessing.pm
+
+Take a look at currently supported actions with
+
+ perldoc SL/Helper/EmailProcessing.pm
+
+
+=item processed_imap_flag
+
+Optional, requires a valid value in process_imported_emails
+
+If process_imported_emails is set and the process is successfully
+executed this custom IMAP Flag is added to the processed email.
+
+=item not_processed_imap_flag
+
+Optional, requires a valid value in process_imported_emails
+
+If process_imported_emails is set and the process is NOT
+successfully executed this custom IMAP Flag is added
+to the processed email.
+
+=item imported_imap_flag
+
+Optional
+
+If the import is successfully executed this custom IMAP Flag
+is added to the imported email.
+
 
 =back
+
+=head1 YAML Configuration example with ZUGFeRD Processing
+
+    hostname: meinedomain.de
+    username: eingangsrechnung@meinedomain.de
+    password: secret
+    folder: INBOX/vollimport
+    record_type: ap_transaction
+    process_imported_emails: zugferd
+    processed_imap_flag: $Label8
+    not_processed_imap_flag: $Label1
 
 =head1 BUGS
 

@@ -252,14 +252,6 @@ Returns the configuration for storing documents in the corresponding WebDAV fold
 
 Returns the configuration for "vertreter"
 
-=item C<get_feature_experimental_assortment>
-
-Returns the configuration for experimental feature "assortment"
-
-=item C<get_feature_experimental_order>
-
-Returns the configuration for the experimental feature "order"
-
 =item C<get_parts_show_image>
 
 Returns the configuarion for show image in parts

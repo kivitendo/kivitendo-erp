@@ -2,6 +2,7 @@
 [% USE L %]
 [% USE HTML %]
 [% USE T8 %]
+[% USE P %]
 
 <div id="miscellaneous">
 
@@ -64,6 +65,13 @@
     <tr>
       <th> [% LxERP.t8("DUNS number") %] </th>
       <td> [% L.input_tag('defaults.duns', SELF.defaults.duns, class='wi-medium-small') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("GLN number") %] </th>
+      <td>
+        [% L.input_tag('defaults.gln', SELF.defaults.gln, class='wi-medium-small') %]
+        [% P.context_help_tag(LxERP.t8('Official GS1 GLN, to be used in ZUGFeRD exported invoices.')) %]
+      </td>
     </tr>
     </tbody>
   </table>

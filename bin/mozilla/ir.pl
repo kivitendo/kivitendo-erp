@@ -236,8 +236,9 @@ sub invoice_links {
     }
   }
   $form->{AP} = $form->{AP_1} unless $form->{id};
-  my ($chart_accno)      = split /--/, $form->{AP};
-  $form->{AP_chart_id} = $form->{id} ? SL::DB::Manager::Chart->find_by( accno => $chart_accno)->id : $::instance_conf->get_ap_chart_id || $form->{AP_links}->{AP}->[0]->{chart_id};
+  my ($chart_accno) = split /--/, $form->{AP}; # is empty if total is 0
+  $form->{AP_chart_id} = $form->{id} && $chart_accno ? SL::DB::Manager::Chart->find_by(accno => $chart_accno)->id
+                                                     : $::instance_conf->get_ap_chart_id || $form->{AP_links}->{AP}->[0]->{chart_id};
 
   $form->{locked} =
     ($form->datetonum($form->{invdate}, \%myconfig) <=
@@ -437,7 +438,7 @@ sub setup_ir_action_bar {
           t8('Reclamation'),
           submit   => ['#form', { action => "purchase_reclamation" }], # can't call Reclamation directly
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
-          only_if   => ($::form->{type} eq 'purchase_invoice')
+          only_if  => ($::instance_conf->get_show_purchase_reclamation && $::form->{type} eq 'purchase_invoice')
         ],
        ], # end of combobox "Workflow"
 

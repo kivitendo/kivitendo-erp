@@ -7,7 +7,7 @@
   <script type="text/javascript">
     var toggles_id = "#toggles" ; // container of the toggle buttons
     var wrapper = new Object() ;
-    $(document).ready(function(){
+    $( window ).on( "load", function() {
       if( $(toggles_id).parent().attr('class') == "wrapper" ) {
         wrapper = $(toggles_id).parent() ; // closest surrounding wrapper to toggle
         $(wrapper).addClass("toggled");

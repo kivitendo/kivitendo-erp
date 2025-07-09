@@ -352,11 +352,21 @@ namespace("kivi", function(ns) {
 
       // handle initial height
       const element = $element.get(0);
-      if (element.style.height)
+      if (element.style.height || element.rows)
         editor.editing.view.change((writer) => {
+          var height = element.style.height;
+
+          if (!height && element.rows) {
+            // ckeditor does not support height in rows, but ~30px is a good estimate.
+            // the correct way would be to either configure it, or to add a small dom
+            // element and get the line height at run-time, which is pretty overkill
+            // esp. since ckeditor itself has loads of spacing problems at high zoom
+            editor.editing.view.add
+            height = (element.rows * 30) + "px";
+          }
           writer.setStyle(
             "min-height",
-            element.style.height,
+            height,
             editor.editing.view.document.getRoot()
           );
         });

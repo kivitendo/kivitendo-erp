@@ -19,6 +19,10 @@
       <td>[% L.input_tag("object.iban", SELF.object.iban, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("IBAN")) %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('QR-IBAN (Swiss)') %]</th>
+      <td>[% L.input_tag("object.qr_iban", SELF.object.qr_iban, class='wi-wider') %]</td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8('Bank') %]</th>
       <td>[% L.input_tag("object.bank", SELF.object.bank, class='wi-wider') %]</td>
     </tr>
@@ -31,7 +35,7 @@
       <td>[% L.input_tag("object.bic", SELF.object.bic, class='wi-wider') %]</td>
     </tr>
     <tr>
-      <th>[% LxERP.t8('Bank code') %]</th>
+      <th>[% LxERP.t8('Bank code') %]/[% LxERP.t8('SWIFT') %]</th>
       <td>[% L.input_tag("object.bank_code", SELF.object.bank_code, class='wi-wider') %]</td>
     </tr>
     <tr>

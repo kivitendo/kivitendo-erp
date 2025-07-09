@@ -30,6 +30,8 @@
 //   - File Content
 //   - Expanded
 //   - Hidden Elements
+//   - Wrapping & text flow
+//   - Visibility, Height utility classes
 // - WRAPPER
 //   - Toggled Wrapper
 //   - Toggle buttons
@@ -423,29 +425,31 @@ pre.filecontent {
 }
 
 // -----------------------
-// Expanded
-// -----------------------
-// Pendent: wozu einmalig?
-// /templates/webpages/order/tabs/_row.html
-// /templates/webpages/order/tabs/basic_data.html
-// /js/kivi.Order.js
-#expand_all,
-.expand {
-    cursor: pointer;
-    display: block;
-    max-width: 16px;
-    max-height: 16px;
-}
-
-// -----------------------
 // Hidden Elements
 // -----------------------
 .hidden {
   display: none ;
 }
 
+// -----------------------
+// Wrapping & text flow
+// -----------------------
 
+// can be used to wrap text in a pre element
+.pre-wrap {
+  white-space: pre-wrap;
+}
 
+// -----------------------
+// Visibility, Height utility classes
+// -----------------------
+.overflow-visible {
+  overflow: visible;
+}
+
+.height-auto {
+  height: auto;
+}
 
 
 // --------------------------------------

@@ -277,7 +277,7 @@ sub init_pricegroups_by_id {
 }
 
 sub check_rights {
-  $::auth->assert('part_service_assembly_edit');
+  $::auth->assert('part_service_assembly_edit & part_service_assembly_edit_prices');
 }
 
 sub init_filter {

@@ -32,10 +32,8 @@
           <label for="l_service"> [% 'Service' | $T8 %] </label><br>
           <input name="l_assembly" id="l_assembly" type="checkbox" value="Y" checked>
           <label for="l_assembly"> [% 'Assembly' | $T8 %] </label><br>
-          [% IF INSTANCE_CONF.get_feature_experimental_assortment %]
-            <input name="l_assortment" id="l_assortment" type="checkbox" value="Y" checked>
-            <label for="l_assortment"> [% 'Assortment' | $T8 %] </label>
-          [% END %]
+          <input name="l_assortment" id="l_assortment" type="checkbox" value="Y" checked>
+          <label for="l_assortment"> [% 'Assortment' | $T8 %] </label>
         </td>
       </tr>
       <tr>
@@ -45,6 +43,10 @@
       <tr>
         <th>[% 'Part Description' | $T8 %]</th>
         <td>[% L.input_tag("description", "", class='initial_focus wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Notes' | $T8 %]</th>
+        <td>[% L.input_tag("notes", "", class='wi-lightwide') %]</td>
       </tr>
       <tr>
         <th>[% 'Part Classification' | $T8 %]</th>

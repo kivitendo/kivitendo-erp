@@ -181,6 +181,7 @@ sub new_from {
   my %allowed_sources = map { $_ => 1 } qw(
     SL::DB::Reclamation
     SL::DB::Order
+    SL::DB::DeliveryOrder
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -251,6 +252,37 @@ sub new_from {
     $record_args{cp_id} = $source->contact_id;
     $record_args{cusordnumber} = $source->cv_record_number;
     $record_args{is_sales} = $source->is_sales;
+    # }}} for vim folds
+  } elsif ( ref($source) eq 'SL::DB::DeliveryOrder' ) {
+    map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
+    qw(
+      billing_address_id
+      cp_id
+      currency_id
+      cusordnumber
+      customer_id
+      delivery_term_id
+      department_id
+      donumber
+      globalproject_id
+      intnotes
+      language_id
+      notes
+      ordnumber
+      oreqnumber
+      payment_id
+      reqdate
+      salesman_id
+      shippingpoint
+      shipto_id
+      shipvia
+      taxincluded
+      taxzone_id
+      transdate
+      transaction_description
+      vendor_confirmation_number
+      vendor_id
+    );
     # }}} for vim folds
   }
 

@@ -636,7 +636,7 @@ sub config {
   }
 
   $form->{STYLESHEETS} = [];
-  foreach my $item (qw(lx-office-erp.css kivitendo.css design40.css)) {
+  foreach my $item (qw(design40.css)) {
     push @{ $form->{STYLESHEETS} }, {
       'name'     => $item,
       'value'    => $item,
@@ -666,6 +666,8 @@ sub config {
   $form->{time_recording_use_duration}            = AM->time_recording_use_duration();
   $form->{longdescription_dialog_size_percentage} = AM->longdescription_dialog_size_percentage();
   $form->{layout_style}                           = AM->layout_style();
+  $form->{part_picker_search_all_as_list_default} = AM->part_picker_search_all_as_list_default();
+  $form->{order_item_input_position}              = AM->order_item_input_position();
 
   $myconfig{show_form_details} = 1 unless (defined($myconfig{show_form_details}));
   $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();

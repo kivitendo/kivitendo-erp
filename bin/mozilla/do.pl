@@ -802,7 +802,7 @@ sub orders {
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
                                           type vc employee_id salesman_id project_id parts_partnumber parts_description
                                           insertdatefrom insertdateto business_id all department_id chargenumber full_text
-                                          vendor_confirmation_number order_confirmation_number);
+                                          vendor_confirmation_number order_confirmation_number ids top_info_text);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -935,7 +935,7 @@ sub orders {
     },
   );
 
-  $report->set_options('top_info_text'        => join("\n", @options),
+  $report->set_options('top_info_text'        => $::form->{top_info_text} || join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('do/orders_top'),
                        'raw_bottom_info_text' => $form->parse_html_template('do/orders_bottom', { print_options => $print_options }),
                        'output_format'        => 'HTML',
@@ -948,13 +948,15 @@ sub orders {
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";
 
+  # hide links to oe if no right
+  $form->{hide_oe_links} = !(   ($form->{vc} eq 'customer' && $::auth->assert('sales_order_reports_amounts',    1))
+                             || ($form->{vc} eq 'vendor'   && $::auth->assert('purchase_order_reports_amounts', 1)) );
+
   # escape callback for href
   my $callback = $form->escape($href);
 
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
-  my $edit_order_url = ($::instance_conf->get_feature_experimental_order)
-                     ? build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'))
-                     : build_std_url('script=oe.pl',         'action=edit',       'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
+  my $edit_order_url = build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
 
   my $idx            = 1;
 
@@ -971,9 +973,11 @@ sub orders {
       'valign'   => 'center',
       'align'    => 'center',
     };
+    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id}, type => $dord->{record_type}, callback => $form->{callback});
 
-    $row->{donumber}->{link}  = SL::Controller::DeliveryOrder->url_for(action => "edit", id => $dord->{id});
-    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+    if (!$form->{hide_oe_links}) {
+      $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
+    }
 
     foreach my $order_confirmation (@{ $dord->{order_confirmation_numbers} }) {
       if (lc($report->{options}->{output_format}) eq 'html') {

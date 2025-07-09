@@ -208,6 +208,7 @@ sub init_models {
     filtered => 0,
     sorted => {
       package_name => t8('Package name'),
+      description  => t8('Description'),
       type         => t8('Execution type'),
       active       => t8('Active'),
       cron_spec    => t8('Execution schedule'),

@@ -153,11 +153,28 @@ my @kivitendo_to_datev = (
                               kivi_datev_name => 'not yet implemented',
                             },
                             {
-                              kivi_datev_name => 'not yet implemented',
+                              kivi_datev_name => 'document_guid',
                               csv_header_name => t8('Link to invoice'),
                               max_length      => 210, # DMS Application shortcut and GUID
                                                       # Example: "BEDI"
                                                       # "8DB85C02-4CC3-FF3E-06D7-7F87EEECCF3A".
+                              type            => 'Text',
+                              default         => '',
+                              input_check     => sub { my ($check) = @_; return 1 unless $check;
+                                                       my @guids = split(/,/,$check);
+                                                       foreach my $guid (@guids) {
+                                                         return unless ($guid =~ m/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/);
+                                                       }
+                                                       return 1; },
+                              formatter       => sub { my ($input) = @_; return '' unless $input;
+                                                       my @guids = split (/,/,$input);
+                                                       my $first = shift @guids;
+                                                       my $bedi = 'BEDI "' . $first . '"';
+                                                       foreach my $guid (@guids) {
+                                                         $bedi .= ',"' . $guid . '"';
+                                                       }
+                                                       return $bedi; },
+
                             }, # pos 20
                             {
                               kivi_datev_name => 'not yet implemented',

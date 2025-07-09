@@ -16,7 +16,7 @@ sub get_tax_and_amount_by_tax_chart_id {
     next if $transaction->chart_link =~ m/(^${ARAP}$|paid)/;
     next unless $transaction->chart_link;
     my $tax_or_netamount = $transaction->chart_link =~ m/tax/            ? 'tax'
-                         : $transaction->chart_link =~ m/(${ARAP}_amount|IC_cogs)/ ? 'netamount'
+                         : $transaction->chart_link =~ m/(${ARAP}_amount|IC_cogs|IC)/ ? 'netamount'
                          : undef;
     if ($tax_or_netamount eq 'netamount') {
       $tax_and_amount_by_tax_id->{ $transaction->tax->chart_id }->{$tax_or_netamount} ||= 0;

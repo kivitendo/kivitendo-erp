@@ -25,20 +25,19 @@ sub query_autocomplete {
   my $limit = $::form->{limit} || 40; # max number of results per type (AR/AP/GL)
   my $term  = $::form->{term}  || '';
 
-  my $descriptionquery = { ilike => like($term) };
-  my $referencequery   = { ilike => like($term) };
-  my $apinvnumberquery = { ilike => like($term) };
-  my $namequery        = { ilike => like($term) };
-  my $arinvnumberquery = { ilike => '%' . SL::Util::trim($term) };
+  my $descriptionquery        = { ilike => like($term) };
+  my $referencequery          = { ilike => like($term) };
+  my $apinvnumberquery        = { ilike => like($term) };
+  my $namequery               = { ilike => like($term) };
+  my $arinvnumber_left_query  = { ilike => '%' . SL::Util::trim($term) };
+  my $arinvnumber_right_query = { ilike => SL::Util::trim($term) . '%' };
   # ar match is more restrictive. Left fuzzy beginning so it also matches "Storno zu $INVNUMBER"
-  # and numbers like 000123 if you only enter 123.
-  # When used in quicksearch short numbers like 1 or 11 won't match because of the
-  # ajax autocomplete minlimit of 3 characters
+  # and numbers like 000123 if you only enter 123. Right beginning searches from the begin.
 
   my (@glfilter, @arfilter, @apfilter);
 
   push( @glfilter, (or => [ description => $descriptionquery, reference => $referencequery ] ) );
-  push( @arfilter, (or => [ invnumber   => $arinvnumberquery, name      => $namequery ] ) );
+  push( @arfilter, (or => [ invnumber   => $arinvnumber_left_query, invnumber => $arinvnumber_right_query, name => $namequery ] ) );
   push( @apfilter, (or => [ invnumber   => $apinvnumberquery, name      => $namequery ] ) );
 
   my $gls = SL::DB::Manager::GLTransaction->get_all(  query => [ @glfilter ], limit => $limit, sort_by => 'transdate DESC');

@@ -20,12 +20,20 @@ sub get_purchase_search_makemodel {
   !!$_[0]->user_prefs->get('purchase_search_makemodel');
 }
 
+sub get_all_as_list_default {
+  !!$_[0]->user_prefs->get('all_as_list_default', $_[1]);
+}
+
 sub store_sales_search_customer_partnumber {
   $_[0]->user_prefs->store('sales_search_customer_partnumber', $_[1]);
 }
 
 sub store_purchase_search_makemodel {
   $_[0]->user_prefs->store('purchase_search_makemodel', $_[1]);
+}
+
+sub store_all_as_list_default {
+  $_[0]->user_prefs->store('all_as_list_default', $_[1]);
 }
 
 sub init_user_prefs {

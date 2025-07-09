@@ -157,8 +157,8 @@ sub action_ajax_unimport {
 
 sub action_ajax_rename {
   my ($self) = @_;
-  my ($id, $version) = split /_/, $::form->{id};
-  my $file = SL::File->get(id => $id);
+  my $guid = $::form->{id};
+  my $file = SL::File->get(guid => $guid);
   if ( ! $file ) {
     $self->js->flash('error', $::locale->text('File not exists !'))->render();
     return;
@@ -279,7 +279,7 @@ sub action_ajax_files_uploaded {
                                       );
 
         if ($existobj) {
-          push @existing, $existobj->id.'_'.$sfile->file_name;
+          push @existing, ($existobj->versions)[0]->file_version->guid.'_'.$sfile->file_name;
         } else {
           my $fileobj = SL::File->save(object_id        => $self->object_id,
                                        object_type      => $self->object_type,
@@ -393,16 +393,10 @@ sub _delete_all {
   my ($self, $do_unimport, $infotext) = @_;
   my $files = '';
   my $ids = $::form->{ids};
-  foreach my $id_version (@{ $::form->{$ids} || [] }) {
-    my ($id, $version) = split /_/, $id_version;
-    my $dbfile = SL::File->get(id => $id);
-    if ( $dbfile ) {
-      if ( $version ) {
-        $dbfile->version($version);
-        $files .= ' ' . $dbfile->file_name if $dbfile->delete_version;
-      } else {
-        $files .= ' ' . $dbfile->file_name if $dbfile->delete;
-      }
+  foreach my $version_guid (@{ $::form->{$ids} || [] }) {
+    my $dbfile = SL::File->get(guid => $version_guid);
+    if ($dbfile) {
+      $files .= ' ' . $dbfile->file_name if $dbfile->delete_file_version;
     }
   }
   $self->js->flash('info', $infotext . $files) if $files;
@@ -508,9 +502,9 @@ sub _mk_render {
       $self->js->html('#'.$self->file_type.'_list_'.$self->object_type, $output);
       if ( $self->existing && scalar(@{$self->existing}) > 0) {
         my $first = shift @{$self->existing};
-        my ($first_id, $sfile) = split('_', $first, 2);
-        my $file = SL::File->get(id => $first_id );
-        $self->js->run('kivi.File.askForRename', $first_id, $file->file_type, $file->file_name, $sfile, join (',', @{$self->existing}), $self->is_global);
+        my ($first_guid, $sfile) = split('_', $first, 2);
+        my $file = SL::File->get(guid => $first_guid );
+        $self->js->run('kivi.File.askForRename', $first_guid, $file->file_type, $file->file_name, $sfile, join (',', @{$self->existing}), $self->is_global);
       }
       $self->js->render();
     } else {

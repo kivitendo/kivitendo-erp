@@ -14,11 +14,11 @@ namespace('kivi.File', function(ns) {
       alert(kivi.t8("More than one file selected, please set only one checkbox!"));
       return false;
     }
-    var file_id = checkboxes[0].value;
-    $('#newfilename_id_'+file_type).val($('#filename_'+file_id).text());
+    var file_guid = checkboxes[0].value;
+    $('#newfilename_id_'+file_type).val($('#filename_'+file_guid).text());
     $('#next_ids_id_'+file_type).val('');
     $('#is_global_id_'+file_type).val(is_global);
-    $('#rename_id_id_'+file_type).val(file_id);
+    $('#rename_id_id_'+file_type).val(file_guid);
     $('#sessionfile_id_'+file_type).val('');
     $('#rename_extra_text_'+file_type).html('');
     kivi.popup_dialog({
@@ -44,7 +44,7 @@ namespace('kivi.File', function(ns) {
     $("#rename_dialog_"+file_type).dialog('close');
     var data = {
       action:          'File/ajax_rename',
-      id:              $('#rename_id_id_'+file_type).val(),
+      id:              $('#rename_id_id_'+file_type).val(), //guid
       to:              $('#newfilename_id_'+file_type).val(),
       next_ids:        $('#next_ids_id_'+file_type).val(),
       is_global:       $('#is_global_id_'+file_type).val(),
@@ -54,9 +54,9 @@ namespace('kivi.File', function(ns) {
     return true;
   }
 
-  ns.askForRename = function(file_id,file_type,file_name,sessionfile,next_ids,is_global) {
+  ns.askForRename = function(file_guid,file_type,file_name,sessionfile,next_ids,is_global) {
     $('#newfilename_id_'+file_type).val(file_name);
-    $('#rename_id_id_'+file_type).val(file_id);
+    $('#rename_id_id_'+file_type).val(file_guid);
     $('#is_global_id_'+file_type).val(is_global);
     $('#next_ids_id_'+file_type).val(next_ids);
     $('#sessionfile_id_'+file_type).val(sessionfile);

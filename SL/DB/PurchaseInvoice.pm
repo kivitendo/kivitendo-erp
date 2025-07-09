@@ -137,6 +137,11 @@ sub invoice_type {
   return 'ap_transaction'        if !$self->invoice;
   return 'purchase_invoice';
 }
+sub is_credit_note {
+  my ($self) = @_;
+
+  return $self->invoice_type eq 'purchase_credit_note' ? 1 : undef;
+}
 
 sub displayable_type {
   my ($self) = @_;

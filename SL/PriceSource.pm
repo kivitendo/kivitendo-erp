@@ -43,7 +43,7 @@ sub price_from_source {
     my $class = SL::PriceSource::ALL->price_source_class_by_name($source_name);
     my $source_object = $self->price_source_by_class($class);
 
-    $source_object
+    $source_object && $spec
       ? $source_object->price_from_source($source, $spec)
       : empty_price();
   }

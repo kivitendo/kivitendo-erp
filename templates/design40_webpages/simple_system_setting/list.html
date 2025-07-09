@@ -21,7 +21,7 @@
   [%- FOREACH object = SELF.all_objects %]
    <tr id="object_id_[% object.id %]">
    [% IF SELF.supports_reordering %]
-    <td class="img center" class="dragdrop">[% L.img_tag(src="image/updown.png", alt=LxERP.t8("reorder item")) %]</td>
+    <td class="img center dragdrop">[% L.img_tag(src="image/updown.png", alt=LxERP.t8("reorder item")) %]</td>
    [% END %][%# IF SELF.supports_reordering %]
    [% FOREACH attribute = SELF.list_attributes %]
     <td[% IF attribute.align %] align="[% attribute.align %]"[% END %]>

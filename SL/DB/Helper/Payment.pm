@@ -418,9 +418,16 @@ sub reference_account {
      SL::DB::Manager::AccTransaction->chart_link_filter("$link_filter")
   );
 
-  return undef unless ref $acc_trans;
+  my $id;
 
-  my $reference_account = SL::DB::Manager::Chart->find_by(id => $acc_trans->chart_id);
+  if (! $acc_trans) {
+    $id = $is_sales ? $::instance_conf->get_ar_chart_id : $::instance_conf->get_ap_chart_id;
+    return undef unless $id;
+  } else {
+    $id = $acc_trans->chart_id;
+  }
+
+  my $reference_account = SL::DB::Manager::Chart->find_by(id => $id);
 
   return $reference_account;
 }
@@ -439,7 +446,7 @@ sub open_amount {
 sub open_amount_fx {
   validate_pos(
     @_,
-      {  can       => [ qw(forex get_exchangerate) ],
+      {  can       => [ qw(forex get_exchangerate open_amount) ],
          callbacks => { 'has forex'        => sub { return $_[0]->forex },
                         'has exchangerate' => sub { return $_[0]->get_exchangerate > 0 } } },
       {  callbacks => {
@@ -598,6 +605,7 @@ sub _skonto_charts_and_tax_correction {
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
 
   $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
+  die t8('Cannot calculate Amount and Tax for this booking correctly, please check chart settings') unless $inv_calc;
 
   # foreach tax.chart_id || $entry->{ta..id}
   while (my ($tax_chart_id, $entry) = each %{ $inv_calc } ) {
@@ -617,10 +625,12 @@ sub _skonto_charts_and_tax_correction {
     my $skonto_netamount_rounded   = _round($skonto_netamount_unrounded);
     my $chart_id                   = $is_sales ? $tax->skonto_sales_chart->id : $tax->skonto_purchase_chart->id;
 
+    my $credit_note_multiplier = $self->is_credit_note ? -1 : 1;
     # entry net + tax for caller
     my $rec_net = {
       chart_id               => $chart_id,
-      skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded),
+      skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded)
+                                * $credit_note_multiplier,
     };
     push @skonto_charts, $rec_net;
     $total_skonto_rounded += $rec_net->{skonto_amount};
@@ -636,6 +646,12 @@ sub _skonto_charts_and_tax_correction {
     croak("No such Chart ID")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
     my $notes = SL::HTML::Util->strip($self->notes);
 
+    my $debit_state = ( $is_sales && !$self->is_credit_note)        ? 1
+                    : (!$is_sales && !$self->is_credit_note)        ? 0
+                    : $self->invoice_type eq 'purchase_credit_note' ? 1
+                    : $self->invoice_type eq 'credit_note'          ? 0
+                    : die "invalid type state";
+
     my $current_transaction = SL::DB::GLTransaction->new(
          employee_id    => $self->employee_id,
          transdate      => $params{transdate_obj},
@@ -646,13 +662,13 @@ sub _skonto_charts_and_tax_correction {
          imported       => 0, # not imported
          taxincluded    => 0,
       )->add_chart_booking(
-         chart  => $is_sales ? $debit : $credit,
+         chart  => $debit_state ? $debit : $credit,
          debit  => abs($skonto_taxamount_rounded),
          source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
          memo   => $params{memo},
          tax_id => 0,
       )->add_chart_booking(
-         chart  => $is_sales ? $credit : $debit,
+         chart  => $debit_state ? $credit : $debit,
          credit => abs($skonto_taxamount_rounded),
          source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
          memo   => $params{memo},
@@ -713,13 +729,14 @@ sub within_skonto_period {
                         isa => 'DateTime',
                         callbacks => {
                           'self has a skonto date'  => sub { ref $self->skonto_date eq 'DateTime' },
-                          'is within skonto period' => sub { return shift() <= $self->skonto_date },
                         },
                       },
        }
     );
-  # then return true
-  return 1;
+  # return 1 if requested date (or today) is inside skonto period
+  # this will also return 1 if date is before the invoice date
+  my (%params) = @_;
+  return $params{transdate} <= $self->skonto_date;
 }
 
 sub valid_skonto_amount {
@@ -757,7 +774,7 @@ sub get_payment_select_options_for_bank_transaction {
   my $bt = SL::DB::BankTransaction->new(id => $bt_id)->load;
   croak "No Bank Transaction with ID $bt_id found" unless ref $bt eq 'SL::DB::BankTransaction';
 
-  if (eval { $self->within_skonto_period(transdate => $bt->transdate); 1; } ) {
+  if (ref $self->skonto_date eq 'DateTime' &&  $self->within_skonto_period(transdate => $bt->transdate)) {
     push(@options, { payment_type => 'without_skonto', display => t8('without skonto') });
     push(@options, { payment_type => 'with_skonto_pt', display => t8('with skonto acc. to pt'), selected => 1 });
     push(@options, { payment_type => 'with_fuzzy_skonto_pt', display => t8('with fuzzy skonto acc. to pt')});
@@ -1016,14 +1033,24 @@ to 0.
 
 =item C<within_skonto_period [transdate =E<gt> DateTime]>
 
-Returns 1 if skonto_date is in a skontoable period.
-Needs the mandatory named param 'transdate' as a 'DateTime', usually a bank
-transaction date for imported bank data.
+Returns 1 if skonto_date is in a skontoable period otherwise undef.
 
-Checks if the invoice has skontoable payment terms configured and whether the date
-is within the skonto max date.
 
-If one of the condition fails, a hopefully helpful error message is returned.
+Expects transdate to be set and to be a DateTime object.
+Expects calling object to be a Invoice object with a skonto_date set.
+
+Throws a error if any of the two mandantory conditions are not met.
+
+If the conditions are met the routine simply checks if the param transdate
+is within the max allowed date of the invoices skonto date.
+
+Example usage:
+
+ my $inv = SL::DB::Invoice->new;
+ my $bt  = SL::DB::BankTransaction->new;
+
+ my $payment_date_is_skontoable =
+   (ref $inv->skonto_date eq 'DateTime' && $inv->within_skonto_period(transdate => $bt->transdate));
 
 =item C<valid_skonto_amount>
 

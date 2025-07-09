@@ -14,6 +14,7 @@
     <thead>
       <tr>
         <th>[% L.sortable_table_header('package_name') %]</th>
+        <th>[% L.sortable_table_header('description') %]</th>
         <th>[% L.sortable_table_header('type') %]</th>
         <th>[% L.sortable_table_header('active') %]</th>
         <th>[% L.sortable_table_header('cron_spec') %]</th>
@@ -26,6 +27,7 @@
     [% FOREACH background_job = BACKGROUND_JOBS %]
       <tr class="listrow[% loop.count % 2 %]" id="background_job_id_[% background_job.id %]">
         <td><a href="[% SELF.url_for(action => 'edit', id => background_job.id, back_to => SELF.get_callback) %]">[% HTML.escape(background_job.package_name) %]</a></td>
+        <td>[% HTML.escape(background_job.description) %]</td>
         <td>
           [% IF background_job.type == 'once' %]
             [% LxERP.t8('one-time execution') %]

@@ -870,12 +870,12 @@ sub generate_journal {
                                        'data'           => \@contents);
 
 
-  my %doc_types = ( 'sales_quotation'         => { action => 'edit', script => 'oe', title => $locale->text('Sales quotation') },
-                    'sales_order'             => { action => 'edit', script => 'oe', title => $locale->text('Sales Order') },
-                    'request_quotation'       => { action => 'edit', script => 'oe', title => $locale->text('Request quotation') },
-                    'purchase_order'          => { action => 'edit', script => 'oe', title => $locale->text('Purchase Order') },
-                    'sales_delivery_order'    => { action => 'edit', script => 'do', title => $locale->text('Sales delivery order') },
-                    'purchase_delivery_order' => { action => 'edit', script => 'do', title => $locale->text('Purchase delivery order') },
+  my %doc_types = ( 'sales_quotation'         => { action => 'Order/edit', script => 'controller', title => $locale->text('Sales quotation') },
+                    'sales_order'             => { action => 'Order/edit', script => 'controller', title => $locale->text('Sales Order') },
+                    'request_quotation'       => { action => 'Order/edit', script => 'controller', title => $locale->text('Request quotation') },
+                    'purchase_order'          => { action => 'Order/edit', script => 'controller', title => $locale->text('Purchase Order') },
+                    'sales_delivery_order'    => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('Sales delivery order') },
+                    'purchase_delivery_order' => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('Purchase delivery order') },
                     'supplier_delivery_order' => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('Supplier delivery order') },
                     'rma_delivery_order'      => { action => 'DeliveryOrder/edit', script => 'controller', title => $locale->text('RMA delivery order') },
                     'sales_invoice'           => { action => 'edit', script => 'is', title => $locale->text('Sales Invoice') },

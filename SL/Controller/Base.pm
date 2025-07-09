@@ -419,7 +419,7 @@ both by C<$template>'s reference type and by the supplied options. The
 actual rendering is handled by L<SL::Presenter/render>.
 
 If C<$template> is a normal scalar (not a reference) then it is meant
-to be a template file name relative to the C<templates/webpages>
+to be a template file name relative to the C<templates/design40_webpages>
 directory. The file name to use is determined by the C<type> option.
 
 If C<$template> is a reference to a scalar then the referenced
@@ -493,7 +493,7 @@ by the calling function. No header is generated due to C<output>.
                               { output => 0 });
 
 Example: Render a JavaScript template
-"templates/webpages/todo/single_item.js" and send it to the
+"templates/design40_webpages/todo/single_item.js" and send it to the
 browser. Typical use for actions called via AJAX:
 
   $self->render('todo/single_item', { type => 'js' },

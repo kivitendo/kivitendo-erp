@@ -17,7 +17,7 @@ sub action_list_transactions {
   my $acc_trans_table = $self->_mini_ledger($transactions);
   my $balances_table  = $self->_mini_trial_balance($transactions);
 
-  return $self->render('acc_trans/acc_trans', { header => 0 }, acc_trans_table => $acc_trans_table, balances_table => $balances_table);
+  return $self->render('acc_trans/acc_trans', { layout => 0 }, acc_trans_table => $acc_trans_table, balances_table => $balances_table);
 }
 
 sub _mini_ledger {

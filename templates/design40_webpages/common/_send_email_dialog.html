@@ -10,7 +10,13 @@
        FOREACH file = files.as_list %]
       <tr>
         <th>[% IF loop.first %][% label %][% END %]</th>
-        <td>[% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="1") %]</td>
+        <td>
+        [% IF checked %]
+          [% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="1") %]
+        [% ELSE %]
+          [% P.checkbox_tag("email_form.attach_file_ids[]", label=file.db_file.file_name, value=file.db_file.id, checked="0") %]
+        [% END %]
+          </td>
       </tr>
     [% END %]
   [% END %]
@@ -69,7 +75,7 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Message") %] <sup> [% L.link("generictranslations.pl?action=edit_email_strings", "1)", title=LxERP.t8('Tired of copying always nice phrases for this message? Click here to use the new preset message option!'), target="_blank") %]</sup> </th>
-      <td>[% L.textarea_tag("email_form.message", email_form.message, rows="15", class="texteditor texteditor-space-for-toolbar wi-wider") %]</td>
+      <td>[% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]</td>
     </tr>
     [% IF INSTANCE_CONF.get_doc_storage %]
       <tr>
@@ -79,11 +85,13 @@
           [%- IF is_final_version %]
             [% options = [
                  [ "old_file", LxERP.t8("Send the last version for this record") ],
+                 [ "merge_file", LxERP.t8("Merge all PDF files which are in the tab 'Documents', place created doc first.") ],
                  [ "no_file",  no_file_label ], ]
             %]
           [%- ELSE %]
             [% options = [
                  [ "old_file", LxERP.t8("Send the last or create the first version for this record") ],
+                 [ "merge_file", LxERP.t8("Merge all PDF files which are in the tab 'Documents', place created doc first.") ],
                  [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
                  [ "no_file",  no_file_label ], ]
             %]

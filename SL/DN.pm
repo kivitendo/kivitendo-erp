@@ -725,7 +725,7 @@ sub get_invoices {
 
        $where
 
-       ORDER BY a.id, transdate, duedate, ct.name|;
+       ORDER BY ct.name, a.id, transdate, duedate |;
   my $sth = prepare_execute_query($form, $dbh, $query, $id_for_max_dunning_level, @values);
 
   $form->{DUNNINGS} = [];

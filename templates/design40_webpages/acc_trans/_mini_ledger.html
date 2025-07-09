@@ -27,13 +27,13 @@
     [% END %]
   </tbody>
   <tfoot>
-    <td colspan="2"></td>
-    <th>[% LxERP.t8("Total") %]</th>
-    <td class="numeric">[% LxERP.format_amount(debit_sum * -1, 2) %]</td>
-    <td class="numeric">[% LxERP.format_amount(credit_sum, 2) %]</td>
-  </tr>
+    <tr>
+     <td colspan="2"></td>
+     <th>[% LxERP.t8("Total") %]</th>
+     <td class="numeric">[% LxERP.format_amount(debit_sum * -1, 2) %]</td>
+     <td class="numeric">[% LxERP.format_amount(credit_sum, 2) %]</td>
+    </tr>
   </tfoot>
 </table>
 
 </div><!-- /.wrapper -->
-

@@ -51,7 +51,7 @@ sub action_list_turnover {
     $open_items = $self->_list_open_items($open_invoices);
   }
   my $open_orders = $self->_get_open_orders;
-  return $self->render('customer_vendor_turnover/turnover', { header => 0 },
+  return $self->render('customer_vendor_turnover/turnover', { layout => 0 },
                        open_orders => $open_orders,
                        open_items  => $open_items,
                        id          => $cv,

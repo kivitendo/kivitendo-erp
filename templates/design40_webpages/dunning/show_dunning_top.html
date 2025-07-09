@@ -7,13 +7,13 @@
 <div class="col">
 <table class="tbl-horizontal">
   <caption>[% LxERP.t8("Print options") %]</caption>
-	<colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
-	<tbody>
-		<tr>
-			<th></th>
-			<td>[% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]</td>
-		</tr>
-	</tbody>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th></th>
+      <td>[% L.checkbox_tag("force_lang", label=LxERP.t8('Override invoice language'), checked=force_lang) %]</td>
+    </tr>
+  </tbody>
 </table>
 [% PRINT_OPTIONS %]
 </div><!-- /.col -->

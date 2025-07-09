@@ -23,6 +23,19 @@ sub _join_entries {
     ($from..$to);
 }
 
+sub _extract_end_to_end_id {
+  my ($parts) = @_;
+
+  foreach my $value (values %{ $parts }) {
+    if ($value =~ m{^(?:end\W?to\W?end:|eref\+) *(.+)}i) {
+      my $id = $1;
+      return $id =~ m{notprovided}i ? undef : $id;
+    }
+  }
+
+  return undef;
+}
+
 sub parse {
   my ($class, $file_name, %params) = @_;
 
@@ -69,7 +82,11 @@ sub parse {
 
       $local_bank_code      = $1;
       $local_account_number = $2;
-
+    } elsif  ($line->[0] =~ m{^:25:([A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?)/(\d+)}) {
+      # case SWIFT code with 11 chars :25:SOBKDEB2XXX/5436636296EUR
+      # https://stackoverflow.com/questions/3028150/what-is-proper-regex-expression-for-swift-codes
+      $local_bank_code      = $1;
+      $local_account_number = $2;
     } elsif ($line->[0] =~ m{^:61: (\d{2}) (\d{2}) (\d{2}) (\d{4})? (C|D|RC|RD) ([a-zA-Z]?) (\d+) (?:, (\d*))? N (.{3}) (.*)}x) {
       #                            1       2       3       4        5           6           7          8         9      10
       # :61:2008060806CR952,N051NONREF
@@ -117,6 +134,7 @@ sub parse {
         my ($separator, $rest) = ($1, $2);
         my %parts              = map { ((substr($_, 0, 2) // '0') * 1 => substr($_, 2)) } split quotemeta($separator), $rest;
 
+        $transaction{end_to_end_id}         = _extract_end_to_end_id(\%parts);
         $transaction{purpose}               = join ' ', grep({ $_ ne '' } _join_entries(\%parts, 20, 29), _join_entries(\%parts, 60, 63));
         $transaction{remote_name}           = _join_entries(\%parts, 32, 33, '');
         $transaction{remote_bank_code}      = $parts{30};

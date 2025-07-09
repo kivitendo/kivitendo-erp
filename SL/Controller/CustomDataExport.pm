@@ -104,6 +104,7 @@ sub action_export {
 
 sub check_auth {
   my ($self) = @_;
+  $::auth->assert('custom_data_report');
   $::auth->assert($self->query->access_right) if $self->query->access_right;
 }
 

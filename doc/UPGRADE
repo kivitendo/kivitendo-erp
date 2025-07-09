@@ -3,6 +3,42 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf vx.x.x
+
+Die Möglichkeit des programatischen API-Aufrufs mit einer
+Authentifizierung mit Parametern wurde entfernt. Dazu kann
+nun die Authentifizierung mit HTTP-Basic-Authentifizierung
+oder über HTTP-Headers verwendet werden.
+
+In kivitendo.conf sollte der Parameter stylesheet = design40
+gesetzt werden. Die Stilvorlage kivitendo ist nicht mehr
+verfügbar. Ebenso müssen folgende E-Mail-Vorlagen ersetzt werden:
+  email_template = templates/webpages/task_server/failure_notification_email.txt
+  email_template = templates/webpages/oe/periodic_invoices_email.txt
+Die nun gültigen Vorlagen lauten:
+  email_template = templates/design40_webpages/task_server/failure_notification_email.txt
+  email_template = templates/design40_webpages/oe/periodic_invoices_email.txt
+
+
+Upgrade auf v3.9.2
+
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
+
+* Änderung bei Schweizer QR-Rechnung mit QR-IBAN/QR-Referenz
+
+  Bisher wurde für die QR-IBAN eine zusätzliche Zeile bei den Bankkonten
+  erfasst. Die QR-IBAN wird aber jeweils als zusätzliche IBAN für ein
+  existierendes Bankkonto vergeben. Daher wird diese neu als zusätzliche Spalte
+  beim entsprechenden Bankkonto eingetragen. Dies muss nach dem Upgrade unter
+  System -> Bankkonten angepasst werden.
+
+Upgrade auf v3.9.1
+
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
+
+Die Dateieendung für SEPA-XML wurde auf .xml geändert, die vorherigen Werte
+können aber über die Mandantenkonfiguration wieder aktiviert werden.
+
 Upgrade auf v3.9.0
 
 Einige neue Perl-Module sind hinzugekommen, Hilfe zum Installieren bietet wie
@@ -13,12 +49,26 @@ immer das Skript 'scripts/installation_check.pl -v'.
   * Encode::IMAPUTF7
   * Mail::IMAPClient
 
+Wichtige Hinweise:
 
-Bei Verwendung von PostgreSQL kleiner Version 12, muss das Datenbank-Upgrade-
-Skript "oe_purchase_order_confirmation_order_types" deaktiviert und das
-enthaltene SQL-Kommando händisch ausgeführt werden. Der Grund dafür ist, dass
-die Upgrade-Skripte in einer Transaktion ablaufen und Typ-Werte erst ab
-PostgreSQL Version 12 innerhalb einer Transaktion hinzugefügt werden können.
+- manuelle Zahlungen von Belegen mit Fremdwährungen verbuchen ist leider seit der Version 3.8 buggy!
+  Diese Version flickt das Verhalten notdürftig und das Problem liegt auf Wiedervorlage, wenn die
+  Rechnungsbelege prinzipiell modernisiert werden (aktuell sind die Belegtypen Aufträge und
+  Lieferschein mit modernen Code implementiert).
+
+  Es gibt drei + x Möglichkeiten:
+  - Zahlungen über das Format MT940 oder CSV importieren und dann über den Menüpunkt 'Kontoauszug
+    verbuchen' alle Zahlungen verbuchen.
+  - Zahlungsverkehr -> Zahlungseingang / Zahlungsausgang für die manuelle Zahlungsverbuchung verwenden
+  - Doch manuell über die Belege die Zahlungen verbuchen, dann aber zwingend die Änderbarkeit von
+    Zahlungen auf 'niemals' setzen
+  - Den kivitendo-Dienstleister seiner Wahl für weitere Optionen (Downgrade, Entwicklungsunterstützung
+    für schnellere Rechnungsüberarbeitung) kontaktieren und beauftragen
+  Weitere Details, https://kivitendo.de/redmine/issues/563
+
+- Diese Version benötigt zwingend PostgreSQL Version 12 oder höher!
+
+Wer es dennoch zwingend in einer älteren Version benötigt, kann diese beiden Skripte deaktivieren:
 
 Shell-Befehl zum Deaktivieren des Skripts:
   sed -i 's/ignore: 0/ignore: 1/' sql/Pg-upgrade2/oe_purchase_order_confirmation_order_types.sql

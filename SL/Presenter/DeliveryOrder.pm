@@ -28,6 +28,7 @@ sub supplier_delivery_order {goto &delivery_order};
 
 sub delivery_order {
   my ($delivery_order, %params) = @_;
+  my $type = $delivery_order->record_type;
 
   $params{display} ||= 'inline';
 
@@ -36,6 +37,7 @@ sub delivery_order {
   my $text = escape($delivery_order->donumber);
   if (! delete $params{no_link}) {
     my $href = 'controller.pl?action=DeliveryOrder/edit'
+               . '&type=' . $type
                . '&id=' . escape($delivery_order->id);
     $text = link_tag($href, $text, %params);
   }

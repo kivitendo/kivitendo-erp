@@ -98,6 +98,9 @@ sub gather_bank_transactions_and_proposals {
       @where
     ],
   );
+
+  my $has_batch_transaction = (grep { $_->is_batch_transaction } @{ $bank_transactions }) ? 1 : undef;
+
   # credit notes have a negative amount, treat differently
   my $all_open_ar_invoices = SL::DB::Manager::Invoice->get_all(where        => [ or => [ amount => { gt => \'paid' },                 # '} make emacs happy
                                                                                          and    => [ type    => 'credit_note',
@@ -109,37 +112,39 @@ sub gather_bank_transactions_and_proposals {
 
   my $all_open_ap_invoices = SL::DB::Manager::PurchaseInvoice->get_all(where        => [amount => { ne => \'paid' }],                 #  '}] make emacs happy
                                                                        with_objects => ['vendor'  ,'payment_terms']);
-  my $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where        => [chart_id               => $params{bank_account}->chart_id ,
-                                                                                             'sepa_export.executed' => 0,
-                                                                                             'sepa_export.closed'   => 0
-                                                                            ],
-                                                                            with_objects => ['sepa_export']);
 
   my @all_open_invoices;
   # filter out invoices with less than 1 cent outstanding
   push @all_open_invoices, map { $_->{is_ar}=1 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ar_invoices };
   push @all_open_invoices, map { $_->{is_ar}=0 ; $_ } grep { abs($_->amount - $_->paid) >= 0.01 } @{ $all_open_ap_invoices };
 
-  my %sepa_exports;
-  my %sepa_export_items_by_id = partition_by { $_->ar_id || $_->ap_id } @$all_open_sepa_export_items;
 
-  # first collect sepa export items to open invoices
-  foreach my $open_invoice (@all_open_invoices){
-    $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount,2);
-    $open_invoice->{skonto_type} = 'without_skonto';
-    foreach (@{ $sepa_export_items_by_id{ $open_invoice->id } || [] }) {
-      my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
-      $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
+  my (%sepa_exports, %sepa_export_items_by_id, $all_open_sepa_export_items);
+  if ($has_batch_transaction) {
+    $all_open_sepa_export_items = SL::DB::Manager::SepaExportItem->get_all(where        => [chart_id               => $params{bank_account}->chart_id ,
+                                                                                             'sepa_export.executed' => 0,
+                                                                                             'sepa_export.closed'   => 0
+                                                                            ],
+                                                                            with_objects => ['sepa_export']);
+    %sepa_export_items_by_id = partition_by { $_->ar_id || $_->ap_id } @$all_open_sepa_export_items;
 
-      $open_invoice->{skonto_type} = $_->payment_type;
-      $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
-      $sepa_exports{$_->sepa_export_id}->{count}++;
-      $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
-      $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount * $factor;
-      push @{ $sepa_exports{$_->sepa_export_id}->{invoices} }, $open_invoice;
+    # first collect sepa export items to open invoices
+    foreach my $open_invoice (@all_open_invoices){
+      $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount,2);
+      $open_invoice->{skonto_type} = 'without_skonto';
+      foreach (@{ $sepa_export_items_by_id{ $open_invoice->id } || [] }) {
+        my $factor                   = ($_->ar_id == $open_invoice->id ? 1 : -1);
+        $open_invoice->{realamount}  = $::form->format_amount(\%::myconfig,$open_invoice->amount*$factor,2);
+
+        $open_invoice->{skonto_type} = $_->payment_type;
+        $sepa_exports{$_->sepa_export_id} ||= { count => 0, is_ar => 0, amount => 0, proposed => 0, invoices => [], item => $_ };
+        $sepa_exports{$_->sepa_export_id}->{count}++;
+        $sepa_exports{$_->sepa_export_id}->{is_ar}++ if  $_->ar_id == $open_invoice->id;
+        $sepa_exports{$_->sepa_export_id}->{amount} += $_->amount * $factor;
+        push @{ $sepa_exports{$_->sepa_export_id}->{invoices} }, $open_invoice;
+      }
     }
   }
-
   # try to match each bank_transaction with each of the possible open invoices
   # by awarding points
   my @proposals;
@@ -154,7 +159,7 @@ sub gather_bank_transactions_and_proposals {
 
     $bt->{remote_name} .= $bt->{remote_name_1} if $bt->{remote_name_1};
 
-    if ( $bt->is_batch_transaction ) {
+    if ($has_batch_transaction && $bt->is_batch_transaction ) {
       my $found=0;
       foreach ( keys  %sepa_exports) {
         if ( abs(($sepa_exports{$_}->{amount} * 1) - ($bt->amount * 1)) < 0.01 ) {
@@ -181,9 +186,9 @@ sub gather_bank_transactions_and_proposals {
     # score is stored in $bt->{agreement}
 
     foreach my $open_invoice (@all_open_invoices) {
-      ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice,
-        sepa_export_items => $all_open_sepa_export_items,
-      );
+
+      ($open_invoice->{agreement}, $open_invoice->{rule_matches}) = $bt->get_agreement_with_invoice($open_invoice);
+
       $open_invoice->{realamount} = $::form->format_amount(\%::myconfig,
                                       $open_invoice->amount * ($open_invoice->{is_ar} ? 1 : -1), 2);
     }
@@ -250,13 +255,17 @@ sub action_list {
     sort_dir     => $::form->{sort_dir},
   );
 
+  my $ui_tab =   $::instance_conf->get_no_bank_proposals ? 0
+               : scalar(@{ $proposals }) > 0             ? 1
+               : 0;
+
   $::request->layout->add_javascripts("kivi.BankTransaction.js");
   $self->render('bank_transactions/list',
                 title             => t8('Bank transactions MT940'),
                 BANK_TRANSACTIONS => $bank_transactions,
                 PROPOSALS         => $proposals,
                 bank_account      => $bank_account,
-                ui_tab            => scalar(@{ $proposals }) > 0 ? 1 : 0,
+                ui_tab            => $ui_tab,
               );
 }
 
@@ -323,7 +332,7 @@ sub action_ajax_payment_suggestion {
   my ($self) = @_;
 
   # based on a BankTransaction ID and a Invoice or PurchaseInvoice ID passed via $::form,
-  # create an HTML blob to be used by the js function add_invoices in templates/webpages/bank_transactions/list.html
+  # create an HTML blob to be used by the js function add_invoices in templates/design40_webpages/bank_transactions/list.html
   # and return encoded as JSON
 
   croak("Need bt_id") unless $::form->{bt_id};
@@ -965,7 +974,7 @@ sub prepare_report {
   $report->{title} = t8('Bank transactions');
   $self->{report}  = $report;
 
-  my @columns      = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose local_account_number local_bank_code id);
+  my @columns      = qw(ids local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount invoice_amount invoices currency purpose end_to_end_id local_account_number local_bank_code id);
   my @sortable     = qw(local_bank_name transdate valudate remote_name remote_account_number remote_bank_code amount                                  purpose local_account_number local_bank_code);
 
   my %column_defs  = (
@@ -1003,6 +1012,7 @@ sub prepare_report {
     local_account_number  => { sub   => sub { $_[0]->local_bank_account->account_number } },
     local_bank_code       => { sub   => sub { $_[0]->local_bank_account->bank_code } },
     local_bank_name       => { sub   => sub { $_[0]->local_bank_account->name } },
+    end_to_end_id         => { sub   => sub { $_[0]->end_to_end_id }, text => $::locale->text('End to end ID') },
     id                    => {},
   );
 
@@ -1069,9 +1079,9 @@ sub _check_and_book_credit_note {
   die "Invalid state" unless ($has_one_credit_note == 1 && $has_one_invoice == 1);
 
   foreach my $invoice (@{ $params{invoices} }) {
-    my $is_credit_note = $invoice->invoice_type =~ m/credit_note/ ? 1 : undef;
-    my $sign       = $invoice->invoice_type =~ m/credit_note/ ?  1 : -1;  # correct sign for bookings
-    my $paid_sign  = $invoice->invoice_type =~ m/credit_note/ ? -1 :  1;  # paid is always negative for credit_note
+    my $is_credit_note = $invoice->is_credit_note ?  1 : undef;
+    my $sign           = $invoice->is_credit_note ?  1 : -1;  # correct sign for bookings
+    my $paid_sign      = $invoice->is_credit_note ? -1 :  1;  # paid is always negative for credit_note
 
     my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $invoice->id,
                                                     chart_id   => $params{transit_chart}->id,

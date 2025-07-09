@@ -100,6 +100,11 @@ If this parameter is set all versions of the file are deleted except the latest 
 If none of the two parameters C<all_versions> or C<all__but_notlast> is set
 all version of the file are deleted.
 
+=item C<file_version>
+
+If this parameter is set only this file version will be deleted. The object has
+to be of type C<SL::DB::FileVersion>.
+
 =back
 
 =item C<rename PARAMS>
