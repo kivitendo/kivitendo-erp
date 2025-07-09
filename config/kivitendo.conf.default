@@ -4,8 +4,8 @@
 # interface.
 admin_password = admin123
 
-# Which modules to use for authentication. Valid values are 'DB' and
-# 'LDAP'. You can use multiple modules separated by spaces.
+# Which modules to use for authentication. Valid values are 'DB',
+# 'LDAP', 'HTTPHeaders'. You can use multiple modules separated by spaces.
 #
 # Multiple LDAP modules with different configurations can be used by
 # postfixing 'LDAP' with the name of the configuration section to use:
@@ -77,16 +77,26 @@ bind_password =
 timeout       = 10
 verify        = require
 
+# For use with module 'HTTPHeaders':
+[authentication/http_basic]
+enabled = 1
+
+# For use with module 'HTTPHeaders':
+[authentication/http_headers]
+enabled = 0
+client_id_header = X-Kivitendo-Client-ID
+user_header = Auth-User
+secret_header = X-Kivitendo-App-Secret
+secret = ...
+
 [system]
 # Set language for login and admin forms. Currently "de" (German)
 # and "en" (English, not perfect) are available.
 language = de
 
 # Set stylesheet for login and admin forms. Supported:
-#  lx-office-erp
-#  kivitendo - default
-#  design40
-stylesheet = kivitendo
+#  design40 - default
+stylesheet = design40
 
 # MassPrint Timeout
 # must be less than cgi timeout
@@ -231,7 +241,7 @@ openofficeorg_daemon = 0
 openofficeorg_daemon_port = 2002
 
 [task_server]
-# Set to 1 for debug messages in /tmp/kivitendo-debug.log
+# Set to 1 for debug messages in users/kivitendo-debug.log
 debug = 0
 # Chose a system user the daemon should run under when started as root.
 run_as =
@@ -250,7 +260,7 @@ email_from     = kivitendo Daemon <root@localhost>
 # The subject for said email.
 email_subject  = kivitendo Task-Server: Hintergrundjob fehlgeschlagen
 # The template file used for the email's body.
-email_template = templates/webpages/task_server/failure_notification_email.txt
+email_template = templates/design40_webpages/task_server/failure_notification_email.txt
 
 [periodic_invoices]
 # The user name or email address a report about the posted and printed
@@ -261,7 +271,7 @@ email_from     = kivitendo Daemon <root@localhost>
 # The subject for said email.
 email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
-email_template = templates/webpages/oe/periodic_invoices_email.txt
+email_template = templates/design40_webpages/oe/periodic_invoices_email.txt
 # Whether to always send the mail (0), or only if there were errors
 # (1).
 send_for_errors_only = 0
@@ -333,9 +343,9 @@ login =
 # location of history file for permanent history
 history_file = users/console_history
 
-# location of a separate log file for the console. everything normally written
-# to the kivitendo log will be put here if triggered from the console
-log_file = /tmp/kivitendo_console_debug.log
+# Location of a separate log file for the console. Everything normally written
+# to the kivitendo log will be put here if triggered from the console.
+log_file = users/kivitendo_console_debug.log
 
 [testing]
 
@@ -422,7 +432,7 @@ keep_temp_files = 0
 restart_fcgi_process_on_changes = 0
 
 # The file name where the debug messages are written to.
-file_name = /tmp/kivitendo-debug.log
+file_name = users/kivitendo-debug.log
 
 # If set to 1 then the installation will be kept unlocked even if a
 # database upgrade fails.

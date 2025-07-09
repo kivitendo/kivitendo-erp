@@ -89,7 +89,7 @@ sub _extract_zugferd_invoice_xml {
   while (@agenda) {
     my $item = shift @agenda;
 
-    if ($item->{Kids}) {
+    if ($item->realise->{Kids}) {
       my @kids = $item->{Kids}->realise->elements;
       push @agenda, @kids;
 
@@ -109,7 +109,7 @@ sub _extract_zugferd_invoice_xml {
 
         # Caveat: this will only ever catch the first attachment looking like
         #         an XML invoice.
-        if ( $parser->{status} == SL::XMLInvoice::RES_OK ){
+        if ( $parser->{result} == SL::XMLInvoice::RES_OK ){
           return $parser;
         } else {
           push @res, t8(
@@ -158,7 +158,7 @@ sub extract_from_pdf {
   if (!defined $xmp) {
       push @warnings, $::locale->text('The file \'#1\' does not contain the required XMP meta data.', $file_name);
   } else {
-    my $dom = eval { XML::LibXML->load_xml(string => $xmp) };
+    my $dom = eval { XML::LibXML->load_xml(string => $xmp, expand_entities => 0) };
 
     push @warnings, $::locale->text('Parsing the XMP metadata failed.'), if !$dom;
 
@@ -225,7 +225,7 @@ sub extract_from_xml {
     message      => $invoice_xml->{message},
     metadata_xmp => undef,
     invoice_xml  => $invoice_xml,
-    warnings     => (),
+    warnings     => [],
   );
 
   return \%res;

@@ -355,7 +355,9 @@
 
 </div><!-- /.wrapper -->
 
-[% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- IF order_item_input_position == 0 -%]
+  [% PROCESS order/tabs/_item_input.html SELF=SELF %]
+[%- END -%]
 
 [%- IF SELF.positions_scrollbar_height -%]
   [%- SET scroll_style = 'style="overflow-y: auto; height:' _ SELF.positions_scrollbar_height _ 'vh;"' -%]
@@ -408,7 +410,11 @@
   [% FOREACH item = SELF.order.items_sorted %]
     [% PROCESS order/tabs/_row.html ITEM=item ID=(item.id||item.new_fake_id) %]
   [% END %]
-  <tfoot>
+  <tfoot id="row_table_footer">
+    [%- IF order_item_input_position == 1 -%]
+      [% PROCESS order/tabs/_item_below_input.html SELF=SELF %]
+    [%- END -%]
+
     [% IF (SELF.type == "sales_quotation") || (SELF.type == "request_quotation")  || (SELF.type == "purchase_quotation_intake") %]
       [% SET add_col = 0 %]
     [% ELSE %]
@@ -447,6 +453,9 @@
     </tr>
   </tfoot>
 </table>
+[% IF order_item_input_position == 1 %]
+  [% L.button_tag('kivi.Order.open_multi_items_dialog()', LxERP.t8('Add multiple items')) %]
+[%- END -%]
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
 

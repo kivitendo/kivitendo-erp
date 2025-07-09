@@ -33,8 +33,8 @@ sub run {
 
   $self->controller->track_progress(progress => 10);
 
-  my $old_numberformat      = $::myconfig{numberformat};
-  $::myconfig{numberformat} = $self->controller->profile->get('numberformat');
+  local $::myconfig{numberformat} = $self->controller->profile->get('numberformat');
+  local $::myconfig{dateformat}   = $self->controller->profile->get('dateformat');
 
   $self->csv->parse;
 
@@ -94,8 +94,6 @@ sub run {
   $self->fix_field_lengths;
 
   $self->controller->track_progress(progress => 100);
-
-  $::myconfig{numberformat} = $old_numberformat;
 }
 
 sub init_manager_class {

@@ -53,7 +53,8 @@ sub run {
   foreach my $follow_up (@$follow_ups) {
 
     # add link
-    $follow_up->{link} = URI->new_abs('fu.pl?action=edit&id=' . $follow_up->id, $::form->_get_request_uri);
+    my $base_url = $self->params->{base_url} //  $::form->_get_request_uri;
+    $follow_up->{link} = URI->new_abs('fu.pl?action=edit&id=' . $follow_up->id, $base_url);
 
     foreach my $employee (@{ $follow_up->created_for_employees }) {
       next if $employee->deleted;
@@ -116,6 +117,7 @@ sub initialize_params {
     email_from     => $::lx_office_conf{follow_up_reminder}->{email_from},
     email_subject  => $::lx_office_conf{follow_up_reminder}->{email_subject},
     email_template => $::lx_office_conf{follow_up_reminder}->{email_template},
+    base_url       => undef,
   );
 
   # check user input param names
@@ -266,6 +268,7 @@ Example:
   from_date: 01.01.2022
   to_date: 01.07.2022
   email_subject: To-Do
+  base_url: https://meinkivi.firma.de/kivi/
 
 =over 4
 
@@ -312,6 +315,15 @@ provide a text or a html template.
 It defaults to the one given in the kvitendo configuration file (see above).
 
 email_template: templates/my_templates/my_reminder_template.txt
+
+=item C<base_url>
+
+The base URI of your kivitendo server with protocol (http://)
+
+Example (format depends on your settings):
+
+base_url: https://kivi.foo.bz/kivitendo-erp/
+
 
 =back
 

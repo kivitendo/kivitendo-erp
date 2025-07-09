@@ -1,18 +1,10 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.3. Programmatische API-Aufrufe</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.1: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. SQL-Upgradedateien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. Programmatische API-Aufrufe</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. Programmatische API-Aufrufe"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dev-programmatic-api-calls"></a>4.3. Programmatische API-Aufrufe</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>
+   <title>4.3. Programmatische API-Aufrufe</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.2: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. SQL-Upgradedateien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. Programmatische API-Aufrufe</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. Programmatische API-Aufrufe"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dev-programmatic-api-calls"></a>4.3. Programmatische API-Aufrufe</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>
          Es ist möglich, Funktionen in kivitendo programmatisch aus anderen Programmen aufzurufen. Dazu ist nötig, dass
-         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es zwei Methoden: die HTTP-»Basic«-Authentifizierung
-         oder die Übergabe als spziell benannte GET-Parameter. Neben den Authentifizierungsinformationen muss auch der zu verwendende Mandant
-         übergeben werden.
-        </p></div><div class="sect2" title="4.3.2. Wahl des Mandanten"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.client_selection"></a>4.3.2. Wahl des Mandanten</h3></div></div></div><p>
-         Der zu verwendende Mandant kann als Parameter <code class="varname">{AUTH}client_id</code> mit jedem Request mitgeschickt werden. Der Wert
-         muss dabei die Datenbank-ID des Mandanten sein. kivitendo prüft, ob der Account, der über die Authentifizierungsinformationen
-         übergeben wurde, Zugriff auf den angegebenen Mandanten hat.
-        </p><p>
-         Wird in einem Request kein Mandant mitgegeben, so wird derjenige Mandant genommen, wer als Standardmandant markiert wurde. Gibt es
-         keinen solchen, kommt es zu einer Fehlermeldung.
-        </p></div><div class="sect2" title="4.3.3. HTTP-»Basic«-Authentifizierung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.http_basic_authentication"></a>4.3.3. HTTP-»Basic«-Authentifizierung</h3></div></div></div><p>
+         Authentifizierungsinformationen in jedem Aufruf mitgegeben werden. Dafür gibt es die HTTP-»Basic«-Authentifizierung.
+         Der zu verwendende Mandant ist der Standard-Mandant.
+        </p></div><div class="sect2" title="4.3.2. HTTP-»Basic«-Authentifizierung"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.http_basic_authentication"></a>4.3.2. HTTP-»Basic«-Authentifizierung</h3></div></div></div><p>
          Für diese Methode muss jedem Request der bekannte HTTP-Header <code class="constant">Authorization</code> mitgeschickt werden (siehe <a class="ulink" href="https://tools.ietf.org/html/rfc7617" target="_top">RFC 7617</a>). Unterstützt wird ausschließlich die »Basic«-Methode. Loginname und
          Passwort werden bei dieser Methode durch einen Doppelpunkt getrennt und Base64-encodiert im genannten HTTP-Header übertragen.
         </p><p>
@@ -21,16 +13,7 @@
         </p><p>
          Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
          erfolgen.
-        </p></div><div class="sect2" title="4.3.4. Authentifizierung mit Parametern"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.authentication_via_parameters"></a>4.3.4. Authentifizierung mit Parametern</h3></div></div></div><p>
-         Für diese Methode müssen jedem Request zwei Parameter mitgegeben werden: <code class="varname">{AUTH}login</code> und
-         <code class="varname">{AUTH}password</code>. Diese Informationen müssen einen vorhandenen Account benennen. kivitendo prüft genau wie bei
-         Benutzung über den Webbrowser, ob dieser Account Zugriff auf den Mandanten sowie auf die angeforderte Funktion hat.
-        </p><p>
-         Da die Logininformationen im Klartext im Request stehen, sollte der Zugriff auf kivitendo ausschließlich über HTTPS verschlüsselt
-         erfolgen.
-        </p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
-          Die Verwendung dieser Methode ist veraltet. Statt dessen sollte die oben erwähnte HTTP-»Basic«-Authentifizierung verwendet werden.
-         </p></td></tr></table></div></div><div class="sect2" title="4.3.5. Beispiele"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.examples"></a>4.3.5. Beispiele</h3></div></div></div><p>
+        </p></div><div class="sect2" title="4.3.3. Beispiele"><div class="titlepage"><div><div><h3 class="title"><a name="dev-programmatic-api-calls.examples"></a>4.3.3. Beispiele</h3></div></div></div><p>
          Das folgende Beispiel nutzt das Kommandozeilenprogramm »curl« und ruft die Funktion auf, die eine vorhandene Telefonnummer in den
          Ansprechpersonen sucht und dazu Informationen zurückliefert. Dabei wird die HTTP-»Basic«-Authentifizierung genutzt.
         </p><pre class="programlisting">$ curl --silent --user 'jdoe:SecretPassword!' \

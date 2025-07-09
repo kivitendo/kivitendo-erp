@@ -1,4 +1,0 @@
-[%- USE LxERP -%][%- USE L -%]<div class="clearfix">
- [% L.select_tag("project.employee_invoice_permissions[]", SELF.employees, id="employee_invoice_permissions", title_key="safe_name", default=SELF.project.employee_invoice_permissions, default_value_key='id', multiple=1) %]
- [% L.multiselect2side("employee_invoice_permissions", labelsx => LxERP.t8("All employees"), labeldx => LxERP.t8("Employees with read access to the project's invoices")) %]
-</div>

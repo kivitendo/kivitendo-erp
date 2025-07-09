@@ -42,7 +42,10 @@
       </tr>
       <tr>
         <th>[% 'EAN-Code' | $T8 %]</th>
-        <td>[% L.input_tag("part.ean", SELF.part.ean, class='wi-wide', size=10, "data-validate"="trimmed_whitespaces") %]</td>
+        <td>
+          [% L.input_tag("part.ean", SELF.part.ean, class='wi-wide', size=10, "data-validate"="trimmed_whitespaces") %]
+          [% P.context_help_tag(LxERP.t8('Officially the GS1 GTIN, which incorporates EAN, ISBN and others.'))%]
+        </td>
       </tr>
       <tr>
         <th>[% 'Tariff Code' | $T8 %]</th>

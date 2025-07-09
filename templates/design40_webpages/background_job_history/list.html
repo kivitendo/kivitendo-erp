@@ -41,7 +41,7 @@
           [% END %]
         </td>
         <td>[% HTML.escape(entry.result) %]</td>
-        <td>[% IF entry.error_col %]<pre>[% HTML.escape(L.truncate(entry.error_col)) %]</pre>[% END %]</td>
+        <td>[% IF entry.error_col %]<pre>[% L.truncate(entry.error_col) %]</pre>[% END %]</td>
       </tr>
     [% END %]
     </tbody>

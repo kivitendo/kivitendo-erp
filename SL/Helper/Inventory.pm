@@ -425,6 +425,71 @@ sub check_allocations_for_assembly {
   return (none { $_ < 0 } values %allocations_by_part) && (!$check_overfulfilment || (none { $_ > 0 } values %allocations_by_part));
 }
 
+sub check_stock_out_transfer_requests {
+  my (%params) = @_;
+
+  my $transfer_requests = $params{transfer_requests} or Carp::croak('check_stock_out_transfer_requests needs transfer_requests');
+  my $default_transfer = $params{default_transfer} || 0;
+
+  my $grouped_qtys; # part_id -> bin_id -> chargenumber -> bestbefore -> qty;
+  my %part_ids;
+  my %bin_ids;
+  my %chargenumbers;
+  foreach my $request (@$transfer_requests) {
+    $grouped_qtys
+      ->{$request->parts_id}
+      ->{$request->bin_id}
+      ->{$request->chargenumber}
+      ->{$request->bestbefore} += -$request->qty; # qty is negative
+    $bin_ids{$request->bin_id} = 1;
+    $chargenumbers{$request->chargenumber} = 1;
+  }
+
+  my $stocks = get_stock(
+    by => [qw(part bin chargenumber bestbefore)],
+    part => [keys %$grouped_qtys],
+    bin  => [keys %bin_ids],
+    chargenumber => [keys %chargenumbers],
+  );
+
+  # make stock searchable
+  my $available_qty;
+  foreach my $stock (@$stocks) {
+    $available_qty
+      ->{$stock->{parts_id}}
+      ->{$stock->{bin_id}}
+      ->{$stock->{chargenumber}}
+      ->{DateTime->from_kivitendo($stock->{bestbefore}) || undef} = $stock->{qty};
+  }
+
+  my @missing_qtys;
+  foreach my $p_id (keys %{$grouped_qtys}) {
+    foreach my $b_id (keys %{$grouped_qtys->{$p_id}}) {
+      next if $default_transfer
+           && $::instance_conf->get_transfer_default_ignore_onhand
+           && $::instance_conf->get_bin_id_ignore_onhand eq $b_id;
+      foreach my $cn (keys %{$grouped_qtys->{$p_id}->{$b_id}}) {
+        foreach my $bb (keys %{$grouped_qtys->{$p_id}->{$b_id}->{$cn}}) {
+          my $available_stock = $available_qty->{$p_id}->{$b_id}->{$cn}->{$bb};
+          if ($available_stock < $grouped_qtys->{$p_id}->{$b_id}->{$cn}->{$bb}) {
+            my $part = SL::DB::Manager::Part->find_by(id => $p_id);
+            my $bin  = SL::DB::Manager::Bin->find_by(id => $b_id);
+            push @missing_qtys, {
+              missing_qty  => $grouped_qtys->{$p_id}->{$b_id}->{$cn}->{$bb} - $available_stock,
+              part         => $part,
+              bin          => $bin,
+              chargenumber => $cn,
+              bestbefore   => $bb
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return @missing_qtys;
+}
+
 sub default_show_bestbefore {
   $::instance_conf->get_show_bestbefore
 }
@@ -701,6 +766,28 @@ An array ref of the allocations.
 
 Whether or not overfulfilment should be checked. If more quantity is allocated
 than needed for production a falsish value is returned. Optional.
+
+=back
+
+=item * check_stock_out_transfer_requests PARAMS
+
+Checks if enough stock is availbale for the transfer requests. Returns a list
+of missing quantities as hashref with the keys C<part>, C<bin>, C<missing_qty>, C<chargenumber>
+and C<bestbefore>. C<chargenumber> and C<bestbefore> can be C<undef> if not set
+in the transfer requests. 
+
+Accepted parameters:
+
+=over 4
+
+=item * transfer_requests
+
+Transfer requests to stock out as arrayref. Mandatory.
+
+=item * default_transfer
+
+Has to be trueish if the transfer requests are for a delivery order called with
+'Transfer out via default'. Optional, Default 0.
 
 =back
 

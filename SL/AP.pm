@@ -433,7 +433,7 @@ sub _post_transaction {
   }
 
   # hook for taxkey 94
-  $self->_reverse_charge($myconfig, $form);
+  $self->_reverse_charge($myconfig, $form) unless $payments_only;
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_ap_transaction) {
     my $datev = SL::DATEV->new(

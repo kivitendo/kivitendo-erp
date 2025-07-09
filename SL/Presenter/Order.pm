@@ -36,10 +36,7 @@ sub order {
 
   my $text = escape($order->record_number);
   if (! delete $params{no_link}) {
-    my $action  = $::instance_conf->get_feature_experimental_order
-                ? 'controller.pl?action=Order/edit'
-                : 'oe.pl?action=edit';
-    my $href = $action
+    my $href = 'controller.pl?action=Order/edit'
                . '&type=' . $type
                . '&id=' . escape($order->id);
     $text = link_tag($href, $text, %params);

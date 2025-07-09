@@ -556,16 +556,10 @@ sub generate_report {
       # | ist bestellt  | Von Kunden bestellt |  -> edit_oe_ord_link
       # | Anfrage       | Angebot             |  -> edit_oe_quo_link
 
-      my $edit_oe_ord_link = ($::instance_conf->get_feature_experimental_order)
-                           ? build_std_url("script=controller.pl", 'action=Order/edit',
-                                           'type=' . E($ref->{cv} eq 'vendor' ? 'purchase_order' : 'sales_order'),        'id=' . E($ref->{trans_id}), 'callback')
-                           : build_std_url("script=oe.pl",         'action=edit',
+      my $edit_oe_ord_link = build_std_url("script=controller.pl", 'action=Order/edit',
                                            'type=' . E($ref->{cv} eq 'vendor' ? 'purchase_order' : 'sales_order'),        'id=' . E($ref->{trans_id}), 'callback');
 
-      my $edit_oe_quo_link = ($::instance_conf->get_feature_experimental_order)
-                           ? build_std_url("script=controller.pl", 'action=Order/edit',
-                                           'type=' . E($ref->{cv} eq 'vendor' ? 'request_quotation' : 'sales_quotation'), 'id=' . E($ref->{trans_id}), 'callback')
-                           : build_std_url("script=oe.pl",         'action=edit',
+      my $edit_oe_quo_link = build_std_url("script=controller.pl", 'action=Order/edit',
                                            'type=' . E($ref->{cv} eq 'vendor' ? 'request_quotation' : 'sales_quotation'), 'id=' . E($ref->{trans_id}), 'callback');
 
       $row->{ordnumber}{link} = $edit_oe_ord_link;

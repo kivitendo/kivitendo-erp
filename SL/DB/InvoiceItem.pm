@@ -5,6 +5,7 @@ use strict;
 use SL::DB::MetaSetup::InvoiceItem;
 use SL::DB::Manager::InvoiceItem;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;
 use SL::DB::Helper::CustomVariables (
@@ -36,6 +37,8 @@ __PACKAGE__->meta->add_relationships(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->attr_html('longdescription');
 
 sub record {
   my ($self) = @_;

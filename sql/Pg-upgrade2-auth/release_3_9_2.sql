@@ -1,0 +1,3 @@
+-- @tag: release_3_9_2
+-- @description: Abhängigkeitsscript für Release 3.9.2
+-- @depends: release_3_9_1 set_all_users_to_design40

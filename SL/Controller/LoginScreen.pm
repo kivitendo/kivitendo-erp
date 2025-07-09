@@ -47,19 +47,14 @@ sub action_logout {
 sub action_login {
   my ($self) = @_;
 
-  my $login     = $::form->{'{AUTH}login'}     || $::auth->get_session_value('login');
-  my $client_id = $::form->{'{AUTH}client_id'} || $::auth->get_session_value('client_id');
-  my $error     = t8('Incorrect username or password or no access to selected client!');
+  my $error = t8('Incorrect username or password or no access to selected client!');
 
-  if (!$::auth->set_client($client_id)) {
-    $::auth->punish_wrong_login;
-    return $self->show_login_form(error => $error);
-  }
-
-  %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
-  $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
-  my $auth_result  = SL::Dispatcher::AuthHandler::User->new->handle(callback => $::form->{callback});
-
+  my $auth_result  = SL::Dispatcher::AuthHandler::User->new->handle(
+    login     => delete $::form->{'{AUTH}login'},
+    password  => delete $::form->{'{AUTH}password'},
+    client_id => delete $::form->{'{AUTH}client_id'},
+    callback  => $::form->{callback},
+  );
   $::dispatcher->end_request unless $auth_result;
 
   $::request->layout(SL::Layout::Dispatcher->new(style => $::myconfig{menustyle}));
