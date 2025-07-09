@@ -173,10 +173,15 @@
   <caption>[% 'Handling, Numbers & Dates' | $T8 %]</caption>
   <colgroup> <col class="wi-mediumsmall"><col class="wi-normal"> </colgroup>
   <tbody>
+
     <tr>
       <th>[% 'Status' | $T8 %]</th>
-      <td id="data-status-line"><span class="data wi-normal">[% SELF.order.presenter.status_line %]</span></td>
-    </tr>
+      <td rowspan="2">
+        <span id="data-status-line" class="data wi-normal overflow-visible height-auto">
+          [% SELF.order.presenter.status_line || '&nbsp;' %]
+        </span>
+      </td>
+    </tr><tr></tr>
 
     <tr>
       <th>[% 'Employee' | $T8 %]</th>

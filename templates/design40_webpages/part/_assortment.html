@@ -54,7 +54,7 @@
         <td></td>
         <td></td>
         <td colspan="4">
-          [% P.part.picker('add_items[+].parts_id', '', class='wi-lightwide', multiple=1, id='assortment_picker', action={set_multi_items='kivi.Part.set_multi_assortment_items'}, placeholder=LxERP.t8('Search & Add Article')) %]
+          [% P.part.picker('add_items[+].parts_id', '', class='wi-lightwide', multiple=1, id='assortment_picker', action={set_multi_items='kivi.Part.set_multi_assortment_items', commit_one='kivi.Part.add_assortment_item'}, placeholder=LxERP.t8('Search & Add Article')) %]
           [% L.button_tag("kivi.Part.add_assortment_item()", LxERP.t8("Add")) %]
           [% L.hidden_tag('add_items[].qty_as_number', 1) %]
         </td>

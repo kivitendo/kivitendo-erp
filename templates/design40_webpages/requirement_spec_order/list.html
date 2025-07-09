@@ -82,11 +82,7 @@
               [% END %]
             </td>
             <td class="numeric">
-              [% IF INSTANCE_CONF.get_feature_experimental_order %]
-                <a href="controller.pl?action=Order/edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
-              [% ELSE %]
-                <a href="oe.pl?action=edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
-              [% END %]
+              <a href="controller.pl?action=Order/edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
               [% HTML.escape(rs_order.order.quotation ? rs_order.order.quonumber : rs_order.order.ordnumber) %]
               </a>
             </td>

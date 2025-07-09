@@ -12,6 +12,7 @@ use Regexp::IPv6 qw($IPv6_re);
 use SL::Auth::ColumnInformation;
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
+use SL::Auth::HTTPHeaders;
 use SL::Auth::LDAP;
 use SL::Auth::Password;
 use SL::Auth::SessionValue;
@@ -152,7 +153,7 @@ sub _read_auth_config {
   foreach my $module (split m{ +}, $self->{module}) {
     my $config_name;
     ($module, $config_name) = split m{:}, $module, 2;
-    $config_name          ||= $module eq 'DB' ? 'database' : lc($module);
+    $config_name          ||= $module eq 'DB' ? 'database' : $module eq 'HTTPHeaders' ? 'http_headers' : lc($module);
     my $config              = $::lx_office_conf{'authentication/' . $config_name};
 
     if (!$config) {
@@ -165,6 +166,9 @@ sub _read_auth_config {
 
     } elsif ($module eq 'LDAP') {
       push @{ $self->{authenticators} }, SL::Auth::LDAP->new($config);
+
+    } elsif ($module eq 'HTTPHeaders') {
+      push @{ $self->{authenticators} }, SL::Auth::HTTPHeaders->new($config);
 
     } else {
       my $locale = Locale->new('en');
@@ -228,6 +232,12 @@ sub authenticate_root {
   return $result;
 }
 
+sub set_session_authenticated {
+  my ($self, $login, $result) = @_;
+
+  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
+}
+
 sub authenticate {
   my ($self, $login, $password) = @_;
 
@@ -252,7 +262,8 @@ sub authenticate {
     }
   }
 
-  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
+  $self->set_session_authenticated($login, $result);
+
   return $result;
 }
 
@@ -525,8 +536,8 @@ sub read_user {
   my %menustyle_map = ( xml => 'new', v4 => 'v3' );
   $user_data{menustyle} = $menustyle_map{lc($user_data{menustyle} || '')} || $user_data{menustyle};
 
-  # The 'Win2000.css' stylesheet has been removed.
-  $user_data{stylesheet} = 'kivitendo.css' if ($user_data{stylesheet} || '') =~ m/win2000/i;
+  # The 'kivitendo.css', 'lx-office-erp.css', 'Mobile.css' and 'Win2000.css' stylesheets have been removed.
+  $user_data{stylesheet} = 'design40.css' if ($user_data{stylesheet} || '') =~ m/win2000|kivitendo\.css|lx-office-erp\.css|Mobile\.css/i;
 
   # Set default language if selected language does not exist (anymore).
   $user_data{countrycode} = $::lx_office_conf{system}->{language} unless $user_data{countrycode} && -d "locale/$user_data{countrycode}";

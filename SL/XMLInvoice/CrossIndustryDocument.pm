@@ -6,6 +6,7 @@ use warnings;
 use parent qw(SL::XMLInvoice::Base);
 
 use constant ITEMS_XPATH => '//ram:IncludedSupplyChainTradeLineItem';
+use constant TAX_TOTALS_XPATH => '//ram:ApplicableSupplyChainTradeSettlement/ram:ApplicableTradeTax';
 
 =head1 NAME
 
@@ -83,6 +84,7 @@ sub scalar_xpaths {
     iban => ['//ram:SpecifiedTradeSettlementPaymentMeans/ram:PayeePartyCreditorFinancialAccount/ram:IBANID'],
     invnumber => ['//rsm:HeaderExchangedDocument/ram:ID'],
     net_total => ['//ram:TaxBasisTotalAmount'],
+    tax_total => ['//ram:TaxTotalAmount'],
     transdate => ['//ram:IssueDateTime/udt:DateTimeString'],
     taxnumber => ['//ram:SellerTradeParty/ram:SpecifiedTaxRegistration/ram:ID[@schemeID="FC"]'],
     type => ['//rsm:HeaderExchangedDocument/ram:TypeCode'],
@@ -106,6 +108,15 @@ sub item_xpaths {
   };
 }
 
+sub tax_totals_xpaths {
+  return {
+    'amount'        => './ram:CalculatedAmount',
+    'type_code'     => './ram:TypeCode',
+    'net_amount'    => './ram:BasisAmount',
+    'category_code' => './ram:CategoryCode',
+    'tax_rate'      => './ram:RateApplicablePercent',
+  };
+}
 
 # Metadata accessor method
 sub metadata {
@@ -117,6 +128,20 @@ sub metadata {
 sub items {
   my $self = shift;
   return $self->{_items};
+}
+
+# Taxes list accessor method
+sub tax_totals {
+  my $self = shift;
+  return $self->{_taxes};
+}
+
+sub _xpath_context {
+  my $xc = XML::LibXML::XPathContext->new;
+  $xc->registerNs(udt => 'urn:un:unece:uncefact:data:standard:UnqualifiedDataType:15');
+  $xc->registerNs(ram => 'urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:12');
+  $xc->registerNs(rsm => 'urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:1p0');
+  $xc;
 }
 
 # Data keys we return
@@ -145,6 +170,8 @@ sub parse_xml {
   $self->{_metadata} = {};
   $self->{_items} = ();
 
+  my $xc = _xpath_context();
+
   # Retrieve scalar metadata from DOM
   foreach my $key ( keys %{$self->scalar_xpaths} ) {
     foreach my $xpath ( @{${$self->scalar_xpaths}{$key}} ) {
@@ -153,7 +180,7 @@ sub parse_xml {
         ${$self->{_metadata}}{$key} = undef;
         next;
       }
-      my $value = $self->{dom}->findnodes($xpath);
+      my $value = $xc->find($xpath, $self->{dom});
       if ( $value ) {
         # Get rid of extraneous white space
         $value = $value->string_value;
@@ -170,12 +197,14 @@ sub parse_xml {
 
   # Convert payment code metadata field to Boolean
   # See https://service.unece.org/trade/untdid/d16b/tred/tred4461.htm for other valid codes.
-  ${$self->{_metadata}}{'direct_debit'} = ${$self->{_metadata}}{'direct_debit'} == 59 ? 1 : 0;
+  if (${$self->{_metadata}}{'direct_debit'}) {
+    ${$self->{_metadata}}{'direct_debit'} = ${$self->{_metadata}}{'direct_debit'} == 59 ? 1 : 0;
+  }
 
   my @items;
   $self->{_items} = \@items;
 
-  foreach my $item ( $self->{dom}->findnodes(ITEMS_XPATH)) {
+  foreach my $item ( $xc->findnodes(ITEMS_XPATH, $self->{dom}) ) {
     my %line_item;
     foreach my $key ( keys %{$self->item_xpaths} ) {
       foreach my $xpath ( @{${$self->item_xpaths}{$key}} ) {
@@ -184,7 +213,7 @@ sub parse_xml {
           $line_item{$key} = undef;
           next;
         }
-        my $value = $item->findnodes($xpath);
+        my $value = $xc->find($xpath, $item);
         if ( $value ) {
           # Get rid of extraneous white space
           $value = $value->string_value;
@@ -197,9 +226,44 @@ sub parse_xml {
         }
       }
     }
+
+    # ZUGFeRD 1.0 doesn't really define what an item needs to have so it's possible to have purely informal items with only a note but without
+    # name, qty or price. In ZUGFeRD 2.0 these are mandatory.
+    #
+    # To have any chance of parsing these in a business context, we filter out those that have _none_.
+
+    next if !defined $line_item{description}
+         && !defined $line_item{quantity}
+         && !defined $line_item{subtotal};
+
     push @items, \%line_item;
   }
 
+  my @taxes;
+  $self->{_taxes} = \@taxes;
+
+  foreach my $tax ( $xc->findnodes(TAX_TOTALS_XPATH, $self->{dom}) ) {
+    my %tax_item;
+    foreach my $key ( keys %{$self->tax_totals_xpaths} ) {
+      my $xpath = ${$self->tax_totals_xpaths}{$key};
+      unless ( $xpath ) {
+        # Skip keys without xpath expression
+        $tax_item{$key} = undef;
+        next;
+      }
+      my $value = $xc->find($xpath, $tax);
+      if ( $value ) {
+        # Get rid of extraneous white space
+        $value = $value->string_value;
+        $value =~ s/\n|\r//g;
+        $value =~ s/\s{2,}/ /g;
+        $tax_item{$key} = $value;
+      } else {
+        $tax_item{$key} = undef;
+      }
+    }
+    push @taxes, \%tax_item;
+  }
 }
 
 1;

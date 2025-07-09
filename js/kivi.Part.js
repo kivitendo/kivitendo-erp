@@ -363,6 +363,7 @@ namespace('kivi.Part', function(ns) {
     this.last_real          = $real.val();
     this.$dummy             = $($real.siblings()[0]);
     this.autocomplete_open  = false;
+    this.menu_above         = false;
     this.state              = this.STATES.PICKED;
     this.last_dummy         = this.$dummy.val();
     this.timer              = undefined;
@@ -503,6 +504,8 @@ namespace('kivi.Part', function(ns) {
     handle_keydown: function(event) {
       var self = this;
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
+        self.$dummy.autocomplete('close');
+
         // if string is empty assume they want to delete
         if (self.$dummy.val() === '') {
           self.set_item({});
@@ -569,6 +572,32 @@ namespace('kivi.Part', function(ns) {
             event.preventDefault();
         },
         open: function() {
+          const $widget = self.$dummy.autocomplete('widget');
+          const input_bound = self.$dummy[0].getBoundingClientRect();
+
+          // safe inner viewport height without scrollbars
+          const viewport_height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+          // logic:
+          // if the widget was already open, keep position
+          // if fits above but not below: render above
+          // else: render below
+          if (!self.autocomplete_open) {
+            if (input_bound.top > $widget.height() && input_bound.bottom + $widget.height() > viewport_height) {
+              $widget.position({ my: "left bottom", at: "left top", of: self.$dummy });
+              self.menu_above = true;
+            } else {
+              $widget.position({ my: "left top", at: "left bottom", of: self.$dummy });
+              self.menu_above = false;
+            }
+          } else {
+            if (self.menu_above) {
+              $widget.position({ my: "left bottom", at: "left top", of: self.$dummy });
+            } else {
+              $widget.position({ my: "left top", at: "left bottom", of: self.$dummy });
+            }
+          }
+
           self.autocomplete_open = true;
         },
         close: function() {

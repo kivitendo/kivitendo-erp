@@ -75,7 +75,7 @@ sub template_config {
     ABSOLUTE     => 1,
     CACHE_SIZE   => 0,
     PLUGIN_BASE  => 'SL::Template::Plugin',
-    INCLUDE_PATH => '.:templates/webpages/',
+    INCLUDE_PATH => '.:templates/design40_webpages/',
     COMPILE_DIR  => 'users/templates-cache-for-tests',
     COMPILE_EXT  => '.tcc',
     ENCODING     => 'utf8',

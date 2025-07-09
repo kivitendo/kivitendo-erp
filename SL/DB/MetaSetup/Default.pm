@@ -97,6 +97,7 @@ __PACKAGE__->meta->columns(
   email_sender_sales_delivery_order         => { type => 'text', default => '' },
   email_sender_sales_order                  => { type => 'text', default => '' },
   email_sender_sales_quotation              => { type => 'text', default => '' },
+  email_subject_transaction_description     => { type => 'boolean', default => 'false' },
   expense_accno_id                          => { type => 'integer' },
   fa_bufa_nr                                => { type => 'text' },
   fa_dauerfrist                             => { type => 'text' },
@@ -109,8 +110,6 @@ __PACKAGE__->meta->columns(
   feature_datev                             => { type => 'boolean', default => 'true', not_null => 1 },
   feature_erfolgsrechnung                   => { type => 'boolean', default => 'false', not_null => 1 },
   feature_eurechnung                        => { type => 'boolean', default => 'true', not_null => 1 },
-  feature_experimental_assortment           => { type => 'boolean', default => 'true', not_null => 1 },
-  feature_experimental_order                => { type => 'boolean', default => 'true', not_null => 1 },
   feature_ustva                             => { type => 'boolean', default => 'true', not_null => 1 },
   fuzzy_skonto                              => { type => 'boolean', default => 'true' },
   fuzzy_skonto_percentage                   => { type => 'float', default => '0.5', precision => 4, scale => 4 },
@@ -118,6 +117,7 @@ __PACKAGE__->meta->columns(
   fxloss_accno_id                           => { type => 'integer' },
   gl_add_doc                                => { type => 'boolean', default => 'false', not_null => 1 },
   gl_changeable                             => { type => 'integer', default => 2, not_null => 1 },
+  gln                                       => { type => 'text' },
   global_bcc                                => { type => 'text', default => '' },
   id                                        => { type => 'serial', not_null => 1 },
   income_accno_id                           => { type => 'integer' },
@@ -143,6 +143,7 @@ __PACKAGE__->meta->columns(
   normalize_part_descriptions               => { type => 'boolean', default => 'true' },
   normalize_vc_names                        => { type => 'boolean', default => 'true' },
   order_always_project                      => { type => 'boolean', default => 'false' },
+  order_item_input_position                 => { type => 'integer', default => '0', not_null => 1 },
   order_warn_duplicate_parts                => { type => 'boolean', default => 'true' },
   order_warn_no_cusordnumber                => { type => 'boolean', default => 'false' },
   order_warn_no_deliverydate                => { type => 'boolean', default => 'true' },
@@ -247,6 +248,7 @@ __PACKAGE__->meta->columns(
   weightunit                                => { type => 'varchar', length => 5 },
   workflow_po_ap_chart_id                   => { type => 'integer' },
   yearend_method                            => { type => 'text', default => 'default', not_null => 1 },
+  zugferd_ap_transaction_use_totals         => { type => 'boolean', default => 'false', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

@@ -956,9 +956,7 @@ sub orders {
   my $callback = $form->escape($href);
 
   my $edit_url       = build_std_url('action=edit', 'type', 'vc');
-  my $edit_order_url = ($::instance_conf->get_feature_experimental_order)
-                     ? build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'))
-                     : build_std_url('script=oe.pl',         'action=edit',       'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
+  my $edit_order_url = build_std_url('script=controller.pl', 'action=Order/edit', 'type=' . ($form->{type} eq 'sales_delivery_order' ? 'sales_order' : 'purchase_order'));
 
   my $idx            = 1;
 

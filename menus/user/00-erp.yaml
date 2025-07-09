@@ -76,7 +76,7 @@
   name: Add Assortment
   icon: assortment_add
   order: 550
-  access: part_service_assembly_edit & client/feature_experimental_assortment
+  access: part_service_assembly_edit
   params:
     action: Part/add_assortment
 - parent: master_data
@@ -181,26 +181,6 @@
   access: requirement_spec_edit
   params:
     action: RequirementSpec/new
-- parent: ar
-  id: ar_add_quotation
-  name: Add Quotation
-  icon: quotation_add
-  order: 200
-  access: sales_quotation_edit
-  module: oe.pl
-  params:
-    action: add
-    type: sales_quotation
-- parent: ar
-  id: ar_add_sales_order
-  name: Add Sales Order
-  icon: sales_order_add
-  order: 300
-  access: sales_order_edit
-  module: oe.pl
-  params:
-    action: add
-    type: sales_order
 - parent: ar
   id: ar_add_delivery_order
   name: Add Delivery Order
@@ -411,26 +391,6 @@
   name: AP
   icon: ap
   order: 300
-- parent: ap
-  id: ap_add_rfq
-  name: Add RFQ
-  icon: rfq_add
-  order: 100
-  access: request_quotation_edit
-  module: oe.pl
-  params:
-    action: add
-    type: request_quotation
-- parent: ap
-  id: ap_add_purchase_order
-  name: Add Purchase Order
-  icon: purchase_order_add
-  order: 200
-  access: purchase_order_edit
-  module: oe.pl
-  params:
-    action: add
-    type: purchase_order
 - parent: ap
   id: ap_add_delivery_note
   name: Add Delivery Note

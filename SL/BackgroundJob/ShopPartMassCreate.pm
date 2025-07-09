@@ -51,6 +51,12 @@ sub get_shop_categories {
   return \@shop_categories;
 }
 
+sub sanitize_filename {
+    my ($filename) = @_;
+    $filename =~ s/\W/_/g;
+    return $filename;
+}
+
 sub _warn {
   my ($messages, $message) = @_;
   $main::lxdebug->message(LXDebug::WARN(), $message);
@@ -138,11 +144,10 @@ sub run {
 
       my $fileobj;
       if (exists $images_by_names{$image_name}) {
-        # I tried updating the file, but it didn't work right away
-        # so instead I delete the file and create a new one
-        # (this is also the way it is done in the UI, there's only a delete button,
-        #  no update button)
-        $images_by_names{$image_name}->delete;
+        # I tried updating or deleting the file, but that didn't work
+        # so for now we'll just skip the image if an image with the same name already exists
+        # (atm there doesn't seem to be a mechanism in place to update or delete the files properly)
+        next;
       }
 
       my $image_path = $images_import_path . $image_name;
@@ -165,7 +170,7 @@ sub run {
         source           => 'uploaded',
         file_type        => 'image',
         file_name        => $image_name,
-        title            => substr($part->description, 0, 45),
+        title            => sanitize_filename(substr($part->description, 0, 45)),
         description      => '',
         file_contents    => $file_data,
         file_path        => $image_path,

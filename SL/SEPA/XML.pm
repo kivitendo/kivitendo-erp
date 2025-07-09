@@ -246,7 +246,7 @@ sub to_xml {
       $xml->startTag('LclInstrm');
       $xml->dataElement('Cd', 'CORE');
       $xml->endTag('LclInstrm');
-      $xml->dataElement('SeqTp', 'OOFF');
+      $xml->dataElement('SeqTp', 'RCUR');
     }
     $xml->endTag('PmtTpInf');
 
