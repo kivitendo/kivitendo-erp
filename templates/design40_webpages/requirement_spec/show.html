@@ -6,8 +6,6 @@
 [% USE JavaScript %]
 [% SET sections = SELF.requirement_spec.sections_sorted || [] %]
 
-[% INCLUDE 'common/flash.html' %]
-
 [% INCLUDE 'requirement_spec/_header.html' %]
 
 [% L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id, 'data-is-template'=(SELF.requirement_spec.is_template ? 1 : 0)) %]

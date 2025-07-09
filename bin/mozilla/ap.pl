@@ -222,8 +222,8 @@ sub load_record_template {
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
 
   flash('info', $::locale->text("The record template '#1' has been loaded.", $template->template_name));
-  flash('info', $::locale->text("Payment bookings disallowed. After the booking this record may be " .
-                                "suggested with the amount of '#1' or otherwise has to be choosen manually." .
+  flash('info', $::locale->text("Payment bookings disallowed.<br>After the booking this record may be " .
+                                "suggested<br>with the amount of '#1'<br>or otherwise has to be choosen manually.<br>" .
                                 " No automatic payment booking will be done to chart '#2'.",
                                   $form_defaults->{paid_1_suggestion},
                                   $form_defaults->{AP_paid_1_suggestion},

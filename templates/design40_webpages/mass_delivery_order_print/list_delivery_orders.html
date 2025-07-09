@@ -4,8 +4,6 @@
 
 <h1>[% FORM.title %]</h1>
 
-[% INCLUDE "common/flash.html" %]
-
 [% LIST_ACTION     = 'action_list_delivery_orders' %]
 [% PROCESS 'mass_delivery_order_print/_filter.html' filter=SELF.filter %]
 

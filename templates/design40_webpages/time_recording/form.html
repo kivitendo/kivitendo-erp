@@ -6,8 +6,6 @@
 
 <h1>[% title %]</h1>
 
-[%- INCLUDE 'common/flash.html' %]
-
 <form method="post" action="controller.pl" id="form">
   [% P.hidden_tag('id',       SELF.time_recording.id) %]
   [% L.hidden_tag('callback', FORM.callback) %]
