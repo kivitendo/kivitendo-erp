@@ -2,6 +2,10 @@
 [% USE JavaScript %]
 [% USE JSON %]
 kivi.myconfig = [% JSON.json(MYCONFIG) %];
+
+[% IF hot_reload %]
+kivi.hot_reload_server_port = "[% hot_reload_server_port %]";
+[% END %]
 $(function() {
   $.datepicker.setDefaults(
     $.extend({}, $.datepicker.regional[kivi.myconfig.countrycode], {
