@@ -511,14 +511,14 @@ namespace('kivi.CustomerVendor', function(ns) {
   ns.jira_init = function () {
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
       if (ui.newPanel.attr('id') == 'jira') {
-        ns.get_price_report('#jira', "controller.pl?action=CustomerVendor/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.get_price_report('#jira', "controller.pl?action=Jira/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
       if (ui.panel.attr('id') == 'jira') {
-        ns.get_price_report('#jira', "controller.pl?action=CustomerVendor/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.get_price_report('#jira', "controller.pl?action=Jira/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });

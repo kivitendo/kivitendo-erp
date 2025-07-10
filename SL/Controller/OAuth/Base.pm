@@ -3,6 +3,7 @@ package SL::Controller::OAuth::Base;
 use strict;
 use REST::Client;
 use SL::JSON;
+use SL::MoreCommon qw(uri_encode);
 use SL::Request qw(flatten);
 use SL::DB::OauthToken;
 
@@ -36,6 +37,18 @@ sub POST {
 
   my $ret = $client->POST($url, $class->query($params));
 }
+
+sub POST_JSON {
+  my ($class, $url, $data, $headers) = @_;
+
+  my $client = REST::Client->new();
+
+  $client->addHeader($_->[0], $_->[1]) for @{ flatten($headers) };
+
+  my $ret = $client->POST($url, to_json($data));
+}
+
+
 
 sub query {
   my ($class, $params) = @_;
