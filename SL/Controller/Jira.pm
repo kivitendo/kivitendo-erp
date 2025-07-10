@@ -3,7 +3,7 @@ package SL::Controller::Jira;
 use strict;
 use SL::DB::Customer;
 use SL::DB::Vendor;
-use SL::DB::OauthToken;
+use SL::Controller::Oauth;
 use SL::Controller::Helper::ReportGenerator;
 use SL::JSON;
 use SL::MoreCommon qw(uri_encode);
@@ -73,7 +73,7 @@ sub action_ajax_list_jira {
                    'parts.partnumber';
   $sort_param .= ' ' . ($::form->{sort_dir} ? 'ASC' : 'DESC');
 
-  my $jira_issues = $self->atlassian_jira_cloudid(23, $jql);
+  my $jira_issues = $self->atlassian_jira_cloudid($jql);
 
   $self->report_generator_list_objects(report => $report, objects => $jira_issues, layout => 0, header => 0);
 }
@@ -83,11 +83,11 @@ sub action_ajax_list_jira {
 ### private
 
 sub atlassian_jira_cloudid {
-  my ($self, $token_db_id, $jql) = @_;
+  my ($self, $jql) = @_;
 
-  my $bearer = http_bearer_auth_header($token_db_id);
+  my $acctok = SL::Controller::Oauth::access_token_for('atlassian_jira');
   my $client = REST::Client->new();
-  $client->addHeader('Authorization', $bearer);
+  $client->addHeader('Authorization', 'Bearer ' . $acctok);
   $client->addHeader('Accept', 'application/json');
   my $ret = $client->GET('https://api.atlassian.com/oauth/token/accessible-resources');
   my $response_code = $ret->responseCode();
@@ -126,19 +126,6 @@ sub atlassian_jira_cloudid {
     resolution => $_->{fields}->{resolution}->{name},
   }} @{$c->{issues}});
   return \@a;
-}
-
-
-sub http_bearer_auth_header {
-  my ($db_id) = @_;
-
-  my $tok = SL::DB::Manager::OauthToken->find_by(id => $db_id);
-
-  if (!$tok->is_valid) {
-    SL::Controller::OAuth::refresh($tok);
-  }
-
-  return 'Bearer ' . $tok->access_token;
 }
 
 1;
