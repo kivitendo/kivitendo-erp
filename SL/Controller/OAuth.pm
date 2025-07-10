@@ -1,10 +1,10 @@
-package SL::Controller::Oauth;
+package SL::Controller::OAuth;
 
 use strict;
 
 use parent qw(SL::Controller::Base);
 
-use SL::DB::OauthToken;
+use SL::DB::OAuthToken;
 use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
@@ -58,7 +58,7 @@ sub refresh {
 sub imap_sasl_string {
   my ($self, $db_id) = @_;
 
-  my $tok = SL::DB::Manager::OauthToken->find_by(id => $db_id);
+  my $tok = SL::DB::Manager::OAuthToken->find_by(id => $db_id);
 
   if (!$tok->is_valid) {
     refresh($tok);
@@ -91,7 +91,7 @@ sub action_list {
     access_token  => $_->access_token ? (length($_->access_token) . ' bytes') : 'missing',
     refresh_token => $_->refresh_token ? (length($_->refresh_token) . ' bytes') : 'missing',
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-  } } @{SL::DB::Manager::OauthToken->get_all(sort_by => 'registration,id ASC')});
+  } } @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')});
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
@@ -131,7 +131,7 @@ sub action_consume_authorization_code {
   my ($self) = @_;
 
   my $search_state = $::form->{state};
-  my $tok = SL::DB::Manager::OauthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
+  my $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
   my $provider = $providers{$tok->registration} or die "unknown provider";
 
   my $ret = $provider->access_token($tok, $::form->{code});
@@ -167,7 +167,7 @@ sub setup_add_action_bar {
     $bar->add(
      action => [
         t8('Save'),
-        submit    => [ '#form', { action => 'Oauth/create' } ],
+        submit    => [ '#form', { action => 'OAuth/create' } ],
         accesskey => 'enter',
       ],
     );
@@ -196,7 +196,7 @@ sub setup_list_action_bar {
 sub access_token_for {
   my ($target) = @_;
 
-  my $tok = SL::DB::Manager::OauthToken->find_by(registration => $target) or die;
+  my $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target) or die;
 
   refresh($tok) unless $tok->is_valid();
 
@@ -215,14 +215,14 @@ __END__
 
 =head1 NAME
 
-SL::Controller::Oauth - OAuth2
+SL::Controller::OAuth - OAuth2
 
 data model and control flow by Alexander Perlis Mutt OAuth2 token management script
 
 
 
 
-use SL::Controller::Oauth;
+use SL::Controller::OAuth;
 use Mail::IMAPClient;
 
 my $username = 'kivitendo.test@your.domain';
@@ -234,7 +234,7 @@ my $imap = Mail::IMAPClient->new(
   Uid      => 1,
 ) or die "Cannot connect $@";
 
-$imap->authenticate('XOAUTH2', sub { return SL::Controller::Oauth->imap_sasl_string(4); }) or die("Auth error: ". $imap->LastError);
+$imap->authenticate('XOAUTH2', sub { return SL::Controller::OAuth->imap_sasl_string(4); }) or die("Auth error: ". $imap->LastError);
 
 my $folders = $imap->folders or die "List folders error: ", $imap->LastError, "\n";
 

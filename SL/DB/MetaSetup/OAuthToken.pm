@@ -1,6 +1,6 @@
 # This file has been auto-generated. Do not modify it; it will be overwritten
 # by rose_auto_create_model.pl automatically.
-package SL::DB::OauthToken;
+package SL::DB::OAuthToken;
 
 use strict;
 

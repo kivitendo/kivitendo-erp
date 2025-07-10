@@ -1089,7 +1089,7 @@
   order: 150
   access: admin
   params:
-    action: Oauth/list
+    action: OAuth/list
 - parent: system
   id: system_ustva_einstellungen
   name: UStVa Einstellungen

@@ -544,7 +544,7 @@ sub _route_controller_request {
 
 sub _route_oauth_controller_request {
   my ($self) = @_;
-  return (controller => 'Oauth', action => 'consume_authorization_code', request_type => 'html');
+  return (controller => 'OAuth', action => 'consume_authorization_code', request_type => 'html');
 }
 
 sub _cache_file_modification_times {

@@ -5,7 +5,7 @@ use REST::Client;
 use SL::JSON;
 use SL::MoreCommon qw(uri_encode);
 use SL::Request qw(flatten);
-use SL::DB::OauthToken;
+use SL::DB::OAuthToken;
 
 sub type {
   die "needs to be implemented";

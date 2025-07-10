@@ -28,13 +28,13 @@ sub title {
 sub create_authorization {
   my ($self, $config) = @_;
 
-  $self->config(SL::DB::OauthToken->new());
+  $self->config(SL::DB::OAuthToken->new());
 
   my $redirect_uri = $::form->{config}->{redirect_uri};
   $redirect_uri .= '/' if ($redirect_uri !~ m/\/$/);
   $redirect_uri .= 'oauth.pl';
 
-  my $tok = SL::DB::OauthToken->new(
+  my $tok = SL::DB::OAuthToken->new(
     registration => $self->type,
     authflow     => 'authcode',
     redirect_uri => $redirect_uri,
