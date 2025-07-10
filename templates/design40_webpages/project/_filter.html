@@ -3,6 +3,8 @@
 [% USE L %]
 [% USE LxERP %]
 
+[% L.hidden_tag("_include_cvars_from_form", 1) %]
+
 [% BLOCK filter_toggle_panel %]
 <table id="filter_table" class="tbl-horizontal">
   <caption>[% 'Project' | $T8 %]</caption>
