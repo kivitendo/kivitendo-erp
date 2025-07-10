@@ -16,7 +16,6 @@ use SL::ZUGFeRD;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::ParseFilter;
-use SL::Controller::Oauth;
 
 use SL::DB::AuthGroup;
 use SL::DB::Customer;
