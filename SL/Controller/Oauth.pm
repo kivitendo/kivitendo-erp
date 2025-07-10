@@ -8,8 +8,6 @@ use SL::DB::OauthToken;
 use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
-use REST::Client;
-use SL::MoreCommon qw(uri_encode);
 use SL::Controller::OAuth::Microsoft;
 use SL::Controller::OAuth::Atlassian;
 
@@ -18,7 +16,6 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_config', only => [ qw(edit update delete) ]);
 
 my %providers = (
   microsoft      => 'SL::Controller::OAuth::Microsoft',
@@ -27,8 +24,17 @@ my %providers = (
 
 
 sub load_credentials {
-  my ($reg) = @_;
+  my ($regtype) = @_;
+
+  my %reg;
+
+  my $conf = $::lx_office_conf{"oauth2_$regtype"} or
+    die t8('Missing configuration section "oauth_#1" in "config/kivitendo.conf"', $regtype);
+
+  $reg{$_} = $conf->{$_} for qw(client_id client_secret scope redirect_uri);
+
   # TODO: load client_id, client_secret, tenant etc for this
+  \%reg;
 }
 
 sub refresh {
@@ -100,7 +106,7 @@ sub action_new {
 
   $self->config(SL::DB::OauthToken->new());
   $self->config->{registration} = $::form->{oauth_type};
-  $self->config->{$_} = $reg->{$_} for qw(client_id client_secret scope);
+  $self->config->{$_} = $reg->{$_} for qw(client_id client_secret scope redirect_uri);
   $self->setup_add_action_bar();
   $self->render('oauth/form', title => 'Add new OAuth2 token');
 }
@@ -111,9 +117,10 @@ sub action_create {
   my $regtype = $::form->{registration};
   my $provider = $providers{$regtype} or die "unknown provider";
 
+  $self->config($::form->{config});
   my ($link, $tok) = $provider->create_authorization($self->config);
 
-  $self->config->{authorize_link} = $link;
+  $self->{authorize_link} = $link;
   $tok->save;
 
   $self->render('oauth/forward', title => 'Add new OAuth2 token');

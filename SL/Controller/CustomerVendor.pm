@@ -77,7 +77,6 @@ __PACKAGE__->run_before(
     'ajaj_get_additional_billing_address',
     'ajaj_get_contact',
     'ajax_list_prices',
-    'ajax_list_jira',
   ]
 );
 

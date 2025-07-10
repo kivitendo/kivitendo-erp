@@ -4,7 +4,17 @@ use strict;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::OauthToken;
+use SL::Controller::Helper::ReportGenerator;
+use SL::JSON;
+use SL::MoreCommon qw(uri_encode);
+use REST::Client;
 
+use parent qw(SL::Controller::Base);
+__PACKAGE__->run_before('check_auth');
+
+sub check_auth {
+  $::auth->assert('config');
+}
 
 sub action_ajax_list_jira {
   my ($self, %params) = @_;
@@ -38,16 +48,13 @@ sub action_ajax_list_jira {
       action   => 'ajax_list_jira',
       callback => $::form->{callback},
       db       => $::form->{db},
-      id       => $self->{cv}->id,
+      id       => $cus->id,
       sort_by  => $col,
       sort_dir => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir})
     );
   }
 
   map { $column_defs{$_}{visible} = 1 } @visible;
-
-  my $pricegroup;
-  $pricegroup = $self->{cv}->pricegroup->pricegroup if $self->{cv}->pricegroup;
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -57,7 +64,7 @@ sub action_ajax_list_jira {
   $report->set_options(
     %{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
-    top_info_text        => $::locale->text('Issues') . ': ' . $pricegroup . 'Atlassian JQL: ' . $jql,
+    top_info_text        => $::locale->text('Issues') . ': ' . 'Atlassian JQL: ' . $jql,
     title                => $::locale->text('Jira'),
   );
 
@@ -66,7 +73,7 @@ sub action_ajax_list_jira {
                    'parts.partnumber';
   $sort_param .= ' ' . ($::form->{sort_dir} ? 'ASC' : 'DESC');
 
-  my $jira_issues = $self->atlassian_jira_cloudid(1, $jql);
+  my $jira_issues = $self->atlassian_jira_cloudid(23, $jql);
 
   $self->report_generator_list_objects(report => $report, objects => $jira_issues, layout => 0, header => 0);
 }

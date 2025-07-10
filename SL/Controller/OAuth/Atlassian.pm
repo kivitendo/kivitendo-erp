@@ -2,10 +2,11 @@ package SL::Controller::OAuth::Atlassian;
 
 use strict;
 use parent qw(SL::Controller::OAuth::Base);
+use SL::JSON;
+use Crypt::PRNG qw(random_bytes_b64u);
 
 my $authorize_endpoint  = 'https://auth.atlassian.com/authorize';
-my $devicecode_endpoint = 'https://auth.atlassian.com/oauth/token';
-my $token_endpoint      = 'offline_access read:jira-work read:servicedesk-request';
+my $token_endpoint      = 'https://auth.atlassian.com/oauth/token';
 
 sub type {
   "atlassian_jira";
@@ -17,8 +18,6 @@ sub title {
 
 sub create_authorization {
   my ($self, $config) = @_;
-
-  $self->config(SL::DB::OauthToken->new());
 
   my $redirect_uri = $::form->{config}->{redirect_uri};
   $redirect_uri .= '/' if ($redirect_uri !~ m/\/$/);
@@ -59,10 +58,10 @@ sub refresh {
   );
 
   my %headers = (
-    'Content-Type' => 'application/x-www-form-urlencoded',
+    'Content-Type' => 'application/json',
   );
 
-  $self->POST($token_endpoint, \%params, \%headers);
+  $self->POST_JSON($token_endpoint, \%params, \%headers);
 }
 
 sub access_token {
@@ -77,9 +76,9 @@ sub access_token {
   );
 
   my %headers = (
-    'Content-Type' => 'application/x-www-form-urlencoded',
+    'Content-Type' => 'application/json',
   );
 
-  return $self->POST($token_endpoint, \%params, \%headers);
+  return $self->POST_JSON($token_endpoint, \%params, \%headers);
 }
 
