@@ -3,7 +3,7 @@ package SL::Controller::Jira;
 use strict;
 use SL::DB::Customer;
 use SL::DB::Vendor;
-use SL::Controller::Oauth;
+use SL::Controller::OAuth;
 use SL::Controller::Helper::ReportGenerator;
 use SL::JSON;
 use SL::MoreCommon qw(uri_encode);
@@ -85,7 +85,7 @@ sub action_ajax_list_jira {
 sub atlassian_jira_cloudid {
   my ($self, $jql) = @_;
 
-  my $acctok = SL::Controller::Oauth::access_token_for('atlassian_jira');
+  my $acctok = SL::Controller::OAuth::access_token_for('atlassian_jira');
   my $client = REST::Client->new();
   $client->addHeader('Authorization', 'Bearer ' . $acctok);
   $client->addHeader('Accept', 'application/json');
