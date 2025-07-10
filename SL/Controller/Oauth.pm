@@ -10,6 +10,7 @@ use SL::JSON;
 use SL::Locale::String;
 use SL::Controller::OAuth::Microsoft;
 use SL::Controller::OAuth::Atlassian;
+use SL::Helper::Flash qw(flash_later);
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
@@ -90,7 +91,7 @@ sub action_list {
     access_token  => $_->access_token ? (length($_->access_token) . ' bytes') : 'missing',
     refresh_token => $_->refresh_token ? (length($_->refresh_token) . ' bytes') : 'missing',
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-  } } @{SL::DB::Manager::OauthToken->get_all()});
+  } } @{SL::DB::Manager::OauthToken->get_all(sort_by => 'registration,id ASC')});
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
@@ -104,8 +105,7 @@ sub action_new {
   my $regtype = $::form->{oauth_type};
   my $reg = load_credentials($regtype);
 
-  $self->config(SL::DB::OauthToken->new());
-  $self->config->{registration} = $::form->{oauth_type};
+  $self->config({ registration => $::form->{oauth_type} });
   $self->config->{$_} = $reg->{$_} for qw(client_id client_secret scope redirect_uri);
   $self->setup_add_action_bar();
   $self->render('oauth/form', title => 'Add new OAuth2 token');
@@ -134,9 +134,6 @@ sub action_consume_authorization_code {
   my $tok = SL::DB::Manager::OauthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
   my $provider = $providers{$tok->registration} or die "unknown provider";
 
-  $self->config($tok);
-  $self->config->{email} = $tok->email;
-
   my $ret = $provider->access_token($tok, $::form->{code});
 
   my $response_code = $ret->responseCode();
@@ -150,8 +147,8 @@ sub action_consume_authorization_code {
   $tok->tokenstate(undef);
   $tok->save;
 
-  $self->config->{message} = 'Token received: database ID ' . $tok->id;
-  $self->render('oauth/form', title => 'Add new OAuth2 token');
+  flash_later('info', t8('OAuth token received: #1, database ID #2', $tok->registration, $tok->id));
+  $self->redirect_to(action => 'list');
 }
 
 #
@@ -199,6 +196,11 @@ sub setup_list_action_bar {
 sub access_token_for {
   my ($target) = @_;
 
+  my $tok = SL::DB::Manager::OauthToken->find_by(registration => $target) or die;
+
+  refresh($tok) unless $tok->is_valid();
+
+  $tok->access_token;
   # wenn ja -> token
   # wenn expired -> try refresh und token
   # sonst: exception
