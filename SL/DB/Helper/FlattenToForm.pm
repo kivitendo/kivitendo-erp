@@ -39,7 +39,8 @@ sub flatten_to_form {
 
   my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit
                                department_1 department_2 discount email fax gln greeting homepage iban language name
-                               natural_person phone street taxnumber ustid zipcode),
+                               natural_person phone street taxnumber ustid zipcode
+                               mandator_id mandate_date_of_signature),
                             "${vc}number",
                             ($vc eq 'customer')? qw(c_vendor_id c_vendor_routing_id): 'v_customer_id');
   my @vc_prefixed_fields = qw(email fax notes number phone);
