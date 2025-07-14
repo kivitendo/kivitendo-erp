@@ -605,6 +605,33 @@ sub init_get_open_ordered_qty {
   return $result;
 }
 
+sub assembly_items_recursively {
+  my ($self, %params) = @_;
+
+  my $max_level = $params{max_level} || 50;
+  return $self->_assembly_items_recursively(0, $max_level);
+}
+
+sub _assembly_items_recursively {
+  my ($self, $level, $max_level) = @_;
+
+  return if !$self->is_assembly;
+
+  return if $level > $max_level;
+
+  my @items;
+  foreach my $item (@{$self->items}) {
+    $item->{level} = $level;
+    push @items, $item;
+    if ($item->part->is_assembly) {
+      my $c = $item->part->_assembly_items_recursively($level + 1, $max_level);
+      push @items, @$c;
+    }
+  }
+
+  return \@items;
+}
+
 1;
 
 __END__
@@ -781,6 +808,15 @@ Examples:
  my $qty = $part->get_stock(bin_id => 52);
 
  $part->get_stock(shippingdate => DateTime->today->add(days => -5));
+
+=item C<assembly_items_recursively %params>
+
+Get all assembly items for an assembly recursively. Returns a reference
+to an array of C<SL::DB::Assembly> objects. The level on which the item
+was found is injected with the key C<level>.
+
+The parameter C<max_level> can be given to limit the depth of the
+recursion. It defaults to 50.
 
 =back
 
