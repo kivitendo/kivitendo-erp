@@ -11,7 +11,7 @@
 <div class="wrapper">
 
     <table class="tbl-horizontal">
-      <caption> [% 'Customer & Contact' | $T8 %] </caption>
+      <caption> [% IF IS_CUSTOMER %][% 'Customer & Contact' | $T8 %][% ELSE %][% 'Vendor & Contact' | $T8 %][% END %] </caption>
       <tbody>
         <tr>
           <th>[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %] </th>
@@ -157,16 +157,14 @@
       <input name="l_invnumber" id="l_invnumber" type="checkbox" value="Y">
       <label for="l_invnumber"> [% 'Invoices' | $T8 %] </label>
     </div>
-    [% IF IS_CUSTOMER %]
     <div>
       <input name="l_ustid" id="l_ustid" type="checkbox" class="checkbox" value="Y">
       <label for="l_ustid">[% 'VAT ID' | $T8 %]</label>
     </div>
-    [% END %]
   </div>
 
   <div class="list col">
-    <h4> [% 'Customer' | $T8 %] </h4>
+    <h4> [% IF IS_CUSTOMER %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %] </h4>
     <div>
       <input name="l_name" id="l_name" type="checkbox" value="Y" checked>
       <label for="l_name"> [% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][% ELSE %][% 'Vendor Name' | $T8 %][% END %] </label>
@@ -251,6 +249,7 @@
       <input name="l_email" id="l_email" type="checkbox" value="Y" checked>
       <label for="l_email"> [% 'E-mail' | $T8 %] </label>
     </div>
+    [% IF IS_CUSTOMER %]
     <div>
       <input name="l_invoice_mail" id="l_invoice_mail" type="checkbox" class="checkbox" value="Y">
       <label for="l_invoice_mail">[% 'Email of the invoice recipient' | $T8 %]</label>
@@ -259,6 +258,7 @@
       <input name="l_delivery_order_mail" id="l_delivery_order_mail" type="checkbox" class="checkbox" value="Y">
       <label for="l_delivery_order_mail">[% 'Email of the delivery order recipient' | $T8 %]</label>
     </div>
+    [% END %]
   </div>
 
   <div class="list col">
