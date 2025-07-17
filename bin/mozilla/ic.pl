@@ -151,7 +151,7 @@ sub top100 {
 #  bought sold onorder ordered rfq quoted
 #  l_partnumber l_description l_serialnumber l_unit l_listprice l_sellprice l_lastcost
 #  l_linetotal l_priceupdate l_bin l_rop l_weight l_image l_drawing l_microfiche
-#  l_partsgroup l_subtotal l_soldtotal l_deliverydate l_pricegroups
+#  l_partsgroup l_subtotal l_soldtotal l_deliverydate l_pricegroup l_bookinggroup
 #
 # hiddens:
 #  nextsub revers lastsort sort ndxs_counter
@@ -208,6 +208,7 @@ sub generate_report {
     'make'               => { 'text' => $locale->text('Make'), },
     'model'              => { 'text' => $locale->text('Model'), },
     'price_factor_description' => { 'text' => $locale->text('Price Factor'), },
+    'bookinggroup'       => { 'text' => $locale->text('Booking group'), },
   );
 
   $revers     = $form->{revers};
@@ -397,7 +398,7 @@ sub generate_report {
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
-    insertdate shop
+    insertdate shop bookinggroup
   );
 
   my $pricegroups = SL::DB::Manager::Pricegroup->get_all_sorted;
@@ -422,7 +423,7 @@ sub generate_report {
 
   %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
   map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(assembly_qty onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop price_factor_description), @pricegroup_columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(assembly_qty onhand sellprice listprice lastcost assembly_lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal shop price_factor_description bookinggroup), @pricegroup_columns;
 
   my @hidden_variables = (
     qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups insertdatefrom insertdateto),

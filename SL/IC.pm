@@ -186,7 +186,7 @@ sub all_parts {
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
-  my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin',  price_factor_description => 'pfac.description as price_factor_description');
+  my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin',  price_factor_description => 'pfac.description as price_factor_description', bookinggroup => 'bg.description as bookinggroup');
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -200,6 +200,7 @@ sub all_parts {
   my %joins_needed  = ();
 
   my %joins = (
+    bookinggroup => 'LEFT JOIN buchungsgruppen bg ON (p.buchungsgruppen_id = bg.id)',
     partsgroup => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
     makemodel  => "LEFT JOIN LATERAL (
                       SELECT string_agg(mv.vendornumber || ' ' || mv.name, ', ') AS make,
@@ -229,7 +230,7 @@ sub all_parts {
     warehouse  => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
     bin        => 'LEFT JOIN bin ON bin.id = p.bin_id',
   );
-  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
+  my @join_order = qw(bookinggroup partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -453,6 +454,7 @@ sub all_parts {
   push @bsooqr_tokens, q|module = 'oe' AND record_type = 'request_quotation'| if $form->{rfq};
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
+  $joins_needed{bookinggroup} = 1 if $form->{l_bookinggroup};
   $joins_needed{partsgroup}  = 1;
   $joins_needed{pfac}        = 1;
   $joins_needed{project}     = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
