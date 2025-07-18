@@ -434,7 +434,7 @@ sub _payment_terms {
     #       <ram:ApplicableTradePaymentDiscountTerms>
     $params{xml}->startTag("ram:ApplicableTradePaymentDiscountTerms");
     $params{xml}->dataElement("ram:BasisPeriodMeasure", $self->payment_terms->terms_skonto, unitCode => "DAY");
-    $params{xml}->dataElement("ram:BasisAmount",        _r2($payment_terms_vars{amounts}->{invtotal}), currencyID => $currency_id);
+    $params{xml}->dataElement("ram:BasisAmount",        _r2($payment_terms_vars{amounts}->{invtotal}));
     $params{xml}->dataElement("ram:CalculationPercent", _r2($self->payment_terms->percent_skonto * 100));
     $params{xml}->endTag;
     #       </ram:ApplicableTradePaymentDiscountTerms>
