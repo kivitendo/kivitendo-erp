@@ -1084,13 +1084,6 @@
   params:
     action: ClientConfig/edit
 - parent: system
-  id: system_oauth
-  name: OAuth2 E-Mail Tokens
-  order: 150
-  access: admin
-  params:
-    action: OAuth/list
-- parent: system
   id: system_ustva_einstellungen
   name: UStVa Einstellungen
   order: 200
@@ -1551,6 +1544,13 @@
   order: 200
   params:
     action: CTI/list_internal_extensions
+- parent: program
+  id: program_oauth
+  name: OAuth Tokens
+  order: 150
+  access: admin
+  params:
+    action: OAuth/list
 - parent: program
   id: program_version
   name: Version
