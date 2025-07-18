@@ -63,6 +63,7 @@ sub tickets {
 
   my $config = $::lx_office_conf{atlassian_jira};
   my $cloud_id = $config->{cloud_id} or die;
+  my $cloud_url = $config->{cloud_url} or die;
 
   my %params = (
     jql        => $jql,
@@ -79,6 +80,7 @@ sub tickets {
 
   my @tickets = map({{
     key        => $_->{key},
+    ext_url    => $cloud_url . '/browse/' . $_->{key},
     summary    => $_->{fields}->{summary},
     creator    => $_->{fields}->{creator}->{displayName},
     assignee   => $_->{fields}->{assignee}->{displayName},
