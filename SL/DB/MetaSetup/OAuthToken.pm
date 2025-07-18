@@ -11,17 +11,12 @@ __PACKAGE__->meta->table('oauth_token');
 __PACKAGE__->meta->columns(
   access_token            => { type => 'text' },
   access_token_expiration => { type => 'timestamp' },
-  authflow                => { type => 'text', not_null => 1 },
-  client_id               => { type => 'text', not_null => 1 },
-  client_secret           => { type => 'text', not_null => 1 },
   email                   => { type => 'text' },
   id                      => { type => 'serial', not_null => 1 },
   itime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
-  redirect_uri            => { type => 'text' },
   refresh_token           => { type => 'text' },
   registration            => { type => 'text', not_null => 1 },
-  scope                   => { type => 'text', not_null => 1 },
   tokenstate              => { type => 'text' },
   verifier                => { type => 'text' },
 );

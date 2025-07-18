@@ -3,12 +3,11 @@
 <h1>[% title %]</h1>
 
 <div class="wrapper">
-<table class="tbl-list" id="taxzone_list">
+<table class="tbl-list">
   <thead>
     <tr>
       <th>id</th>
       <th>[% 'registration' | $T8 %]</th>
-      <th>scope</th>
       <th>email</th>
       <th>state</th>
       <th>expires in (s)</th>
@@ -18,10 +17,9 @@
   </thead>
   <tbody>
     [%- FOREACH tok = TOKENS %]
-    <tr id="tzone_id_[% tok.id %]">
+    <tr>
       <td>[% HTML.escape(tok.id) %]</td>
       <td>[% HTML.escape(tok.registration) %]</td>
-      <td>[% HTML.escape(tok.scope) %]</td>
       <td>[% HTML.escape(tok.email) %]</td>
       <td>[% HTML.escape(tok.tokenstate) %]</td>
       <td>[% HTML.escape(tok.expiration) %]</td>
@@ -31,8 +29,4 @@
     [%- END %]
   </tbody>
 </table>
-
-
-[% # L.sortable_element('#taxzone_list tbody', url=SELF.url_for(action='reorder'), with='tzone_id') %]
-
 </div>
