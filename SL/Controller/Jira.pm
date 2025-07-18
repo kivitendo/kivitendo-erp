@@ -16,18 +16,26 @@ sub check_auth {
 sub action_ajax_list_jira {
   my ($self, %params) = @_;
 
+  $::form->{sort_by}  ||= 'priority';
+  $::form->{sort_dir} //= 0;
+  $::form->{include_closed} //= 1;
+
   my $cus =  SL::DB::Manager::Customer->find_by(id => $::form->{id});
+
+  my $q_ord = $::form->{sort_by};
+  my $q_dir = $::form->{sort_dir} ? 'ASC' : 'DESC';
+
   my $jql = 'textfields ~ "' . $cus->name . '*"';
+  $jql .= ' AND status NOT IN (resolved, closed, done, rejected)' if (!$::form->{include_closed});
+  $jql .= " ORDER BY $q_ord $q_dir";
 
   my $report   = SL::ReportGenerator->new(\%::myconfig, $::form);
   my @columns  = qw(key summary priority status creator assignee created updated);
   my @visible  = qw(key summary priority status creator assignee created updated);
   my @sortable = qw(key summary priority status creator assignee created updated);
 
-  my $instance_base_url = '';
-
   my %column_defs = (
-    key      => { text => $::locale->text('Key'),      sub => sub { $_[0]->{key} }, obj_link => sub { $instance_base_url . '/browse/' . $_[0]->{key} } },
+    key      => { text => $::locale->text('Key'),      sub => sub { $_[0]->{key} }, obj_link => sub { $_[0]->{ext_url} } },
     summary  => { text => $::locale->text('Summary'),  sub => sub { $_[0]->{summary} } },
     priority => { text => $::locale->text('Priority'), sub => sub { $_[0]->{priority} } },
     status   => { text => $::locale->text('Status'),   sub => sub { $_[0]->{status} } },
@@ -37,8 +45,6 @@ sub action_ajax_list_jira {
     updated  => { text => $::locale->text('Updated'),  sub => sub { $_[0]->{updated}->to_kivitendo } },
   );
 
-  $::form->{sort_by}  ||= 'partnumber';
-  $::form->{sort_dir} //= 1;
 
   for my $col (@sortable) {
     $column_defs{$col}{link} = $self->url_for(
@@ -55,20 +61,21 @@ sub action_ajax_list_jira {
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
+  $report->set_options_from_form;
   $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
   $report->set_sort_indicator($::form->{sort_by}, $::form->{sort_dir});
-  $report->set_export_options(@{ $params{report_generator_export_options} || [] });
+  #$report->set_export_options(@{ $params{report_generator_export_options} || [] });
+
+  $report->set_export_options(qw(include_closed filter.customer.customernumber:boolean));
+
   $report->set_options(
     %{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
     top_info_text        => $::locale->text('Issues') . ': ' . 'Atlassian JQL: ' . $jql,
     title                => $::locale->text('Jira'),
+    raw_top_info_text    => $self->render('ticket_system/report_top', { output => 0 }, %{$::form}),
+    #raw_bottom_info_text => $self->render('time_recording/report_bottom', { output => 0 }, ) #models => $self->models),
   );
-
-  my $sort_param = $::form->{sort_by} eq 'price'       ? 'price'             :
-                   $::form->{sort_by} eq 'description' ? 'parts.description' :
-                   'parts.partnumber';
-  $sort_param .= ' ' . ($::form->{sort_dir} ? 'ASC' : 'DESC');
 
   my $jira = SL::AtlassianJira->new();
   my $jira_issues = $jira->tickets($jql);
