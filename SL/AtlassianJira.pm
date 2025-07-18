@@ -75,14 +75,16 @@ sub tickets {
   my $ret = $self->connector->GET($url);
   my $res = _decode_and_status_code($ret);
 
+  my $dt = DateTime::Format::Strptime->new(pattern => '%FT%T.%3N%z');
+
   my @tickets = map({{
     key        => $_->{key},
     summary    => $_->{fields}->{summary},
     creator    => $_->{fields}->{creator}->{displayName},
     assignee   => $_->{fields}->{assignee}->{displayName},
     priority   => $_->{fields}->{priority}->{name},
-    created    => $_->{fields}->{created},
-    updated    => $_->{fields}->{updated},
+    created    => $dt->parse_datetime($_->{fields}->{created}),
+    updated    => $dt->parse_datetime($_->{fields}->{updated}),
     status     => $_->{fields}->{status}->{name},
     resolution => $_->{fields}->{resolution}->{name},
   }} @{$res->{issues}});

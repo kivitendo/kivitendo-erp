@@ -27,14 +27,14 @@ sub action_ajax_list_jira {
   my $instance_base_url = '';
 
   my %column_defs = (
-    key         => { text => $::locale->text('Key'),              sub => sub { $_[0]->{key} }, obj_link => sub { $instance_base_url . '/browse/' . $_[0]->{key} } },
-    summary     => { text => $::locale->text('Summary'),          sub => sub { $_[0]->{summary} } },
-    priority    => { text => $::locale->text('Priority'),         sub => sub { $_[0]->{priority} } },
-    status      => { text => $::locale->text('Status'),           sub => sub { $_[0]->{status} } },
-    creator     => { text => $::locale->text('Creator'),          sub => sub { $_[0]->{creator} } },
-    assignee    => { text => $::locale->text('Assignee'),         sub => sub { $_[0]->{assignee} } },
-    created     => { text => $::locale->text('Created'),          sub => sub { $_[0]->{created}  } },
-    updated     => { text => $::locale->text('Updated'),          sub => sub { $_[0]->{updated} } },
+    key      => { text => $::locale->text('Key'),      sub => sub { $_[0]->{key} }, obj_link => sub { $instance_base_url . '/browse/' . $_[0]->{key} } },
+    summary  => { text => $::locale->text('Summary'),  sub => sub { $_[0]->{summary} } },
+    priority => { text => $::locale->text('Priority'), sub => sub { $_[0]->{priority} } },
+    status   => { text => $::locale->text('Status'),   sub => sub { $_[0]->{status} } },
+    creator  => { text => $::locale->text('Creator'),  sub => sub { $_[0]->{creator} } },
+    assignee => { text => $::locale->text('Assignee'), sub => sub { $_[0]->{assignee} } },
+    created  => { text => $::locale->text('Created'),  sub => sub { $_[0]->{created}->to_kivitendo } },
+    updated  => { text => $::locale->text('Updated'),  sub => sub { $_[0]->{updated}->to_kivitendo } },
   );
 
   $::form->{sort_by}  ||= 'partnumber';
