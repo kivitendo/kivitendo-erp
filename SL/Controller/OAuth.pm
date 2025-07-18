@@ -69,6 +69,12 @@ sub _fmt_token_code {
   $code ? t8('#1 bytes', length($code)) : t8('is missing');
 }
 
+sub _fmt_employee {
+  my ($id) = @_;
+  my $e = SL::DB::Manager::Employee->find_by(id => $id);
+  $e->login;
+}
+
 sub action_list {
   my ($self) = @_;
 
@@ -77,6 +83,7 @@ sub action_list {
   my @tokens = map({ {
     id            => $_->id,
     provider      => $providers{$_->registration}->title,
+    employee      => $_->employee_id && _fmt_employee($_->employee_id),
     email         => $_->email,
     tokenstate    => $_->tokenstate ? t8('waiting for auth code') : 'OK',
     access_token  => _fmt_token_code($_->access_token),

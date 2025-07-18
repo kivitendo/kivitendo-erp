@@ -5,6 +5,7 @@
 CREATE TABLE oauth_token (
   id                      SERIAL PRIMARY KEY,
   registration            TEXT NOT NULL,
+  employee_id             INT REFERENCES employee(id),
   email                   TEXT,
   tokenstate              TEXT,
   verifier                TEXT,

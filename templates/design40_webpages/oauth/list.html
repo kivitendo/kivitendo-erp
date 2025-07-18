@@ -8,6 +8,7 @@
     <tr>
       <th>id</th>
       <th>[% 'Provider' | $T8 %]</th>
+      <th>[% 'Employee' | $T8 %]</th>
       <th>[% 'Email' | $T8 %]</th>
       <th>state</th>
       <th>[% 'expires in (s)' | $T8 %]</th>
@@ -20,6 +21,7 @@
     <tr>
       <td class="right">[% HTML.escape(tok.id) %]</td>
       <td>[% HTML.escape(tok.provider) %]</td>
+      <td>[% HTML.escape(tok.employee) || "<i>system</i>" %]</td>
       <td>[% HTML.escape(tok.email) %]</td>
       <td>[% HTML.escape(tok.tokenstate) %]</td>
       <td class="right">[% HTML.escape(tok.expiration) %]</td>
