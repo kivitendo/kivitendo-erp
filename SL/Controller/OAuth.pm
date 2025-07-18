@@ -64,6 +64,11 @@ sub imap_sasl_string {
 # actions
 #
 
+sub _fmt_token_code {
+  my ($code) = @_;
+  $code ? t8('#1 bytes', length($code)) : t8('is missing');
+}
+
 sub action_list {
   my ($self) = @_;
 
@@ -71,11 +76,11 @@ sub action_list {
 
   my @tokens = map({ {
     id            => $_->id,
-    registration  => $_->registration,
+    provider      => $providers{$_->registration}->title,
     email         => $_->email,
-    tokenstate    => $_->tokenstate ? 'waiting for auth code' : 'OK',
-    access_token  => $_->access_token ? (length($_->access_token) . ' bytes') : 'missing',
-    refresh_token => $_->refresh_token ? (length($_->refresh_token) . ' bytes') : 'missing',
+    tokenstate    => $_->tokenstate ? t8('waiting for auth code') : 'OK',
+    access_token  => _fmt_token_code($_->access_token),
+    refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
   } } @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')});
 
@@ -92,7 +97,7 @@ sub action_new {
 
   $self->config({ registration => $::form->{oauth_type} });
   $self->setup_add_action_bar();
-  $self->render('oauth/form', title => 'Add new OAuth2 token');
+  $self->render('oauth/form', title => t8('Add new OAuth2 token'));
 }
 
 sub action_create {
@@ -107,7 +112,7 @@ sub action_create {
   $self->{authorize_link} = $link;
   $tok->save;
 
-  $self->render('oauth/forward', title => 'Add new OAuth2 token');
+  $self->render('oauth/forward', title => t8('Add new OAuth2 token'));
 }
 
 
@@ -161,18 +166,15 @@ sub setup_add_action_bar {
 sub setup_list_action_bar {
   my ($self) = @_;
 
-  for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(
-      link => [
-        t8('Add') . ': Atlassian Jira',
-        link => $self->url_for(action => 'new', oauth_type => 'atlassian_jira'),
-      ],
+  my @btns = map { (
+    link => [
+      t8('Add') . ': ' . $providers{$_}->title(),
+      link => $self->url_for(action => 'new', oauth_type => $providers{$_}->type()),
+    ]
+  ) } keys(%providers);
 
-      link => [
-        t8('Add') . ': Microsoft E-Mail',
-        link => $self->url_for(action => 'new', oauth_type => 'microsoft'),
-      ],
-    );
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(@btns);
   }
 }
 

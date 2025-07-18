@@ -1,30 +1,30 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][%- INCLUDE 'common/flash.html' %]
 
-<h1>[% title %]</h1>
+<h1>[% HTML.escape(title) %]</h1>
 
 <div class="wrapper">
 <table class="tbl-list">
   <thead>
     <tr>
       <th>id</th>
-      <th>[% 'registration' | $T8 %]</th>
-      <th>email</th>
+      <th>[% 'Provider' | $T8 %]</th>
+      <th>[% 'Email' | $T8 %]</th>
       <th>state</th>
-      <th>expires in (s)</th>
-      <th>access_token</th>
-      <th>refresh_token</th>
+      <th>[% 'expires in (s)' | $T8 %]</th>
+      <th>access token</th>
+      <th>refresh token</th>
     </tr>
   </thead>
   <tbody>
     [%- FOREACH tok = TOKENS %]
     <tr>
-      <td>[% HTML.escape(tok.id) %]</td>
-      <td>[% HTML.escape(tok.registration) %]</td>
+      <td class="right">[% HTML.escape(tok.id) %]</td>
+      <td>[% HTML.escape(tok.provider) %]</td>
       <td>[% HTML.escape(tok.email) %]</td>
       <td>[% HTML.escape(tok.tokenstate) %]</td>
-      <td>[% HTML.escape(tok.expiration) %]</td>
-      <td>[% HTML.escape(tok.access_token) %]</td>
-      <td>[% HTML.escape(tok.refresh_token) %]</td>
+      <td class="right">[% HTML.escape(tok.expiration) %]</td>
+      <td class="right">[% HTML.escape(tok.access_token) %]</td>
+      <td class="right">[% HTML.escape(tok.refresh_token) %]</td>
     </tr>
     [%- END %]
   </tbody>
