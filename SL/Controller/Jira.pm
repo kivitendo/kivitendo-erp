@@ -3,11 +3,8 @@ package SL::Controller::Jira;
 use strict;
 use SL::DB::Customer;
 use SL::DB::Vendor;
-use SL::Controller::OAuth;
 use SL::Controller::Helper::ReportGenerator;
-use SL::JSON;
-use SL::MoreCommon qw(uri_encode);
-use REST::Client;
+use SL::AtlassianJira;
 
 use parent qw(SL::Controller::Base);
 __PACKAGE__->run_before('check_auth');
@@ -73,59 +70,11 @@ sub action_ajax_list_jira {
                    'parts.partnumber';
   $sort_param .= ' ' . ($::form->{sort_dir} ? 'ASC' : 'DESC');
 
-  my $jira_issues = $self->atlassian_jira_cloudid($jql);
+  my $jira = SL::AtlassianJira->new();
+  my $jira_issues = $jira->tickets($jql);
 
   $self->report_generator_list_objects(report => $report, objects => $jira_issues, layout => 0, header => 0);
 }
 
-
-
-### private
-
-sub atlassian_jira_cloudid {
-  my ($self, $jql) = @_;
-
-  my $acctok = SL::Controller::OAuth::access_token_for('atlassian_jira');
-  my $client = REST::Client->new();
-  $client->addHeader('Authorization', 'Bearer ' . $acctok);
-  $client->addHeader('Accept', 'application/json');
-  my $ret = $client->GET('https://api.atlassian.com/oauth/token/accessible-resources');
-  my $response_code = $ret->responseCode();
-  die "HTTP $response_code" unless $response_code eq '200';
-
-  my $accessible_resources = from_json($ret->responseContent);
-  my $cloudid = $accessible_resources->[0]{id};
-
-  #return $cloudid;
-
-  my $url;
-  #$url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/project/search";
-  #$ret = $client->GET($url);
-  #$response_code = $ret->responseCode();
-  #die "HTTP $response_code" unless $response_code eq '200';
-  #return from_json($ret->responseContent);
-
-  my $maxResults = 100;
-  my $fields = "summary";
-  #my $jql = 'textfields ~ "Test case*"';
-  $url = "https://api.atlassian.com/ex/jira/$cloudid/rest/api/3/search/jql?jql=" . uri_encode($jql) . "&maxResults=100&fields=id%2Cassignee%2Cauthor%2Ccreator%2Csummary%2Cresolution%2Cstatus%2Cpriority%2Ccreated%2Cupdated&expand=&reconcileIssues=";
-  $ret = $client->GET($url);
-  $response_code = $ret->responseCode();
-  die "HTTP $response_code" unless $response_code eq '200';
-  my $c = from_json($ret->responseContent);
-
-  my @a = map({{
-    key        => $_->{key},
-    summary    => $_->{fields}->{summary},
-    creator    => $_->{fields}->{creator}->{displayName},
-    assignee   => $_->{fields}->{assignee}->{displayName},
-    priority   => $_->{fields}->{priority}->{name},
-    created    => $_->{fields}->{created},
-    updated    => $_->{fields}->{updated},
-    status     => $_->{fields}->{status}->{name},
-    resolution => $_->{fields}->{resolution}->{name},
-  }} @{$c->{issues}});
-  return \@a;
-}
 
 1;
