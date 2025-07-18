@@ -3,6 +3,7 @@ package SL::Controller::OAuth::Base;
 use strict;
 use REST::Client;
 use SL::JSON;
+use SL::Locale::String;
 use SL::MoreCommon qw(uri_encode);
 use SL::Request qw(flatten);
 use SL::DB::OAuthToken;
@@ -27,6 +28,25 @@ sub refresh {
   die "needs to be implemented";
 }
 
+sub load_credentials {
+  my ($class) = @_;
+
+  my $regtype = $class->type();
+
+  my %reg;
+
+  my $conf = $::lx_office_conf{"oauth2_$regtype"} or
+    die t8('Missing configuration section "oauth_#1" in "config/kivitendo.conf"', $regtype);
+
+  $reg{$_} = $conf->{$_} or
+    die t8('Missing parameter "#1" of section "oauth_#2" in config/kivitendo.conf', $_, $regtype)
+    for qw(client_id client_secret redirect_uri);
+
+  $reg{redirect_uri} .= '/' if ($reg{redirect_uri} !~ m/\/$/);
+  $reg{redirect_uri} .= 'oauth.pl';
+
+  \%reg;
+}
 
 sub POST {
   my ($class, $url, $params, $headers) = @_;

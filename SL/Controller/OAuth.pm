@@ -24,19 +24,6 @@ my %providers = (
 );
 
 
-sub load_credentials {
-  my ($regtype) = @_;
-
-  my %reg;
-
-  my $conf = $::lx_office_conf{"oauth2_$regtype"} or
-    die t8('Missing configuration section "oauth_#1" in "config/kivitendo.conf"', $regtype);
-
-  $reg{$_} = $conf->{$_} for qw(client_id client_secret scope redirect_uri);
-
-  # TODO: load client_id, client_secret, tenant etc for this
-  \%reg;
-}
 
 sub refresh {
   my ($tok) = @_;
@@ -85,7 +72,6 @@ sub action_list {
   my @tokens = map({ {
     id            => $_->id,
     registration  => $_->registration,
-    scope         => $_->scope,
     email         => $_->email,
     tokenstate    => $_->tokenstate ? 'waiting for auth code' : 'OK',
     access_token  => $_->access_token ? (length($_->access_token) . ' bytes') : 'missing',
@@ -103,10 +89,8 @@ sub action_new {
   my ($self) = @_;
 
   my $regtype = $::form->{oauth_type};
-  my $reg = load_credentials($regtype);
 
   $self->config({ registration => $::form->{oauth_type} });
-  $self->config->{$_} = $reg->{$_} for qw(client_id client_secret scope redirect_uri);
   $self->setup_add_action_bar();
   $self->render('oauth/form', title => 'Add new OAuth2 token');
 }
