@@ -3,15 +3,22 @@
 \ProvidesFile{insettings.tex}[2022/02/23 Konfigurationsdatei kivitendo ERP]
 % Sprachüberprüfung
 \RequirePackage[english, ngerman]{babel}
+\RequirePackage{xparse}
 
 \makeatletter
-\Ifstr{\lxlangcode}{EN}{
-  \main@language{english}
-  \input{english.tex}}{
-  \Ifstr{\lxlangcode}{DE}{
-    \main@language{ngerman}
-    \input{deutsch.tex}}{\input{deutsch.tex}}
-} % Ende EN
+\ExplSyntaxOn
+\cs_generate_variant:Nn \str_foldcase:n { e }
+\NewDocumentCommand \selectLang { m } {
+  \str_case_e:nnF { \str_foldcase:e { #1 } } {
+    { en } { \main@language{english} \input{english.tex} }
+    { de } { \main@language{ngerman} \input{deutsch.tex} }
+    {    } { \main@language{ngerman} \input{deutsch.tex} }
+  } {
+    \PackageError{}{lxlangcode #1 not defined in insettings.tex}
+  }
+}
+\ExplSyntaxOff
+\selectLang{\lxlangcode}
 
 % Mandanten-/Firmenabhängigkeiten
 
