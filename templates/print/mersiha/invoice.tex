@@ -109,6 +109,12 @@
   }
   \thispagestyle{kivitendo.letter.first}
 
+  <%if template_meta.formname != "storno_invoice"%>
+    \rechnungsformel
+  <%else%>
+    \stornoErstatten{<%invnumber%>}
+  <%end%>
+
   <%if notes%>%
     <%notes%>%
     \vspace{0.5cm}
