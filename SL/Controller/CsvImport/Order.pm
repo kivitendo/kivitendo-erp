@@ -8,6 +8,7 @@ use List::MoreUtils qw(any none);
 use SL::Helper::Csv;
 use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Order;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::OrderItem;
 use SL::DB::Part;
 use SL::DB::PaymentTerm;
@@ -88,7 +89,7 @@ sub init_profile {
     my $prof = $p->{profile};
     if ($p->{row_ident} eq $self->_order_column) {
       # no need to handle
-      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma quotation amount netamount)};
+      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma amount netamount)};
     }
     if ($p->{row_ident} eq $self->_item_column) {
       # no need to handle
@@ -121,6 +122,7 @@ sub setup_displayable_columns {
                                  { name => 'notes',                   description => $::locale->text('Notes')                                 },
                                  { name => 'ordnumber',               description => $::locale->text('Order Number')                          },
                                  { name => 'quonumber',               description => $::locale->text('Quotation Number')                      },
+                                 { name => 'record_type',             description => $::locale->text('Order Type') . ' [3]'                   },
                                  { name => 'reqdate',                 description => $::locale->text('Reqdate')                               },
                                  { name => 'salesman_id',             description => $::locale->text('Salesman (database ID)')                },
                                  { name => 'shippingpoint',           description => $::locale->text('Shipping Point')                        },
@@ -290,7 +292,9 @@ sub check_objects {
                           { header => $::locale->text('Data type'), method => 'datatype' });
 
   $self->add_info_columns($self->_order_column,
-                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+                          { header => $::locale->text('Customer/Vendor'), method => 'vc_name'     },
+                          { header => $::locale->text('Record Type'),     method => 'record_type' });
+
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->_order_column,
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment delivery_term language department globalproject taxzone cp currency));
@@ -326,6 +330,7 @@ sub handle_order {
     push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor missing');
   }
 
+  $self->handle_type($entry);
   $self->check_contact($entry);
   $self->check_language($entry);
   $self->check_payment($entry);
@@ -377,6 +382,23 @@ sub check_language {
   }
 
   return 1;
+}
+
+sub handle_type {
+  my ($self, $entry) = @_;
+
+  if (!exists $entry->{raw_data}->{record_type}) {
+    # if no type is present - set to sales order or purchase
+    # order depending on customer/vendor
+
+    $entry->{object}->record_type(
+      $entry->{object}->customer_id ? SALES_ORDER_TYPE :
+      $entry->{object}->vendor_id   ? PURCHASE_ORDER_TYPE
+                                    : undef
+    );
+  }
+
+  $entry->{info_data}->{record_type} = $::locale->text($entry->{object}->record_type);
 }
 
 sub handle_item {
