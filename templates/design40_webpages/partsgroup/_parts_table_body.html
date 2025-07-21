@@ -1,0 +1,9 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][% USE P %]
+[% FOREACH part = PARTS %]
+  <tr>
+   <td>[% L.checkbox_tag('part_ids[]', value=part.id, checked=part.selected, "data-checkall"=1) %]</td>
+   <td><a href="[% SELF.url_for(controller = 'Part', action = 'edit', 'part.id' = part.id) %]">[% part.displayable_name | html %]</a></td>
+  </tr>
+[% END %]
+
+[% # L.dump(PARTS) %]
