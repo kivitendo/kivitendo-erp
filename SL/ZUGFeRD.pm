@@ -193,7 +193,7 @@ sub extract_from_pdf {
         push @warnings, $::locale->text('The XMP metadata does not declare the Factur-X/ZUGFeRD data.'),
     }
 
-    if ($zugferd_version eq 'unsupported') {
+    if (($zugferd_version // '') eq 'unsupported') {
         push @warnings, $::locale->text('The Factur-X/ZUGFeRD version used is not supported.'),
     }
   }
