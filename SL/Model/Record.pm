@@ -11,7 +11,9 @@ use SL::DB::Reclamation;
 use SL::DB::RequirementSpecOrder;
 use SL::DB::History;
 use SL::DB::Invoice;
+use SL::DB::Part;
 use SL::DB::Status;
+use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
@@ -138,6 +140,30 @@ sub get_best_price_and_discount_source {
   }
 
   return ($price_src, $discount_src);
+}
+
+sub get_part_texts {
+  my ($class, $part_or_id, $language_or_id, %defaults) = @_;
+
+  my $part        = ref($part_or_id)     ? $part_or_id         : SL::DB::Part->load_cached($part_or_id);
+  my $language_id = ref($language_or_id) ? $language_or_id->id : $language_or_id;
+  my $texts       = {
+    description     => $defaults{description}     // $part->description,
+    longdescription => $defaults{longdescription} // $part->notes,
+  };
+
+  return $texts unless $language_id;
+
+  my $translation = SL::DB::Manager::Translation->get_first(
+    where => [
+      parts_id    => $part->id,
+      language_id => $language_id,
+    ]);
+
+  $texts->{description}     = $translation->translation     if $translation && $translation->translation;
+  $texts->{longdescription} = $translation->longdescription if $translation && $translation->longdescription;
+
+  return $texts;
 }
 
 sub delete {
@@ -461,6 +487,20 @@ entered.
 
 Returns an reference to an array where the first element is the best
 price source and the second element is the best discount source.
+
+=item C<get_part_texts>
+
+Get the description and longdescription of a part with or without translation.
+
+Expects a part object or it's id as first parameter (mandatory) and a language
+object or it's id as second parameter (optional).
+
+You can give optional default values for the texts as a hash with the keys
+C<description> and C<longdescription>. The defaults are returned if no
+translation for one text can be found.
+
+Returns a hasf ref with the keys C<description> and C<longdescription> and
+the texts as values.
 
 =item C<delete>
 
