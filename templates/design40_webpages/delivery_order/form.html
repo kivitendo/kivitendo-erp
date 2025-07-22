@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE L %]
+[%- USE P %]
 [%- USE HTML %]
 
 [% IF FORM.workflow_email_journal_id %]
@@ -10,7 +11,14 @@
 
 <div id="print_options" style="display:none">
   <form method="post" action="controller.pl" id="print_options_form">
-    [% SELF.print_options %]
+    <div>
+      [% SELF.print_options %]
+    </div>
+    <div id="print_show_items">
+      [% P.link_tag("#", LxERP.t8("Show item selection"), onclick="kivi.DeliveryOrder.print_dialog_show_item_selection();") %]
+    </div>
+    <div id="print_item_selection" style="display:none">
+    </div>
     <br>
     [% L.button_tag('kivi.DeliveryOrder.print()', LxERP.t8('Print')) %]
     <a href="#" onclick="$('#print_options').dialog('close');">[% LxERP.t8("Cancel") %]</a>
