@@ -97,6 +97,10 @@ sub get_print_options {
     ($form->{type} =~ /_reclamation$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Reclamation')),
     ) : undef,
+    ($form->{type} =~ /^part$/) ? (
+      opthash('part_info',           $form->{PD}{part_info},           $locale->text('Part info')),
+      opthash('part_label',          $form->{PD}{part_label},          $locale->text('Part label')),
+    ) : undef,
     ($form->{type} =~ /^letter$/) ? (
       opthash('letter',              $form->{PD}{letter},              $locale->text('Letter')),
     ) : undef;
@@ -133,7 +137,7 @@ sub get_print_options {
 
   push @LANGUAGE_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
-      if (ref $form->{languages} eq 'ARRAY');
+      if ((ref $form->{languages} eq 'ARRAY') && scalar @{$form->{languages}});
 
   push @PRINTER_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{printer_id} ? 'selected' : ''), $_->{printer_description}) } +{}, @{ $form->{printers} }
@@ -154,6 +158,7 @@ sub get_print_options {
 
   my %dont_display_groupitems = (
     'dunning' => 1,
+    'part' => 1,
     );
 
   my %template_vars = (
