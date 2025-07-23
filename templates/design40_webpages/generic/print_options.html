@@ -9,7 +9,7 @@
 <table class="tbl-horizontal">
   <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
   [% # IF show_headers %]
-    <body>
+    <tbody>
        [% FOREACH row = SELECTS %]
          [% IF row.show %]
            <tr>
@@ -56,7 +56,7 @@
            </td>
          </tr>
        [% END %]
-    </body>
+    </tbody>
   [% # END %]
 </table>
 
