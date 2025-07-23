@@ -301,6 +301,9 @@ sub action_print {
   my $groupitems  = $::form->{print_options}->{groupitems};
   my $printer_id  = $::form->{print_options}->{printer_id};
 
+  my $only_selected_item_positions = $::form->{print_options}->{only_selected_item_positions};
+  my $selected_item_positions      = $::form->{print_options}->{selected_item_positions};
+
   # only pdf and opendocument by now
   if (none { $format eq $_ } qw(pdf opendocument opendocument_pdf)) {
     flash_later('error', t8('Format \'#1\' is not supported yet/anymore.', $format));
@@ -328,8 +331,10 @@ sub action_print {
       formname   => $formname,
       language   => $self->order->language,
       printer_id => $printer_id,
-      groupitems => $groupitems
-    });
+      groupitems => $groupitems,
+      selected_item_positions      => $selected_item_positions,
+      only_selected_item_positions => $only_selected_item_positions,
+  });
   if (scalar @errors) {
     flash_later('error', t8('Generating the document failed: #1', $errors[0]));
     return $self->js->redirect_to($redirect_url)->render;
@@ -1421,6 +1426,27 @@ sub action_undo_transfers {
   $self->redirect_to(@redirect_params);
 }
 
+sub action_js_render_item_selection {
+  my ($self) = @_;
+
+  my $items = $self->order->items_sorted;
+
+  if (@$items && $self->search_cvpartnumber) {
+    $self->get_item_cvpartnumber($_) for @{$items};
+  }
+
+  my $html = $self->p->render(
+    'delivery_order/tabs/_print_options_item_selection',
+    title             => t8('Please select positions to print'),
+    items             => $items,
+    show_cvpartnumber => $self->search_cvpartnumber,
+    cv                => $self->cv,
+    name_prefix       => 'print_options.',
+  );
+
+  $self->js->html($::form->{div_selector}, $html)->render();
+}
+
 sub js_load_second_row {
   my ($self, $item, $item_id, $do_parse) = @_;
 
@@ -2254,6 +2280,18 @@ sub generate_pdf {
   $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
 
   $order->language($params->{language});
+
+  # Remove items which should not be printed.
+  if ($params->{only_selected_item_positions}) {
+    my @idx_to_remove;
+    foreach my $idx (reverse 0..$#{$order->orderitems}) {
+      my $item = $order->orderitems->[$idx];
+      if (none { $_ == ($item->position) } @{ $params->{selected_item_positions} || [] }) {
+        splice @{$order->orderitems}, $idx, 1;
+      }
+    }
+  }
+
   $order->flatten_to_form($print_form, format_amounts => 1);
 
   my $template_ext;

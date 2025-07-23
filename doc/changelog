@@ -14,6 +14,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Alle PDFs die sich im Reiter Dokumente befinden können beim E-Mail-Versand
   zu einem PDF im Anhang zusammengefasst werden.
 
+- Lieferscheine: Drucken mit Positionsauswahl:
+  Im Druckdialog lässt sich eine Positionsauswahl einblenden, mit der die zu
+  druckenden Positionen ausgewählt werden können.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 

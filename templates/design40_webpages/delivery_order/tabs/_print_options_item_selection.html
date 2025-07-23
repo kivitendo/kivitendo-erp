@@ -1,0 +1,36 @@
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
+<div class="wrapper">
+  [% L.hidden_tag(name_prefix _ "only_selected_item_positions", 1) %]
+  <table class="tbl-list">
+    <caption>[% HTML.escape(title) %]</caption>
+    <thead>
+      <tr class="listheading">
+        <th>[% L.checkbox_tag("item_position_selection_checkall", checkall="input.item_position_selection_checkall", checked="checked") %]</th>
+        <th>[% LxERP.t8("Position") %]</th>
+        <th>[% LxERP.t8("Partnumber") %]</th>
+        [% IF show_cvpartnumber -%]
+          <th>[%- cv == "customer" ? LxERP.t8('Customer Part Number') : LxERP.t8('Model') %]</th>
+        [% END -%]
+        <th>[% LxERP.t8("Description") %]</th>
+        <th>[% LxERP.t8("Qty") %]</th>
+        <th>[% LxERP.t8("Unit") %]</th>
+      </tr>
+    </thead>
+
+    <tbody id="item_position_selection" class="row_entry listrow">
+     [% FOREACH item = items %]
+        <tr class="listrow">
+          <td>[% L.checkbox_tag(name_prefix _ "selected_item_positions[+]", class="item_position_selection_checkall", value=item.position, checked="checked") %]</td>
+          <td class="numeric">[% item.position %]</td>
+          <td>[% HTML.escape(item.part.partnumber) %]</td>
+          [% IF show_cvpartnumber -%]
+            <td>[% HTML.escape(item.cvpartnumber) %]</td>
+          [% END -%]
+          <td>[% HTML.escape(item.description) %]</td>
+          <td class="numeric">[% HTML.escape(item.qty_as_number) %]</td>
+          <td>[% HTML.escape(item.unit) %]</td>
+        </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div>

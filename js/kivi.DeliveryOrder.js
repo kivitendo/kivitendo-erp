@@ -102,6 +102,9 @@ namespace('kivi.DeliveryOrder', function(ns) {
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
+    $('#print_item_selection').html('');
+    $('#print_show_items').show();
+
     kivi.popup_dialog({
       id: 'print_options',
       dialog: {
@@ -110,6 +113,19 @@ namespace('kivi.DeliveryOrder', function(ns) {
         height: 300
       }
     });
+  };
+
+  ns.print_dialog_show_item_selection = function() {
+    $('#print_options').dialog("option", "height", 600);
+
+    $('#print_item_selection').html(kivi.t8('Loading...'));
+    $('#print_item_selection').show();
+    $('#print_show_items').hide();
+
+    let data = $('#order_form').serializeArray();
+    data.push({ name: 'action',       value: 'DeliveryOrder/js_render_item_selection' });
+    data.push({ name: 'div_selector', value: '#print_item_selection' });
+    $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.stock_in_out_dialog_row_by_id = function(id) {
