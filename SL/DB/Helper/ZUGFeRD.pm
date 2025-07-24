@@ -560,12 +560,13 @@ sub _seller_trade_party {
   $params{xml}->startTag("ram:SellerTradeParty");
   # 0088 = GLN, 0060 = D-U-N-S, only one ID is allowed
   if ($self->customer->c_vendor_id) {
-    $params{xml}->dataElement("ram:ID",   _u8($self->customer->c_vendor_id));
+    $params{xml}->dataElement("ram:ID", _u8($self->customer->c_vendor_id));
   } elsif($::instance_conf->get_gln) {
     $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_gln), schemeID => '0088');
   } elsif($::instance_conf->get_duns) {
     $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_duns), schemeID => '0060');
   } else {
+    # no sensible default yet
   }
   $params{xml}->dataElement("ram:Name", _u8($::instance_conf->get_company));
 
