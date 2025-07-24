@@ -28,11 +28,10 @@ sub action_ajax_list_jira {
   my $jql = 'textfields ~ "' . $cus->name . '*"';
   $jql .= ' AND status NOT IN (resolved, closed, done, rejected)' if (!$::form->{include_closed});
   $jql .= " ORDER BY $q_ord $q_dir";
+  $::form->{tickets_jql} = $jql;
 
   my $report   = SL::ReportGenerator->new(\%::myconfig, $::form);
   my @columns  = qw(key summary priority status creator assignee created updated);
-  my @visible  = qw(key summary priority status creator assignee created updated);
-  my @sortable = qw(key summary priority status creator assignee created updated);
 
   my %column_defs = (
     key      => { text => $::locale->text('Key'),      sub => sub { $_[0]->{key} }, obj_link => sub { $_[0]->{ext_url} } },
@@ -46,35 +45,30 @@ sub action_ajax_list_jira {
   );
 
 
-  for my $col (@sortable) {
+  for my $col (@columns) {
     $column_defs{$col}{link} = $self->url_for(
       action   => 'ajax_list_jira',
       callback => $::form->{callback},
       db       => $::form->{db},
       id       => $cus->id,
       sort_by  => $col,
-      sort_dir => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir})
+      sort_dir => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir}),
+      include_closed => $::form->{include_closed}
     );
   }
 
-  map { $column_defs{$_}{visible} = 1 } @visible;
+  map { $column_defs{$_}{visible} = 1 } @columns;
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_options_from_form;
   $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
   $report->set_sort_indicator($::form->{sort_by}, $::form->{sort_dir});
-  #$report->set_export_options(@{ $params{report_generator_export_options} || [] });
-
-  $report->set_export_options(qw(include_closed filter.customer.customernumber:boolean));
-
   $report->set_options(
     %{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
-    top_info_text        => $::locale->text('Issues') . ': ' . 'Atlassian JQL: ' . $jql,
     title                => $::locale->text('Jira'),
     raw_top_info_text    => $self->render('ticket_system/report_top', { output => 0 }, %{$::form}),
-    #raw_bottom_info_text => $self->render('time_recording/report_bottom', { output => 0 }, ) #models => $self->models),
+    raw_bottom_info_text => $self->render('ticket_system/report_bottom', { output => 0 })
   );
 
   my $jira = SL::AtlassianJira->new();
