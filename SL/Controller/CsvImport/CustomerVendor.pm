@@ -255,7 +255,6 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
   delete @{$profile}{qw(business datevexport language payment delivery_term taxincluded terms)};
-  delete @{$profile}{qw(salesman salesman_id salesman_login)} if $::instance_conf->get_vertreter;
 
   return $profile;
 }
@@ -304,6 +303,9 @@ sub setup_displayable_columns {
                                  { name => 'payment_id',        description => $::locale->text('Payment terms (database ID)')     },
                                  { name => 'payment',           description => $::locale->text('Payment terms (name)')            },
                                  { name => 'phone',             description => $::locale->text('Phone')                           },
+                                 { name => 'salesman',          description => $::locale->text('Salesman')                        },
+                                 { name => 'salesman_id',       description => $::locale->text('Salesman (database ID)')          },
+                                 { name => 'salesman_login',    description => $::locale->text('Salesman (login)')                },
                                  { name => 'street',            description => $::locale->text('Street')                          },
                                  { name => 'taxnumber',         description => $::locale->text('Tax Number / SSN')                },
                                  { name => 'taxzone',           description => $::locale->text('Tax zone (description)')          },
@@ -313,12 +315,6 @@ sub setup_displayable_columns {
                                  { name => 'ustid',             description => $::locale->text('sales tax identification number') },
                                  { name => 'zipcode',           description => $::locale->text('Zipcode')                         },
                                 );
-
-  if (!$::instance_conf->get_vertreter) {
-    $self->add_displayable_columns({ name => 'salesman',       description => $::locale->text('Salesman') },
-                                   { name => 'salesman_id',    description => $::locale->text('Salesman (database ID)') },
-                                   { name => 'salesman_login', description => $::locale->text('Salesman (login)') });
-  }
 }
 
 # TODO:
