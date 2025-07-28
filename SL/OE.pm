@@ -1311,7 +1311,6 @@ sub order_details {
 
   my $grossamount = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
   $form->{ordtotal} = $form->round_amount( $grossamount, 2, 1);
-  $form->{invtotal} = $form->round_amount( $grossamount, 2, 1) if ($form->{formname} eq 'proforma');
   $form->{rounding} = $form->round_amount(
     $form->{ordtotal} - $form->round_amount($grossamount, 2),
     2
@@ -1319,7 +1318,9 @@ sub order_details {
 
   # format amounts
   $form->{rounding} = $form->format_amount($myconfig, $form->{rounding}, 2);
-  $form->{quototal} = $form->{ordtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+  $form->{ordtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+  $form->{invtotal} = $form->{ordtotal};
+  $form->{quototal} = $form->{ordtotal};
 
   $form->set_payment_options($myconfig, $form->{$form->{type} =~ /_quotation/ ? 'quodate' : 'orddate'}, $form->{type});
 
