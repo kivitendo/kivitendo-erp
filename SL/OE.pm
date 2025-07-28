@@ -1311,6 +1311,7 @@ sub order_details {
 
   my $grossamount = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;
   $form->{ordtotal} = $form->round_amount( $grossamount, 2, 1);
+  $form->{invtotal} = $form->round_amount( $grossamount, 2, 1) if ($form->{formname} eq 'proforma');
   $form->{rounding} = $form->round_amount(
     $form->{ordtotal} - $form->round_amount($grossamount, 2),
     2
