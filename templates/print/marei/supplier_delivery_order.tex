@@ -26,19 +26,19 @@
 \setkomavar{fromphone}{<%employee_tel%>}
 \setkomavar{fromemail}{<%employee_email%>}
 \setkomavar{title}{%
-	\beistelllieferschein~\nr ~<%donumber%>%
+        \beistelllieferschein~\nr ~<%donumber%>%
 }
 <%if ordnumber%>
-	\setkomavar{orderID}{<%ordnumber%>}
+        \setkomavar{orderID}{<%ordnumber%>}
 <%end ordnumber%>%
 <%if cusordnumber%>%
-	\setkomavar*{yourref}{\unsereBestellnummer}
-	\setkomavar{yourref}{<%cusordnumber%>}
+        \setkomavar*{yourref}{\unsereBestellnummer}
+        \setkomavar{yourref}{<%cusordnumber%>}
 <%end cusordnumber%>%
 \setkomavar{transaction}{<%transaction_description%>}
 
 <%if globalprojectnumber%>%
-	\setkomavar{projectID}{<%globalprojectnumber%>}
+        \setkomavar{projectID}{<%globalprojectnumber%>}
 <%end globalprojectnumber%>%
 
 \setkomavar{transaction}{<%transaction_description%>}
@@ -46,21 +46,21 @@
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
-	\parbox{\useplength{toaddrwidth}}{
-		\backaddr@format{\scriptsize\usekomafont{backaddress}%
-			\strut\abweichendeLieferadresse
-		}
-		\par\smallskip
-		\setlength{\parskip}{\z@}
-		\par
-		\normalsize
-		<%shiptoname%>\par
-		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
-		<%shiptodepartment_1%>\par
-		<%shiptodepartment_2%>\par
-		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>%
-	}
+        \parbox{\useplength{toaddrwidth}}{
+                \backaddr@format{\scriptsize\usekomafont{backaddress}%
+                        \strut\abweichendeLieferadresse
+                }
+                \par\smallskip
+                \setlength{\parskip}{\z@}
+                \par
+                \normalsize
+                <%shiptoname%>\par
+                <%if shiptocontact%> <%shiptocontact%><%end if%>\par
+                <%shiptodepartment_1%>\par
+                <%shiptodepartment_2%>\par
+                <%shiptostreet%>\par
+                <%shiptozipcode%> <%shiptocity%>%
+        }
 \end{lrbox}
 \makeatother
 <%end shiptoname%>%
@@ -87,7 +87,7 @@
     % eigentliche Tabelle
     \FakeTable{
     <%foreach number%>%
-      <%runningnumber%> &
+      <%position%> &
       <%qty%> <%unit%> &
       \textbf{<%description%>}
       <%if longdescription%>\ExtraDescription{<%longdescription%>}<%end longdescription%>%
@@ -104,7 +104,7 @@
       <%foreach make%>%
         \Ifstr{<%make%>}{<%name%>}{\ExtraDescription{\artikelnummer: <%model%>}}{}
       <%end foreach%>%
-	   \tabularnewline
+           \tabularnewline
     <%end number%>%
     }
   \end{PricingTabular*}
