@@ -99,7 +99,8 @@ sub flatten_to_form {
     # TODO: is part_type correct here? Do we need to set part_type as default?
     _copy($item->part,    $form, '',               "_${idx}", 0,               qw(id partnumber weight part_type));
     _copy($item->part,    $form, '',               "_${idx}", 0,               qw(listprice));
-    _copy($item,          $form, '',               "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
+    _copy($item,          $form, '',               "_${idx}", 0,               qw(position
+                                                                                  description project_id ship serialnumber pricegroup_id ordnumber donumber cusordnumber unit
                                                                                   subtotal longdescription price_factor_id marge_price_factor reqdate transdate
                                                                                   active_price_source active_discount_source optional));
     _copy($item,          $form, '',              "_${idx}", $format_noround, qw(qty sellprice fxsellprice));
