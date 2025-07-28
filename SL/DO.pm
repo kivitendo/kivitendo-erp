@@ -694,7 +694,7 @@ sub order_details {
   $form->{TEMPLATE_ARRAYS} = { };
 
   my @arrays =
-    qw(runningnumber number description longdescription qty qty_nofmt unit
+    qw(runningnumber position number description longdescription qty qty_nofmt unit
        partnotes serialnumber reqdate projectnumber projectdescription
        weight weight_nofmt lineweight lineweight_nofmt
        si_runningnumber si_number si_description
@@ -752,6 +752,7 @@ sub order_details {
 
     push @{ $form->{TEMPLATE_ARRAYS}{entry_type} },      'normal';
     push @{ $form->{TEMPLATE_ARRAYS}{runningnumber} },   $position;
+    push @{ $form->{TEMPLATE_ARRAYS}{position} },        $form->{"position_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{number} },          $form->{"partnumber_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{description} },     $form->{"description_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{longdescription} }, $form->{"longdescription_$i"};
