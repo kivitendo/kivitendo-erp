@@ -41,6 +41,7 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sdonumber',
       worflow_needed => 0,
+      template       => 'sales_delivery_order',
     },
     defaults => {
       reqdate => sub {
@@ -80,6 +81,7 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'pdonumber',
       worflow_needed => 0,
+      template      => 'purchase_delivery_order',
     },
     defaults => {
       reqdate => sub {
@@ -119,6 +121,7 @@ my %type_data = (
       transfer       => 'out',
       transnumber    => 'sudonumber',
       worflow_needed => 1,
+      template       => 'supplier_delivery_order',
     },
     defaults => {
       reqdate => sub {
@@ -158,6 +161,7 @@ my %type_data = (
       transfer       => 'in',
       transnumber    => 'rdonumber',
       worflow_needed => 1,
+      template       => 'rma_delivery_order',
     },
     defaults => {
       reqdate => sub {
