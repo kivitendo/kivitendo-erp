@@ -478,15 +478,13 @@ sub create_or_update {
 
 sub prepare_report {
   my ($self)       = @_;
-  my $is_template  = $::form->{is_template};
-  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
-  $report->{title} = t8('Requirement Spec Templates');
 
-  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
-  $self->models->finalize; # for filter laundering
   my $callback    = $self->models->get_callback;
 
-  $self->{report} = $report;
+  my $is_template  = $::form->{is_template};
+  my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
+  $report->{title} = $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs');
+  $self->{report}  = $report;
 
   my @columns     = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime version);
   my @sortable    = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime);
@@ -536,8 +534,6 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'RequirementSpec',
     output_format         => 'HTML',
-    raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }, is_template => $is_template),
-    raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }, models => $self->models),
     title                 => $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -547,7 +543,12 @@ sub prepare_report {
   $report->set_export_options(qw(list filter), @cvar_column_form_names);
   $report->set_options_from_form;
   $self->models->add_additional_url_params(%cvar_column_url_params);
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }, is_template => $is_template),
+    raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }),
+  );
 }
 
 sub invalidate_version {
