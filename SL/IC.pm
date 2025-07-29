@@ -201,34 +201,34 @@ sub all_parts {
 
   my %joins = (
     bookinggroup => 'LEFT JOIN buchungsgruppen bg ON (p.buchungsgruppen_id = bg.id)',
-    partsgroup => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
-    makemodel  => "LEFT JOIN LATERAL (
-                      SELECT string_agg(mv.vendornumber || ' ' || mv.name, ', ') AS make,
-                             string_agg(mm.model, ', ')                          AS model
-                        FROM makemodel mm
-                             LEFT JOIN vendor mv ON (mv.id = mm.make)
-                      WHERE  mm.parts_id = p.id
-                   ) mm ON TRUE",
-    pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
-    invoice_oi =>
+    partsgroup   => 'LEFT JOIN partsgroup pg      ON (pg.id       = p.partsgroup_id)',
+    makemodel    => "LEFT JOIN LATERAL (
+                        SELECT string_agg(mv.vendornumber || ' ' || mv.name, ', ') AS make,
+                               string_agg(mm.model, ', ')                          AS model
+                          FROM makemodel mm
+                               LEFT JOIN vendor mv ON (mv.id = mm.make)
+                        WHERE  mm.parts_id = p.id
+                     ) mm ON TRUE",
+    pfac         => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
+    invoice_oi   =>
       q|LEFT JOIN (
          SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi, project_id, id FROM invoice UNION
          SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi, project_id, id FROM orderitems
        ) AS ioi ON ioi.parts_id = p.id|,
-    apoe       =>
+    apoe         =>
       q|LEFT JOIN (
          SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, 'purchase_invoice' AS record_type, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, globalproject_id, 'invoice'    AS ioi FROM ap UNION
          SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, 'sales_invoice'    AS record_type,         customer_id, NULL AS vendor_id,            deliverydate, globalproject_id, 'invoice'    AS ioi FROM ar UNION
          SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,                       record_type::text,   customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
        ) AS apoe ON ((ioi.trans_id = apoe.id) AND (ioi.ioi = apoe.ioi))|,
-    cv         =>
+    cv           =>
       q|LEFT JOIN (
            SELECT id, name, 'customer' AS cv FROM customer UNION
            SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
-    project    => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
-    warehouse  => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
-    bin        => 'LEFT JOIN bin ON bin.id = p.bin_id',
+    project      => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
+    warehouse    => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
+    bin          => 'LEFT JOIN bin ON bin.id = p.bin_id',
   );
   my @join_order = qw(bookinggroup partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
 
@@ -455,15 +455,15 @@ sub all_parts {
   push @where_tokens, join ' OR ', map { "($_)" } @bsooqr_tokens              if $bsooqr;
 
   $joins_needed{bookinggroup} = 1 if $form->{l_bookinggroup};
-  $joins_needed{partsgroup}  = 1;
-  $joins_needed{pfac}        = 1;
-  $joins_needed{project}     = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
-  $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
-  $joins_needed{cv}          = 1 if $bsooqr;
-  $joins_needed{apoe}        = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
-  $joins_needed{invoice_oi}  = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
-  $joins_needed{bin}         = 1 if $form->{l_bin};
-  $joins_needed{warehouse}   = 1 if $form->{l_warehouse};
+  $joins_needed{partsgroup}   = 1;
+  $joins_needed{pfac}         = 1;
+  $joins_needed{project}      = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
+  $joins_needed{makemodel}    = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
+  $joins_needed{cv}           = 1 if $bsooqr;
+  $joins_needed{apoe}         = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
+  $joins_needed{invoice_oi}   = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
+  $joins_needed{bin}          = 1 if $form->{l_bin};
+  $joins_needed{warehouse}    = 1 if $form->{l_warehouse};
 
   # special case for description search.
   # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
