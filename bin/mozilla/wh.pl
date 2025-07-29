@@ -395,6 +395,8 @@ sub create_assembly {
   $bin = SL::DB::Manager::Bin->find_by(id => $form->{bin_id});
   $form->show_generic_error($locale->text('Invalid bin')) unless ref $bin eq 'SL::DB::Bin';
 
+  $form->show_generic_error($locale->text('The assembly doesn\'t have any items.')) unless (scalar @{$assembly->assemblies});
+
   if (!$::instance_conf->get_show_bestbefore) {
     $form->{bestbefore} = '';
   }
