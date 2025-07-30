@@ -340,6 +340,153 @@ sub clone_for_save_as_new {
   return $new_record;
 }
 
+sub print_record {
+  my ($class, $record, %params) = @_;
+
+  my $format      = $params{print_options}->{format};
+  my $media       = $params{print_options}->{media};
+  my $formname    = $params{print_options}->{formname};
+  my $copies      = $params{print_options}->{copies};
+  my $groupitems  = $params{print_options}->{groupitems};
+  my $printer_id  = $params{print_options}->{printer_id};
+
+  # my $return;
+my $result = {
+    success => 0,
+    message => '',
+    errors  => undef,
+    file    => undef,
+    filename => undef,
+  };
+
+  # create a form for generate_attachment_filename
+  my $form   = Form->new;
+  $form->{$record->type_data->properties('nr_key')}  = $record->number;
+  $form->{type}             = $record->type;
+  $form->{format}           = $format;
+  $form->{formname}         = $formname;
+  $form->{language}         =
+    '_' . $record->language->template_code if $record->language;
+  my $pdf_filename          = $form->generate_attachment_filename();
+  my $pdf;
+  my @errors = _generate_pdf($record, \$pdf, {
+      format     => $format,
+      formname   => $formname,
+      language   => $record->language,
+      printer_id => $printer_id,
+      groupitems => $groupitems
+    });
+  if (scalar @errors) {
+    $result->{success} = 0;
+    $result->{errors} = \@errors;
+    $result->{message} = t8("Errors while printing");
+    return $result;
+  }
+
+  $result->{success} = 1;
+  $result->{file} = $pdf;
+  $result->{filename} = $pdf_filename;
+  $result->{message} = t8("The document has been created");
+
+  return $result;
+
+  if ($media eq 'screen') {
+    # screen/download
+    #    flash_later('info', t8('The document has been created.'));
+    $record->send_file(
+      \$pdf,
+      type         => SL::MIME->mime_type_from_ext($pdf_filename),
+      name         => $pdf_filename,
+      js_no_render => 1,
+    );
+
+  } elsif ($media eq 'printer') {
+    # printer
+    my $printer_id = $::form->{print_options}->{printer_id};
+    SL::DB::Printer->new(id => $printer_id)->load->print_document(
+      copies  => $copies,
+      content => $pdf,
+    );
+
+    flash_later('info', t8('The document has been printed.'));
+  }
+
+  #  my @warnings = store_pdf_to_webdav_and_filemanagement(
+  #    $record, $pdf, $pdf_filename, $formname
+  #  );
+  #  if (scalar @warnings) {
+  #    flash_later('warning', $_) for @warnings;
+  #  }
+
+  #$record->save_history('PRINTED');
+  return $result;
+}
+
+sub _generate_pdf {
+#  my ($class, $record, %params) = @_;
+  my ($order, $pdf_ref, $params) = @_;
+
+  my @errors = ();
+
+  my $print_form = Form->new('');
+  $print_form->{type}        = $order->type;
+  $print_form->{formname}    = $params->{formname} || $order->type;
+  $print_form->{format}      = $params->{format}   || 'pdf';
+  $print_form->{media}       = $params->{media}    || 'file';
+  $print_form->{groupitems}  = $params->{groupitems};
+  $print_form->{printer_id}  = $params->{printer_id};
+  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
+
+  $order->language($params->{language});
+  $order->flatten_to_form($print_form, format_amounts => 1);
+
+  my $template_ext;
+  my $template_type;
+  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
+    $template_ext  = 'odt';
+    $template_type = 'OpenDocument';
+  }
+
+  # search for the template
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $print_form->{formname},
+    extension   => $template_ext,
+    email       => $print_form->{media} eq 'email',
+    language    => $params->{language},
+    printer_id  => $print_form->{printer_id},
+  );
+
+  if (!defined $template_file) {
+    push @errors, $::locale->text(
+      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
+      join ', ', map { "'$_'"} @template_files
+    );
+  }
+
+  return @errors if scalar @errors;
+
+  $print_form->throw_on_error(sub {
+    eval {
+      $print_form->prepare_for_printing;
+
+      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
+        format        => $print_form->{format},
+        template_type => $template_type,
+        template      => $template_file,
+        variables     => $print_form,
+        variable_content_types => {
+          longdescription => 'html',
+          partnotes       => 'html',
+          notes           => 'html',
+        },
+      );
+      1;
+    } || push @errors, ref($@) eq 'SL::X::FormError' ? $@->error : $@;
+  });
+
+  return @errors;
+#}
+}
 
 1;
 
