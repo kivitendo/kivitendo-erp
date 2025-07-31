@@ -115,7 +115,7 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{vc} = $form->{type} eq 'purchase_delivery_order'  || $form->{type} eq "supplier_delivery_order" ? 'vendor' : 'customer';
+  $form->{vc} = SL::DB::DeliveryOrder::TypeData::get3($form->{type},"properties","customervendor");
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
@@ -146,7 +146,7 @@ sub orders {
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{vc} = "vendor" if $form->{type} eq "supplier_delivery_order";
+  $form->{vc} = SL::DB::DeliveryOrder::TypeData::get3($form->{type},"properties","customervendor");
 
   report_generator_set_default_sort('transdate', 1);
 
