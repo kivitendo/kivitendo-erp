@@ -341,6 +341,11 @@ sub prepare_report {
 
   my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
 
+  my %cvar_column_url_params = (_include_cvars_from_form => 1,
+                                map { (
+                                  'include_cvars_' . $_->name => $self->include_cvars->{$_->name} ? 1 : 0
+                                ) } @{ $self->includeable_cvar_configs });
+
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'Project',
@@ -353,6 +358,7 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter), @cvar_column_form_names);
   $report->set_options_from_form;
+  $self->models->add_additional_url_params(%cvar_column_url_params);
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
