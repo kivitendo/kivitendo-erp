@@ -482,8 +482,9 @@ sub prepare_report {
   my $callback    = $self->models->get_callback;
 
   my $is_template  = $::form->{is_template};
+  my $title        = $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs');
   my $report       = SL::ReportGenerator->new(\%::myconfig, $::form);
-  $report->{title} = $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs');
+  $report->{title} = $title;
   $self->{report}  = $report;
 
   my @columns     = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime version);
@@ -526,21 +527,24 @@ sub prepare_report {
   my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
 
   my %cvar_column_url_params = (_include_cvars_from_form => 1,
+                                is_template              => $is_template,
                                 map { (
                                   'include_cvars_' . $_->name => $self->include_cvars->{$_->name} ? 1 : 0
                                 ) } @{ $self->includeable_cvar_configs });
+
+  $self->includeable_cvar_configs([]) if ($is_template);
 
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'RequirementSpec',
     output_format         => 'HTML',
-    title                 => $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs'),
+    title                 => $title,
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_export_options(qw(list filter), @cvar_column_form_names);
+  $report->set_export_options(qw(list filter is_template), @cvar_column_form_names);
   $report->set_options_from_form;
   $self->models->add_additional_url_params(%cvar_column_url_params);
   $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
