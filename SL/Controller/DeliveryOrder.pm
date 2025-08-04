@@ -2281,15 +2281,10 @@ sub generate_pdf {
 
   $order->language($params->{language});
 
-  # Remove items which should not be printed.
+  # Keep items which should be printed.
   if ($params->{only_selected_item_positions}) {
-    my @idx_to_remove;
-    foreach my $idx (reverse 0..$#{$order->orderitems}) {
-      my $item = $order->orderitems->[$idx];
-      if (none { $_ == ($item->position) } @{ $params->{selected_item_positions} || [] }) {
-        splice @{$order->orderitems}, $idx, 1;
-      }
-    }
+    my %keep = map { $_ => 1 } @{ $params->{selected_item_positions} || [] };
+    $order->orderitems([ grep { $keep{$_->position} } @{ $order->orderitems } ]);
   }
 
   $order->flatten_to_form($print_form, format_amounts => 1);
