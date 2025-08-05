@@ -477,7 +477,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     ns.reinit_widgets();
   }
 
-  ns.get_price_report = function(target, source, data) {
+  ns.replace_html_ajax = function(target, source, data) {
     $.ajax({
       url:        source,
       success:    function (rsp) {
@@ -489,36 +489,36 @@ namespace('kivi.CustomerVendor', function(ns) {
 
   ns.price_report_redirect_event = function (event, target) {
     event.preventDefault();
-    ns.get_price_report(target, event.target + '');
+    ns.replace_html_ajax(target, event.target + '');
   };
 
   ns.price_list_init = function () {
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
       if (ui.newPanel.attr('id') == 'price_list') {
-        ns.get_price_report('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.replace_html_ajax('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
       if (ui.panel.attr('id') == 'price_list') {
-        ns.get_price_report('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.replace_html_ajax('#price_list', "controller.pl?action=CustomerVendor/ajax_list_prices&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });
   }
 
-  ns.jira_init = function () {
+  ns.tickets_init = function () {
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
-      if (ui.newPanel.attr('id') == 'jira') {
-        ns.get_price_report('#jira', "controller.pl?action=Jira/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+      if (ui.newPanel.attr('id') == 'tickets') {
+        ns.replace_html_ajax('#tickets', "controller.pl?action=TicketSystem/ajax_list&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
-      if (ui.panel.attr('id') == 'jira') {
-        ns.get_price_report('#jira', "controller.pl?action=Jira/ajax_list_jira&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+      if (ui.panel.attr('id') == 'tickets') {
+        ns.replace_html_ajax('#tickets', "controller.pl?action=TicketSystem/ajax_list&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
       }
       return 1;
     });
@@ -584,6 +584,6 @@ namespace('kivi.CustomerVendor', function(ns) {
   $(function(){
     ns.init();
     ns.price_list_init();
-    ns.jira_init();
+    ns.tickets_init();
   });
 });
