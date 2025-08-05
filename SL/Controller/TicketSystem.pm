@@ -34,12 +34,11 @@ sub action_ajax_list {
   $::form->{sort_dir}       //= 0;
   $::form->{include_closed} //= 1;
 
-  my %params        = (search_string => $cv_obj->name);
-  $params{$_}       = $::form->{$_} for qw(include_closed sort_by sort_dir);
-
+  my %params  = (search_string => $cv_obj->name); #, message => \$self->{message});
+  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
   my $objects;
   try {
-    $objects       = $provider->get_tickets(%params);
+    $objects = $provider->get_tickets(\%params, \$self->{message});
   } catch {
     $_ =~ m/^no OAuth token / ? flash('info', t8('Create an OAuth token first under Program -> OAuth Tokens'))
                               : flash('error', $_);
