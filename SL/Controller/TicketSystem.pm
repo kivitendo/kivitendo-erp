@@ -27,13 +27,17 @@ sub check_auth {
 }
 
 sub action_ajax_list {
-  my ($self, %paramsda) = @_;
+  my ($self) = @_;
 
-  $::form->{sort_by}  ||= 'priority';
-  $::form->{sort_dir} //= 0;
-  $::form->{include_closed} //= 1;
+  my $defaults      = SL::DB::Default->get();
+  my $providerclass = $providers{$defaults->ticket_system_provider} or die 'unknown provider';
+  my $provider      = $providerclass->new();
+  my $cv_obj        = $::form->{db} eq 'customer' ? SL::DB::Manager::Customer->find_by(id => $::form->{id})
+                                                  : SL::DB::Manager::Vendor->find_by(id => $::form->{id});
+  my %params        = (search_string => $cv_obj->name);
+  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
 
-  my $cus =  SL::DB::Manager::Customer->find_by(id => $::form->{id});
+  my $objects = $provider->get_tickets(%params);
 
   my $report   = SL::ReportGenerator->new(\%::myconfig, $::form);
   my @columns  = qw(key summary priority status creator assignee created updated);
@@ -52,13 +56,13 @@ sub action_ajax_list {
 
   for my $col (@columns) {
     $column_defs{$col}{link} = $self->url_for(
-      action   => 'ajax_list',
-      callback => $::form->{callback},
-      db       => $::form->{db},
-      id       => $cus->id,
-      sort_by  => $col,
-      sort_dir => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir}),
-      include_closed => $::form->{include_closed}
+      action         => 'ajax_list',
+      callback       => $::form->{callback},
+      db             => $::form->{db},
+      id             => $cv_obj->id,
+      include_closed => $::form->{include_closed},
+      sort_by        => $col,
+      sort_dir       => ($::form->{sort_by} eq $col ? 1 - $::form->{sort_dir} : $::form->{sort_dir}),
     );
   }
 
@@ -66,20 +70,17 @@ sub action_ajax_list {
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
   $report->set_sort_indicator($::form->{sort_by}, $::form->{sort_dir});
   $report->set_options(
     #%{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
     title                => $::locale->text('Ticket system'),
+    allow_pdf_export     => 0,
+    allow_csv_export     => 0,
     raw_top_info_text    => $self->render('ticket_system/report_top', { output => 0 }, %{$::form}),
     raw_bottom_info_text => $self->render('ticket_system/report_bottom', { output => 0 })
   );
 
-  my $tickets = $providers{jira}->new();
-  my %params = (search_string => $cus->name);
-  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
-  my $objects = $tickets->get_tickets(%params);
 
   $self->report_generator_list_objects(report => $report, objects => $objects, layout => 0, header => 0);
 }
