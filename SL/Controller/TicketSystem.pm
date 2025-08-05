@@ -5,7 +5,10 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Controller::Helper::ReportGenerator;
+use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
+use SL::Helper::Flash qw(flash);
+use Try::Tiny;
 
 
 __PACKAGE__->run_before('check_auth');
@@ -33,7 +36,16 @@ sub action_ajax_list {
 
   my %params        = (search_string => $cv_obj->name);
   $params{$_}       = $::form->{$_} for qw(include_closed sort_by sort_dir);
-  my $objects       = $provider->get_tickets(%params);
+
+  my $objects;
+  try {
+    $objects       = $provider->get_tickets(%params);
+  } catch {
+    $_ =~ m/^no OAuth token / ? flash('info', t8('Create an OAuth token first under Program -> OAuth Tokens'))
+                              : flash('error', $_);
+    $self->render(\"[% INCLUDE 'common/flash.html' %]", { layout => 0 });
+    $::dispatcher->end_request();
+  };
 
   my @prov_cols    = @{$provider->ticket_columns()};
   my @columns      = map { $_->{name} } @prov_cols;
