@@ -38,31 +38,32 @@ sub default_sort_by {
 sub new {
   my ($type, %params) = @_;
   my $self            = bless {}, $type;
-#  my ($self) = @_;
-#  my $jira = SL::AtlassianJira->new();
-#  $self->{jira} = $jira;
   $self;
 }
 
 sub get_tickets {
-  my ($self, %params) = @_;
+  my ($self, $params, $message_ref) = @_;
 
-  $params{sort_by}        ||= 'priority';
-  $params{sort_dir}       //= 0;
-  $params{include_closed} //= 1;
+  $params->{sort_by}        ||= 'priority';
+  $params->{sort_dir}       //= 0;
+  $params->{include_closed} //= 1;
 
-  my $q_ord = $params{sort_by};
-  my $q_dir = $params{sort_dir} ? 'ASC' : 'DESC';
+  my $q_ord = $params->{sort_by};
+  my $q_dir = $params->{sort_dir} ? 'ASC' : 'DESC';
+  my $q_ser = $params->{search_string};
 
-  my $jql = 'textfields ~ "' . $params{search_string} . '*"';
-  $jql .= ' AND status NOT IN (resolved, closed, done, rejected)' unless ($params{include_closed});
-  $jql .= " ORDER BY $q_ord $q_dir";
-  #$::form->{tickets_jql} = $jql;
+  # Security: sanitize JQL contents
+  $q_ord    =~ s/[^a-z0-9]//g;
+  $q_ser    =~ s/"/\\"/g;
+
+  my $jql = 'textfields ~ "' . $q_ser . '*"';
+  $jql   .= ' AND status NOT IN (resolved, closed, done, rejected)' unless ($params->{include_closed});
+  $jql   .= " ORDER BY $q_ord $q_dir";
+
+  ${$message_ref} = 'Atlassian JQL: ' . $jql;
 
   my $jira = SL::AtlassianJira->new();
-  my $jira_issues = $jira->tickets($jql);
-
-  $jira_issues;
+  $jira->tickets($jql);
 }
 
 
