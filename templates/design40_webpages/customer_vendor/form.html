@@ -22,7 +22,7 @@
         <li><a href="#additional_billing_addresses">[% 'Additional Billing Addresses' | $T8 %]</a></li>
       [% END %]
       <li><a href="#bank">[% 'Bank account' | $T8 %]</a></li>
-      <li><a href="#jira">[% 'Jira' | $T8 %]</a></li>
+      <li><a href="#tickets">[% 'Ticket system' | $T8 %]</a></li>
       <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
       <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
       [% IF show_deliveries %]
@@ -69,7 +69,7 @@
       [% PROCESS "customer_vendor/tabs/additional_billing_addresses.html" %]
     [% END %]
     [% PROCESS "customer_vendor/tabs/bank.html" %]
-    [% PROCESS "customer_vendor/tabs/jira.html" %]
+    [% PROCESS "customer_vendor/tabs/tickets.html" %]
     [% PROCESS "customer_vendor/tabs/shipto.html" %]
     [% PROCESS "customer_vendor/tabs/contacts.html" %]
     [% IF show_deliveries %]
