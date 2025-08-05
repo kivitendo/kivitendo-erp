@@ -11,15 +11,28 @@ use SL::Locale::String;
 use SL::Helper::Flash qw(flash_later);
 
 sub type {
-  "jira";
+  'jira';
 }
 
 sub title {
-  "Atlassian Jira";
+  'Atlassian Jira';
 }
 
 sub ticket_columns {
-  qw(key summary priority status creator assignee created updated);
+  [
+    { name => 'key',      text => 'Key',      sortable => 1, ext_url => 'ext_url'},
+    { name => 'summary',  text => 'Summary',  sortable => 1},
+    { name => 'priority', text => 'Priority', sortable => 1},
+    { name => 'status',   text => 'Status',   sortable => 1},
+    { name => 'creator',  text => 'Creator',  sortable => 1},
+    { name => 'assignee', text => 'Assignee', sortable => 1},
+    { name => 'created',  text => 'Created',  sortable => 1},
+    { name => 'updated',  text => 'Updated',  sortable => 1},
+  ];
+}
+
+sub default_sort_by {
+  'priority';
 }
 
 sub new {

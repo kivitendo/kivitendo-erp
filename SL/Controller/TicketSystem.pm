@@ -4,17 +4,9 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
-use SL::DB::OAuthToken;
-use SL::Helper::Flash;
-use SL::JSON;
-use SL::Locale::String;
-use SL::TicketSystem::Jira;
 use SL::Controller::Helper::ReportGenerator;
-use SL::Helper::Flash qw(flash_later);
+use SL::TicketSystem::Jira;
 
-use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(config) ],
-);
 
 __PACKAGE__->run_before('check_auth');
 
@@ -34,27 +26,30 @@ sub action_ajax_list {
   my $provider      = $providerclass->new();
   my $cv_obj        = $::form->{db} eq 'customer' ? SL::DB::Manager::Customer->find_by(id => $::form->{id})
                                                   : SL::DB::Manager::Vendor->find_by(id => $::form->{id});
+
+  $::form->{sort_by}        ||= $provider->default_sort_by;
+  $::form->{sort_dir}       //= 0;
+  $::form->{include_closed} //= 1;
+
   my %params        = (search_string => $cv_obj->name);
-  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
+  $params{$_}       = $::form->{$_} for qw(include_closed sort_by sort_dir);
+  my $objects       = $provider->get_tickets(%params);
 
-  my $objects = $provider->get_tickets(%params);
+  my @prov_cols    = @{$provider->ticket_columns()};
+  my @columns      = map { $_->{name} } @prov_cols;
+  my @sort_columns = map { $_->{name} } (grep { $_->{sortable} } @prov_cols);
 
-  my $report   = SL::ReportGenerator->new(\%::myconfig, $::form);
-  my @columns  = qw(key summary priority status creator assignee created updated);
+  my %column_defs;
+  for my $col (@prov_cols) {
+    $column_defs{$col->{name}} = {
+      text     => $col->{text},
+      sub      => sub { $_[0]->{$col->{name}} },
+      obj_link => sub { $_[0]->{$col->{ext_url}} },
+      visible  => 1,
+    };
+  }
 
-  my %column_defs = (
-    key      => { text => $::locale->text('Key'),      sub => sub { $_[0]->{key} }, obj_link => sub { $_[0]->{ext_url} } },
-    summary  => { text => $::locale->text('Summary'),  sub => sub { $_[0]->{summary} } },
-    priority => { text => $::locale->text('Priority'), sub => sub { $_[0]->{priority} } },
-    status   => { text => $::locale->text('Status'),   sub => sub { $_[0]->{status} } },
-    creator  => { text => $::locale->text('Creator'),  sub => sub { $_[0]->{creator} } },
-    assignee => { text => $::locale->text('Assignee'), sub => sub { $_[0]->{assignee} } },
-    created  => { text => $::locale->text('Created'),  sub => sub { $_[0]->{created}->to_kivitendo } },
-    updated  => { text => $::locale->text('Updated'),  sub => sub { $_[0]->{updated}->to_kivitendo } },
-  );
-
-
-  for my $col (@columns) {
+  for my $col (@sort_columns) {
     $column_defs{$col}{link} = $self->url_for(
       action         => 'ajax_list',
       callback       => $::form->{callback},
@@ -66,21 +61,18 @@ sub action_ajax_list {
     );
   }
 
-  map { $column_defs{$_}{visible} = 1 } @columns;
-
+  my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
   $report->set_sort_indicator($::form->{sort_by}, $::form->{sort_dir});
   $report->set_options(
-    #%{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
-    title                => $::locale->text('Ticket system'),
+    title                => $provider->title,
     allow_pdf_export     => 0,
     allow_csv_export     => 0,
-    raw_top_info_text    => $self->render('ticket_system/report_top', { output => 0 }, %{$::form}),
+    raw_top_info_text    => $self->render('ticket_system/report_top',    { output => 0 }),
     raw_bottom_info_text => $self->render('ticket_system/report_bottom', { output => 0 })
   );
-
 
   $self->report_generator_list_objects(report => $report, objects => $objects, layout => 0, header => 0);
 }
