@@ -189,7 +189,7 @@ sub setup_list_action_bar {
 sub access_token_for {
   my ($target) = @_;
 
-  my $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target) or die;
+  my $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target) or die 'no OAuth token';
 
   refresh($tok) unless $tok->is_valid();
 
