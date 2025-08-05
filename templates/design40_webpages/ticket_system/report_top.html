@@ -9,8 +9,8 @@
     <tr>
       <td>[% 'include closed' | $T8 %]</td>
       <td>
-        [% L.checkbox_tag('include_closed', value = 1, checked = include_closed,
-          onChange="kivi.CustomerVendor.get_price_report('#tickets', 'controller.pl?action=TicketSystem/ajax_list'
+        [% L.checkbox_tag('include_closed', value = 1, checked = FORM.include_closed,
+          onChange="kivi.CustomerVendor.replace_html_ajax('#tickets', 'controller.pl?action=TicketSystem/ajax_list'
           + '&id='             + \$('#cv_id').val()
           + '&db='             + \$('#db').val()
           + '&include_closed=' + (0+\$('#include_closed')[0].checked)
