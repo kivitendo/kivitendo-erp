@@ -19,7 +19,7 @@ my $api_host = 'https://api.atlassian.com';
 sub init_connector {
   my ($self) = @_;
 
-  my $acctok = SL::Controller::OAuth::access_token_for('atlassian_jira') or die "no access token";
+  my $acctok = SL::Controller::OAuth::access_token_for('atlassian_jira', allow_client_wide => 1) or die "no access token";
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');

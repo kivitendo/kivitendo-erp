@@ -187,9 +187,20 @@ sub setup_list_action_bar {
 
 
 sub access_token_for {
-  my ($target) = @_;
+  my ($target, %params) = @_;
 
-  my $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target) or die 'no OAuth token';
+  $params{allow_current_user} //= 1;
+  $params{allow_client_wide}  //= 0;
+
+  my $tok;
+
+  $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target, employee_id => SL::DB::Manager::Employee->current->id)
+    if ($params{allow_current_user});
+
+  $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target, employee_id => undef)
+    if (!$tok && $params{allow_client_wide});
+
+  die 'no OAuth token' unless $tok;
 
   refresh($tok) unless $tok->is_valid();
 
