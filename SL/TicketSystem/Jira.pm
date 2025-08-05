@@ -26,8 +26,8 @@ sub ticket_columns {
     { name => 'status',   text => 'Status',   sortable => 1},
     { name => 'creator',  text => 'Creator',  sortable => 1},
     { name => 'assignee', text => 'Assignee', sortable => 1},
-    { name => 'created',  text => 'Created',  sortable => 1},
-    { name => 'updated',  text => 'Updated',  sortable => 1},
+    { name => 'created',  text => 'Created',  sortable => 1, is_date => 1},
+    { name => 'updated',  text => 'Updated',  sortable => 1, is_date => 1},
   ];
 }
 

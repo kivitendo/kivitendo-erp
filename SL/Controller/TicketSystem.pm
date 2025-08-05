@@ -54,7 +54,8 @@ sub action_ajax_list {
   for my $col (@prov_cols) {
     $column_defs{$col->{name}} = {
       text     => $col->{text},
-      sub      => sub { $_[0]->{$col->{name}} },
+      sub      => $col->{is_date} ? sub { $_[0]->{$col->{name}}->to_kivitendo }
+                                  : sub { $_[0]->{$col->{name}} },
       obj_link => sub { $_[0]->{$col->{ext_url}} },
       visible  => 1,
     };
