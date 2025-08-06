@@ -11,15 +11,9 @@ use SL::Helper::Flash qw(flash);
 use Try::Tiny;
 
 
-__PACKAGE__->run_before('check_auth');
-
 my %providers = (
   jira => 'SL::TicketSystem::Jira',
 );
-
-sub check_auth {
-  $::auth->assert('config');
-}
 
 sub action_ajax_list {
   my ($self) = @_;
