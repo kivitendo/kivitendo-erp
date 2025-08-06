@@ -20,14 +20,14 @@ sub title {
 
 sub ticket_columns {
   [
-    { name => 'key',      text => 'Key',      sortable => 1, ext_url => 'ext_url'},
-    { name => 'summary',  text => 'Summary',  sortable => 1},
-    { name => 'priority', text => 'Priority', sortable => 1},
-    { name => 'status',   text => 'Status',   sortable => 1},
-    { name => 'creator',  text => 'Creator',  sortable => 1},
-    { name => 'assignee', text => 'Assignee', sortable => 1},
-    { name => 'created',  text => 'Created',  sortable => 1, is_date => 1},
-    { name => 'updated',  text => 'Updated',  sortable => 1, is_date => 1},
+    { name => 'key',      text => t8('Key'),      sortable => 1, ext_url => 'ext_url'},
+    { name => 'summary',  text => t8('Summary'),  sortable => 1},
+    { name => 'priority', text => t8('Priority'), sortable => 1},
+    { name => 'status',   text => t8('Status'),   sortable => 1},
+    { name => 'creator',  text => t8('Creator'),  sortable => 1},
+    { name => 'assignee', text => t8('Assignee'), sortable => 1},
+    { name => 'created',  text => t8('Created'),  sortable => 1, is_date => 1},
+    { name => 'updated',  text => t8('Updated'),  sortable => 1, is_date => 1},
   ];
 }
 
