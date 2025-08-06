@@ -8783,6 +8783,15 @@ cloud_id  = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 cloud_url = https://firma.atlassian.net
           </programlisting>
         </para>
+
+        <para>
+          Beim Kopieren einer Produktivdatenbank für
+          Testzwecke sollten die OAuth Tokens ausgelassen
+          werden, da beim Refresh im Testsystem die Tokens im
+          Produktivsystem ungültig würden.  Siehe hierzu die Option
+          <literal>--exclude-table-data=oauth_token</literal> in
+          <literal>man pg_dump(1)</literal>.
+        </para>
       </sect2>
     </sect1>
 
