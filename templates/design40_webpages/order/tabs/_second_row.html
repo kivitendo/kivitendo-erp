@@ -6,7 +6,7 @@
 
 <table>
   <tr>
-    <td>
+    <td colspan="100%">
       [% IF (TYPE == "sales_order_intake" || TYPE == "sales_order" || TYPE == "purchase_order" || TYPE == "purchase_order_confirmation") %]
         <b>[% 'Serial No.' | $T8 %]</b> [% L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15, "data-validate"="trimmed_whitespaces") %]
       [% END %]

@@ -5,7 +5,7 @@
 [%- USE P %]
 
 <table>
-  <tr><td>
+  <tr><td colspan="100%">
     <b>[%- 'Serial No.' | $T8 %]</b>&nbsp;
     [%- L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15 "data-validate"="trimmed_whitespaces") %]&nbsp;
     <b>[%- 'Project' | $T8 %]</b>&nbsp;
