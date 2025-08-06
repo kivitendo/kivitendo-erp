@@ -6,14 +6,17 @@
 <table class="tbl-list">
   <thead>
     <tr>
-      <th>id</th>
+      <th>ID</th>
       <th>[% 'Provider' | $T8 %]</th>
-      <th>[% 'Employee' | $T8 %]</th>
+      [% IF (AUTH.assert('admin', 'may_fail')) %]
+        <th>[% 'Valid user' | $T8 %]</th>
+      [% END %]
       <th>[% 'Email' | $T8 %]</th>
       <th>state</th>
       <th>[% 'expires in (s)' | $T8 %]</th>
       <th>access token</th>
       <th>refresh token</th>
+      <th>[% 'delete' | $T8 %]</th>
     </tr>
   </thead>
   <tbody>
@@ -21,14 +24,29 @@
     <tr>
       <td class="right">[% HTML.escape(tok.id) %]</td>
       <td>[% HTML.escape(tok.provider) %]</td>
-      <td>[% HTML.escape(tok.employee) || "<i>system</i>" %]</td>
+      [% IF (AUTH.assert('admin', 'may_fail')) %]
+        <td>[% IF tok.employee %][% HTML.escape(tok.employee) %][% ELSE %]<i>[% 'client-wide' | $T8 %]</i>[% END %]</td>
+      [% END %]
       <td>[% HTML.escape(tok.email) %]</td>
       <td>[% HTML.escape(tok.tokenstate) %]</td>
       <td class="right">[% HTML.escape(tok.expiration) %]</td>
       <td class="right">[% HTML.escape(tok.access_token) %]</td>
       <td class="right">[% HTML.escape(tok.refresh_token) %]</td>
+      <td class="center"><input type="button" onclick="ask_delete_token([% tok.id %])" tag="input" value="X"></td>
     </tr>
     [%- END %]
   </tbody>
 </table>
 </div>
+
+<script>
+function ask_delete_token(id) {
+  if (!confirm('Sind Sie sicher?')) return;
+
+  var data = [
+    { name: 'action', value: 'OAuth/delete_token' },
+    { name: 'id', value: id }];
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+}
+</script>
