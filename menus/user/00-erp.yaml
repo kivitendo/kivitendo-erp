@@ -1548,7 +1548,6 @@
   id: program_oauth
   name: OAuth Tokens
   order: 150
-  access: admin
   params:
     action: OAuth/list
 - parent: program

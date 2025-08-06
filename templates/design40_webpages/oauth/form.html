@@ -15,6 +15,16 @@
 <table class="tbl-horizontal">
   <tbody>
     <tr><th>regstration</th><td>[% SELF.config.registration %]</td></tr>
+    <tr>
+      <th>[% 'The token is valid for' | $T8 %]</th>
+      <td>
+        [% IF (AUTH.assert('admin', 'may_fail')) %]
+          [% L.select_tag('user_or_clientwide', [ [ 'user', LxERP.t8('only myself') ], [ 'client', LxERP.t8('client-wide') ] ], default='user') %]
+        [% ELSE %]
+          [% L.select_tag('user_or_clientwide', [ [ 'user', LxERP.t8('only myself') ] ], default='user') %]
+        [% END %]
+      </td>
+    </tr>
     [% IF SELF.config.registration == 'microsoft' %]
       <tr>
         <th>[% 'E-Mail' | $T8 %]</th>

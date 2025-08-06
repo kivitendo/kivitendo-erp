@@ -75,12 +75,19 @@ sub _fmt_employee {
   $e->login;
 }
 
+sub _token_is_editable {
+  my ($tok) = @_;
+  ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
+}
+
 sub action_list {
   my ($self) = @_;
 
   my $now = DateTime->now;
 
-  my @tokens = map({ {
+  my @tokens = @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')};
+  @tokens = grep { _token_is_editable($_) } @tokens;
+  @tokens = map { {
     id            => $_->id,
     provider      => $providers{$_->registration}->title,
     employee      => $_->employee_id && _fmt_employee($_->employee_id),
@@ -89,12 +96,24 @@ sub action_list {
     access_token  => _fmt_token_code($_->access_token),
     refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-  } } @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')});
+  } } @tokens;
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
                 title    => t8('List of OAuth2 tokens'),
                 TOKENS => \@tokens);
+}
+
+sub action_delete_token {
+  my ($self) = @_;
+
+  my $token = SL::DB::Manager::OAuthToken->find_by(id => $::form->{id});
+  die unless _token_is_editable($token);
+
+  $token->delete;
+
+  flash_later('info', t8('Token deleted'));
+  $self->redirect_to(action => 'list');
 }
 
 sub action_new {
@@ -115,6 +134,13 @@ sub action_create {
 
   $self->config($::form->{config});
   my ($link, $tok) = $provider->create_authorization($self->config);
+
+  if ($::form->{user_or_clientwide} eq 'user') {
+    $tok->employee_id(SL::DB::Manager::Employee->current->id);
+    die unless $tok->employee_id;
+  } else {
+    $::auth->assert('admin');
+  }
 
   $self->{authorize_link} = $link;
   $tok->save;
@@ -152,7 +178,7 @@ sub action_consume_authorization_code {
 #
 
 sub check_auth {
-  $::auth->assert('config');
+  #$::auth->assert('config');
 }
 
 
