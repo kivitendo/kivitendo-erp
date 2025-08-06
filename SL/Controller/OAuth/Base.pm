@@ -39,7 +39,7 @@ sub load_credentials {
     die t8('Missing configuration section "oauth_#1" in "config/kivitendo.conf"', $regtype);
 
   $reg{$_} = $conf->{$_} or
-    die t8('Missing parameter "#1" of section "oauth_#2" in config/kivitendo.conf', $_, $regtype)
+    die t8('Missing parameter "#1" of section "oauth_#2" in "config/kivitendo.conf"', $_, $regtype)
     for qw(client_id client_secret redirect_uri);
 
   die t8('Parameter "redirect_uri = #1" of section "oauth_#2" in config/kivitendo.conf must end in /oauth.pl', $reg{redirect_uri}, $regtype) unless ($reg{redirect_uri} =~ m/\/oauth.pl$/);
