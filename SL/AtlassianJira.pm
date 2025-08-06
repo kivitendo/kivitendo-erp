@@ -35,11 +35,7 @@ sub _decode_and_status_code {
   my $content = $ret->responseContent();
   die "HTTP $code $content" unless $code == 200;
 
-  try {
-    return from_json($content);
-  } catch {
-    t8('Invalid JSON format');
-  }
+  from_json($content);
 }
 
 sub accessible_resources {
@@ -58,12 +54,19 @@ sub _query {
 
 sub tickets {
   my ($self, $jql) = @_;
-  
-  $jql //= 'textfields ~ "Test case*"';
 
-  my $config = $::lx_office_conf{atlassian_jira};
-  my $cloud_id = $config->{cloud_id} or die;
-  my $cloud_url = $config->{cloud_url} or die;
+  # Performance: When cloud_id or cloud_url is not configured, an additional HTTP request is made to retrieve both.
+  my $config    = $::lx_office_conf{atlassian_jira};
+  my $cloud_id  = $config->{cloud_id};
+  my $cloud_url = $config->{cloud_url};
+
+  unless ($cloud_id && $cloud_url) {
+    my @clouds = @{$self->accessible_resources()};
+    die 'no accessible resources for token' unless (scalar(@clouds));
+
+    $cloud_id  = $clouds[0]->{id};
+    $cloud_url = $clouds[0]->{url};
+  }
 
   my %params = (
     jql        => $jql,
@@ -90,5 +93,6 @@ sub tickets {
     status     => $_->{fields}->{status}->{name},
     resolution => $_->{fields}->{resolution}->{name},
   }} @{$res->{issues}});
+
   \@tickets;
 }
