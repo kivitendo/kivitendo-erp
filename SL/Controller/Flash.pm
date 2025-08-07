@@ -57,6 +57,6 @@ None yet :)
 
 =head1 AUTHOR
 
-Sven Schöling E<lt>sven.schoeling@opendynamic.deE<gt>
+Sven Schöling E<lt>s.schoeling@googlemail.comE<gt>
 
 =cut
