@@ -231,7 +231,9 @@ sub save {
 
     $_->delete for @{ $params{items_to_delete} || [] };
 
-    $record->save(cascade => 1);
+    eval {
+      $record->save(cascade => 1);
+    } or do die t8("Saving the record failed: #1", $@);
 
     if ($params{objects_to_close} && @{$params{objects_to_close}}) {
       $_->update_attributes(closed => 1) for @{$params{objects_to_close}};

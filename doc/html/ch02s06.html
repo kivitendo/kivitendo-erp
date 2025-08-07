@@ -7,18 +7,7 @@
                   <a class="ulink" href="https://help.ubuntu.com/lts/serverguide/postgresql.html" target="_top">Ubuntu (Infos für Postgres für die aktuelle LTS Version)</a>
                </p></li><li class="listitem"><p>
                   <a class="ulink" href="https://de.opensuse.org/PostgreSQL" target="_top">OpenSuSE (aktuell nur bis Version OpenSuSE 13 verifiziert)</a>
-               </p></li></ul></div><div class="sect2" title="2.6.1. Zeichensätze/die Verwendung von Unicode/UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.6.1. Zeichensätze/die Verwendung von Unicode/UTF-8</h3></div></div></div><p>kivitendo setzt zwingend voraus, dass die Datenbank
-        Unicode/UTF-8 als Encoding einsetzt. Bei aktuellen
-        Serverinstallationen braucht man hier meist nicht einzugreifen.</p><p>Das Encoding des Datenbankservers kann überprüft werden. Ist das
-        Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so braucht
-        man nichts weiteres diesbezüglich unternehmen. Zum Testen:</p><pre class="programlisting">su postgres
-echo '\l' | psql
-exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
-        Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 9.3 mit dem folgenden Befehl
-        getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 9.3 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsächlich verwendete
-        Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es ähnliche Methoden.</p><p>Das Encoding einer Datenbank kann in <span class="command"><strong>psql</strong></span> mit
-        <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.6.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.6.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
+               </p></li></ul></div><div class="sect2" title="2.6.1. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.6.1. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <code class="filename">/var/lib/pgsql/data/</code> oder
         <code class="filename">/etc/postgresql/</code>), muss sichergestellt werden,
@@ -33,7 +22,7 @@ exit </pre><p>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         werden. Hier gibt es mehrere Möglichkeiten. Sinnvoll ist es nur die
         nötigen Verbindungen immer zuzulassen, für eine lokal laufende
         Datenbank zum Beispiel:</p><pre class="programlisting">local all kivitendo password
-host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</pre></div><div class="sect2" title="2.6.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.6.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
+host all kivitendo 127.0.0.1 255.255.255.255 scram-sha-256</pre></div><div class="sect2" title="2.6.2. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.6.2. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
         Unterstützung für servergespeicherte Prozeduren eingerichet werden.
         Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
         </p><pre class="programlisting">su - postgres
@@ -44,7 +33,7 @@ psql template1</pre><p> führen Sie die folgenden Kommandos aus:</p><pre class="
           anzulegen. In diesen Versionen ist die Extension meist auch schon
           vorhanden. Sollten Sie eine ältere Version von Postgres haben,
           benutzen Sie stattdessen den folgenden Befehl.</p><pre class="programlisting">CREATE LANGUAGE 'plpgsql';
-\q</pre></td></tr></table></div></div><div class="sect2" title="2.6.4. Erweiterung für Trigram Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-trigram"></a>2.6.4. Erweiterung für Trigram Prozeduren</h3></div></div></div><p>Ab Version 3.5.1 wird die Trigram-Index-Erweiterung benötigt.
+\q</pre></td></tr></table></div></div><div class="sect2" title="2.6.3. Erweiterung für Trigram Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-trigram"></a>2.6.3. Erweiterung für Trigram Prozeduren</h3></div></div></div><p>Ab Version 3.5.1 wird die Trigram-Index-Erweiterung benötigt.
         Diese wird mit dem SQL-Updatescript
         sql/Pg-upgrade2/trigram_extension.sql und Datenbank-Super-Benutzer
         Rechten automatisch installiert. Dazu braucht der
@@ -61,7 +50,7 @@ Eingabe Passwort
           in template1 sollte entsprechend erfolgreich sein. Andernfalls muss
           das Paket nachinstalliert werden, bspw. bei debian/ubuntu
           </p><pre class="programlisting">apt install postgresql-contrib</pre><p>
-               </p></td></tr></table></div></div><div class="sect2" title="2.6.5. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.6.5. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
+               </p></td></tr></table></div></div><div class="sect2" title="2.6.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.6.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
         benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</p><p>Die Frage, ob der neue User Superuser sein soll, können Sie mit

@@ -156,58 +156,27 @@ sub calculate_periodic_invoices {
   my $end_date   = DateTime->new(year => $self->year, month => 12, day => 31, time_zone => $::locale->get_local_time_zone);
 
   foreach my $config (@{ $self->objects->{periodic_invoices_cfg} }) {
-    $self->calculate_one_periodic_invoice(
-      config               => $config,
-      start_date           => $start_date,
-      end_date             => $end_date,
-      billed_once_item_ids => \%billed_once_item_ids,
-    );
-  }
-}
+    foreach my $order (@{
+      $config->get_open_orders_for_period(
+        start_date => $start_date, end_date => $end_date
+        ) }) {
 
-sub calculate_one_periodic_invoice {
-  my ($self, %params) = @_;
-
-  # Calculate sales order advance
-  my $sord = $self->data->{sales_orders};
-
-  my ($net, $net_once) = (0, 0);
-
-  foreach my $item (@{ $params{config}->order->orderitems }) {
-    next if $item->recurring_billing_mode eq 'never';
-
-    my $item_net = $item->qty * (1 - $item->discount) * $item->sellprice;
-
-    if ($item->recurring_billing_mode eq 'once') {
-      next if $item->recurring_billing_invoice_id || $params{billed_once_invoice_id}->{$item->id};
-
-      $params{billed_once_invoice_id}->{$item->id} = 1;
-      $net_once                                   += $item_net;
-
-    } else {
-      $net += $item_net;
+      my $sord = $self->data->{sales_orders};
+      my $reqdate = $order->reqdate();
+      my $net     = $order->netamount();
+      $sord->{months  }->[ $reqdate->month   - 1 ] += $net;
+      $sord->{quarters}->[ $reqdate->quarter - 1 ] += $net;
+      $sord->{year}                                += $net;
     }
+
+    my $transdate = $config->order->transdate();
+    next if $transdate->year != $start_date->year;
+    my $net       = $config->order->netamount();
+    my $sinv = $self->data->{sales_orders_per_inv};
+    $sinv->{months  }->[ $transdate->month   - 1 ] += $net;
+    $sinv->{quarters}->[ $transdate->quarter - 1 ] += $net;
+    $sinv->{year}                                  += $net;
   }
-
-  $net = $net * $params{config}->get_billing_period_length / $params{config}->get_order_value_period_length;
-
-  foreach my $date ($params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date}, past_dates => 1)) {
-    $sord->{months  }->[ $date->month   - 1 ] += $net + $net_once;
-    $sord->{quarters}->[ $date->quarter - 1 ] += $net + $net_once;
-    $sord->{year}                             += $net + $net_once;
-
-    $net_once = 0;
-  }
-
-  # Calculate total sales order value
-  my $date = $params{config}->order->transdate;
-  return if $date->year != $params{start_date}->year;
-
-  $net                                       = $params{config}->order->netamount;
-  $sord                                      = $self->data->{sales_orders_per_inv};
-  $sord->{months  }->[ $date->month   - 1 ] += $net;
-  $sord->{quarters}->[ $date->quarter - 1 ] += $net;
-  $sord->{year}                             += $net;
 }
 
 sub calculate_costs {
