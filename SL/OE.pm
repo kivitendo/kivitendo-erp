@@ -1043,7 +1043,8 @@ sub order_details {
        orderer
        discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
        linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
-       price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt optional);
+       price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt optional
+       partsgroup);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
   push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
@@ -1101,6 +1102,7 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{bin} },               $form->{"bin_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{partnotes} },         $form->{"partnotes_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },          $form->{"partsgroup_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{serialnumber} },      $form->{"serialnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
