@@ -197,7 +197,7 @@ sub setup_list_action_bar {
       t8('Add') . ': ' . $providers{$_}->title(),
       link => $self->url_for(action => 'new', oauth_type => $providers{$_}->type()),
     ]
-  ) } keys(%providers);
+  ) } sort(keys(%providers));
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(@btns);
