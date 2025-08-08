@@ -10,6 +10,7 @@ use SL::JSON;
 use SL::Locale::String;
 use SL::Controller::OAuth::Microsoft;
 use SL::Controller::OAuth::Atlassian;
+use SL::Controller::OAuth::GoogleCal;
 use SL::Helper::Flash qw(flash_later);
 
 use Rose::Object::MakeMethods::Generic (
@@ -19,6 +20,7 @@ use Rose::Object::MakeMethods::Generic (
 my %providers = (
   microsoft      => 'SL::Controller::OAuth::Microsoft',
   atlassian_jira => 'SL::Controller::OAuth::Atlassian',
+  google_cal     => 'SL::Controller::OAuth::GoogleCal',
 );
 
 
