@@ -482,12 +482,12 @@ namespace('kivi.CustomerVendor', function(ns) {
       url:        source,
       success:    function (rsp) {
         $(target).html(rsp);
-        $(target).find('a.report-generator-header-link').click(function(event){ ns.price_report_redirect_event(event, target) });
+        $(target).find('a.report-generator-header-link').click(function(event){ ns.replace_html_redirect_event(event, target) });
       },
     });
   };
 
-  ns.price_report_redirect_event = function (event, target) {
+  ns.replace_html_redirect_event = function (event, target) {
     event.preventDefault();
     ns.replace_html_ajax(target, event.target + '');
   };
