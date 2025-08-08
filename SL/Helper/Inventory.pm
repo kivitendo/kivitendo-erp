@@ -368,6 +368,7 @@ sub produce_assembly {
       qty          => -$allocation->qty,
       trans_type   => $trans_type_out,
       shippingdate => $shippingdate,
+      bestbefore   => $allocation->bestbefore,
       employee     => SL::DB::Manager::Employee->current,
       comment      => t8('Used for assembly #1 #2', $part->partnumber, $part->description),
     );
