@@ -469,3 +469,18 @@ external_prefix = 0
 international_dialing_prefix = 00
 # Our own country code
 our_country_code = 49
+
+
+## Atlassian Jira Ticket System Integration: OAuth and Cloud config
+#
+#[oauth2_atlassian_jira]
+#
+#client_id     = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#client_secret = xxxxxxx-xxxxx-xxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx
+#redirect_uri  = http://kiviserver.lan/oauth.pl
+#
+## optional:
+#[atlassian_jira]
+#
+#cloud_id  = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+#cloud_url = https://firma.atlassian.net
