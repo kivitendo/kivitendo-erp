@@ -215,10 +215,10 @@ sub access_token_for {
 
   my $tok;
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target, employee_id => SL::DB::Manager::Employee->current->id)
+  $tok = SL::DB::Manager::OAuthToken->find_by(scope => '', registration => $target, employee_id => SL::DB::Manager::Employee->current->id)
     if ($params{allow_current_user});
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(registration => $target, employee_id => undef)
+  $tok = SL::DB::Manager::OAuthToken->find_by(scope => '', registration => $target, employee_id => undef)
     if (!$tok && $params{allow_client_wide});
 
   die 'no OAuth token' unless $tok;
