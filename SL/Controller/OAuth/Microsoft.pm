@@ -19,14 +19,14 @@ my $scope               = join ' ',
   'https://outlook.office.com/SMTP.Send';
 
 sub type {
-  "microsoft"
+  "microsoft_email"
 }
 
 sub title {
   "Microsoft E-Mail";
 }
 
-sub create_authorization {
+sub create_authorization_url {
   my ($self, $config) = @_;
 
   my $cred = $self->load_credentials();

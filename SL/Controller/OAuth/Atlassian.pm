@@ -20,7 +20,7 @@ sub title {
   "Atlassian Jira";
 }
 
-sub create_authorization {
+sub create_authorization_url {
   my ($self, $config) = @_;
 
   my $cred = $self->load_credentials();

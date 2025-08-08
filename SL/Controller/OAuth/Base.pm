@@ -5,7 +5,6 @@ use REST::Client;
 use SL::JSON;
 use SL::Locale::String;
 use SL::MoreCommon qw(uri_encode);
-use SL::Request qw(flatten);
 use SL::DB::OAuthToken;
 
 sub type {
@@ -16,7 +15,7 @@ sub title {
   die "needs to be implemented";
 }
 
-sub create_authorization {
+sub create_authorization_url {
   die "needs to be implemented";
 }
 
@@ -36,13 +35,13 @@ sub load_credentials {
   my %reg;
 
   my $conf = $::lx_office_conf{"oauth2_$regtype"} or
-    die t8('Missing configuration section "oauth_#1" in "config/kivitendo.conf"', $regtype);
+    die t8('Missing configuration section "oauth2_#1" in "config/kivitendo.conf"', $regtype);
 
   $reg{$_} = $conf->{$_} or
-    die t8('Missing parameter "#1" of section "oauth_#2" in "config/kivitendo.conf"', $_, $regtype)
+    die t8('Missing parameter "#1" of section "oauth2_#2" in "config/kivitendo.conf"', $_, $regtype)
     for qw(client_id client_secret redirect_uri);
 
-  die t8('Parameter "redirect_uri = #1" of section "oauth_#2" in config/kivitendo.conf must end in /oauth.pl', $reg{redirect_uri}, $regtype) unless ($reg{redirect_uri} =~ m/\/oauth.pl$/);
+  die t8('Parameter "redirect_uri = #1" of section "oauth2_#2" in config/kivitendo.conf must end in /oauth.pl', $reg{redirect_uri}, $regtype) unless ($reg{redirect_uri} =~ m/\/oauth.pl$/);
 
   \%reg;
 }
@@ -52,7 +51,7 @@ sub POST {
 
   my $client = REST::Client->new();
 
-  $client->addHeader($_->[0], $_->[1]) for @{ flatten($headers) };
+  $client->addHeader($_, $headers->{$_}) for keys %$headers;
 
   my $ret = $client->POST($url, $class->query($params));
 }
@@ -62,7 +61,7 @@ sub POST_JSON {
 
   my $client = REST::Client->new();
 
-  $client->addHeader($_->[0], $_->[1]) for @{ flatten($headers) };
+  $client->addHeader($_, $headers->{$_}) for keys %$headers;
 
   my $ret = $client->POST($url, to_json($data));
 }
@@ -71,7 +70,7 @@ sub POST_JSON {
 
 sub query {
   my ($class, $params) = @_;
-  my $query = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+  my $query = join '&', map { uri_encode($_) . '=' . uri_encode($params->{$_}) } keys %$params;
 }
 
 sub set_access_refresh_token {

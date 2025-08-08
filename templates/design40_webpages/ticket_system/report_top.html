@@ -4,21 +4,14 @@
 [%- USE LxERP %]
 [%- USE HTML %]
 
+[% L.hidden_tag('sort_by',  FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+
 <table class="tbl-horizontal">
   <tbody>
     <tr>
       <td>[% 'include closed' | $T8 %]</td>
-      <td>
-        [% L.checkbox_tag('include_closed', value = 1, checked = FORM.include_closed,
-          onChange="kivi.CustomerVendor.replace_html_ajax('#tickets', 'controller.pl?action=TicketSystem/ajax_list'
-          + '&id='             + \$('#cv_id').val()
-          + '&db='             + \$('#db').val()
-          + '&include_closed=' + (0+\$('#include_closed')[0].checked)
-          + '&sort_by=$sort_by'
-          + '&sort_dir=$sort_dir'
-          + '&callback='       + \$('#callback').val());",
-          class='wi-lightwide') %]
-      </td>
+      <td>[% L.checkbox_tag('include_closed', checked = FORM.include_closed, class='ticket-filter wi-lightwide') %]</td>
     </tr>
   </tbody>
 </table>
