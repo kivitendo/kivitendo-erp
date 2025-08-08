@@ -51,6 +51,7 @@ use SL::ReportGenerator;
 use SL::WH;
 use SL::YAML;
 use Sort::Naturally ();
+use SL::DB::Helper::TypeDataProxy;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/io.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -66,7 +67,7 @@ use strict;
 sub check_do_access {
   validate_type($::form->{type});
 
-  my $right = SL::DB::DeliveryOrder::TypeData::get3($::form->{type}, "rights", "view");
+  my $right = type_data()->rights('view');
   $main::auth->assert($right);
 }
 
@@ -115,14 +116,14 @@ sub search {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{vc} = SL::DB::DeliveryOrder::TypeData::get3($form->{type},"properties","customervendor");
+  $form->{vc} = type_data()->properties('customervendor');
 
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS",
                                          "all" => 1 },
                    "business_types" => "ALL_BUSINESS_TYPES");
-  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
+  $form->{ALL_EMPLOYEES}   = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-  $form->{title}           =  SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "list");
+  $form->{title}           = type_data()->text('list');
 
   setup_do_search_action_bar();
 
@@ -146,7 +147,7 @@ sub orders {
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{vc} = SL::DB::DeliveryOrder::TypeData::get3($form->{type},"properties","customervendor");
+  $form->{vc} = type_data()->properties('customervendor');
 
   report_generator_set_default_sort('transdate', 1);
 
@@ -170,9 +171,9 @@ sub orders {
   $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
   $form->{l_delivered} = "Y"                     if ($form->{delivered} && $form->{notdelivered});
 
-  $form->{title}       =  SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "list");
+  $form->{title} = type_data()->text('list');
 
-  my $attachment_basename = SL::DB::DeliveryOrder::TypeData::get3($form->{type}, "text", "attachment");
+  my $attachment_basename = type_data()->text('attachment');
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
@@ -625,6 +626,10 @@ sub invoice_multi {
   $main::lxdebug->leave_sub();
 }
 
+
+sub type_data {
+  SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $::form->{type});
+}
 
 __END__
 
