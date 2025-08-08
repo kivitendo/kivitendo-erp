@@ -72,7 +72,8 @@ sub _fmt_token_code {
 sub _fmt_employee {
   my ($id) = @_;
   my $e = SL::DB::Employee->new(id => $id)->load();
-  $e->login;
+
+  $e->safe_name;
 }
 
 sub _token_is_editable {
