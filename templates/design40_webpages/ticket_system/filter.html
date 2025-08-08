@@ -1,0 +1,16 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
+
+<table class="tbl-horizontal" id="ticket_filter_table">
+  <colgroup> <col class="wi-normal"><col class="wi-lightwide"></colgroup>
+  <tbody>
+    <tr>
+      <td><label for="include_closed">[% 'include closed' | $T8 %]</label></td>
+      <td>[% L.checkbox_tag('include_closed', name='include_closed', class='wi-lightwide') %]</td>
+    </tr>
+  </tbody>
+</table>
+<div class="buttons">
+  [% L.button_tag('kivi.CustomerVendor.load_tickets()', LxERP.t8("Filter"), class='wi-small') %]
+</div>

@@ -453,31 +453,38 @@ namespace('kivi.CustomerVendor', function(ns) {
       if (ui.panel.attr('id') == 'price_rules') { load_price_rules(); }
       return 1;
     });
-  }; 
+  };
+
+  ns.load_tickets = function () {
+    let data = {
+      action:         'TicketSystem/ajax_list',
+      id:             $('#cv_id').val(),
+      db:             $('#db').val(),
+      callback:       $('#callback').val(),
+      sort_by:        $('#sort_by').val(),
+      sort_dir:       $('#sort_dir').val(),
+    };
+    $.each( $('#ticket_filter_table').find(":input[type!=checkbox]"), function() {
+      data[this.name] = $(this).val();
+    });
+    $.each( $('#ticket_filter_table').find(":input[type=checkbox]"), function() {
+      data[this.name] = 0+this.checked;
+    });
+    kivi.inline_report_load_into_container(
+      'controller.pl',
+      '#tickets-report',
+      data,
+    );
+  };
 
   ns.tickets_init = function () {
-    const load_tickets = function () {
-      kivi.inline_report_load_into_container(
-        'controller.pl',
-        '#tickets',
-        { action:         'TicketSystem/ajax_list',
-          id:             $('#cv_id').val(),
-          db:             $('#db').val(),
-          callback:       $('#callback').val(),
-          include_closed: $('#include_closed').is(':checked') + 0,
-          sort_by:        $('#sort_by').val(),
-          sort_dir:       $('#sort_dir').val(),
-        }
-      );
-    };
-
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function (event, ui){
-      if (ui.newPanel.attr('id') == 'tickets') { load_tickets(); }
+      if (ui.newPanel.attr('id') == 'tickets') { ns.load_tickets(); }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function (event, ui){
-      if (ui.panel.attr('id') == 'tickets') { load_tickets(); }
+      if (ui.panel.attr('id') == 'tickets') { ns.load_tickets(); }
       return 1;
     });
   }
