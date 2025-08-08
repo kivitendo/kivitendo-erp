@@ -22,6 +22,7 @@ BEGIN {
   { name => "CGI",             version => '3.43',  url => "http://search.cpan.org/~leejo/",     debian => 'libcgi-pm-perl' }, # 4.09 is not core anymore (perl 5.20)
   { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
+  { name => "CryptX",                              url => "http://search.cpan.org/~mik/",       debian => 'libcryptx-perl' },
   { name => "Daemon::Generic", version => '0.71',  url => "http://search.cpan.org/~muir/",      debian => 'libdaemon-generic-perl'},
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DateTime::Event::Cron", version => '0.08', url => "http://search.cpan.org/~msisk/", debian => 'libdatetime-event-cron-perl' },
