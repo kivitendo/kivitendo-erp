@@ -4,7 +4,6 @@ use strict;
 use parent qw(SL::TicketSystem::Base);
 
 use SL::AtlassianJira;
-use SL::DB::OAuthToken;
 use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
