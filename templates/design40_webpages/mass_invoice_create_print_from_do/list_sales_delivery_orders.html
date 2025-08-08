@@ -5,8 +5,6 @@
 
 <h1>[% FORM.title %]</h1>
 
-[% INCLUDE "common/flash.html" %]
-
 [% LIST_ACTION  = 'list_sales_delivery_orders' %]
 [% SET MODELS = SELF.sales_delivery_order_models;
        dummy  = MODELS.finalize %]

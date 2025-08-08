@@ -153,7 +153,7 @@ sub create_or_update {
   my @errors = $self->price_rule->validate;
 
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->display_form(callback => $::form->{callback});
     return;
   }

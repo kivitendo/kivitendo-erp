@@ -54,9 +54,8 @@
 
 
 // --------------------------------------
-// MESSAGES & FLASH MESSAGES
+// MESSAGES
 // --------------------------------------
-.flash_message,
 .message {
   &,
   &_error,
@@ -66,7 +65,7 @@
   &_info{
     .mx-message ;
   }
-} // /.flash_message
+}
 
 
 
@@ -238,228 +237,71 @@ body > div.login .message{
 // FLASH MESSAGES
 // --------------------------------------
 
-.flash_message {
-
-  // General (apears two times within a .flash_message)
-
-  // -----------------------
-  // Error
-  // -----------------------
-  &.flash_message_error {
-    background-color: @message_error_bg;
-    border-color: @message_error_border;
-    color: @message_error_text;
-    a.button.wi-tiny,
-    a.icon-close {
-      border: @message_error_border !important;
-      color: @message_error_text;
-    }
-  }
-  // -----------------------
-  // OK
-  // -----------------------
-  &.flash_message_ok {
-    background-color: @message_ok_bg;
-    border: @message_ok_border;
-    color: @message_ok_text;
-    a.button.wi-tiny,
-    a.icon-close {
-      border: @message_ok_border;
-      color: @message_ok_text;
-    }
-  }
-  // -----------------------
-  // Warning
-  // -----------------------
-  &.flash_message_warning {
-    background-color: @message_warning_bg;
-    border-color: @message_warning_border;
-    color: @message_warning_text;
-    a.button.wi-tiny,
-    a.icon-close {
-      border: @message_warning_border;
-      color: @message_warning_text;
-    }
-  }
-  // -----------------------
-  // Info / Hint
-  // -----------------------
-
-  &.flash_message_info {
-    background-color: @message_info_bg;
-    border: @message_info_border;
-    color: @message_info_text;
-    a.button.wi-tiny,
-    a.icon-close {
-      border: @message_info_border;
-      color: @message_info_text;
-    }
-  }
-
-
-
-	// -----------------------
-	// Elements in .flash_message
-	// -----------------------
-
-  .flash_title {
-    font-weight: bold;
-    float: left;
-    display: block ;
-    padding-right: 1.0em ;
-  }
-  .flash_notification{
-    float: left;
-    display: block ;
-  }
-
-  // Buttons (Details & Close)
-  a.button.wi-tiny {
-    font-size: 76% ;
-    padding: 0 0.2em 0 0.2em ;
-    margin: 0 0.4em 0 0.4em  ;
-    width: auto ;
-    background-color: transparent;
-  }
-  a.icon-close {
-    //display: block ;
-  }
-
-  div.button-container,
-  div.icon-container  {
-    overflow: hidden ;
-    width: 12% ;
-    float: right ;
-
-    a.icon-close {
-      font-size: 76% ;
-      float: right ;
-      border-width: 1px ;
-      border-style: solid ;
-      padding: 0 3px ;
-      border-radius: 3px;
-    }
-    span.display {
-      float: right !important;
-      display: block;
-      width: auto ;
-      text-align: right ;
-      margin: 0 ;
-      padding: 0;
-      a.button { }
-    }
-  } // /div.icon-container
-
-  div.message-container {
-    overflow: hidden ;
-    width: 86% ;
-    float: left ;
-
-    &>span.flash_title {
-      display: block;
-      float: left ;
-      width: auto ;
-    }
-    & > div.flash_notification {
-      display: block;
-      float: left ;
-      max-width: 80% ;
-      width: auto ;
-
-      span.content {
-        float: left ;
-        display: block;
-        width: 100% ;
-      }
-      div.detail {
-        display: block;
-        clear: both ;
-        padding-top: 0.9em ;
-
-        span {
-          display: block;
-          width: 94%;
-          float: right;
-        }
-        a.button.wi-tiny{
-          display: block ;
-          float: left ;
-          margin-left: 0 ;
-        }
-      }
-    } // /.div.flash_notification
-  } // /div.message-container
-} // /.flash_message
-
-
-
-// -----------------------
-// Flash Message blocks in different levels in #content
-// -----------------------
-
-#content {
-
-  & > form {
-
-    // Flash message immediately in form
-    & > .flash_message {
-      &_error,
-      &_ok,
-      &_warning,
-      &_info{
-        margin: 48px 0 0 @margin-left-from-content ;
-      }
-    } // /.flash_message
-
-
-    // Flash message in .ui-tabs
-    .ui-tabs-panel{
-      & > .flash_message {
-        &_error,
-        &_ok,
-        &_warning,
-        &_info{
-          margin: 48px 0 0 @margin-left-from-content ;
-        }
-      } // /.flash_message
-    } // /.ui-tabs
-
-
-    // Flash message within .wrapper
-    .wrapper {
-      .flash_message {
-        margin: @margin-from-wrapper ;
-        &_error,
-        &_ok,
-        &_warning,
-        &_info{
-          margin: @margin-from-wrapper ;
-        }
-      } // /.flash_message
-    } // /.wrapper
-
-  } // /form
-
-  // Flash message immediately in #content
-  & > .flash_message {
-    &_error,
-    &_ok,
-    &_warning,
-    &_info{
-      margin: 24px 0 0 @margin-left-from-content ;
-    }
-  }
-
-} // /#content
-
-
-
-// -----------------------
-// Flash Messages in the admin area
-// -----------------------
-
-#admin {
-  .flash_message {
-    margin: 48px 0 0 @margin-left-from-content ;
-  }
+// Styles for Flash Refactor/new Flash Messages
+#layout_flash_container {
+  position: absolute;
+  z-index: @zindex-flash;
+  top: 103px; // position below title bar 28px (header) + 32px (menu) + 42.6px (title) (+ 5px padding included in the flash message)
+  right: 20px;
+  min-width: 30%;
+  animation: fadein .5s;
+}
+@keyframes hop {
+  to  { transform: scale(1.01); }
+}
+@keyframes flash {
+  from  { background-color: black }
+}
+@keyframes fadein {
+  from  { opacity: 0; }
+  to  { opacity: 1; }
+}
+.layout-flash-message {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+  border-width: 1px;
+  border-style: solid;
+ /* animation: .5s ease-out .2s 1 normal none running flash;*/
+}
+.layout-flash-body{
+  padding-top:5px;
+  margin-top:5px;
+  border-top: 1px dotted black;
+}
+.layout-flash-timestamp{
+  opacity: 0.75;
+}
+.layout-flash-details::before {
+  content: ': ';
+}
+.layout-flash-type {
+  font-weight: bold;
+  float: right;
+}
+.layout-flash-error {
+  background-color: @message_error_bg;
+  border-color: @message_error_border;
+  color: @message_error_text;
+}
+.layout-flash-ok {
+  background-color: @message_ok_bg;
+  border-color: @message_ok_border;
+  color: @message_ok_text;
+}
+.layout-flash-warning {
+  background-color: @message_warning_bg;
+  border-color: @message_warning_border;
+  color: @message_warning_text;
+}
+.layout-flash-info {
+  background-color: @message_info_bg;
+  border-color: @message_info_border;
+  color: @message_info_text;
+}
+.layout-flash-title {
+  font-weight: bold;
+}
+.layout-flash-remove {
+  padding-right: 4px;
 }

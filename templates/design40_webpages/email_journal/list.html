@@ -5,7 +5,6 @@
 
 <h1>[% FORM.title %]</h1>
 
-[% INCLUDE 'common/flash.html' %]
 [% PROCESS 'email_journal/_filter.html' filter=SELF.models.filtered.laundered %]
 
 [% IF !ENTRIES.size %]
