@@ -45,7 +45,7 @@ sub refresh {
 sub imap_sasl_string {
   my ($self, $db_id) = @_;
 
-  my $tok = SL::DB::Manager::OAuthToken->find_by(id => $db_id);
+  my $tok = SL::DB::OAuthToken->new(id => $db_id)->load();
 
   if (!$tok->is_valid) {
     refresh($tok);
@@ -71,7 +71,7 @@ sub _fmt_token_code {
 
 sub _fmt_employee {
   my ($id) = @_;
-  my $e = SL::DB::Manager::Employee->find_by(id => $id);
+  my $e = SL::DB::Employee->new(id => $id)->load();
   $e->login;
 }
 
@@ -107,7 +107,7 @@ sub action_list {
 sub action_delete_token {
   my ($self) = @_;
 
-  my $token = SL::DB::Manager::OAuthToken->find_by(id => $::form->{id});
+  my $token = SL::DB::OAuthToken->new(id => $::form->{id})->load();
   die unless _token_is_editable($token);
 
   $token->delete;
@@ -153,10 +153,12 @@ sub action_consume_authorization_code {
   my ($self) = @_;
 
   my $search_state = $::form->{state} or die 'Request has no state parameter';
+  my $auth_code    = $::form->{code}  or die 'Request has no code parameter';
+
   my $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
   my $provider = $providers{$tok->registration} or die "unknown provider";
 
-  my $ret = $provider->access_token($tok, $::form->{code});
+  my $ret = $provider->access_token($tok, $auth_code);
 
   my $response_code = $ret->responseCode();
   die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
