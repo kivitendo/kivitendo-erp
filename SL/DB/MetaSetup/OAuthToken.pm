@@ -18,6 +18,7 @@ __PACKAGE__->meta->columns(
   mtime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
   refresh_token           => { type => 'text' },
   registration            => { type => 'text', not_null => 1 },
+  scope                   => { type => 'text' },
   tokenstate              => { type => 'text' },
   verifier                => { type => 'text' },
 );

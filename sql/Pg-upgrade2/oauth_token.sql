@@ -7,6 +7,7 @@ CREATE TABLE oauth_token (
   registration            TEXT NOT NULL,
   employee_id             INT REFERENCES employee(id),
   email                   TEXT,
+  scope                   TEXT,
   tokenstate              TEXT,
   verifier                TEXT,
   access_token            TEXT,
