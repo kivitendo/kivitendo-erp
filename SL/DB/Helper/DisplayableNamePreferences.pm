@@ -6,7 +6,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(displayable_name displayable_name_prefs displayable_name_specs specify_displayable_name_prefs);
 
 use Carp;
-use List::MoreUtils qw(none);
+use List::Util qw(first);
 
 use SL::Helper::UserPreferences::DisplayableName;
 
@@ -35,8 +35,9 @@ sub displayable_name {
   my @names = $prefs->get =~ m{<\%(.+?)\%>}g;
   my $display_string = $prefs->get;
   foreach my $name (@names) {
-    next if none {$name eq $_->{name}} @{$specs->{options}};
-    my $val         = $self->can($name) ? $self->$name // '' : '';
+    my $opt = first { $name eq $_->{name} } @{$specs->{options}};
+    next unless $opt;
+    my $val         = $self->can($name) ? ($opt->{sub} ? $opt->{sub}($self) : $self->$name) // '' : '';
     $display_string =~ s{<\%$name\%>}{$val}g;
   }
 
