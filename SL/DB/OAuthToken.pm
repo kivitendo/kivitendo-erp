@@ -17,7 +17,8 @@ sub set_access_refresh_token {
   $expiration->add(seconds => $content->{expires_in});
 
   $self->access_token_expiration($expiration);
-  $self->$_($content->{$_}) for qw(access_token refresh_token scope);
+  $self->$_($content->{$_}) for qw(access_token scope);
+  $self->refresh_token($content->{refresh_token}) if exists $content->{refresh_token};
 }
 
 sub is_valid {
