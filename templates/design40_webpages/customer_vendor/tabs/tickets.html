@@ -1,8 +1,9 @@
 [% USE T8 %]
 [% USE LxERP %]
-[% USE HTML %]
-[% USE L %]
 
 <div id="tickets" class="wrapper">
-  [%- LxERP.t8("Loading...") %]
+  [% INCLUDE 'ticket_system/filter.html' %]
+  <div id="tickets-report">
+    [%- LxERP.t8("Loading...") %]
+  </div>
 </div>
