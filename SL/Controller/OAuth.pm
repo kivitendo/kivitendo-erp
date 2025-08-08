@@ -97,6 +97,7 @@ sub action_list {
     access_token  => _fmt_token_code($_->access_token),
     refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
+    scope         => $_->scope,
   } } @tokens;
 
   $self->setup_list_action_bar;
