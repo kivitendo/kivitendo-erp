@@ -371,8 +371,7 @@ SQL
                              o.cusordnumber
                              o.vendor_confirmation_number);
     $query .= ' AND (';
-    $query .= join ' ILIKE ? OR ', @fulltext_fields;
-    $query .= ' ILIKE ?';
+    $query .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
 
     $query .= <<SQL;
       OR EXISTS (
