@@ -152,7 +152,7 @@ sub action_create {
 sub action_consume_authorization_code {
   my ($self) = @_;
 
-  my $search_state = $::form->{state};
+  my $search_state = $::form->{state} or die 'Request has no state parameter';
   my $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
   my $provider = $providers{$tok->registration} or die "unknown provider";
 
