@@ -1426,7 +1426,7 @@ sub action_undo_transfers {
   $self->redirect_to(@redirect_params);
 }
 
-sub action_js_render_item_selection {
+sub action_render_item_selection {
   my ($self) = @_;
 
   my $items = $self->order->items_sorted;
@@ -1435,16 +1435,15 @@ sub action_js_render_item_selection {
     $self->get_item_cvpartnumber($_) for @{$items};
   }
 
-  my $html = $self->p->render(
+  $self->render(
     'delivery_order/tabs/_print_options_item_selection',
+    { layout => 0 },
     title             => t8('Please select positions to print'),
     items             => $items,
     show_cvpartnumber => $self->search_cvpartnumber,
     cv                => $self->cv,
     name_prefix       => 'print_options.',
   );
-
-  $self->js->html($::form->{div_selector}, $html)->render();
 }
 
 sub js_load_second_row {

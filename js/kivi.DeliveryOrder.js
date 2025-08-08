@@ -123,9 +123,8 @@ namespace('kivi.DeliveryOrder', function(ns) {
     $('#print_show_items').hide();
 
     let data = $('#order_form').serializeArray();
-    data.push({ name: 'action',       value: 'DeliveryOrder/js_render_item_selection' });
-    data.push({ name: 'div_selector', value: '#print_item_selection' });
-    $.post("controller.pl", data, kivi.eval_json_result);
+    data.push({ name: 'action', value: 'DeliveryOrder/render_item_selection' });
+    $.post("controller.pl", data, (html) => { $('#print_item_selection').html(html); });
   };
 
   ns.stock_in_out_dialog_row_by_id = function(id) {
