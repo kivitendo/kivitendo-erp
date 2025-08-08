@@ -9150,7 +9150,7 @@ document_path = /var/local/kivi_documents
           Instanz ebenfalls in der <literal>kivitendo.conf</literal>
           einzustellen.  (Zum Finden dieser Parameter nutzen Entwickler
           die Konsole und rufen <literal>accessible_resources</literal>
-          aus <literal>SL/AtlassianJira.pm</literal> auf.)  Fehlt diese
+          aus <literal>SL/TicketSystem/Jira.pm</literal> auf.)  Fehlt diese
           Angabe, so wird die von Jira als erstes zurückgegebene Cloud
           verwendet, wozu für jede Abfrage ein zweiter HTTP-Request
           nötig ist.
