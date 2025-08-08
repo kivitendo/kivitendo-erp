@@ -675,10 +675,12 @@ sub ar_transactions {
   if ($form->{fulltext}) {
     my @fulltext_fields = qw(a.notes
                              a.intnotes
+                             a.shippingpoint
                              a.shipvia
                              a.transaction_description
                              a.quonumber
                              a.ordnumber
+                             a.cusordnumber
                              a.invnumber);
     $where .= ' AND (';
     $where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
