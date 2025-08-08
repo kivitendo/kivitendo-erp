@@ -1,7 +1,6 @@
 package SL::TicketSystem::Base;
 
 use strict;
-use SL::Locale::String;
 
 sub type {
   die "needs to be implemented";

@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use English qw(-no_match_vars);
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
@@ -18,34 +19,42 @@ my %providers = (
 sub action_ajax_list {
   my ($self) = @_;
 
-  my $defaults      = SL::DB::Default->get();
-  my $providerclass = $providers{$defaults->ticket_system_provider} or die 'unknown provider';
-  my $provider      = $providerclass->new();
+  my $providerclass = $providers{SL::DB::Default->get()->ticket_system_provider} or die 'unknown provider';
   my $cv_obj        = $::form->{db} eq 'customer' ? SL::DB::Manager::Customer->find_by(id => $::form->{id})
                                                   : SL::DB::Manager::Vendor->find_by(id => $::form->{id});
 
-  $::form->{sort_by}        ||= $provider->default_sort_by;
-  $::form->{sort_dir}       //= 0;
-  $::form->{include_closed} //= 1;
+  my ($message, $provider, $objects);
 
-  my %params  = (search_string => $cv_obj->name); #, message => \$self->{message});
-  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
-  my $objects;
-  try {
-    $objects = $provider->get_tickets(\%params, \$self->{message});
-  } catch {
-    $_ =~ m/^no OAuth token / ? flash('info', t8('Create an OAuth token first under Program -> OAuth Tokens'))
-                              : flash('error', $_);
-    $self->render(\"[% INCLUDE 'common/flash.html' %]", { layout => 0 });
+  eval {
+    $provider   = $providerclass->new();
+
+    my %options_with_defaults = $provider->options_with_defaults();
+    $::form->{$_} //= $options_with_defaults{$_} for keys %options_with_defaults;
+
+    my %params  = (search_string => $cv_obj->name);
+    $params{$_} = $::form->{$_} for keys %options_with_defaults;
+
+    ($objects, $message) = $provider->get_tickets(\%params);
+    1;
+  } or do {
+    if (ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken') {
+      flash('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'));
+    } elsif (ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed') {
+      flash('error', t8('OAuth token refresh failed'));
+    } else {
+      flash('error', $EVAL_ERROR);
+    }
+
+    $self->render('common/flash', { layout => 0 });
     $::dispatcher->end_request();
   };
 
-  my @prov_cols    = @{$provider->ticket_columns()};
-  my @columns      = map { $_->{name} } @prov_cols;
-  my @sort_columns = map { $_->{name} } (grep { $_->{sortable} } @prov_cols);
+  my $prov_cols    = $provider->ticket_columns();
+  my @columns      = map { $_->{name} } @$prov_cols;
+  my @sort_columns = map { $_->{name} } (grep { $_->{sortable} } @$prov_cols);
 
   my %column_defs;
-  for my $col (@prov_cols) {
+  for my $col (@$prov_cols) {
     $column_defs{$col->{name}} = {
       text     => $col->{text},
       sub      => $col->{is_date} ? sub { $_[0]->{$col->{name}}->to_kivitendo }
@@ -77,7 +86,7 @@ sub action_ajax_list {
     allow_pdf_export     => 0,
     allow_csv_export     => 0,
     raw_top_info_text    => $self->render('ticket_system/report_top',    { output => 0 }),
-    raw_bottom_info_text => $self->render('ticket_system/report_bottom', { output => 0 })
+    raw_bottom_info_text => $self->render('ticket_system/report_bottom', { output => 0 }, message => $message)
   );
 
   $self->report_generator_list_objects(report => $report, objects => $objects, layout => 0, header => 0);
@@ -85,3 +94,20 @@ sub action_ajax_list {
 
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::TicketSystem - Abstraction over different ticket systems
+(issue trackers). Used to display ticket data in the customer and vendor
+basic data
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut
