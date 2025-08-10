@@ -1,0 +1,6 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE L %]
+
+<div class="wrapper">
+[% 'Options' | $T8 %]: [% FOREACH o = options %][% HTML.escape(o) %]<br>[% END %]

@@ -300,7 +300,7 @@ sub list_names {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  $report->set_options('top_info_text'         => join("\n", @options),
+  $report->set_options('raw_top_info_text'     => $form->parse_html_template('ct/list_names_top', { options => \@options }),
                        'raw_bottom_info_text'  => $form->parse_html_template('ct/list_names_bottom'),
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
