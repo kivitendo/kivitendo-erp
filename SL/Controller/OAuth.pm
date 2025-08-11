@@ -42,23 +42,6 @@ sub refresh {
 }
 
 
-sub imap_sasl_string {
-  my ($self, $db_id) = @_;
-
-  my $tok = SL::DB::OAuthToken->new(id => $db_id)->load();
-
-  if (!$tok->is_valid) {
-    refresh($tok);
-  }
-
-  my $username = $tok->email();
-  my $access_token = $tok->access_token();
-
-  my $oauth_sign = encode_base64("user=". $username ."\x01auth=Bearer ". $access_token ."\x01\x01", '');
-
-  return $oauth_sign;
-}
-
 
 #
 # actions
@@ -215,10 +198,10 @@ sub access_token_for {
 
   my $tok;
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, employee_id => SL::DB::Manager::Employee->current->id)
+  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, email => $params{email}, employee_id => SL::DB::Manager::Employee->current->id)
     if ($params{allow_current_user});
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, employee_id => undef)
+  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, email => $params{email}, employee_id => undef)
     if (!$tok && $params{allow_client_wide});
 
   die 'no OAuth token' unless $tok;
@@ -240,32 +223,102 @@ __END__
 
 =head1 NAME
 
-SL::Controller::OAuth - OAuth2
+SL::Controller::OAuth - Client side OAuth2 token management
+
+=head1 SYNOPSIS
+
+  use Mail::IMAPClient;
+  use SL::Controller::OAuth;
+
+  sub oauth_imap_get_folders {
+
+    my $server       = 'mail.domain';
+    my $username     = 'kivitendo.test@your.domain';
+
+    my $access_token = SL::Controller::OAuth::access_token_for('microsoft', allow_client_wide => 1, email => $username);
+
+    my $sasl_string  = encode_base64("user=$username\x01auth=Bearer $access_token\x01\x01", '');
+
+    my $imap = Mail::IMAPClient->new(
+      Server   => $server,
+      User     => $username,
+      Ssl      => 1,
+      Uid      => 1,
+    ) or die "Cannot connect $@";
+
+    $imap->authenticate('XOAUTH2', sub { return $sasl_string; }) or die('Auth error: ' . $imap->LastError);
+
+    my @folders = @{$imap->folders or die 'List folders: ' . $imap->LastError};
+
+    return \@folders;
+  }
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<access_token_for>
+
+This is a common function that retrieves an OAuth access token from the
+database, refreshing it in the case it expired.  By default, the first
+access token valid for the currently logged in user matching the given
+target is returned.
+
+=item C<action_consume_authorization_code>
+
+This is the controller action that is invoked from the dispatcher, when an
+OAuth2 provider redirects the user's web browser to the redirect_uri. In
+this case, the authorization code is transferred in the query parameter
+C<code>.
+
+=back
+
+=head1 TOKENSTATE
+
+Each SL::DB::OAuthToken is in one of two distinct states: inflight
+or complete.  When a user creates a new token, the token is first
+stored in the database with a random C<tokenstate> value and a URL is
+presented to the user in order to asynchronously perform a request to
+the OAuth2 provider, retrieving an authentication code. Finally, using
+the authentication code, an access token and optionally a refresh token
+are retrieved from the provider.
+
+This means that all tokens with a non-null C<tokenstate> are inflight
+and conversely all tokens with a null/undef C<tokenstate> are completed.
+Only completed tokens can be used for authentication.
 
 
-Token, für die der interaktive Flow vollständig durchlaufen sind, haben den tokenstate NULL.
+=head1 LITERATURE
+
+Alexander Perlis' Mutt OAuth2 token management script provides a rather
+compact implementation in Python for fetching a single OAuth2 token
+(no state parameter handling)
 
 
-data model and control flow by Alexander Perlis Mutt OAuth2 token management script
+=head1 BUGS
 
+When an OAuth2 provider redirects the user's web browser to our
+dispatcher, the web browser does not send the session cookie as
+sending the cookie would violate the SameSite=strict policy. The
+user is asked to log in again and only then the controller action
+C<action_consume_authorization_code> is called.  This works,
+but can be unexpected for the user.
 
+Possible solutions include:
 
+1. Storing the session cookie just once, before redirecting to the OAuth2
+provider, with SameSite=Lax.
 
-use SL::Controller::OAuth;
-use Mail::IMAPClient;
+2. Allowing unauthenticated (in the sense that no session cookie
+is required) requests for just C<action_consume_authorization_code>,
+processing and storing the token as implemented currently and then either
+ending the request or clearing all form parameters and callbacks and
+redirecting the user to us, now in compliance with the SameSite policy.
+Care must be taken to prevent denial of service attacks by means of
+guessing valid C<tokenstate> values of inflight tokens.
 
-my $username = 'kivitendo.test@your.domain';
+=head1 AUTHOR
 
-my $imap = Mail::IMAPClient->new(
-  Server   => 'mail.domain',
-  User     => $username,
-  Ssl      => 1,
-  Uid      => 1,
-) or die "Cannot connect $@";
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
 
-$imap->authenticate('XOAUTH2', sub { return SL::Controller::OAuth->imap_sasl_string(4); }) or die("Auth error: ". $imap->LastError);
-
-my $folders = $imap->folders or die "List folders error: ", $imap->LastError, "\n";
-
-print "Folders: @$folders\n";
-Folders: Archiv Aufgaben Entw&APw-rfe Gel&APY-schte Elemente Gesendete Elemente Journal Junk-E-Mail Kalender Kalender/Feiertage in Deutschland Kalender/Geburtstage Kontakte Notizen Postausgang INBOX Trash Verlauf der Unterhaltung
+=cut
