@@ -447,11 +447,11 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.renumber_positions = function() {
-    var pos_level0 = 0;
-    var pos_level1 = 0;
-    var subtotal_active = 0;
+    let pos_level0 = 0;
+    let pos_level1 = 0;
+    let subtotal_active = 0;
     $('.row_entry').each(function(idx, elt) {
-      var $div = $(elt).find('[name="position_subposition"]');
+      let $div = $(elt).find('[name="position_subposition"]');
       if (!subtotal_active) {
         pos_level0 += 1;
         pos_level1 = 0;
