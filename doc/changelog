@@ -8,6 +8,9 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
+- Atlassian Jira als Ticket System kann in den Stammdaten eingebunden werden;
+  dazu wurde eine Verwaltung von OAuth Tokens in der Nutzer-Weboberfläche
+  hinzugefügt
 
 Kleinere neue Features und Detailverbesserungen:
 
