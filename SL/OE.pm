@@ -977,9 +977,9 @@ sub order_details {
   my $i;
   my @partsgroup = ();
   my $partsgroup;
-  my $position = 0;
-  my $subtotal_header = 0;
-  my $subposition = 0;
+  my $pos_level0 = 0;
+  my $pos_level1 = 0;
+  my $subtotal_active = 0;
   my %taxaccounts;
   my %taxbase;
   my $tax_rate;
@@ -1070,20 +1070,17 @@ sub order_details {
     if ($form->{"id_$i"} != 0) {
 
       # add number, description and qty to $form->{number}, ....
-
-      if ($form->{"subtotal_$i"} && !$subtotal_header) {
-        $subtotal_header = $i;
-        $position = int($position);
-        $subposition = 0;
-        $position++;
-      } elsif ($subtotal_header) {
-        $subposition += 1;
-        $position = int($position);
-        $position = $position.".".$subposition;
+      my $position;
+      if (!$subtotal_active) {
+        $pos_level0 += 1;
+        $pos_level1  = 0;
+        $position = "$pos_level0";
       } else {
-        $position = int($position);
-        $position++;
+        $pos_level1 += 1;
+        $position = "$pos_level0.$pos_level1";
       }
+      my $subtotal_turn_off = $subtotal_active && $form->{"subtotal_$i"};
+      $subtotal_active ^= $form->{"subtotal_$i"};
 
       my $price_factor = $price_factors{$form->{"price_factor_id_$i"}} || { 'factor' => 1 };
 
@@ -1154,12 +1151,12 @@ sub order_details {
       $form->{nodiscount_total} += $nodiscount_linetotal;
       $form->{discount_total}   += $discount;
 
-      if ($subtotal_header) {
+      if ($subtotal_active) {
         $discount_subtotal   += $linetotal;
         $nodiscount_subtotal += $nodiscount_linetotal;
       }
 
-      if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
+      if ($subtotal_turn_off) {
         push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },         $form->format_amount($myconfig, $discount_subtotal,   2);
         push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub_nofmt} },   $discount_subtotal;
         push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} },       $form->format_amount($myconfig, $nodiscount_subtotal, 2);
@@ -1167,7 +1164,6 @@ sub order_details {
 
         $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
-        $subtotal_header     = 0;
 
       } else {
         push @{ $form->{TEMPLATE_ARRAYS}->{$_} }, "" for qw(discount_sub nodiscount_sub discount_sub_nofmt nodiscount_sub_nofmt);

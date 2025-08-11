@@ -1022,9 +1022,9 @@ sub order_details {
   my $i;
   my @partsgroup = ();
   my $partsgroup;
-  my $position = 0;
-  my $subtotal_header = 0;
-  my $subposition = 0;
+  my $pos_level0 = 0;
+  my $pos_level1 = 0;
+  my $subtotal_active = 0;
   my $si_position = 0;
 
   my (@project_ids);
@@ -1119,19 +1119,16 @@ sub order_details {
     $form->{"qty_$i"} = $form->parse_amount($myconfig, $form->{"qty_$i"});
 
     # add number, description and qty to $form->{number}, ....
-    if ($form->{"subtotal_$i"} && !$subtotal_header) {
-      $subtotal_header = $i;
-      $position = int($position);
-      $subposition = 0;
-      $position++;
-    } elsif ($subtotal_header) {
-      $subposition += 1;
-      $position = int($position);
-      $position = $position.".".$subposition;
+    my $position;
+    if (!$subtotal_active) {
+      $pos_level0 += 1;
+      $pos_level1  = 0;
+      $position = "$pos_level0";
     } else {
-      $position = int($position);
-      $position++;
+      $pos_level1 += 1;
+      $position = "$pos_level0.$pos_level1";
     }
+    $subtotal_active ^= $form->{"subtotal_$i"};
 
     $si_position++;
 
@@ -1153,10 +1150,6 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $project->projectnumber;
     push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} }, $project->description;
-
-    if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-      $subtotal_header     = 0;
-    }
 
     my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
     $totalweight += $lineweight;
