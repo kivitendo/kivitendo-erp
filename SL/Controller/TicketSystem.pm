@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use English qw(-no_match_vars);
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
@@ -20,22 +21,33 @@ sub action_ajax_list {
 
   my $defaults      = SL::DB::Default->get();
   my $providerclass = $providers{$defaults->ticket_system_provider} or die 'unknown provider';
-  my $provider      = $providerclass->new();
   my $cv_obj        = $::form->{db} eq 'customer' ? SL::DB::Manager::Customer->find_by(id => $::form->{id})
                                                   : SL::DB::Manager::Vendor->find_by(id => $::form->{id});
 
-  $::form->{sort_by}        ||= $provider->default_sort_by;
-  $::form->{sort_dir}       //= 0;
-  $::form->{include_closed} //= 1;
-
-  my %params  = (search_string => $cv_obj->name); #, message => \$self->{message});
-  $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
+  my $provider;
   my $objects;
-  try {
+
+  eval {
+    $provider      = $providerclass->new();
+
+    $::form->{sort_by}        ||= $provider->default_sort_by;
+    $::form->{sort_dir}       //= 0;
+    $::form->{include_closed} //= 1;
+
+    my %params  = (search_string => $cv_obj->name);
+    $params{$_} = $::form->{$_} for qw(include_closed sort_by sort_dir);
+
     $objects = $provider->get_tickets(\%params, \$self->{message});
-  } catch {
-    $_ =~ m/^no OAuth token / ? flash('info', t8('Create an OAuth token first under Program -> OAuth Tokens'))
-                              : flash('error', $_);
+    1;
+  } or do {
+    if (ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken') {
+      flash('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'));
+    } elsif (ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed') {
+      flash('error', t8('OAuth token refresh failed'));
+    } else {
+      flash('error', $EVAL_ERROR);
+    }
+
     $self->render(\"[% INCLUDE 'common/flash.html' %]", { layout => 0 });
     $::dispatcher->end_request();
   };
@@ -85,3 +97,20 @@ sub action_ajax_list {
 
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::TicketSystem - Abstraction over different ticket systems
+(issue trackers). Used to display ticket data in the customer and vendor
+basic data
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut
