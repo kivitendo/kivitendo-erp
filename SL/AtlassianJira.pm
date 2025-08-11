@@ -96,3 +96,19 @@ sub tickets {
 
   \@tickets;
 }
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::AtlassianJira - HTTP API client for Atlassian's Jira ticket system
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut

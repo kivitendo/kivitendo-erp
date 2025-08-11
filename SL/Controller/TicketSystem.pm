@@ -85,3 +85,20 @@ sub action_ajax_list {
 
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::TicketSystem - Abstraction over different ticket systems
+(issue trackers). Used to display ticket data in the customer and vendor
+basic data
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut
