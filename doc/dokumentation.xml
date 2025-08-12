@@ -3059,39 +3059,39 @@ years: 1
           Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</para>
 
 <table><title>Dateinamen der Belegtypen</title>
-	<thead>
-	<tr>
-		<th colspan="2"> Einkauf </th><th colspan="2"> Verkauf </th>
-	</tr>
-	<tr>
-		<th> Belegtyp </th><th> LaTeX Vorlage </th><th> Belegtyp </th><th> LaTeX Vorlage </th>
-	</tr>
-	</thead>
-	<tbody><tr>
-		<td> </td><td> </td><td> Pflichtenheft </td><td> requirement_spec.tex </td>
-	</tr>
-	<tr>
-		<td> Preisanfrage </td><td> request_quotation.tex </td><td> Angebot </td><td> sales_quotation.tex </td>
-	</tr>
-	<tr>
-		<td> Angebotseingang </td><td> purchase_quotation_intake.tex </td><td> Auftragseingang </td><td rowspan="2"> sales_order_intake.tex
+  <thead>
+  <tr>
+    <th colspan="2"> Einkauf </th><th colspan="2"> Verkauf </th>
+  </tr>
+  <tr>
+    <th> Belegtyp </th><th> LaTeX Vorlage </th><th> Belegtyp </th><th> LaTeX Vorlage </th>
+  </tr>
+  </thead>
+  <tbody><tr>
+    <td> </td><td> </td><td> Pflichtenheft </td><td> requirement_spec.tex </td>
+  </tr>
+  <tr>
+    <td> Preisanfrage </td><td> request_quotation.tex </td><td> Angebot </td><td> sales_quotation.tex </td>
+  </tr>
+  <tr>
+    <td> Angebotseingang </td><td> purchase_quotation_intake.tex </td><td> Auftragseingang </td><td rowspan="2"> sales_order_intake.tex
 sales_order.tex* </td>
-	</tr>
-	<tr>
-		<td> Lieferantenauftrag </td><td> purchase_order.tex </td><td> Auftragsbestätigung </td>
-	</tr>
-	<tr>
-		<td> <literallayout>Beistelllieferschein
+  </tr>
+  <tr>
+    <td> Lieferantenauftrag </td><td> purchase_order.tex </td><td> Auftragsbestätigung </td>
+  </tr>
+  <tr>
+    <td> <literallayout>Beistelllieferschein
 Retourenlieferschein
 Einkaufslieferschein</literallayout> </td><td> <literallayout>supplier_delivery_order.tex
 rma_delivery_order.tex*
 purchase_delivery_order.tex*</literallayout> </td><td> Lieferschein </td><td> sales_delivery_order.tex </td>
-	</tr>
-	<tr>
-		<td> Einkaufsreklamation </td><td> purchase_reclamation.tex </td><td> Verkaufsreklamation </td><td> sales_reclamation.tex </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> <literallayout>Rechnung
+  </tr>
+  <tr>
+    <td> Einkaufsreklamation </td><td> purchase_reclamation.tex </td><td> Verkaufsreklamation </td><td> sales_reclamation.tex </td>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> <literallayout>Rechnung
 Anzahlungsrechnung
 Schlussrechnung
 Rechnungskopie
@@ -3100,22 +3100,22 @@ invoice_for_advance_payment.tex*
 final_invoice.tex*
 invoice_copy.tex*
 storno_invoice.tex*</literallayout> </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> Proformarechnung </td><td> proforma.tex </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> Gutschrift </td><td> credit_note.tex </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> Mahnung </td><td> zahlungserinnerung.tex </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> Rechnung über Mahngebühren </td><td> zahlungserinnerung_invoice.tex </td>
-	</tr>
-	<tr>
-		<td> </td><td> </td><td> Sammelrechnung (FiBu) </td><td> statement.tex </td>
-	</tr>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> Proformarechnung </td><td> proforma.tex </td>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> Gutschrift </td><td> credit_note.tex </td>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> Mahnung </td><td> zahlungserinnerung.tex </td>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> Rechnung über Mahngebühren </td><td> zahlungserinnerung_invoice.tex </td>
+  </tr>
+  <tr>
+    <td> </td><td> </td><td> Sammelrechnung (FiBu) </td><td> statement.tex </td>
+  </tr>
 </tbody></table>
           <para>*: symbolischer Link
           </para>
