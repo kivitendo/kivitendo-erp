@@ -124,13 +124,6 @@
 
 <p>[% 'Sum open amount' | $T8 %]: [% LxERP.format_amount(total_trans, -2) %]</p>
 
-<form method="post" action="sepa.pl">
-    [% L.hidden_tag('action', 'bank_transfer_download_sepa_docs_preview') %]
-    [% L.hidden_tag('id', id) %]
-    [% L.hidden_tag('vc', vc) %]
-    [% L.submit_tag('dummy', LxERP.t8('Download Documents for exported bookings')) %]
-</form>
-
 <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
 <input type="hidden" name="confirmation" value="1">
 
