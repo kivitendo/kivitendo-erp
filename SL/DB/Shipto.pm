@@ -22,7 +22,7 @@ __PACKAGE__->meta->initialize;
 
 sub displayable_id {
   my $self = shift;
-  my $text = join('; ', grep { $_ } (map({ $self->$_ } qw(shiptoname shiptostreet)),
+  my $text = join('; ', grep { $_ } (map({ $self->$_ } qw(shiptoname shiptostreet shiptodepartment_1 shiptodepartment_2)),
                                      join(' ', grep { $_ }
                                                map  { $self->$_ }
                                                qw(shiptozipcode shiptocity))));
