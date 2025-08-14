@@ -773,6 +773,10 @@ sub setup_sepa_create_transfer_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
+        t8('Download Documents for exported bookings'),
+        submit    => [ '#form', { action => 'bank_transfer_download_sepa_docs_preview' } ],
+      ],
+      action => [
         t8('Create'),
         submit    => [ '#form', { action => "bank_transfer_create" } ],
         accesskey => 'enter',
