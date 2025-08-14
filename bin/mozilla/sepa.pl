@@ -617,6 +617,18 @@ sub bank_transfer_download_sepa_xml {
 
   $main::lxdebug->leave_sub();
 }
+
+sub bank_transfer_download_sepa_docs_preview {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my $locale   = $main::locale;
+
+  my @items = map { ( { ap_id => $_->{ap_id}, ar_id => $_->{ar_id} } ) } @{$form->{bank_transfers}};
+
+  SL::SEPA::send_concatinated_sepa_pdfs(\@items, $locale->text('SEPA XML Docs for Exports ') . $locale->text('Preview') . '.pdf');
+}
+
 sub bank_transfer_download_sepa_docs {
   $main::lxdebug->enter_sub();
 
@@ -646,35 +658,8 @@ sub bank_transfer_download_sepa_docs {
     my $export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, vc => $vc);
     push @items, @{ $export->{items} } if ($export);
   }
-  my @files;
-  foreach my $item (@items) {
 
-    # check if there is already a file for the invoice
-    # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
-    # but there is no get_latest_version (but sorts objects by itime!)
-    # check if already resynced
-    my ( $file_object ) = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
-                                            object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
-                                            file_type   => 'document',
-                                           );
-    next if     (ref $file_object ne 'SL::File::Object');
-    next unless $file_object->mime_type eq 'application/pdf';
-
-    my $file = $file_object->get_file;
-    die "No file" unless -e $file;
-    push @files, $file;
-  }
-  my $inputfiles  = join " ", @files;
-  my $downloadname = $locale->text('SEPA XML Docs for Exports ') . (join " ", @ids) . ".pdf";
-  my $in = IO::File->new($::lx_office_conf{applications}->{ghostscript} . " -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
-
-  $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
-
-  print $::form->create_http_response(content_type        => 'Application/PDF',
-                                      content_disposition => 'attachment; filename="'. $downloadname . '"');
-
-  $::locale->with_raw_io(\*STDOUT, sub { print while <$in> });
-  $in->close;
+  SL::SEPA::send_concatinated_sepa_pdfs(\@items, $locale->text('SEPA XML Docs for Exports ') . (join " ", @ids) . '.pdf');
 
   $main::lxdebug->leave_sub();
 }
@@ -717,7 +702,7 @@ sub dispatcher {
                          bank_transfer_post_payments bank_transfer_download_sepa_xml
                          bank_transfer_mark_as_closed_step1 bank_transfer_mark_as_closed_step2
                          bank_transfer_payment_list_as_pdf bank_transfer_undo_sepa_xml
-                         bank_transfer_download_sepa_docs)) {
+                         bank_transfer_download_sepa_docs bank_transfer_download_sepa_docs_preview)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
       return;
@@ -747,6 +732,10 @@ sub setup_sepa_create_transfer_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
+      action => [
+        t8('Download Documents for exported bookings'),
+        submit    => [ '#form', { action => 'bank_transfer_download_sepa_docs_preview' } ],
+      ],
       action => [
         t8('Create'),
         submit    => [ '#form', { action => "bank_transfer_create" } ],
