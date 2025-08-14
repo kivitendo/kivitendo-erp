@@ -27,7 +27,7 @@ sub _after_save_ensure_only_one_marked_as_default_per_customer {
 
 sub displayable_id {
   my $self = shift;
-  my $text = join('; ', grep { $_ } (map({ $self->$_ } qw(name street)),
+  my $text = join('; ', grep { $_ } (map({ $self->$_ } qw(name department_1 department_2 street)),
                                      join(' ', grep { $_ }
                                                map  { $self->$_ }
                                                qw(zipcode city))));
