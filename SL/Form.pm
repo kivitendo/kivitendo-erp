@@ -1150,6 +1150,8 @@ sub get_formname_translation {
     letter                      => $main::locale->text('Letter'),
     ic_supply                   => $main::locale->text('Intra-Community supply'),
     statement                   => $main::locale->text('Statement'),
+    part_info                   => $main::locale->text('Part info'),
+    part_label                  => $main::locale->text('Part label'),
   );
 
   $main::lxdebug->leave_sub();
@@ -1179,6 +1181,7 @@ sub get_number_prefix_for_type {
     : ($self->{type} =~ /_quotation/)                                                                   ? 'quo'
     : ($self->{type} =~ /_delivery_order$/)                                                             ? 'do'
     : ($self->{type} =~ /letter/)                                                                       ? 'letter'
+    : ($self->{type} =~ /part/)                                                                       ? 'part'
     :                                                                                                     'ord';
 
   # better default like this?
