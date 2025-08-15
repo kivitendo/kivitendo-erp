@@ -16,7 +16,6 @@
             [%- SET PARAM_VAL = SELF.search_cvpartnumber -%]
             [% P.part.picker('add_item.parts_id', SELF.created_part,
                               class="add_item_input wi-normal",
-                              fat_set_item=1,
                               multiple_pos_input=1,
                               action={set_multi_items='kivi.DeliveryOrder.add_multi_items'},
                               classification_id=SELF.part_picker_classification_ids.as_list.join(','),
@@ -28,7 +27,7 @@
           </td>
           <td>
             <span class="label above">[% 'Qty' | $T8 %]</span>
-            [% L.input_tag('add_item.qty_as_number', '', size = 5, class="add_item_input numeric") %]
+            [% L.input_tag('add_item.qty_as_number', '', placeholder="1", size = 5, class="add_item_input numeric") %]
             [% L.hidden_tag('add_item.unit', SELF.created_part.unit, class="add_item_input") %]
           </td>
           <td style="vertical-align:bottom;">
