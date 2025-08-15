@@ -1162,6 +1162,7 @@ a2ensite default-ssl</programlisting>
         <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
+FcgidIOTimeout 300
 
 &lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
@@ -1183,8 +1184,11 @@ FcgidMaxRequestLen 10485760
         Grenze hochgesetzt:</para>
 
         <programlisting>FcgidMaxRequestLen 10485760</programlisting>
+        <para>Standardmäßig wartet der Apache 40 Sekunden bevor es bei einer Anfrage zu einem Timeout und somit
+        einenm 'Internal Server Error' kommt. Das ist für einige Berichte/Datenmenge etwas knapp und der Eintrag:
+        <programlisting>FcgidIOTimeout 300</programlisting> setzt dieses Timeout auf 5 Minuten. Weitere Parameter sind in der
+        <ulink url="https://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html">Apache Dokumentation</ulink> einsehbar.</para>
       </sect2>
-
       <sect2>
        <title>Aktivierung von mod_rewrite/directory_match für git basierte Installationen</title>
 

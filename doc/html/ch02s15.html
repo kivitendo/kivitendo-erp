@@ -5,18 +5,18 @@
       erzeugen. kivitendo kann dabei sowohl neue OpenDocument-Dokumente als
       auch aus diesen direkt PDF-Dateien erzeugen. Nachfolgend ist die
       Verwendung mit LibreOffice beschrieben. Für die Verwendung mit
-      OpenOffice müssen die Einstellungen allenfalls angepasst werden.</p><div class="sect2" title="2.15.1. Grundeinstellung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3228"></a>2.15.1. Grundeinstellung</h3></div></div></div><p>Um die Unterstützung von OpenDocument-Vorlagen zu aktivieren,
+      OpenOffice müssen die Einstellungen allenfalls angepasst werden.</p><div class="sect2" title="2.15.1. Grundeinstellung"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3211"></a>2.15.1. Grundeinstellung</h3></div></div></div><p>Um die Unterstützung von OpenDocument-Vorlagen zu aktivieren,
         muss in der Datei <code class="filename">config/kivitendo.conf</code> die
         Variable <code class="literal">opendocument</code>, im Abschnitt
         <code class="literal">print_templates</code>, auf <code class="literal">1</code> stehen.
-        Dies ist die Standardeinstellung.</p></div><div class="sect2" title="2.15.2. Direkte Erzeugung von PDF-Dateien"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3245"></a>2.15.2. Direkte Erzeugung von PDF-Dateien</h3></div></div></div><p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
+        Dies ist die Standardeinstellung.</p></div><div class="sect2" title="2.15.2. Direkte Erzeugung von PDF-Dateien"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3228"></a>2.15.2. Direkte Erzeugung von PDF-Dateien</h3></div></div></div><p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
         weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
         LibreOffice oder OpenOffice benötigt.</p><p>Unter Debian kann dieses installiert werden mit:</p><pre class="programlisting">apt install libreoffice</pre><p>Der Pfad zu LibreOffice kann in der Datei
         <code class="filename">config/kivitendo.conf</code>, im Abschnitt
         <code class="literal">applications</code>, angepasst werden. Unter Debian sollte
-        dies nicht notwendig sein.</p><div class="sect3" title="2.15.2.1. Variante 1)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3262"></a>2.15.2.1. Variante 1)</h4></div></div></div><p>In der Standardeinstellung wird LibreOffice für jedes Dokument
+        dies nicht notwendig sein.</p><div class="sect3" title="2.15.2.1. Variante 1)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3245"></a>2.15.2.1. Variante 1)</h4></div></div></div><p>In der Standardeinstellung wird LibreOffice für jedes Dokument
           neu gestartet. Es ist keine weitere Konfiguration
-          erforderlich.</p></div><div class="sect3" title="2.15.2.2. Variante 2)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3267"></a>2.15.2.2. Variante 2)</h4></div></div></div><p>Die zweite Variante startet ein LibreOffice, das auch nach der
+          erforderlich.</p></div><div class="sect3" title="2.15.2.2. Variante 2)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3250"></a>2.15.2.2. Variante 2)</h4></div></div></div><p>Die zweite Variante startet ein LibreOffice, das auch nach der
           Umwandlung des Dokumentes gestartet bleibt. Bei weiteren
           Umwandlungen wird dann diese laufende Instanz benutzt. Der Vorteil
           ist, dass die Zeit zur Umwandlung möglicherweise reduziert wird,
@@ -29,7 +29,7 @@
           <code class="literal">python_uno_path</code> in der Konfigurationsdatei
           <code class="filename">config/kivitendo.conf</code> dienen zur Anpassung der
           Python uno Pfade. Unter Debian sollte keine Anpassung notwendig
-          sein.</p></div></div><div class="sect2" title="2.15.3. Vorbereitungen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3296"></a>2.15.3. Vorbereitungen</h3></div></div></div><div class="sect3" title="2.15.3.1. Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="opendocument-druckvorlagen-mit-makros.vorbereitungen"></a>2.15.3.1. Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
+          sein.</p></div></div><div class="sect2" title="2.15.3. Vorbereitungen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3279"></a>2.15.3. Vorbereitungen</h3></div></div></div><div class="sect3" title="2.15.3.1. Adminbereich"><div class="titlepage"><div><div><h4 class="title"><a name="opendocument-druckvorlagen-mit-makros.vorbereitungen"></a>2.15.3.1. Adminbereich</h4></div></div></div><p>Damit beim Erstellen von Rechnungen und Aufträgen neben der
           Standardvorlage ohne Einzahlungsschein weitere Vorlagen (z.B. mit
           Einzahlungsschein) auswählbar sind, muss für jedes Vorlagen-Suffix
           ein Drucker eingerichtet werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Druckeradministration → Drucker hinzufügen</p></li><li class="listitem"><p>Mandant wählen</p></li><li class="listitem"><p>Druckerbeschreibung → aussagekräftiger Text: wird in der
@@ -38,16 +38,16 @@
               Aufträgen oder Rechnungen als odt-Datei keine Bedeutung, darf
               aber nicht leer sein)</p></li><li class="listitem"><p>Vorlagenkürzel → besr bzw. selbst gewähltes Vorlagensuffix
               (muss genau der Zeichenfolge entsprechen, die zwischen
-              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.15.3.2. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3323"></a>2.15.3.2. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
+              "invoice_" bzw. "sales_order_" und ".odt" steht.)</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.15.3.2. Benutzereinstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3306"></a>2.15.3.2. Benutzereinstellungen</h4></div></div></div><p>Wer den Ausdruck mit Einzahlungsschein als Standardeinstellung
           im Rechnungs- bzw. Auftragsformular angezeigt haben möchte, kann
           dies persönlich für sich bei den Benutzereinstellungen
           konfigurieren:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Programm → Benutzereinstellungen → Druckoptionen</p></li><li class="listitem"><p>Standardvorlagenformat → OpenDocument/OASIS</p></li><li class="listitem"><p>Standardausgabekanal → Bildschirm</p></li><li class="listitem"><p>Standarddrucker → gewünschte Druckerbeschreibung auswählen
-              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.15.3.3. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3347"></a>2.15.3.3. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
+              (z.B. mit Einzahlungsschein Bank xy)</p></li><li class="listitem"><p>Anzahl Kopien → leer</p></li><li class="listitem"><p>speichern</p></li></ul></div></div><div class="sect3" title="2.15.3.3. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer odt-Rechnung (analog bei Auftrag)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3330"></a>2.15.3.3. Auswahl der Druckvorlage in kivitendo beim Erzeugen einer
           odt-Rechnung (analog bei Auftrag)</h4></div></div></div><p>Im Fussbereich der Rechnungsmaske muss neben Rechnung,
           OpenDocument/OASIS und Bildschirm die im Adminbereich erstellte
           Druckerbeschreibung ausgewählt werden, falls diese nicht bereits bei
           den Benutzereinstellungen als persönlicher Standard gewählt
-          wurde.</p></div></div><div class="sect2" title="2.15.4. Schweizer QR-Rechnung mit OpenDocument Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3352"></a>2.15.4. Schweizer QR-Rechnung mit OpenDocument Vorlagen</h3></div></div></div><p>Mit der Version 3.6.0 unterstützt Kivitendo die Erstellung von
+          wurde.</p></div></div><div class="sect2" title="2.15.4. Schweizer QR-Rechnung mit OpenDocument Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e3335"></a>2.15.4. Schweizer QR-Rechnung mit OpenDocument Vorlagen</h3></div></div></div><p>Mit der Version 3.6.0 unterstützt Kivitendo die Erstellung von
         Schweizer QR-Rechnungen gemäss <a class="ulink" href="https://www.paymentstandards.ch/dam/downloads/ig-qr-bill-de.pdf" target="_top">Swiss
         Payment Standards, Version 2.2</a>. Implementiert sind hierbei die
         Varianten:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
@@ -55,11 +55,11 @@
             QR-Referenz</strong></span>
                   </p></li><li class="listitem"><p>
                      <span class="bold"><strong>IBAN ohne Referenz</strong></span>
-                  </p></li></ul></div><div class="sect3" title="2.15.4.1. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3373"></a>2.15.4.1. Einstellungen</h4></div></div></div><div class="sect4" title="2.15.4.1.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3376"></a>2.15.4.1.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandantenkonfiguration →
+                  </p></li></ul></div><div class="sect3" title="2.15.4.1. Einstellungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3356"></a>2.15.4.1. Einstellungen</h4></div></div></div><div class="sect4" title="2.15.4.1.1. Mandantenkonfiguration"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3359"></a>2.15.4.1.1. Mandantenkonfiguration</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Mandantenkonfiguration →
             Features</em></span>. Im Abschnitt <span class="emphasis"><em>Einkauf und
             Verkauf</em></span>, beim Punkt <span class="emphasis"><em>Verkaufsrechnungen mit
             Schweizer QR-Rechnung erzeugen</em></span>, die gewünschte Variante
-            wählen.</p></div><div class="sect4" title="2.15.4.1.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3390"></a>2.15.4.1.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
+            wählen.</p></div><div class="sect4" title="2.15.4.1.2. Konfiguration der Bankkonten"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3373"></a>2.15.4.1.2. Konfiguration der Bankkonten</h5></div></div></div><p>Unter <span class="emphasis"><em>System → Bankkonten</em></span> muss bei
             mindestens einem Bankkonto die Option <span class="emphasis"><em>Nutzung mit
             Schweizer QR-Rechnung</em></span> auf <span class="bold"><strong>Ja</strong></span> gestellt werden.</p><p>Die IBAN muss ohne Leerzeichen angegeben werden.</p><div class="tip" title="Tipp" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Tip"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Tipp]" src="system/docbook-xsl/images/tip.png"></td><th align="left">Tipp</th></tr><tr><td align="left" valign="top"><p>Für die Variante <span class="bold"><strong>QR-IBAN mit
               QR-Referenz</strong></span> muss dieses Konto unter QR-IBAN (Schweiz) eine gültige
@@ -67,12 +67,12 @@
               unterscheidet sich von der regulären IBAN.</p><p>Zusätzlich muss eine gültige <span class="bold"><strong>Bankkonto
               Identifikationsnummer</strong></span> angegeben werden
               (6-stellig).</p><p>Diese werden von der jeweiligen Bank vergeben.</p></td></tr></table></div><p>Sind mehrere Konten ausgewählt wird das erste
-            verwendet.</p></div><div class="sect4" title="2.15.4.1.3. Rechnungen ohne Betrag"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3424"></a>2.15.4.1.3. Rechnungen ohne Betrag</h5></div></div></div><p>Für Rechnungen ohne Betrag (z.B. Spenden) kann, in der
+            verwendet.</p></div><div class="sect4" title="2.15.4.1.3. Rechnungen ohne Betrag"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3407"></a>2.15.4.1.3. Rechnungen ohne Betrag</h5></div></div></div><p>Für Rechnungen ohne Betrag (z.B. Spenden) kann, in der
             jeweiligen Rechnung, die Checkbox <span class="emphasis"><em>QR-Rechnung ohne
             Betrag</em></span> aktiviert werden. Diese Checkbox erscheint nur,
             wenn QR-Rechnungen in der Mandantenkonfiguration aktiviert sind
             (variante ausgewählt).</p><p>Dies wirkt sich lediglich auf den erzeugten QR-Code aus. Die
-            Vorlage muss separat angepasst und ausgewählt werden.</p></div></div><div class="sect3" title="2.15.4.2. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3434"></a>2.15.4.2. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
+            Vorlage muss separat angepasst und ausgewählt werden.</p></div></div><div class="sect3" title="2.15.4.2. Adressdaten"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3417"></a>2.15.4.2. Adressdaten</h4></div></div></div><p>Die Adressdaten zum Zahlungsempfänger werden aus der
           Mandantenkonfiguration entnommen. Unter <span class="emphasis"><em>System →
           Mandantenkonfiguration → Verschiedenes</em></span>, Abschnitt
           <span class="emphasis"><em>Firmenname und -adresse.</em></span>
@@ -82,13 +82,13 @@
           z.B. "Schweiz" oder "CH".</p><p>Die Adressdaten können in der Vorlage mit den jeweiligen
           Variablen eingetragen werden. Siehe auch: <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>
                </p><p>Der erzeugte QR-Code verwendet Adress-Typ "K" (Kombinierte
-          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.15.4.3. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3455"></a>2.15.4.3. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
+          Adressfelder, 2 Zeilen).</p></div><div class="sect3" title="2.15.4.3. Referenznummer"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3438"></a>2.15.4.3. Referenznummer</h4></div></div></div><p>Die Referenznummer wird in Kivitendo erzeugt und setzt sich
           wiefolgt zusammen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bankkonto Identifikationsnummer (6-stellig)</p></li><li class="listitem"><p>Kundennummer (6-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Rechnungsnummer (14-stellig, mit führenden Nullen
               aufgefüllt)</p></li><li class="listitem"><p>Prüfziffer (1-stellig, berechnet mittels modulo 10,
               rekursiv)</p></li></ul></div><p>Es sind lediglich Ziffern erlaubt. Allfällige Buchstaben und
           Sonderzeichen werden entfernt und fehlende Stellen werden mit
-          führenden Nullen aufgefüllt.</p></div><div class="sect3" title="2.15.4.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3475"></a>2.15.4.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
+          führenden Nullen aufgefüllt.</p></div><div class="sect3" title="2.15.4.4. Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3458"></a>2.15.4.4. Vorlage</h4></div></div></div><p>Der Vorlagensatz "rev-odt" enthält die Vorlage
           <code class="literal">invoice_qr.odt</code>, welche für die Erstellung von
           QR-Rechnungen vorgesehen ist. Damit diese verwendet werden kann muss
           wie obenstehend beschrieben ein Drucker hinzugefügt werden, allerdings
@@ -103,7 +103,7 @@
           <span class="emphasis"><em>Bild-Kontextmenü → </em></span>
                   <span class="emphasis"><em>Einstellungen →
           Optionen → Name</em></span> einstellbar. Siehe dazu auch die
-          Beispielvorlage.</p><div class="sect4" title="2.15.4.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3505"></a>2.15.4.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
+          Beispielvorlage.</p><div class="sect4" title="2.15.4.4.1. Zusätzliche Variablen für Vorlage"><div class="titlepage"><div><div><h5 class="title"><a name="d0e3488"></a>2.15.4.4.1. Zusätzliche Variablen für Vorlage</h5></div></div></div><p>Zusätzlich zu den in der Vorlage standardmässig verfügbaren
             Variablen (siehe <a class="xref" href="ch03s03.html" title="3.3. Dokumentenvorlagen und verfügbare Variablen">Abschnitt&nbsp;3.3, „Dokumentenvorlagen und verfügbare Variablen“</a>),
             werden die folgenden Variablen erzeugt:</p><div class="variablelist"><dl><dt><span class="term">ref_number_formatted</span></dt><dd><p>Referenznummer formatiert mit Leerzeichen, z.B.: 21 00000
                   00003 13947 14300 09017</p></dd><dt><span class="term">iban_formatted</span></dt><dd><p>IBAN formatiert mit Leerzeichen</p></dd><dt><span class="term">amount_formatted</span></dt><dd><p>Betrag formatiert mit Tausendertrennzeichen Leerschlag,
