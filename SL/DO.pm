@@ -699,7 +699,8 @@ sub order_details {
        weight weight_nofmt lineweight lineweight_nofmt
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_bestbefore
-       si_qty si_qty_nofmt si_unit);
+       si_qty si_qty_nofmt si_unit
+       partsgroup);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @prepared_arrays);
 
@@ -760,6 +761,7 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{qty_nofmt} },       $form->{"qty_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{unit} },            $form->{"unit_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{partnotes} },       $form->{"partnotes_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{partsgroup} },      $form->{"partsgroup_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $project->projectnumber;
