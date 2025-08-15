@@ -97,6 +97,7 @@ use SL::DB::PartsPriceHistory;
 use SL::DB::PaymentTerm;
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
+use SL::DB::PeriodicInvoiceItemsConfig;
 use SL::DB::PriceFactor;
 use SL::DB::Pricegroup;
 use SL::DB::Price;

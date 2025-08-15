@@ -176,6 +176,7 @@ my %kivitendo_package_names = (
   payment_terms                  => 'payment_term',
   periodic_invoices              => 'periodic_invoice',
   periodic_invoices_configs      => 'periodic_invoices_config',
+  periodic_invoice_items_configs => 'PeriodicInvoiceItemsConfig',
   prices                         => 'price',
   price_factors                  => 'price_factor',
   price_rules                    => 'price_rule',
