@@ -517,28 +517,32 @@ set_stock(
   qty => 5,
   bin => $bin1,
   # no chargenumber
+  bestbefore => '1970-01-01',
 );
 set_stock(
   part => $part1,
   qty => 5,
   bin => $bin1,
   chargenumber => 'CH1',
+  bestbefore => '1970-01-01',
 );
 set_stock(
   part => $part1,
   qty => 2,
   bin => $bin1,
   chargenumber => 'CH2',
+  bestbefore => '2000-01-01',
 );
 set_stock(
   part => $part2,
   qty => 6.34,
   bin => $bin1,
+  bestbefore => '2010-01-01',
 );
 
 my @alloc1_1 = SL::Helper::Inventory::allocate(part => $part1, qty => 5);
-my @alloc1_2 = SL::Helper::Inventory::allocate(part => $part1, qty => 5, chargenumber => 'CH1');
-my @alloc1_3 = SL::Helper::Inventory::allocate(part => $part1, qty => 2, chargenumber => 'CH2');
+my @alloc1_2 = SL::Helper::Inventory::allocate(part => $part1, qty => 5, bestbefore => DateTime->new(year => 1970, month =>  1, day => 1), chargenumber => 'CH1');
+my @alloc1_3 = SL::Helper::Inventory::allocate(part => $part1, qty => 2, bestbefore => DateTime->new(year => 2000, month =>  1, day => 1), chargenumber => 'CH2');
 @alloc2      = SL::Helper::Inventory::allocate(part => $part2, qty => 6.34);
 
 local $::instance_conf->data->{produce_assembly_transfer_service} = 0;
@@ -558,6 +562,15 @@ is(SL::Helper::Inventory::get_stock(part => $assembly_service), "1.00000", 'prod
 is(SL::Helper::Inventory::get_stock(part => $part1), "0.00000", 'and consumes...');
 is(SL::Helper::Inventory::get_stock(part => $part2), "0.00000", '..the materials');
 
+foreach my $s (@{SL::Helper::Inventory::get_stock(by => [qw(bin chargenumber bestbefore part)])}) {
+  is($s->{qty} >= 0, 1, 'Stock quantity must be non-negative: ' . $s->{qty});
+}
+
+is(SL::Helper::Inventory::get_stock(part => $part1, bestbefore => DateTime->new(year => 1970, month =>  1, day => 1), chargenumber => ''),    "0.00000", '');
+is(SL::Helper::Inventory::get_stock(part => $part1, bestbefore => DateTime->new(year => 1970, month =>  1, day => 1), chargenumber => ''), "0.00000", '');
+is(SL::Helper::Inventory::get_stock(part => $part1, bestbefore => DateTime->new(year => 2000, month =>  1, day => 1), chargenumber => ''), "0.00000", '');
+is(SL::Helper::Inventory::get_stock(part => $part2, bestbefore => DateTime->new(year => 2010, month =>  1, day => 1), chargenumber => ''),    "0.00000", '');
+#sleep(6000);
 
 
 # bestbefore tests
@@ -608,7 +621,6 @@ is(SL::Helper::Inventory::get_stock(
     part       => $assembly1,
   ), "3.00000", 'get_onhand without bestbefore finds all');
 }
-
 
 # test DB backend function bins, bins_sorted and bins_sorted_naturally
 

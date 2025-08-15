@@ -110,6 +110,7 @@ sub set_stock {
     employee_id      => $employee_id,
     trans_type_id    => $transfer_type->id,
     comment          => $params{comment},
+    bestbefore       => $params{bestbefore},
     shippingdate     => $shippingdate,
     qty              => $qty,
     trans_id         => $trans_id,
