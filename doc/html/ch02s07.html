@@ -27,6 +27,7 @@ a2ensite default-ssl</pre><p>Unter Fedora und openSUSE müssen weiterhin in der 
         mod_fcgid:</p><pre class="programlisting">AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
+FcgidIOTimeout 300
 
 &lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
@@ -41,7 +42,10 @@ FcgidMaxRequestLen 10485760
         Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
         gibt es hier kleine Performance-Einbußen.</p><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
         die maximale Größe eines Requests. Mit folgender Zeile wird diese
-        Grenze hochgesetzt:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre></div><div class="sect2" title="2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1359"></a>2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen</h3></div></div></div><p>
+        Grenze hochgesetzt:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Standardmäßig wartet der Apache 40 Sekunden bevor es bei einer Anfrage zu einem Timeout und somit
+        einenm 'Internal Server Error' kommt. Das ist für einige Berichte/Datenmenge etwas knapp und der Eintrag:
+        </p><pre class="programlisting">FcgidIOTimeout 300</pre><p> setzt dieses Timeout auf 5 Minuten. Weitere Parameter sind in der
+        <a class="ulink" href="https://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html" target="_top">Apache Dokumentation</a> einsehbar.</p></div><div class="sect2" title="2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1342"></a>2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen</h3></div></div></div><p>
         Aufgrund von aktuellen (Mitte 2020) Sicherheitswarnungen für git basierte Webanwendungen ist die mitausgelieferte .htaccess
         restriktiver geworden und verhindert somit das Auslesen von git basierten Daten.
         Für debian/ubuntu muss das Modul mod_rewrite einmalig so aktiviert werden:
@@ -56,13 +60,13 @@ FcgidMaxRequestLen 10485760
           Require all denied
         &lt;/DirectoryMatch&gt;</pre><p>
        
-            </p></div><div class="sect2" title="2.7.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1373"></a>2.7.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
+            </p></div><div class="sect2" title="2.7.3. Weitergehende Konfiguration"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1356"></a>2.7.3. Weitergehende Konfiguration</h3></div></div></div><p>Für einen deutlichen Sicherheitsmehrwert sorgt die Ausführung
         von kivitendo nur über https-verschlüsselten Verbindungen, sowie
         weiteren Zusatzmassnahmen, wie beispielsweise Basic Authentication. Die
         Konfigurationsmöglichkeiten sprengen allerdings den Rahmen dieser
         Anleitung, hier ein Hinweis auf einen entsprechenden <a class="ulink" href="https://www.kivitendo.de/redmine/boards/1/topics/142" target="_top">Foreneintrag
         (Stand Sept. 2015)</a> und einen aktuellen (Stand Mai 2017) <a class="ulink" href="https://mozilla.github.io/server-side-tls/ssl-config-generator/" target="_top">
-        SSL-Konfigurations-Generator</a>.</p></div><div class="sect2" title="2.7.4. Aktivierung von Apache2 modsecurity"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1384"></a>2.7.4. Aktivierung von Apache2 modsecurity</h3></div></div></div><p>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
+        SSL-Konfigurations-Generator</a>.</p></div><div class="sect2" title="2.7.4. Aktivierung von Apache2 modsecurity"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1367"></a>2.7.4. Aktivierung von Apache2 modsecurity</h3></div></div></div><p>Aufgrund des OpenSource Charakters ist kivitendo nicht "out of the box" sicher.
   Organisatorisch empfehlen wir hier die enge Zusammenarbeit mit einem kivitendo Partner der auch in der
 Lage ist weiterführende Fragen in Bezug auf Datenschutz und Datensicherheit zu beantworten.
 Unabhängig davon empfehlen wir im Webserver Bereich die Aktivierung und Konfiguration des Moduls modsecurity für den Apache2, damit
