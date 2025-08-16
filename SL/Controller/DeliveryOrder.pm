@@ -1355,7 +1355,7 @@ sub action_transfer_stock_default {
           $transfer_request->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
         }
       }
-      delete %parts_errors{$part_id};
+      delete $parts_errors{$part_id};
     }
   }
 
