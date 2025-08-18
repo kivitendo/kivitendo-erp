@@ -18,6 +18,9 @@ Kleinere neue Features und Detailverbesserungen:
   Im Druckdialog lässt sich eine Positionsauswahl einblenden, mit der die zu
   druckenden Positionen ausgewählt werden können.
 
+- neue Optionen für den E-Mail-Import, sowie Verbesserund der Doku für
+  das Setzen der IMAP-Flags, s.a. Kapitel 2.9.2 in der Doku.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
