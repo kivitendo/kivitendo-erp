@@ -847,7 +847,7 @@ Do (almost) nothing but return a state if all files are up to date.
 Locales files will be generated with different names and compared to
 the original files.
 If the files differ an exit status of '1' is returned, '0' otherwise.
-The genereted files will be deleted afterwards.
+The generated files will be deleted afterwards.
 
 =item B<-v>, B<--verbose>
 
