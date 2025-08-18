@@ -469,6 +469,7 @@ sub create_assembly {
             $_->{parts_id}     == $allocation->parts_id     &&
             $_->{warehouse_id} == $allocation->warehouse_id &&
             $_->{bin_id}       == $allocation->bin_id       &&
+            $_->{bestbefore}   == $allocation->bestbefore   &&
             $_->{chargenumber} eq $allocation->chargenumber &&
             $_->{qty}          >= $allocation->qty
           } @$stocked_parts;
