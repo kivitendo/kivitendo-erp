@@ -66,6 +66,7 @@ use SL::DB::CustomVariableConfig;
 use SL::DB::Default;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
+use SL::DB::PartsGroup;
 use SL::DO;
 use SL::Helper::Flash qw();
 use SL::IC;
@@ -3074,21 +3075,13 @@ sub get_partsgroup {
   my ($self, $myconfig, $p) = @_;
   my $target = $p->{target} || 'all_partsgroup';
 
-  my $dbh = $self->get_standard_dbh($myconfig);
-
-  my $query = qq|SELECT DISTINCT pg.id, pg.partsgroup
-                 FROM partsgroup pg
-                 JOIN parts p ON (p.partsgroup_id = pg.id) |;
-  my @values;
-
-  $query .= qq|ORDER BY partsgroup|;
-
+  my $partsgroup = SL::DB::Manager::PartsGroup->get_hierarchy();
   if ($p->{all}) {
-    $query = qq|SELECT id, partsgroup FROM partsgroup
-                ORDER BY partsgroup|;
+    $self->{$target} = $partsgroup;
+  } else {
+    $partsgroup = grep { $_->{partscount} > 0 } @{$partsgroup};
+    $self->{$target} = $partsgroup;
   }
-
-  $self->{$target} = selectall_hashref_query($self, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
 }
