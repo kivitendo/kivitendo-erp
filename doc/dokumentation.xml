@@ -95,6 +95,18 @@
 
     <sect1 id="Benötigte-Software-und-Pakete">
       <title>Benötigte Software und Pakete</title>
+      <sect2 id="minimale_version">
+      <title>Mindest-Voraussetzung</title>
+      <para>kivitendo benötigt einen Webserver der Perl unterstüzt und PostgreSQL als Datenbank in einer entsprechenden Minimalversion.</para>
+        <itemizedlist>
+          <listitem>
+              <para>PostgreSQL Version 14</para>
+          </listitem>
+          <listitem>
+              <para>Perl Version 5.34</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
 
       <sect2 id="Betriebssystem">
         <title>Betriebssystem</title>
@@ -106,7 +118,7 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Mitte 2024 (ab Version 3.9) empfehlen wir:</para>
+        <para>Mitte 2025 (ab Version 3.9.2) empfehlen wir:</para>
 
         <itemizedlist>
           <listitem>
@@ -114,10 +126,10 @@
 
             <itemizedlist>
               <listitem>
-                <para>11.0 "Bullseye"</para>
+                <para>12.0 "Bookworm"</para>
               </listitem>
               <listitem>
-                <para>12.0 "Bookworm"</para>
+                <para>13.0 "Trixie"</para>
               </listitem>
             </itemizedlist>
           </listitem>
@@ -126,20 +138,20 @@
             <para>Ubuntu</para>
             <itemizedlist>
              <listitem>
-              <para>20.04 "Focal Fossa" LTS</para>
+              <para>22.04 "Jammy Jellyfish" LTS</para>
              </listitem>
              <listitem>
-              <para>22.04 "Jammy Jellyfish" LTS</para>
+              <para>24.04 "Noble Numbat" LTS</para>
              </listitem>
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>openSUSE Leap 15.5 und SUSE Linux Enterprise Server 15 SP4</para>
+            <para>openSUSE Leap 15.6 und SUSE Linux Enterprise Server 15 SP-6</para>
           </listitem>
 
           <listitem>
-            <para>Fedora 39</para>
+            <para>Fedora 39 - 41</para>
           </listitem>
         </itemizedlist>
       </sect2>
