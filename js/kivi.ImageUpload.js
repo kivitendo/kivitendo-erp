@@ -139,7 +139,7 @@ namespace("kivi.ImageUpload", function(ns) {
         object_type: obj_type,
         object_number: number
       },
-      type: "json",
+      dataType: "json",
       success: (json) => {
         if (json.error) {
           $("#object_description").html("");
