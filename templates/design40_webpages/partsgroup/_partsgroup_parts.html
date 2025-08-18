@@ -1,0 +1,40 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+<div class="wrapper">
+
+  <form id="parts_form" name="parts_form">
+    <table class="tbl-list">
+      <caption>[%  'Partsgroup article' | $T8 %]</caption>
+      <colgroup>
+        <col>
+        <col class="wi-wider">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>[% L.checkbox_tag("", id="check_all", checkall="[data-checkall=1]") %]</th>
+          <th>[% LxERP.t8("Part Number") %]</th>
+        </tr>
+      </thead>
+      <tbody id="parts_table_body">
+        [% PROCESS 'partsgroup/_parts_table_body.html', PARTS = SELF.partsgroup.parts %]
+      </tbody>
+    </table>
+  </form>
+
+<table>
+<body>
+<tr>
+ <th align="right">[% 'Partsgroup' | $T8 %]</th>
+ <td>[%- L.select_tag('selected_partsgroup', PARTSGROUPS, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]</td>
+ <td>[% L.button_tag('move_parts_to_partsgroup()', LxERP.t8('Move selected parts to partsgroup')) %]</td>
+</tr>
+</body>
+</table>
+
+<table>
+<tr>
+ <th align="right">[% 'Part' | $T8 %]</th>
+ <td>[% P.part.picker('add_part_id', '', style='width: 300px') %]</td>
+ <td>[% L.button_tag("add_part()", LxERP.t8('Insert new')) %]</td>
+</tr>
+</table>
+</div>
