@@ -152,7 +152,10 @@ sub action_add_part {
   my $number_of_updated_parts = SL::DB::Manager::Part->update_all (
     set   => { partsgroup_id => $::form->{partsgroup_id} },
     where => [ id => $::form->{part_id},
-               '!partsgroup_id' => $::form->{partsgroup_id}, # ignore updating to same partsgroup_id
+               or => [
+                 '!partsgroup_id' => $::form->{partsgroup_id}, # ignore updating to same partsgroup_id
+                 partsgroup_id => undef,
+               ]
              ]
   );
 
