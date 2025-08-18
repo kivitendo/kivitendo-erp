@@ -117,6 +117,9 @@ Store a message with optional details for the given category. The category can
 be either C<information>, C<warning> or C<error>. C<info> can also be used as
 an alias for C<information>.
 
+The C<$message> and C<$details> are escaped by the C<flash> and
+C<flash_later> functions, preserving line breaks.
+
 =item C<flash_later $category, $message [, $details ]>
 
 Store a message with optional details for the given category for the next
