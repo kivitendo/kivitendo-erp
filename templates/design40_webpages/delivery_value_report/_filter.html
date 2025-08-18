@@ -77,6 +77,12 @@
        [% L.checkbox_tag('filter.part.part_type[]', checked=filter.part.part_type_.assortment, value='assortment', label=LxERP.t8('Assortment')) %]
      </td>
     </tr>
+    [%- IF SELF.all_partsgroups.size %]
+    <tr>
+       <th align="right">[% 'Partsgroup' | $T8 %]</th>
+       <td>[%- L.select_tag('filter.part.partsgroup_id', SELF.all_partsgroups, default=filter.part.partsgroup_id, title_key='indented_name', value_key='id', with_empty=1 class='wi-normal') %]</td>
+    </tr>
+    [% END %]
   </tbody>
 </table>
 
