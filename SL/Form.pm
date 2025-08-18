@@ -3081,31 +3081,11 @@ sub get_partsgroup {
                  JOIN parts p ON (p.partsgroup_id = pg.id) |;
   my @values;
 
-  if ($p->{searchitems} eq 'part') {
-    $query .= qq|WHERE p.part_type = 'part'|;
-  }
-  if ($p->{searchitems} eq 'service') {
-    $query .= qq|WHERE p.part_type = 'service'|;
-  }
-  if ($p->{searchitems} eq 'assembly') {
-    $query .= qq|WHERE p.part_type = 'assembly'|;
-  }
-
   $query .= qq|ORDER BY partsgroup|;
 
   if ($p->{all}) {
     $query = qq|SELECT id, partsgroup FROM partsgroup
                 ORDER BY partsgroup|;
-  }
-
-  if ($p->{language_code}) {
-    $query = qq|SELECT DISTINCT pg.id, pg.partsgroup,
-                  t.description AS translation
-                FROM partsgroup pg
-                JOIN parts p ON (p.partsgroup_id = pg.id)
-                LEFT JOIN translation t ON ((t.trans_id = pg.id) AND (t.language_code = ?))
-                ORDER BY translation|;
-    @values = ($p->{language_code});
   }
 
   $self->{$target} = selectall_hashref_query($self, $dbh, $query, @values);
