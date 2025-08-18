@@ -1,0 +1,64 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <tr>
+      <th align="right">[% 'Partsgroup' | $T8 %]</th>
+      <td>[%- L.input_tag("partsgroup.partsgroup", SELF.partsgroup.partsgroup, "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Description' | $T8 %]</th>
+      <td>[%- L.textarea_tag("partsgroup.description", SELF.partsgroup.description, cols = 50 rows = 2, "data-title"=LxERP.t8("Description")) %]</td>
+    </tr>
+    <tr>
+      <th align="right">[% 'Obsolete' | $T8 %]</th>
+      <td>[% L.checkbox_tag('partsgroup.obsolete', checked = SELF.partsgroup.obsolete, for_submit=1) %]</td>
+    </tr>
+
+    [% IF SELF.partsgroup.id %]
+    <tr>
+      <th align="right">[% 'Parents' | $T8 %]</th>
+      <td>
+        [% FOREACH ancestor = SELF.partsgroup.ancestors %]
+        [% IF loop.last %]
+        [%- L.select_tag('partsgroup.parent_id', PARTSGROUPS, default=SELF.partsgroup.parent_id, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]
+        [% ELSE %]
+        [% SET i = (loop.count) - 1 %]
+        <div style="padding-bottom:3px;padding-left:[% (i) *1 %]em"> <a href="[% SELF.url_for(action='edit', id=ancestor.id) %]">[% HTML.escape(ancestor.partsgroup) %]</a></div>
+        [% END %]
+        [% END %]
+        [% IF SELF.partsgroup.ancestors.size == 0 %]
+        [%- L.select_tag('partsgroup.parent_id', PARTSGROUPS, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]
+        [% END %]
+      </td>
+    </tr>
+    [% END %]
+  </table>
+
+  </form>
+
+  [% IF SELF.partsgroup.id %]
+
+  <table class="tbl-list">
+    <caption>[% 'Subgroups' | $T8 %]</caption>
+    <colgroup>
+      <col>
+      <col class="wi-mediumsmall">
+      <col class="wi-small">
+    </colgroup><thead>
+      <tr>
+        <th align="center" width="1%"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
+        <th align="left">[% 'Subgroups' | $T8 %]</th>
+        <th align="left">[% 'Obsolete'  | $T8 %]</th>
+      </tr>
+    </thead>
+
+    <tbody id="subgroups_table_body">
+      [% PROCESS 'partsgroup/_subgroups_table_body.html', CHILDREN = SELF.partsgroup.children_sorted %]
+    </tbody>
+  </table>
+
+  [% L.sortable_element('#subgroups tbody', url=SELF.url_for(action='reorder'), with='partsgroup_id') %]
+
+  [%- L.input_tag("new_partsgroup", '', "data-title"=LxERP.t8("Partsgroup")) %] [% L.button_tag("add_partsgroup()", LxERP.t8('Insert new')) %]
+  [% END %]
+</div>
