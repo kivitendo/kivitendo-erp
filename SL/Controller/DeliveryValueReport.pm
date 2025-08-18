@@ -223,7 +223,7 @@ sub init_all_businesses {
   return SL::DB::Manager::Business->get_all_sorted;
 }
 sub init_all_partsgroups {
-  return SL::DB::Manager::PartsGroup->get_all_sorted;
+  return SL::DB::Manager::PartsGroup->get_hierarchy;
 }
 
 
