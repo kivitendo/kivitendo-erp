@@ -24,6 +24,9 @@
         <th>[% 'Partnumber'   | $T8%]</th>
         <th>[% 'Description'  | $T8%]</th>
         <th>[% 'Chargenumber' | $T8%]</th>
+        [% IF INSTANCE_CONF.get_show_bestbefore %]
+          <th>[% 'Best Before' | $T8%]</th>
+        [% END %]
         <th>[% 'Warehouse'    | $T8%]</th>
         <th>[% 'Bin'          | $T8%]</th>
         <th>[% 'Onhand'       | $T8%]</th>
@@ -43,7 +46,7 @@
           <tr class="listrow">
             [% SET alloc_qty = '';
                FOREACH alloc = allocated_by_parts_id.$part_id;
-                 IF (alloc.warehouse_id == part.warehouse.id && alloc.bin_id == part.bin_id && HTML.escape(alloc.chargenumber) == HTML.escape(part.chargenumber));
+                 IF (alloc.warehouse_id == part.warehouse.id && alloc.bin_id == part.bin_id && alloc.chargenumber == part.chargenumber && alloc.bestbefore == part.bestbefore);
                    SET alloc_qty = alloc.qty;
                  END;
                END
@@ -51,12 +54,16 @@
             <td>
               [% P.hidden_tag('allocations[+].parts_id', part_id )%]
               [% P.hidden_tag('allocations[].chargenumber', part.chargenumber )%]
+              [% P.hidden_tag('allocations[].bestbefore', part.bestbefore )%]
               [% P.hidden_tag('allocations[].warehouse_id', part.warehouse_id )%]
               [% P.hidden_tag('allocations[].bin_id', part.bin_id )%]
               [% part.part.partnumber | html %]
             </td>
             <td>[% part.part.description      | html                 %]</td>
             <td>[% part.chargenumber          | html                 %]</td>
+            [% IF INSTANCE_CONF.get_show_bestbefore %]
+              <td>[% part.bestbefore          | html                 %]</td>
+            [% END %]
             <td>[% part.warehouse.description | html                 %]</td>
             <td>[% part.bin.description       | html                 %]</td>
             <td class="numeric">[% LxERP.format_amount(part.qty, -2) %]</td>
