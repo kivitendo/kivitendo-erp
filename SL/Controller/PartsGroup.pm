@@ -144,8 +144,6 @@ sub action_add_partsgroup {
 sub action_add_part {
   my ($self) = @_;
 
-  $main::lxdebug->dump(0, "add_part form", $::form );
-
   return $self->js->flash('error', t8("No part was selected."))->render
     unless $::form->{part_id};
 
@@ -172,8 +170,6 @@ sub action_add_part {
 
 sub action_update_partsgroup_for_parts{
   my ($self) = @_;
-
-  $main::lxdebug->dump(0, "update_partsgroup", $::form );
 
   # change type and design of existing parts to an existing part_variant
   # updates part_variant_map entries and lemper_part.type_id and lemper_part.design
@@ -291,7 +287,6 @@ sub _render_subgroups_table_body {
     $partsgroups = $partsgroup->children_sorted;
   } else {
     $partsgroups = SL::DB::Manager::PartsGroup->get_all(where => [ parent_id => undef ], sort_by => ('sortkey'));
-    $main::lxdebug->message(0, "found " . scalar @{ $partsgroups } . " roots");
   }
 
   my $html      = $self->render('partsgroup/_subgroups_table_body', { output => 0 }, CHILDREN => $partsgroups);
