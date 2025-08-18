@@ -49,6 +49,7 @@ sub escape_js {
   my ($text) = @_;
 
   $text =~ s|\\|\\\\|g;
+  $text =~ s|\'|\\\'|g;
   $text =~ s|\"|\\\"|g;
   $text =~ s|\n|\\n|g;
 
