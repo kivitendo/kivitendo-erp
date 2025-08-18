@@ -55,7 +55,7 @@
       <tr>
         <th>[% 'Partsgroup' | $T8 %]</th>
         <td>
-          [% L.select_tag('part.partsgroup_id', SELF.all_partsgroups, default=SELF.part.partsgroup_id, title_key='partsgroup', value_key='id', with_empty=1, class='wi-wide') %]
+          [% L.select_tag('part.partsgroup_id', SELF.all_partsgroups, default=SELF.part.partsgroup_id, title_key='indented_name', value_key='id', with_empty=1, class='wi-wide') %]
         </td>
       </tr>
       [% END %]
