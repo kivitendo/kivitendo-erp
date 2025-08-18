@@ -113,10 +113,13 @@ The (translated) title of the object.
 
 =item C<options>
 
-The C<options> are an array ref of hash refs with the keys C<name> and C<title>.
-The C<name> is the method called to get the needed information from the object
-for which the displayable name is configured. The C<title> can be used to
-display a (translated) text in a controller setting the preferences.
+The C<options> are an array ref of hash refs with the keys C<name>,
+C<title> and optionally, C<sub>. The C<name> is the method called to get
+the needed information from the object for which the displayable name is
+configured, unless C<sub> is defined.  The C<sub> is a function reference
+that is called to get the information from the object. This is helpful
+if the object has no suitable getter function. The C<title> can be used
+to display a (translated) text in a controller setting the preferences.
 
 =back
 
