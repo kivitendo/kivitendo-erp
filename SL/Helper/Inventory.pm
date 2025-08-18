@@ -70,7 +70,8 @@ sub _get_stock_onhand {
 
   if ($params{bestbefore}) {
     Carp::croak("not DateTime ".$params{date}) unless ref($params{bestbefore}) eq 'DateTime';
-    push @where, sprintf "(bestbefore IS NULL OR bestbefore >= ?)";
+    #push @where, sprintf "(bestbefore IS NULL OR bestbefore >= ?)";
+    push @where, sprintf "(bestbefore = ?)";
     push @values, $params{bestbefore};
   }
 
@@ -161,7 +162,8 @@ sub allocate {
 
   return () if $qty <= 0;
 
-  my $results = get_stock(part => $part, by => 'for_allocate');
+  my $results = get_stock(part => $part, by => 'for_allocate',
+                          $params{bestbefore} ? ('bestbefore', $params{bestbefore}) : ());
   my %bin_whitelist = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{bin});
   my %wh_whitelist  = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{warehouse});
   my %chargenumbers = map { (ref $_ ? $_->id : $_) => 1 } grep defined, listify($params{chargenumber});
@@ -178,7 +180,6 @@ sub allocate {
 
   for my $chunk (@sorted_results) {
     my $qty = min($chunk->{qty}, $rest_qty);
-
     # since allocate operates on stock, this also ensures that no negative stock results are used
     if ($qty > 0) {
       push @allocations, SL::Helper::Inventory::Allocation->new(
@@ -882,7 +883,7 @@ C<undef> (but must still be present at creation time). Instances are considered
 immutable.
 
 Allocations also provide the method C<transfer_object> which will create a new
-C<SL::DB::Inventory> bject with all the playload.
+C<SL::DB::Inventory> object with all the playload.
 
 =head1 CONSTRAINTS
 
