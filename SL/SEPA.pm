@@ -2,6 +2,7 @@ package SL::SEPA;
 
 use strict;
 
+use IPC::Run qw();
 use POSIX qw(strftime);
 
 use Data::Dumper;
@@ -561,16 +562,21 @@ sub send_concatinated_sepa_pdfs {
     die "No file" unless -e $file;
     push @files, $file;
   }
-  my $inputfiles  = join " ", @files;
-  my $in = IO::File->new($::lx_office_conf{applications}->{ghostscript} . " -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
 
-  $::form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
+  my @cmd = (
+    $::lx_office_conf{applications}->{ghostscript},
+    qw(-dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=-),
+    @files
+  );
+  my ($out, $err);
+  IPC::Run::run \@cmd, \undef, \$out, \$err;
+
+  $::form->error($main::locale->text('Could not spawn ghostscript.') . ' ' . $err) if $err;
 
   print $::form->create_http_response(content_type        => 'Application/PDF',
                                       content_disposition => 'attachment; filename="'. $download_filename . '"');
 
-  $::locale->with_raw_io(\*STDOUT, sub { print while <$in> });
-  $in->close;
+  $::locale->with_raw_io(\*STDOUT, sub { print $out });
 
   $main::lxdebug->leave_sub();
 }
