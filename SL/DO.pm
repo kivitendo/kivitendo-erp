@@ -220,7 +220,6 @@ sub transactions {
                              dord.cusordnumber
                              dord.oreqnumber
                              dord.vendor_confirmation_number
-                             oe.ordnumber
                             );
     my $tmp_where = '';
     $tmp_where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
