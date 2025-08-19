@@ -502,7 +502,7 @@ sub action_show_multi_items_dialog {
   $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
 
   $_[0]->render('part/_multi_items_dialog', { layout => 0 },
-                all_partsgroups => SL::DB::Manager::PartsGroup->get_hierarchy,
+                all_partsgroups => SL::DB::Manager::PartsGroup->get_hierarchy(not_obsolete => 1),
                 search_term     => $search_term
   );
 }
@@ -1420,7 +1420,7 @@ sub init_all_languages {
 
 sub init_all_partsgroups {
   my ($self) = @_;
-  SL::DB::Manager::PartsGroup->get_hierarchy;
+  SL::DB::Manager::PartsGroup->get_hierarchy(not_obsolete => 1);
 }
 
 sub init_all_buchungsgruppen {
