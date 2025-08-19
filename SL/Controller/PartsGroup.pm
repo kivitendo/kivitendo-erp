@@ -242,7 +242,7 @@ sub setup_show_form_action_bar {
       ],
     );
   }
-  $::request->layout->add_javascripts('kivi.Validator.js');
+  $::request->layout->add_javascripts(qw(kivi.Validator.js kivi.PartsGroup.js));
 }
 
 sub setup_list_action_bar {
