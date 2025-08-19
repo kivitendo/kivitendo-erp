@@ -45,7 +45,7 @@
     </tr>
     <tr>
       <th>[% 'Full Text' | $T8 %]</th>
-      <td>[% L.input_tag('fulltext', '', class="wi-lightwide") %]</td>
+      <td>[% L.input_tag('fulltext', '', class="wi-normal") %]</td>
     </tr>
 
   </tbody>
@@ -82,6 +82,10 @@
     <tr>
       <th>[% 'Part Number' | $T8 %]</th>
       <td>[% L.input_tag("parts_partnumber", "", class="wi-normal") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Serial Number' | $T8 %]</th>
+      <td>[% L.input_tag("parts_serialnumber", "") %]</td>
     </tr>
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>

@@ -3368,6 +3368,7 @@ $self->{texts} = {
   'SEPA strings'                => '',
   'SEPA-XML File extension'     => '',
   'SEPA/Bank'                   => '',
+  'SEPA_#1_Documents.pdf'       => '',
   'SQL query'                   => '',
   'SWIFT'                       => '',
   'SWIFT MT940 format'          => '',

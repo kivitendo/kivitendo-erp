@@ -2,6 +2,7 @@ package SL::SEPA;
 
 use strict;
 
+use IPC::Run qw();
 use POSIX qw(strftime);
 use Time::HiRes qw(usleep gettimeofday);
 
@@ -833,6 +834,47 @@ sub _round {
   return $::form->round_amount($value, 2);
 }
 
+sub send_concatinated_sepa_pdfs {
+  $main::lxdebug->enter_sub();
+
+  my ($items, $download_filename) = @_;
+
+  my @files;
+  foreach my $item (@{$items}) {
+
+    # check if there is already a file for the invoice
+    # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
+    # but there is no get_latest_version (but sorts objects by itime!)
+    # check if already resynced
+    my ( $file_object ) = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
+                                            object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
+                                            file_type   => 'document',
+                                           );
+    next if     (ref $file_object ne 'SL::File::Object');
+    next unless $file_object->mime_type eq 'application/pdf';
+
+    my $file = $file_object->get_file;
+    die "No file" unless -e $file;
+    push @files, $file;
+  }
+
+  my @cmd = (
+    $::lx_office_conf{applications}->{ghostscript},
+    qw(-dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=-),
+    @files
+  );
+  my ($out, $err);
+  IPC::Run::run \@cmd, \undef, \$out, \$err;
+
+  $::form->error($main::locale->text('Could not spawn ghostscript.') . ' ' . $err) if $err;
+
+  print $::form->create_http_response(content_type        => 'Application/PDF',
+                                      content_disposition => 'attachment; filename="'. $download_filename . '"');
+
+  $::locale->with_raw_io(\*STDOUT, sub { print $out });
+
+  $main::lxdebug->leave_sub();
+}
 
 1;
 
@@ -879,5 +921,11 @@ Needs a valid sepa_export id and deletes the sepa export if
 the state of the export is neither executed nor closed.
 Returns undef if the deletion was successfully.
 Otherwise the function just dies with a short notice of the id.
+
+=head2 C<send_concatinated_sepa_pdfs> \@items $download_filename
+
+This function is called from bin/mozialla/sepa.pl. It retrieves PDFs
+documents for all elements of @items, concatinates them and sends the
+resulting PDF back to the client.
 
 =cut

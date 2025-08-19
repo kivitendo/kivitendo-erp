@@ -40,6 +40,10 @@
           <th class="caption" colspan="2">[% 'Miscellaneous' | $T8 %]</th>
         </tr>
         <tr>
+          <th>[% 'Full Text' | $T8 %]</th>
+          <td>[% L.input_tag('fulltext', '') %]</td>
+        </tr>
+        <tr>
           <th>[% 'Transaction description' | $T8 %]</th>
           <td>[% L.input_tag("transaction_description", "") %]</td>
         </tr>
@@ -58,6 +62,10 @@
         <tr>
           <th>[% 'Part Number' | $T8 %]</th>
           <td>[% L.input_tag("parts_partnumber", "") %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Serial Number' | $T8 %]</th>
+          <td>[% L.input_tag("parts_serialnumber", "") %]</td>
         </tr>
       </tbody>
     </table>

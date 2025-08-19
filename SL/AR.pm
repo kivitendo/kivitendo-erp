@@ -671,6 +671,31 @@ sub ar_transactions {
     }
   }
 
+  $form->{fulltext} = trim($form->{fulltext});
+  if ($form->{fulltext}) {
+    my @fulltext_fields = qw(a.notes
+                             a.intnotes
+                             a.shippingpoint
+                             a.shipvia
+                             a.transaction_description
+                             a.quonumber
+                             a.ordnumber
+                             a.cusordnumber
+                             a.invnumber);
+    $where .= ' AND (';
+    $where .= join ' OR ', map {"$_ ILIKE ?"} @fulltext_fields;
+
+    $where .= <<SQL;
+      OR EXISTS (
+        SELECT files.id FROM files LEFT JOIN file_full_texts ON (file_full_texts.file_id = files.id)
+          WHERE files.object_id = a.id AND files.object_type = 'invoice'
+            AND file_full_texts.full_text ILIKE ?)
+SQL
+    $where .= ')'; # end AND
+
+    push(@values, like($form->{fulltext})) for 1 .. (scalar @fulltext_fields) + 1;
+  }
+
   if ($form->{parts_partnumber}) {
     $where .= <<SQL;
       AND EXISTS (
@@ -696,6 +721,19 @@ SQL
       )
 SQL
     push @values, like($form->{parts_description});
+  }
+
+  if ($form->{parts_serialnumber}) {
+    $where .= <<SQL;
+ AND EXISTS (
+        SELECT invoice.trans_id
+        FROM invoice
+        WHERE (invoice.trans_id = a.id)
+          AND (invoice.serialnumber ILIKE ?)
+        LIMIT 1
+      )
+SQL
+    push @values, like($form->{parts_serialnumber});
   }
 
   if ($form->{show_not_mailed}) {

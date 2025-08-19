@@ -21,6 +21,7 @@ use File::Slurp qw(slurp);
 use FileHandle;
 use Getopt::Long;
 use IO::Dir;
+use IPC::Run qw();
 use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Pod::Usage;
@@ -34,6 +35,7 @@ my $opt_v  = 0;
 my $opt_c  = 0;
 my $opt_f  = 0;
 my $debug  = 0;
+my $run_for_test = 0;
 
 parse_args();
 
@@ -55,6 +57,13 @@ my %ignore_unused_templates = (
   map { $_ => 1 } qw(ct/testpage.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js task_server/failure_notification_email.txt
                      failed_background_jobs_report/email.txt presenter/items_list/items_list.txt)
 );
+
+my %outfiles_normal       = map {$_ => "${locales_dir}/${_}"} qw(all missing lost);
+$outfiles_normal{js}      = $javascript_output_dir .'/locale/'. $locale . '.js';
+my %outfiles_for_test     = map {$_ => "${locales_dir}/${_}_for_test"} qw(all missing lost);
+$outfiles_for_test{js}    = $javascript_output_dir .'/locale/'. $locale . '_for_test' . '.js';
+my $outfiles              = $run_for_test ? \%outfiles_for_test
+                                          : \%outfiles_normal;
 
 my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %jslocale);
 my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
@@ -153,13 +162,13 @@ $to_keep{$_} = 1 for grep { !!$self->{more_texts}{$_} } keys %old_texts;
 my @new_all  = grep { $to_keep{$_} || !$self->{more_texts}{$_} } sort keys %alllocales;
 
 generate_file(
-  file      => "$locales_dir/all",
+  file      => $outfiles->{all},
   header    => $ALL_HEADER,
   data_name => '$self->{texts}',
   data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for @new_all },
 );
 
-open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'.js') || die;
+open(my $js_file, '>:encoding(utf8)', $outfiles->{js}) || die;
 print $js_file 'namespace("kivi").setupLocale({';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
@@ -205,7 +214,7 @@ if (@new_missing) {
   }
 
   generate_file(
-    file      => "$locales_dir/missing",
+    file      => $outfiles->{missing},
     header    => $MISSING_HEADER,
     data_name => '$missing',
     data_sub  => sub { _print_line($_, '', @_) for @new_missing },
@@ -221,7 +230,7 @@ while (my ($text, $translation) = each %old_texts) {
 if (scalar @lost) {
   splice @lost, 0, (scalar @lost - 50) if (scalar @lost > 50);
   generate_file(
-    file      => "$locales_dir/lost",
+    file      => $outfiles->{lost},
     header    => $LOST_HEADER,
     delim     => '()',
     data_name => '@lost',
@@ -242,6 +251,39 @@ my $per    = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%";
 print " - $notext/$count missing" if $notext;
 print "\n";
+
+if ($run_for_test) {
+  print "\nrun for unit test:\n";
+
+  my $not_up_to_date = 0;
+
+  for my $type (qw(all js)) {
+    my ($out, $err);
+    my   @cmd = qw(diff -q);
+    push @cmd,  $outfiles_normal{$type};
+    push @cmd,  $outfiles_for_test{$type};
+    IPC::Run::run \@cmd, \undef, \$out, \$err;
+    my $err_code = $? >> 8;
+
+    if ($err_code > 1) {
+      unlink for values %outfiles_for_test;
+      die "diff failed: " . ($err_code) . ": " . $err;
+    }
+
+    if ($err_code == 1) {
+      print "not up to date: " . $outfiles_normal{$type} . " \n";
+      $not_up_to_date = 1;
+    }
+  }
+  unlink for values %outfiles_for_test;
+
+  if ($not_up_to_date) {
+    exit 1;
+  } else {
+    print "up to date.\n";
+    exit 0;
+  }
+}
 
 exit;
 
@@ -276,6 +318,7 @@ sub parse_args {
     'help'            => \$help,
     'man'             => \$man,
     'debug'           => \$debug,
+    'run-for-test'    => \$run_for_test
   );
 
   $opt_c = !$opt_no_c;
@@ -778,6 +821,7 @@ locales.pl [options] lang_code
  Options:
   -c, --check-files      Run extended checks on HTML files (default)
   -n, --no-check-files   Do not run extended checks on HTML files
+  -r, --run-for-test     Do (almost) nothing but return a state if all files are up to date
   -f, --filenames        Show the filenames where new strings where found
   -v, --verbose          Be more verbose
   -h, --help             Show this help
@@ -796,6 +840,14 @@ non-existing HTML templates. This is enabled by default.
 
 Do not run extended checks on the usage of templates. See
 C<--no-check-files>.
+
+=item B<-r>, B<--run-for-test>
+
+Do (almost) nothing but return a state if all files are up to date.
+Locales files will be generated with different names and compared to
+the original files.
+If the files differ an exit status of '1' is returned, '0' otherwise.
+The generated files will be deleted afterwards.
 
 =item B<-v>, B<--verbose>
 
