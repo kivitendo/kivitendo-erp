@@ -17,8 +17,6 @@ sub _sort_spec {
 }
 
 sub get_hierarchy {
-  my (%params) = @_;
-
   my @list;
 
   foreach my $root_pg ( @{ SL::DB::Manager::PartsGroup->get_all( where => [ parent_id => undef ],
