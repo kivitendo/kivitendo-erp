@@ -3073,7 +3073,7 @@ sub get_partsgroup {
   my ($self, $myconfig, $p) = @_;
   my $target = $p->{target} || 'all_partsgroup';
 
-  my $partsgroup = SL::DB::Manager::PartsGroup->get_hierarchy();
+  my $partsgroup = SL::DB::Manager::PartsGroup->get_hierarchy(not_obsolete => 1);
   if ($p->{all}) {
     $self->{$target} = $partsgroup;
   } else {
