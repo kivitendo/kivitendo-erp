@@ -24,14 +24,17 @@
   </tr>
   <tr>
     <th></th>
-    <td><input name="duetyp" type="radio" value="13" checked onchange='set_from_to(this.value, year.value)'>[% 'Yearly' | $T8 %]</td>
+    <td>
+      <input id="duetyp13" name="duetyp" type="radio" value="13" checked onchange='set_from_to(this.value, year.value)'>
+      <label for="duetyp13">[% 'Yearly' | $T8 %]</label>
+    </td>
     <td>
       <table>
         [% SET cnt = 1 %]
         [% FOREACH x = ["A", "B", "C", "D"] %]
           <tr>
-            <td><input name="duetyp" type="radio" value="[% x %]" onchange='set_from_to(this.value, year.value)'></td>
-            <td>[% cnt %]. [% 'Quarter' | $T8 %]</td>
+            <td><input id="duetyp[% x %]" name="duetyp" type="radio" value="[% x %]" onchange='set_from_to(this.value, year.value)'></td>
+            <td><label for="duetyp[% x %]">[% cnt %].&nbsp;[% 'Quarter' | $T8 %]</label></td>
           </tr>
         [% SET cnt = cnt + 1 %]
         [% END %]
@@ -42,8 +45,8 @@
         [% SET cnt = 1 %]
         [% FOREACH x = [ LxERP.t8('January'), LxERP.t8('February'), LxERP.t8('March'), LxERP.t8('April'), LxERP.t8('May'), LxERP.t8('June'), LxERP.t8('July'), LxERP.t8('August'), LxERP.t8('September'), LxERP.t8('October'), LxERP.t8('November'), LxERP.t8('December') ] %]
           <tr>
-            <td><input name="duetyp" type="radio" value="[% cnt %]" onchange='set_from_to(this.value, year.value)'></td>
-            <td>[% x %]</td>
+            <td><input id="duetyp[% cnt %]" name="duetyp" type="radio" value="[% cnt %]" onchange='set_from_to(this.value, year.value)'></td>
+            <td><label for="duetyp[% cnt %]">[% x %]</label></td>
           </tr>
         [% SET cnt = cnt + 1 %]
         [% END %]
