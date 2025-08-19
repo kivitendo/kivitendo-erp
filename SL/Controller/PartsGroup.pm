@@ -30,9 +30,9 @@ sub action_list {
 
   $self->setup_list_action_bar;
   $self->render('partsgroup/list',
-                 title => $::locale->text('Partsgroups'),
-                 PARTSGROUPS => SL::DB::Manager::PartsGroup->get_hierarchy,
-               );
+    title => $::locale->text('Partsgroups'),
+    PARTSGROUPS => SL::DB::Manager::PartsGroup->get_hierarchy,
+  );
 }
 
 sub action_sort_roots {
