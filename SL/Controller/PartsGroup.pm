@@ -338,7 +338,7 @@ sub create_or_update {
     push(@errors, $self->partsgroup->validate); # check for description
 
     if (@errors) {
-      die @errors . "\n";
+      die join("\n", @errors) . "\n";
     };
 
     if (    ( $old_parent_id == $new_parent_id )
