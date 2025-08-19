@@ -59,6 +59,6 @@
 
   [% L.sortable_element('#subgroups tbody', url=SELF.url_for(action='reorder'), with='partsgroup_id') %]
 
-  [%- L.input_tag("new_partsgroup", '', "data-title"=LxERP.t8("Partsgroup")) %] [% L.button_tag("add_partsgroup()", LxERP.t8('Insert new')) %]
+  [%- L.input_tag("new_partsgroup", '', "data-title"=LxERP.t8("Partsgroup")) %] [% L.button_tag("kivi.PartsGroup.add_partsgroup()", LxERP.t8('Insert new')) %]
   [% END %]
 </div>
