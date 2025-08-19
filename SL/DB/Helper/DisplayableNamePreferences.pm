@@ -37,7 +37,9 @@ sub displayable_name {
   foreach my $name (@names) {
     my $opt = first { $name eq $_->{name} } @{$specs->{options}};
     next unless $opt;
-    my $val         = $self->can($name) ? ($opt->{sub} ? $opt->{sub}($self) : $self->$name) // '' : '';
+    my $val         = $opt->{sub}       ? $opt->{sub}($self)
+                    : $self->can($name) ? $self->$name // ''
+                    : '';
     $display_string =~ s{<\%$name\%>}{$val}g;
   }
 
