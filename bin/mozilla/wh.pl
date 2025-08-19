@@ -404,10 +404,9 @@ sub create_assembly {
   # Check if there are more than one chargenumber for one part of an assembly.
   # In this case let the user select the wanted chargenumbers.
   my $stocked_wh_id = $::instance_conf->get_produce_assembly_same_warehouse ? $form->{warehouse_id} : undef;
-  my @stocked_by    = qw(part warehouse bin bestbefore chargenumber);
   my $stocked_parts = get_stock(part         => [ map { $_->part } @{$assembly->assemblies} ],
                                 warehouse    => $stocked_wh_id,
-                                by           => \@stocked_by,
+                                by           => 'for_allocate',
                                 with_objects => [qw(part warehouse bin)]);
 
   # Remove entries with no stock.
