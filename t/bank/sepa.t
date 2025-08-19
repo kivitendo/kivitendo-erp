@@ -74,7 +74,6 @@ sub clear_up {
   SL::DB::Manager::SepaExportsAccTrans->delete_all(all => 1);
   SL::DB::Manager::GLTransaction->delete_all(all => 1);
   SL::DB::Manager::InvoiceItem->delete_all(all => 1);
-  SL::DB::Manager::InvoiceItem->delete_all(all => 1);
   SL::DB::Manager::Invoice->delete_all(all => 1);
   SL::DB::Manager::PurchaseInvoice->delete_all(all => 1);
   SL::DB::Manager::Part->delete_all(all => 1);
@@ -117,7 +116,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'recommended_execution_date' => undef,
             'vcname' => 'Skonto Lieferant',
             'amount_less_skonto' => undef,
-            'vc_id' => '1121',
+            'vc_id' => $vendor->id,
             'our_bic' => '123',
             'vc_iban' => '123',
             'open_amount' => '183260.00000',
@@ -131,7 +130,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'invnumber' => '1234-2',
             'is_sepa_blocked' => 0,
             'skonto_date' => undef,
-            'ap_id' => '2',
+            'ap_id' => $invoice1234_2->id,
             'transfer_amount' => '0',
             'duedate' => undef,
             'payment_type' => 'without_skonto',
@@ -160,7 +159,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'invnumber' => '12a44f-2',
             'vc_vc_id' => undef,
             'skonto_date' => '27.04.2025',
-            'ap_id' => '3',
+            'ap_id' => $invoice12a44f_2->id,
             'is_sepa_blocked' => 0,
             'transfer_amount' => '0',
             'duedate' => undef,
@@ -205,7 +204,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'our_bic' => '123',
             'pt_description' => '4 % Skonto 20 Tage',
             'vc_iban' => '123',
-            'vc_id' => '1121',
+            'vc_id' => $vendor->id,
             'open_amount' => '1000.00000',
             'vc_bank_info_ok' => 1
           },
@@ -219,7 +218,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'invoice' => 0,
             'vc_iban' => '123',
             'our_bic' => '123',
-            'vc_id' => '1121',
+            'vc_id' => $vendor->id,
             'pt_description' => '2 % Skonto 7 Tage',
             'open_amount' => '-12.00000',
             'amount_less_skonto' => '-11.7600000053644',
@@ -228,7 +227,7 @@ sub test_sepa_combined_skonto_and_credit_note {
             'duedate' => undef,
             'transfer_amount' => '0',
             'skonto_date' => '14.04.2025',
-            'ap_id' => '1',
+            'ap_id' => $invoice12skonto_1->id,
             'is_sepa_blocked' => 0,
             'invnumber' => '12skonto-1',
             'vc_vc_id' => undef,
@@ -274,7 +273,7 @@ sub test_sepa_combined_skonto_and_credit_note {
           'amount' => '184208.24',
           'our_iban' => '123',
           'our_bic' => '123',
-          'vc_id' => '1121',
+          'vc_id' => $vendor->id,
           'reference' => '1234-2 / 12a44f-2 / 12skonto-1',
           'payment_type' => 'mixed',
         });
@@ -314,19 +313,19 @@ sub test_sepa_combined_skonto_and_credit_note {
 
   # 3. check sepa export items - different attributes
 
-  my $sepa_export_item_mixed = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => 1, payment_type => 'mixed', amount => 184208.24,is_combined_payment => 't']);
+  my $sepa_export_item_mixed = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => $sepa_id, payment_type => 'mixed', amount => 184208.24,is_combined_payment => 't']);
   is (ref $sepa_export_item_mixed->[0], 'SL::DB::SepaExportItem', 'mixed SEPA Export Item created');
   is (scalar @$sepa_export_item_mixed, 1, 'One exact match');
 
-  my $sepa_export_item_c1 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => 1, payment_type => 'with_skonto_pt', amount => 960 , is_combined_payment => 'f', collected_payment => 't']);
+  my $sepa_export_item_c1 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => $sepa_id, payment_type => 'with_skonto_pt', amount => 960 , is_combined_payment => 'f', collected_payment => 't']);
   is (ref $sepa_export_item_c1->[0], 'SL::DB::SepaExportItem', 'c1 SEPA Export Item created');
   is (scalar @$sepa_export_item_c1, 1, 'One exact match');
 
-  my $sepa_export_item_c2 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => 1, payment_type => 'with_skonto_pt', amount => -11.76 , is_combined_payment => 'f', collected_payment => 't']);
+  my $sepa_export_item_c2 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => $sepa_id, payment_type => 'with_skonto_pt', amount => -11.76 , is_combined_payment => 'f', collected_payment => 't']);
   is (ref $sepa_export_item_c2->[0], 'SL::DB::SepaExportItem', 'c2 SEPA Export Item created');
   is (scalar @$sepa_export_item_c2, 1, 'One exact match');
 
-  my $sepa_export_item_c3 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => 1, payment_type => 'without_skonto', amount => 183260 , is_combined_payment => 'f', collected_payment => 't']);
+  my $sepa_export_item_c3 = SL::DB::Manager::SepaExportItem->get_all(where => [sepa_export_id => $sepa_id, payment_type => 'without_skonto', amount => 183260 , is_combined_payment => 'f', collected_payment => 't']);
   is (ref $sepa_export_item_c3->[0], 'SL::DB::SepaExportItem', 'c3 SEPA Export Item created');
   is (scalar @$sepa_export_item_c3, 1, 'One exact match');
 
