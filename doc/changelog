@@ -11,10 +11,6 @@ Mittelgroße neue Features:
 
 - Warengruppen können nun verschachtelt angelegt werden, d.h. Warengruppen
   können Untergruppen enthalten
-- Warengruppen: Es können auch mehrere Wurzelknoten vorhanden sein und ein
-  Artikel kann mehreren Warengruppen zugeordnet werden. Somit es es z.B.
-  möglich für einen Webshop eine andere Hierachie aufzubauen als für die
-  Stammdaten.
 
 Kleinere neue Features und Detailverbesserungen:
 
