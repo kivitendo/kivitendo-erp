@@ -1,4 +1,4 @@
-[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%][% USE P %]
+[%- USE HTML -%][%- USE L -%]
 [% FOREACH part = PARTS %]
   <tr>
    <td>[% L.checkbox_tag('part_ids[]', value=part.id, checked=part.selected, "data-checkall"=1) %]</td>
