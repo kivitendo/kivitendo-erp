@@ -3,9 +3,12 @@
 [%- USE T8 -%]
 [%- USE L -%]
 [%- USE P -%]
+<div class="wrapper">
 
-[% LxERP.t8("Chart #1 isn't configured for clearing", SELF.chart.displayable_name) %]
-<br>
-<br>
+    [% LxERP.t8("Chart #1 isn't configured for clearing", SELF.chart.displayable_name) %]
+    <br>
+    <br>
 
-[% L.link(SELF.url_for(controller='am.pl', action => 'edit_account', id => SELF.chart.id), LxERP.t8('Edit chart') ) %]
+    [% L.link(SELF.url_for(controller='am.pl', action => 'edit_account', id => SELF.chart.id), LxERP.t8('Edit chart') )
+    %]
+</div>
