@@ -32,10 +32,10 @@ sub refresh {
   my $ret = $provider->refresh($tok);
 
   my $response_code = $ret->responseCode();
-  die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
+  SL::X::OAuth::RefreshFailed->throw() unless $response_code == 200;
 
   my $content = from_json($ret->responseContent());
-  die "Server returned error_code $content->{error_code}" if exists $content->{error_code};
+  SL::X::OAuth::RefreshFailed->throw() if exists $content->{error_code};
 
   $tok->set_access_refresh_token($content);
   $tok->save;
@@ -91,7 +91,7 @@ sub action_delete_token {
   my ($self) = @_;
 
   my $token = SL::DB::OAuthToken->new(id => $::form->{id})->load();
-  die unless _token_is_editable($token);
+  die 'token is not editable' unless _token_is_editable($token);
 
   $token->delete;
 
@@ -202,7 +202,7 @@ sub access_token_for {
   $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, email => $params{email}, employee_id => undef)
     if (!$tok && $params{allow_client_wide});
 
-  die 'no OAuth token' unless $tok;
+  SL::X::OAuth::MissingToken->throw() unless $tok;
 
   refresh($tok) unless $tok->is_valid();
 
