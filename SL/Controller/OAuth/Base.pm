@@ -5,7 +5,6 @@ use REST::Client;
 use SL::JSON;
 use SL::Locale::String;
 use SL::MoreCommon qw(uri_encode);
-use SL::Request qw(flatten);
 use SL::DB::OAuthToken;
 
 sub type {
@@ -52,7 +51,7 @@ sub POST {
 
   my $client = REST::Client->new();
 
-  $client->addHeader($_->[0], $_->[1]) for @{ flatten($headers) };
+  $client->addHeader($_, $headers->{$_}) for keys %$headers;
 
   my $ret = $client->POST($url, $class->query($params));
 }
@@ -62,7 +61,7 @@ sub POST_JSON {
 
   my $client = REST::Client->new();
 
-  $client->addHeader($_->[0], $_->[1]) for @{ flatten($headers) };
+  $client->addHeader($_, $headers->{$_}) for keys %$headers;
 
   my $ret = $client->POST($url, to_json($data));
 }
@@ -71,7 +70,7 @@ sub POST_JSON {
 
 sub query {
   my ($class, $params) = @_;
-  my $query = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten($params) };
+  my $query = join '&', map { uri_encode($_) . '=' . uri_encode($params->{$_}) } keys %$params;
 }
 
 sub set_access_refresh_token {

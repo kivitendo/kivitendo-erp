@@ -70,8 +70,7 @@ sub action_list {
   my $now = DateTime->now;
 
   my @tokens = @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')};
-  @tokens = grep { _token_is_editable($_) } @tokens;
-  @tokens = map { {
+  my @editable_tokens = map +{
     id            => $_->id,
     provider      => $providers{$_->registration}->title,
     employee      => $_->employee_id && _fmt_employee($_->employee_id),
@@ -80,13 +79,12 @@ sub action_list {
     access_token  => _fmt_token_code($_->access_token),
     refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-    scope         => $_->scope,
-  } } @tokens;
+  }, grep { _token_is_editable($_) } @tokens;
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
                 title    => t8('List of OAuth2 tokens'),
-                TOKENS => \@tokens);
+                TOKENS => \@editable_tokens);
 }
 
 sub action_delete_token {
