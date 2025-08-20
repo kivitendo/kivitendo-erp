@@ -3,7 +3,7 @@ package SL::TicketSystem::Jira;
 use strict;
 use parent qw(SL::TicketSystem::Base);
 
-use SL::Controller::OAuth;
+use SL::OAuth;
 use SL::JSON;
 use SL::Locale::String;
 use SL::MoreCommon qw(uri_encode);
@@ -77,7 +77,7 @@ sub get_tickets {
 sub init_connector {
   my ($self) = @_;
 
-  my $acctok = SL::Controller::OAuth::access_token_for('atlassian_jira', allow_client_wide => 1) or die "no access token";
+  my $acctok = SL::OAuth::access_token_for('atlassian_jira', allow_client_wide => 1) or die "no access token";
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
