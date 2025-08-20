@@ -12,22 +12,17 @@ use SL::Controller::OAuth::Microsoft;
 use SL::Controller::OAuth::Atlassian;
 use SL::Controller::OAuth::GoogleCal;
 use SL::Helper::Flash qw(flash_later);
+use SL::OAuth;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config) ],
-);
-
-my %providers = (
-  microsoft      => 'SL::Controller::OAuth::Microsoft',
-  atlassian_jira => 'SL::Controller::OAuth::Atlassian',
-  google_cal     => 'SL::Controller::OAuth::GoogleCal',
 );
 
 
 
 sub refresh {
   my ($tok) = @_;
-  my $provider = $providers{$tok->registration} or die "unknown provider";
+  my $provider = SL::OAuth::providers()->{$tok->registration} or die "unknown provider";
 
   my $ret = $provider->refresh($tok);
 
@@ -65,7 +60,7 @@ sub action_list {
   my @tokens = @{SL::DB::Manager::OAuthToken->get_all(sort_by => 'registration,id ASC')};
   my @editable_tokens = map +{
     id            => $_->id,
-    provider      => $providers{$_->registration}->title,
+    provider      => SL::OAuth::providers()->{$_->registration}->title,
     employee      => $_->employee ? $_->employee->safe_name : '',
     email         => $_->email,
     tokenstate    => $_->tokenstate ? t8('waiting for auth code') : 'OK',
@@ -106,7 +101,7 @@ sub action_create {
   my ($self) = @_;
 
   my $regtype = $::form->{registration};
-  my $provider = $providers{$regtype} or die "unknown provider";
+  my $provider = SL::OAuth::providers()->{$regtype} or die "unknown provider";
 
   $self->config($::form->{config});
   my ($link, $tok) = $provider->create_authorization($self->config);
@@ -132,7 +127,7 @@ sub action_consume_authorization_code {
   my $auth_code    = $::form->{code}  or die 'Request has no code parameter';
 
   my $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => $search_state) or die "no token with state $search_state";
-  my $provider = $providers{$tok->registration} or die "unknown provider";
+  my $provider = SL::OAuth::providers()->{$tok->registration} or die "unknown provider";
 
   my $ret = $provider->access_token($tok, $auth_code);
 
@@ -168,12 +163,13 @@ sub setup_add_action_bar {
 sub setup_list_action_bar {
   my ($self) = @_;
 
+  my $providers = SL::OAuth::providers();
   my @btns = map { (
     link => [
-      t8('Add') . ': ' . $providers{$_}->title(),
-      link => $self->url_for(action => 'new', oauth_type => $providers{$_}->type()),
+      t8('Add') . ': ' . $providers->{$_}->title(),
+      link => $self->url_for(action => 'new', oauth_type => $providers->{$_}->type()),
     ]
-  ) } sort(keys(%providers));
+  ) } sort(keys(%$providers));
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(@btns);
