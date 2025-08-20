@@ -829,12 +829,13 @@ sub _post_payment {
 }
 
 sub send_concatinated_sepa_pdfs {
-  $main::lxdebug->enter_sub();
+  my $self     = shift;
+  my %params   = @_;
 
-  my ($items, $download_filename) = @_;
+  Common::check_params(\%params, qw(arap_ids download_filename));
 
   my @files;
-  foreach my $item (@{$items}) {
+  foreach my $item (@{ $params{arap_ids} }) {
 
     # check if there is already a file for the invoice
     # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
@@ -863,7 +864,7 @@ sub send_concatinated_sepa_pdfs {
   $::form->error($main::locale->text('Could not spawn ghostscript.') . ' ' . $err) if $err;
 
   print $::form->create_http_response(content_type        => 'Application/PDF',
-                                      content_disposition => 'attachment; filename="'. $download_filename . '"');
+                                      content_disposition => 'attachment; filename="'. $params{download_filename} . '"');
 
   $::locale->with_raw_io(\*STDOUT, sub { print $out });
 
