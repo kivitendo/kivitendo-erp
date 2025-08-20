@@ -104,7 +104,7 @@ sub action_consume_authorization_code {
   my $ret = $provider->access_token($tok, $auth_code);
 
   my $response_code = $ret->responseCode();
-  die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
+  die "Request failed, response code was: $response_code" unless $response_code == 200;
 
   my $content = from_json($ret->responseContent);
 
