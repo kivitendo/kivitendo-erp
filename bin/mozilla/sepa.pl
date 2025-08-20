@@ -56,7 +56,6 @@ sub bank_transfer_add {
   my $only_approved  = $vc eq 'vendor' && $::instance_conf->get_payment_approval ? 1 : undef;
 
   foreach my $invoice (@{ $invoices }) {
-    # credit notes ->
     if ($invoice->{open_amount} < 0) {
       $invoice->{credit_note} = 1;
     }
@@ -80,7 +79,6 @@ sub bank_transfer_add {
     my $prefix_vc_number             = $translations{ $invoice->{language_id} } || $translations{default} || $vc_no;
     $prefix_vc_number               .= ' ' unless $prefix_vc_number =~ m/ $/;
     $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
-
   }
 
   setup_sepa_add_transfer_action_bar();
@@ -175,8 +173,6 @@ sub bank_transfer_create {
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
-  # TODO move both calcs UP!
-
   if ($total_trans < 0) {
     $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'));
   }
@@ -204,7 +200,6 @@ sub bank_transfer_create {
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
     setup_sepa_create_transfer_action_bar(is_vendor => $vc eq 'vendor');
-    use Data::Dumper;
     # 1. combine all known payments
     my %combine_payments;
     if ($form->{combine_payments}) {
@@ -241,7 +236,6 @@ sub bank_transfer_create {
     #  convert user number 3.002,34 to database 3000.33420
     my @collective_bank_transfers = map  { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
                                         @{ $form->{collective_bank_transfers} || [] };
-
 
     foreach my $bank_transfer (@bank_transfers, @collective_bank_transfers) {
       foreach (@bank_columns) {
@@ -568,7 +562,6 @@ sub bank_transfer_payment_list_as_pdf {
   $main::lxdebug->leave_sub();
 }
 
-# TODO
 sub bank_transfer_download_sepa_xml {
   $main::lxdebug->enter_sub();
 
@@ -622,11 +615,6 @@ sub bank_transfer_download_sepa_xml {
     );
 
   foreach my $item (@items) {
-
-    # do not offer collected_payment
-    # refactor - is already set in sql
-    # next if $item->{collected_payment};
-
     my $requested_execution_date;
     my $mandator_id;
     if ($item->{requested_execution_date}) {
