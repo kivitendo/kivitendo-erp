@@ -53,5 +53,14 @@ my $s4 = SL::DB::Manager::Secret->find_by(tag => "raffle winner");
 
 isnt $s4->decrypt->(), "Rüdiger";
 
+# setting master_key to non-ascii works
+
+$::lx_office_conf{secrets}{master_key} = "i8Σπ";
+
+my $s1 = SL::DB::Secret->new(tag => "imap password 2", description => "password for the imap server");
+$s1->encrypt("letmein");
+my $pw_func = $s1->decrypt();
+
+is $pw_func->(), "letmein";
 
 done_testing();

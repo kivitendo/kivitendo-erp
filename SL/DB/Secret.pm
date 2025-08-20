@@ -58,7 +58,7 @@ sub decrypt {
 sub _key {
   my ($salt) = @_;
 
-  my $passphrase = $::lx_office_conf{secrets}{master_key} or die 'no master key for secrets configured';
+  my $passphrase = encode_utf8($::lx_office_conf{secrets}{master_key}) or die 'no master key for secrets configured';
   $salt //= Crypt::PRNG::random_string(SALT_LENGTH);
   my $stretched_key = Crypt::KeyDerivation::pbkdf2($passphrase, $salt, PBKDF2_ITERATIONS, PBKDF2_HASH, AES_KEY_LENGTH / 8);
 
