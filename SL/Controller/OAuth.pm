@@ -24,16 +24,6 @@ use Rose::Object::MakeMethods::Generic (
 # actions
 #
 
-sub _fmt_token_code {
-  my ($code) = @_;
-  $code ? t8('#1 bytes', length($code)) : t8('is missing');
-}
-
-sub _token_is_editable {
-  my ($tok) = @_;
-  ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
-}
-
 sub action_list {
   my ($self) = @_;
 
@@ -126,6 +116,21 @@ sub action_consume_authorization_code {
 
   flash_later('info', t8('OAuth token received: #1, database ID #2', $tok->registration, $tok->id));
   $self->redirect_to(action => 'list');
+}
+
+
+#
+# helpers
+#
+
+sub _fmt_token_code {
+  my ($code) = @_;
+  $code ? t8('#1 bytes', length($code)) : t8('is missing');
+}
+
+sub _token_is_editable {
+  my ($tok) = @_;
+  ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
 }
 
 sub setup_add_action_bar {
