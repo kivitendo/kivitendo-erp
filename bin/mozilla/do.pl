@@ -147,8 +147,6 @@ sub orders {
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(kivi.MassDeliveryOrderPrint kivi.SalesPurchase));
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
-  $form->{vc} = type_data()->properties('customervendor');
-
   report_generator_set_default_sort('transdate', 1);
 
   DO->transactions();
