@@ -2,12 +2,13 @@ package SL::OAuth;
 
 use strict;
 
+use List::MoreUtils qw(all);
 use SL::DB::OAuthToken;
 
 my %providers = (
-  microsoft      => 'SL::Controller::OAuth::Microsoft',
-  atlassian_jira => 'SL::Controller::OAuth::Atlassian',
-  google_cal     => 'SL::Controller::OAuth::GoogleCal',
+  atlassian_jira  => 'SL::Controller::OAuth::Atlassian',
+  google_cal      => 'SL::Controller::OAuth::GoogleCal',
+  microsoft_email => 'SL::Controller::OAuth::Microsoft',
 );
 
 
@@ -15,25 +16,36 @@ sub providers {
   \%providers;
 }
 
+sub configured_providers {
+  my %configured = %providers{
+    grep {
+      my $key = "oauth2_$_";
+      all { $::lx_office_conf{$key}{$_} } qw(client_id client_secret redirect_uri)
+    } keys %providers
+  };
+
+  \%configured;
+}
+
 sub access_token_for {
   my ($target, %params) = @_;
 
-  $params{allow_current_user} //= 1;
-  $params{allow_client_wide}  //= 0;
+  my $token = SL::DB::Manager::OAuthToken->find_by(
+    tokenstate   => undef,
+    registration => $target,
+    email        => $params{email},
+    or           => [
+      (employee_id => SL::DB::Manager::Employee->current->id), # token for current user
+      (employee_id => undef), # client wide token
+    ],
+    sort_by      => 'employee_id ASC NULLS LAST',
+  );
 
-  my $tok;
+  SL::X::OAuth::MissingToken->throw() unless $token;
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, email => $params{email}, employee_id => SL::DB::Manager::Employee->current->id)
-    if ($params{allow_current_user});
+  refresh($token) unless $token->is_valid();
 
-  $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => undef, registration => $target, email => $params{email}, employee_id => undef)
-    if (!$tok && $params{allow_client_wide});
-
-  SL::X::OAuth::MissingToken->throw() unless $tok;
-
-  refresh($tok) unless $tok->is_valid();
-
-  $tok->access_token;
+  $token->access_token;
 }
 
 sub refresh {
@@ -72,7 +84,7 @@ SL::OAuth - Client side OAuth2 token management
     my $server       = 'mail.domain';
     my $username     = 'kivitendo.test@your.domain';
 
-    my $access_token = SL::OAuth::access_token_for('microsoft', allow_client_wide => 1, email => $username);
+    my $access_token = SL::OAuth::access_token_for('microsoft_email', email => $username);
 
     my $sasl_string  = encode_base64("user=$username\x01auth=Bearer $access_token\x01\x01", '');
 
@@ -96,10 +108,15 @@ SL::OAuth - Client side OAuth2 token management
 
 =item C<access_token_for>
 
-This is a common function that retrieves an OAuth access token from the
-database, refreshing it in the case it expired.  By default, the first
-access token valid for the currently logged in user matching the given
-target is returned.
+This is a common function that retrieves an OAuth access token from
+the database, refreshing it in the case it expired. The first access
+token valid for the currently logged in user matching the given target
+is returned. If no such token exists, the first matching access token
+which is valid client wiede is returned, if existing.
+
+If no token is found or the refresh of a found but expired token
+fails, the corresponing exception C<SL::X::OAuth::MissingToken> or
+C<SL::X::OAuth::RefreshFailed> is thrown.
 
 =back
 

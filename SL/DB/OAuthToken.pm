@@ -6,6 +6,7 @@ package SL::DB::OAuthToken;
 use strict;
 
 use SL::DB::MetaSetup::OAuthToken;
+use SL::DB::Manager::Employee;
 use SL::DB::Manager::OAuthToken;
 
 __PACKAGE__->meta->initialize;
@@ -27,6 +28,12 @@ sub is_valid {
   my $exp = $self->access_token_expiration;
   my $now = DateTime->now;
   return $exp > $now;
+}
+
+sub is_editable {
+  my ($self) = @_;
+
+  ($self->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
 }
 
 1;

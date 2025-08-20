@@ -14,11 +14,6 @@ use SL::Controller::OAuth::GoogleCal;
 use SL::Helper::Flash qw(flash_later);
 use SL::OAuth;
 
-use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(config) ],
-);
-
-
 
 #
 # actions
@@ -39,7 +34,7 @@ sub action_list {
     access_token  => _fmt_token_code($_->access_token),
     refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-  }, grep { _token_is_editable($_) } @tokens;
+  }, grep { $_->is_editable() } @tokens;
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
@@ -47,26 +42,11 @@ sub action_list {
                 TOKENS => \@editable_tokens);
 }
 
-sub action_delete_token {
-  my ($self) = @_;
-
-  my $token = SL::DB::OAuthToken->new(id => $::form->{id})->load();
-  die 'token is not editable' unless _token_is_editable($token);
-
-  $token->delete;
-
-  flash_later('info', t8('Token deleted'));
-  $self->redirect_to(action => 'list');
-}
-
 sub action_new {
   my ($self) = @_;
 
-  my $regtype = $::form->{oauth_type};
-
-  $self->config({ registration => $::form->{oauth_type} });
   $self->setup_add_action_bar();
-  $self->render('oauth/form', title => t8('Add new OAuth2 token'));
+  $self->render('oauth/form', title => t8('Add new OAuth2 token'), registration => $::form->{oauth_type} );
 }
 
 sub action_create {
@@ -75,22 +55,36 @@ sub action_create {
   my $regtype = $::form->{registration};
   my $provider = SL::OAuth::providers()->{$regtype} or die "unknown provider";
 
-  $self->config($::form->{config});
-  my ($link, $tok) = $provider->create_authorization($self->config);
+  my ($link, $tok) = $provider->create_authorization_url($::form->{config});
 
   if ($::form->{user_or_clientwide} eq 'user') {
     $tok->employee_id(SL::DB::Manager::Employee->current->id);
-    die unless $tok->employee_id;
+    die 'token has no employee_id, illegal state' unless $tok->employee_id;
   } else {
     $::auth->assert('admin');
   }
 
-  $self->{authorize_link} = $link;
   $tok->save;
 
-  $self->render('oauth/forward', title => t8('Add new OAuth2 token'));
+  $self->render('oauth/forward', title => t8('Add new OAuth2 token'), authorize_link => $link);
 }
 
+sub action_delete {
+  my ($self) = @_;
+  my $tok = $::form->{tok};
+  my @token_ids_to_delete = map { $_->{id} } grep { $_->{delete} } @$tok;
+
+  return $self->redirect_to(action => 'list') unless @token_ids_to_delete;
+
+  my $tokens = SL::DB::Manager::OAuthToken->get_all(where => [ id => \@token_ids_to_delete ]);
+  map {
+    die 'token is not editable' unless $_->is_editable();
+    $_->delete();
+  } @$tokens;
+
+  flash_later('info', t8('#1 OAuth tokens deleted', scalar(@$tokens)));
+  $self->redirect_to(action => 'list');
+}
 
 sub action_consume_authorization_code {
   my ($self) = @_;
@@ -104,7 +98,7 @@ sub action_consume_authorization_code {
   my $ret = $provider->access_token($tok, $auth_code);
 
   my $response_code = $ret->responseCode();
-  die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code eq '200';
+  die "Request failed, response code was: $response_code" unless $response_code == 200;
 
   my $content = from_json($ret->responseContent);
 
@@ -128,11 +122,6 @@ sub _fmt_token_code {
   $code ? t8('#1 bytes', length($code)) : t8('is missing');
 }
 
-sub _token_is_editable {
-  my ($tok) = @_;
-  ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
-}
-
 sub setup_add_action_bar {
   my ($self) = @_;
 
@@ -150,7 +139,7 @@ sub setup_add_action_bar {
 sub setup_list_action_bar {
   my ($self) = @_;
 
-  my $providers = SL::OAuth::providers();
+  my $providers = SL::OAuth::configured_providers();
   my @btns = map { (
     link => [
       t8('Add') . ': ' . $providers->{$_}->title(),
@@ -159,7 +148,16 @@ sub setup_list_action_bar {
   ) } sort(keys(%$providers));
 
   for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(@btns);
+    $bar->add(
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "OAuth/delete" } ],
+        confirm  => t8('Do you really want to delete this object?'),
+      ],
+
+      'separator',
+
+      @btns);
   }
 }
 
