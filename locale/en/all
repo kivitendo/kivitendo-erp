@@ -2696,7 +2696,6 @@ $self->{texts} = {
   'Order Size'                  => '',
   'Order amount'                => '',
   'Order data'                  => '',
-  'Order deleted!'              => '',
   'Order for #1'                => '',
   'Order item search'           => '',
   'Order probability'           => '',
