@@ -39,7 +39,7 @@ sub action_list {
     access_token  => _fmt_token_code($_->access_token),
     refresh_token => _fmt_token_code($_->refresh_token),
     expiration    => $_->access_token_expiration ? $_->access_token_expiration->epoch - $now->epoch : '',
-  }, grep { _token_is_editable($_) } @tokens;
+  }, grep { $_->is_editable() } @tokens;
 
   $self->setup_list_action_bar;
   $self->render('oauth/list',
@@ -126,11 +126,6 @@ sub action_consume_authorization_code {
 sub _fmt_token_code {
   my ($code) = @_;
   $code ? t8('#1 bytes', length($code)) : t8('is missing');
-}
-
-sub _token_is_editable {
-  my ($tok) = @_;
-  ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
 }
 
 sub setup_add_action_bar {
