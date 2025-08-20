@@ -52,13 +52,6 @@ sub _fmt_token_code {
   $code ? t8('#1 bytes', length($code)) : t8('is missing');
 }
 
-sub _fmt_employee {
-  my ($id) = @_;
-  my $e = SL::DB::Employee->new(id => $id)->load();
-
-  $e->safe_name;
-}
-
 sub _token_is_editable {
   my ($tok) = @_;
   ($tok->employee_id == SL::DB::Manager::Employee->current->id) || $::auth->assert('admin', 'may_fail');
@@ -73,7 +66,7 @@ sub action_list {
   my @editable_tokens = map +{
     id            => $_->id,
     provider      => $providers{$_->registration}->title,
-    employee      => $_->employee_id && _fmt_employee($_->employee_id),
+    employee      => $_->employee ? $_->employee->safe_name : '',
     email         => $_->email,
     tokenstate    => $_->tokenstate ? t8('waiting for auth code') : 'OK',
     access_token  => _fmt_token_code($_->access_token),
