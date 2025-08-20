@@ -681,7 +681,7 @@ sub bank_transfer_download_sepa_docs_preview {
 
   my @items = map { ( { ap_id => $_->{ap_id}, ar_id => $_->{ar_id} } ) } @{$form->{bank_transfers}};
 
-  SL::SEPA::send_concatinated_sepa_pdfs(\@items, $locale->text('SEPA_#1_Documents.pdf', $locale->text('Preview')));
+  SL::SEPA->send_concatinated_sepa_pdfs(arap_ids => \@items, download_filename => $locale->text('SEPA_#1_Documents.pdf', $locale->text('Preview')));
 }
 
 sub bank_transfer_download_sepa_docs {
@@ -717,7 +717,7 @@ sub bank_transfer_download_sepa_docs {
     }
   }
 
-  SL::SEPA::send_concatinated_sepa_pdfs(\@items, $locale->text('SEPA_#1_Documents.pdf', (join '_', @ids)));
+  SL::SEPA->send_concatinated_sepa_pdfs(arap_ids => \@items, download_filename => $locale->text('SEPA_#1_Documents.pdf', (join '_', @ids)));
 
   $main::lxdebug->leave_sub();
 }
