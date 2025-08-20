@@ -3451,7 +3451,6 @@ $self->{texts} = {
   'SEPA Combine Payments'       => '',
   'SEPA Subtract Vendor Credit Notes' => '',
   'SEPA Transfer Amount'        => '',
-  'SEPA XML Docs for Exports '  => '',
   'SEPA XML PDF Document download' => '',
   'SEPA XML download'           => '',
   'SEPA XML version'            => '',
