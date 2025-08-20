@@ -39,8 +39,14 @@ sub ticket_columns {
   ];
 }
 
-sub default_sort_by {
-  'priority';
+sub options_with_defaults {
+  my %opts = (
+    sort_by        => 'priority',
+    sort_dir       => 0,
+    include_closed => 1,
+  );
+
+  %opts;
 }
 
 sub new {
@@ -51,27 +57,23 @@ sub new {
 }
 
 sub get_tickets {
-  my ($self, $params, $message_ref) = @_;
+  my ($self, $params) = @_;
 
-  $params->{sort_by}        ||= 'priority';
-  $params->{sort_dir}       //= 0;
-  $params->{include_closed} //= 1;
-
-  my $q_ord = $params->{sort_by};
-  my $q_dir = $params->{sort_dir} ? 'ASC' : 'DESC';
-  my $q_ser = $params->{search_string};
+  my $q_order  = $params->{sort_by};
+  my $q_dir    = $params->{sort_dir} ? 'ASC' : 'DESC';
+  my $q_search = $params->{search_string};
 
   # Security: sanitize JQL contents
-  $q_ord    =~ s/[^a-z0-9]//g;
-  $q_ser    =~ s/"/\\"/g;
+  $q_order  =~ s/[^a-z0-9]//g;
+  $q_search =~ s/"/\\"/g;
 
-  my $jql = 'textfields ~ "' . $q_ser . '*"';
-  $jql   .= ' AND status NOT IN (resolved, closed, done, rejected)' unless ($params->{include_closed});
-  $jql   .= " ORDER BY $q_ord $q_dir";
+  my $jql = 'textfields ~ "' . $q_search . '*"';
+  $jql   .= ' AND statusCategory != Done' unless ($params->{include_closed});
+  $jql   .= " ORDER BY $q_order $q_dir";
 
-  ${$message_ref} = 'Atlassian JQL: ' . $jql;
+  my $message = 'Atlassian JQL: ' . $jql;
 
-  $self->tickets($jql);
+  ($self->tickets($jql), $message);
 }
 
 sub init_connector {

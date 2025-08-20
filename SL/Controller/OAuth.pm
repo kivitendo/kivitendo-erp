@@ -80,7 +80,7 @@ sub action_create {
 
   if ($::form->{user_or_clientwide} eq 'user') {
     $tok->employee_id(SL::DB::Manager::Employee->current->id);
-    die unless $tok->employee_id;
+    die 'token has no employee_id, illegal state' unless $tok->employee_id;
   } else {
     $::auth->assert('admin');
   }
