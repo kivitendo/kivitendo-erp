@@ -149,7 +149,7 @@ sub setup_add_action_bar {
 sub setup_list_action_bar {
   my ($self) = @_;
 
-  my $providers = SL::OAuth::providers();
+  my $providers = SL::OAuth::configured_providers();
   my @btns = map { (
     link => [
       t8('Add') . ': ' . $providers->{$_}->title(),
