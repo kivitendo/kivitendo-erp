@@ -13,12 +13,6 @@ our %EXPORT_TAGS     = (
   IMPORT => \@EXPORT_IMPORT,
 );
 
-use SL::DB::BankAccount;
-use SL::DB::GenericTranslation;
-use SL::DB::Chart;
-use SL::DB::Tax;
-use SL::DB::TaxKey;
-use SL::DB::RecordTemplate;
 use SL::Helper::ISO3166;
 use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
@@ -510,6 +504,7 @@ sub _exchanged_document {
     $params{xml}->dataElement("ram:LanguageID", uc($1));
   }
 
+  require SL::DB::Manager::GenericTranslation;
   my $std_notes = SL::DB::Manager::GenericTranslation->get_all(
     where => [
       translation_type => 'ZUGFeRD/notes',
@@ -763,6 +758,7 @@ sub _validate_data {
     }
 
   } else {
+    require SL::DB::Manager::BankAccount;
     my $bank_accounts     = SL::DB::Manager::BankAccount->get_all;
     $result{bank_account} = scalar(@{ $bank_accounts }) == 1 ? $bank_accounts->[0] : first { $_->use_for_zugferd } @{ $bank_accounts };
 
@@ -914,12 +910,15 @@ sub import_zugferd_data {
     name => $metadata{'currency'},
     );
 
+  require SL::DB::Chart;
   my $default_ap_amount_chart = SL::DB::Manager::Chart->find_by(
     id => $::instance_conf->get_expense_accno_id
   );
   # Fallback if there's no default AP amount chart configured
   $default_ap_amount_chart ||= SL::DB::Manager::Chart->find_by(charttype => 'A');
 
+  require SL::DB::Tax;
+  require SL::DB::TaxKey;
   my $active_taxkey = $default_ap_amount_chart->get_active_taxkey;
   my $taxes = SL::DB::Manager::Tax->get_all(
     where   => [ chart_categories => {
@@ -931,6 +930,7 @@ sub import_zugferd_data {
     "No tax found for chart #1", $default_ap_amount_chart->displayable_name
   ) unless scalar @{$taxes};
 
+  require SL::DB::RecordTemplate;
   my %template_params;
   my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
   if ($template_ap) {
