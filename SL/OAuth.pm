@@ -6,9 +6,9 @@ use List::MoreUtils qw(all);
 use SL::DB::OAuthToken;
 
 my %providers = (
-  microsoft      => 'SL::Controller::OAuth::Microsoft',
-  atlassian_jira => 'SL::Controller::OAuth::Atlassian',
-  google_cal     => 'SL::Controller::OAuth::GoogleCal',
+  atlassian_jira  => 'SL::Controller::OAuth::Atlassian',
+  google_cal      => 'SL::Controller::OAuth::GoogleCal',
+  microsoft_email => 'SL::Controller::OAuth::Microsoft',
 );
 
 
@@ -84,7 +84,7 @@ SL::OAuth - Client side OAuth2 token management
     my $server       = 'mail.domain';
     my $username     = 'kivitendo.test@your.domain';
 
-    my $access_token = SL::OAuth::access_token_for('microsoft', email => $username);
+    my $access_token = SL::OAuth::access_token_for('microsoft_email', email => $username);
 
     my $sasl_string  = encode_base64("user=$username\x01auth=Bearer $access_token\x01\x01", '');
 
