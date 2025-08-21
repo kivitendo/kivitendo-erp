@@ -18,6 +18,10 @@ sub webpages_path {
   "templates/mobile_webpages";
 }
 
+sub webpages_fallback_path {
+  "templates/design40_webpages";
+}
+
 sub init_sub_layouts {
   [
     SL::Layout::None->new,
