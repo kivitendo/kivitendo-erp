@@ -8955,6 +8955,11 @@ document_path = /var/local/kivi_documents
         <title>Atlassian Jira</title>
 
         <para>
+          Diese Implementierung funktioiert mit Atlassian Jira Cloud.
+          (Die on-premises Variante von Jira hat eine andere API.)
+        </para>
+
+        <para>
           Zu den Tickets werden folgende sortierbare Spalten angezeigt:
           Schlüssel, Zusammenfassung, Priorität, Status, Ersteller,
           Zugewiesen, Erstellt am, Erneuert am.  Über den Link in der
