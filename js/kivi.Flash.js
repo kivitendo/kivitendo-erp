@@ -9,6 +9,10 @@ namespace("kivi.Flash", function(ns) {
   };
 
   ns.display_flash = function(type, message, details, timestamp) {
+    if (kivi.Materialize)
+      return kivi.Materialize.display_flash(type, message, details, timestamp);
+
+
     let $dom = $('<div>');
     $dom.addClass('layout-flash-' + type);
     $dom.addClass('layout-flash-message');
@@ -70,6 +74,9 @@ namespace("kivi.Flash", function(ns) {
   };
 
   ns.clear_flash = function(category, timeout) {
+    if (kivi.Materialize)
+      return kivi.Materialize.clear_flash(category, timeout);
+
     if (timeout === undefined) {
       ns.clear_flash_now(category);
     } else {
@@ -95,9 +102,13 @@ namespace("kivi.Flash", function(ns) {
     $('#layout_flash_container').toggle();
   };
   ns.show = function() {
+    if (kivi.Materialize) return; // materialize doesn't have a show/hide all
+
     $('#layout_flash_container').show();
   };
   ns.hide = function() {
+    if (kivi.Materialize) return; // materialize doesn't have a show/hide all
+
     $('#layout_flash_container').hide();
   };
   ns.reload_flash = function() {
