@@ -18,9 +18,6 @@ use Rose::Object::MakeMethods::Generic (
 
 my $api_host = 'https://api.atlassian.com';
 
-sub type {
-  'jira';
-}
 
 sub title {
   'Atlassian Jira';
