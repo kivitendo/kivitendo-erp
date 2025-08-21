@@ -151,6 +151,9 @@ Kleinere neue Features und Detailverbesserungen:
   Rechnungsadressen eingebbar. Diese stehen auch in den (verkaufsseitigen)
   Druckvorlagen zur Verfügung.
 
+- Falls eine Ware in einem Erzeugnis verbaut wurde, wird das Erzeugnis im
+  Lagerbuchungsbericht zusätzlich als Link zum Erzeugnis angezeigt.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
