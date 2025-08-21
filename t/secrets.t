@@ -82,4 +82,17 @@ require_ok('SL::DB::Secret');
   isnt $pw_func->(), "mypasswd";
 }
 
+# encoding binary password data works
+{
+  my $s = SL::DB::Secret->new(tag => "binary password", description => "binary data");
+
+  $s->encrypt("\x{01}\x{de}\x{ad}\x{c0}\x{ff}\x{ee}");
+  $s->save;
+  $s->load;
+
+  my $pw_func = $s->decrypt();
+
+  is $pw_func->(), "\x{01}\x{de}\x{ad}\x{c0}\x{ff}\x{ee}";
+}
+
 done_testing();
