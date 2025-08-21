@@ -86,4 +86,48 @@ sub set_access_refresh_token {
 
 1;
 
-# base class for oauth providers
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Controller::OAuth::Base - Base class for OAuth providers
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<type>
+
+This function returns the internal string representation of the provider
+which is stored alongside each token in the database.
+
+=item C<title>
+
+This function returns a human readable description of the provider.
+
+=item C<create_authorization_url>
+
+This function returns an authorization URL for the interactive flow.
+
+=item C<access_token>
+
+This function performs the request to the provider to exchange an authcode
+for a token.
+
+=item C<refresh>
+
+This function performs the request to the provider to refresh a token.
+
+
+=back
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut
