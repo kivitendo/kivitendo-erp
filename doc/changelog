@@ -35,6 +35,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Beim Lagerbuchungsbericht Zu- und Abnahme der Menge mit + und - zusätzlich
   visualisiert.
 
+- Beim Produzieren von Erzeugnissen darf man auch Erzeugnisbestandteile mit der
+  Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
+  deaktiviert.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
