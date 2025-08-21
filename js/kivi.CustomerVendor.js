@@ -480,9 +480,12 @@ namespace('kivi.CustomerVendor', function(ns) {
   ns.replace_html_ajax = function(target, source, data) {
     $.ajax({
       url:        source,
+      data:       data,
       success:    function (rsp) {
         $(target).html(rsp);
         $(target).find('a.report-generator-header-link').click(function(event){ ns.replace_html_redirect_event(event, target) });
+
+        $(target).find('input.ticket-filter').click(function(event){ ns.replace_tickets() });
       },
     });
   };
@@ -508,17 +511,28 @@ namespace('kivi.CustomerVendor', function(ns) {
     });
   }
 
+  ns.replace_tickets = function () {
+    let data = {
+      id:             $('#cv_id').val(),
+      db:             $('#db').val(),
+      include_closed: $('#include_closed').is(':checked') + 0,
+      sort_by:        $('#sort_by').val(),
+      sort_dir:       $('#sort_dir').val(),
+    };
+    ns.replace_html_ajax('#tickets', 'controller.pl?action=TicketSystem/ajax_list', data);
+  }
+
   ns.tickets_init = function () {
     $("#customer_vendor_tabs").on('tabsbeforeactivate', function(event, ui){
       if (ui.newPanel.attr('id') == 'tickets') {
-        ns.replace_html_ajax('#tickets', "controller.pl?action=TicketSystem/ajax_list&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.replace_tickets();
       }
       return 1;
     });
 
     $("#customer_vendor_tabs").on('tabscreate', function(event, ui){
       if (ui.panel.attr('id') == 'tickets') {
-        ns.replace_html_ajax('#tickets', "controller.pl?action=TicketSystem/ajax_list&id=" + $('#cv_id').val() + "&db=" + $('#db').val() + "&callback=" + $('#callback').val());
+        ns.replace_tickets();
       }
       return 1;
     });
