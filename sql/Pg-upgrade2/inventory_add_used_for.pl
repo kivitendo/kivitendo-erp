@@ -1,6 +1,6 @@
 # @tag: inventory_add_used_for
 # @description: benutzt für erzeugnis parts.id
-# @depends: release_3_9_1 inventory_add_used_for_assembly
+# @depends: release_3_9_2 inventory_add_used_for_assembly
 
 package SL::DBUpgrade2::inventory_add_used_for;
 
@@ -14,14 +14,13 @@ use SL::DBUtils;
 sub run {
   my ($self) = @_;
 
-  # get the last 5500 trans ids with assemblies -> last 9 months CEOS
   my $query_all_assembled = qq|
       SELECT trans_id,parts_id FROM inventory
       LEFT JOIN parts p ON (p.id=parts_id)
       WHERE    trans_type_id= (SELECT id FROM transfer_type WHERE description='assembled')
       AND used_for_assembly_id is null
       ORDER by inventory.itime DESC
-      LIMIT 5500
+      -- LIMIT 5500
   |;
 
   my $refs = selectall_hashref_query($::form, $self->dbh, $query_all_assembled);
