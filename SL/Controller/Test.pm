@@ -29,7 +29,7 @@ sub action_get_google_cal_list {
 
   my $api_host = 'https://www.googleapis.com';
 
-  my $acctok = SL::Controller::OAuth::access_token_for('google_cal', allow_client_wide => 1) or die "no access token";
+  my $acctok = SL::Controller::OAuth::access_token_for('google_cal') or die "no access token";
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
