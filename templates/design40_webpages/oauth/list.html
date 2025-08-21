@@ -1,14 +1,16 @@
 [%- USE HTML -%]
+[%- USE L -%]
 [%- USE P -%]
 [%- USE T8 -%]
 [%- INCLUDE 'common/flash.html' %]
 
 <h1>[% HTML.escape(title) %]</h1>
-
+<form id="form">
 <div class="wrapper">
 <table class="tbl-list">
   <thead>
     <tr>
+      <th>[% 'delete' | $T8 %]</th>
       <th>ID</th>
       <th>[% 'Provider' | $T8 %]</th>
       [% IF (AUTH.assert('admin', 'may_fail')) %]
@@ -19,12 +21,12 @@
       <th>[% 'expires in (s)' | $T8 %]</th>
       <th>access token</th>
       <th>refresh token</th>
-      <th>[% 'delete' | $T8 %]</th>
     </tr>
   </thead>
   <tbody>
     [%- FOREACH tok = TOKENS %]
     <tr>
+      <td>[% L.hidden_tag('tok[+].id', tok.id) %][% L.checkbox_tag('tok[].delete', value = 1) %]</td>
       <td class="right">[% HTML.escape(tok.id) %]</td>
       <td>[% HTML.escape(tok.provider) %]</td>
       [% IF (AUTH.assert('admin', 'may_fail')) %]
@@ -35,21 +37,9 @@
       <td class="right">[% HTML.escape(tok.expiration) %]</td>
       <td class="right">[% HTML.escape(tok.access_token) %]</td>
       <td class="right">[% HTML.escape(tok.refresh_token) %]</td>
-      <td class="center"><input type="button" onclick="ask_delete_token([% tok.id %])" tag="input" value="X"></td>
     </tr>
     [%- END %]
   </tbody>
 </table>
 </div>
-
-<script>
-function ask_delete_token(id) {
-  if (!confirm('Sind Sie sicher?')) return;
-
-  var data = [
-    { name: 'action', value: 'OAuth/delete_token' },
-    { name: 'id', value: id }];
-
-  $.post("controller.pl", data, kivi.eval_json_result);
-}
-</script>
+</form>

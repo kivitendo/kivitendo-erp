@@ -47,18 +47,6 @@ sub action_list {
                 TOKENS => \@editable_tokens);
 }
 
-sub action_delete_token {
-  my ($self) = @_;
-
-  my $token = SL::DB::OAuthToken->new(id => $::form->{id})->load();
-  die 'token is not editable' unless _token_is_editable($token);
-
-  $token->delete;
-
-  flash_later('info', t8('Token deleted'));
-  $self->redirect_to(action => 'list');
-}
-
 sub action_new {
   my ($self) = @_;
 
@@ -91,6 +79,22 @@ sub action_create {
   $self->render('oauth/forward', title => t8('Add new OAuth2 token'));
 }
 
+sub action_delete {
+  my ($self) = @_;
+  my $tok = $::form->{tok};
+  my @token_ids_to_delete = map { $_->{id} } grep { $_->{delete} } @$tok;
+
+  return $self->redirect_to(action => 'list') unless @token_ids_to_delete;
+
+  my $tokens = SL::DB::Manager::OAuthToken->get_all(where => [ id => \@token_ids_to_delete ]);
+  map {
+    die 'token is not editable' unless $_->is_editable();
+    $_->delete();
+  } @$tokens;
+
+  flash_later('info', t8('#1 OAuth token deleted', scalar(@$tokens)));
+  $self->redirect_to(action => 'list');
+}
 
 sub action_consume_authorization_code {
   my ($self) = @_;
@@ -154,7 +158,16 @@ sub setup_list_action_bar {
   ) } sort(keys(%$providers));
 
   for my $bar ($::request->layout->get('actionbar')) {
-    $bar->add(@btns);
+    $bar->add(
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "OAuth/delete" } ],
+        confirm  => t8('Do you really want to delete this object?'),
+      ],
+
+      'separator',
+
+      @btns);
   }
 }
 
