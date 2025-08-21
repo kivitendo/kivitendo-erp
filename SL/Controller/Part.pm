@@ -198,9 +198,8 @@ sub action_save_and_print {
     $print_form->{template_meta}->{language} = $language;
     $print_form->{media} = $media;
     $print_form->{media} = 'file' if $print_form->{media} eq 'screen';
-    my $default = SL::DB::Default->get;
-    $print_form->{employee_company} = $default->company;
-    $print_form->{currency}         = $default->currency->name;
+    $print_form->{employee_company} = $::instance_conf->get_company;
+    $print_form->{currency}         = $::instance_conf->default_currency;
 
     my $document = SL::Helper::CreatePDF->create_pdf(
       format          => $format,
@@ -239,7 +238,7 @@ sub action_save_and_print {
     1;
   } or do {
     $self->js
-      ->flash('error', t8("Creating the PDF failed!"))
+      ->flash('error', t8("Creating the PDF failed:"))
       ->flash('error', $@);
   };
 
