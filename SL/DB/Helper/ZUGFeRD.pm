@@ -20,8 +20,6 @@ use SL::VATIDNr;
 use SL::ZUGFeRD qw(:PROFILES);
 use SL::Locale::String qw(t8);
 
-use SL::Controller::ZUGFeRD;
-
 use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
@@ -872,7 +870,7 @@ sub import_zugferd_data {
     die t8("Cannot process this invoice: neither VAT ID nor tax ID present.");
   }
 
-  my $vendor = SL::Controller::ZUGFeRD::find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
+  my $vendor = SL::ZUGFeRD::find_vendor($metadata{'ustid'}, $metadata{'taxnumber'});
 
   die t8("Vendor with VAT ID (#1) and/or tax ID (#2) not found. Please check if the vendor " .
           "#3 exists and whether it has the correct tax ID/VAT ID." ,

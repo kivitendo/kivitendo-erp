@@ -10,6 +10,7 @@ use List::Util qw(first);
 use XML::LibXML;
 
 use SL::Locale::String qw(t8);
+use SL::VATIDNr;
 use SL::XMLInvoice;
 
 use parent qw(Exporter);
@@ -230,6 +231,108 @@ sub extract_from_xml {
 
   return \%res;
 }
+
+sub find_vendor_by_taxnumber {
+  my $taxnumber = shift @_;
+
+  require SL::DB::Vendor;
+
+  # 1.1 check if we a have a vendor with this tax number (vendor.taxnumber)
+  my $vendor = SL::DB::Manager::Vendor->find_by(
+    taxnumber => $taxnumber,
+    or    => [
+      obsolete => undef,
+      obsolete => 0,
+    ]);
+
+  if (!$vendor) {
+    # 1.2 If no vendor with the exact VAT ID number is found, the
+    # number might be stored slightly different in the database
+    # (e.g. with spaces breaking up groups of numbers). Iterate over
+    # all existing vendors with VAT ID numbers, normalize their
+    # representation and compare those.
+
+    my $vendors = SL::DB::Manager::Vendor->get_all(
+      where => [
+        '!taxnumber' => undef,
+        '!taxnumber' => '',
+        or       => [
+          obsolete => undef,
+          obsolete => 0,
+        ],
+      ]);
+
+    foreach my $other_vendor (@{ $vendors }) {
+      next unless $other_vendor->taxnumber eq $taxnumber;
+
+      $vendor = $other_vendor;
+      last;
+    }
+  }
+}
+
+sub find_vendor_by_ustid {
+  my $ustid = shift @_;
+  require SL::DB::Vendor;
+
+  $ustid = SL::VATIDNr->normalize($ustid);
+
+  # 1.1 check if we a have a vendor with this VAT-ID (vendor.ustid)
+  my $vendor = SL::DB::Manager::Vendor->find_by(
+    ustid => $ustid,
+    or    => [
+      obsolete => undef,
+      obsolete => 0,
+    ]);
+
+  if (!$vendor) {
+    # 1.2 If no vendor with the exact VAT ID number is found, the
+    # number might be stored slightly different in the database
+    # (e.g. with spaces breaking up groups of numbers). Iterate over
+    # all existing vendors with VAT ID numbers, normalize their
+    # representation and compare those.
+
+    my $vendors = SL::DB::Manager::Vendor->get_all(
+      where => [
+        '!ustid' => undef,
+        '!ustid' => '',
+        or       => [
+          obsolete => undef,
+          obsolete => 0,
+        ],
+      ]);
+
+    foreach my $other_vendor (@{ $vendors }) {
+      next unless SL::VATIDNr->normalize($other_vendor->ustid) eq $ustid;
+
+      $vendor = $other_vendor;
+      last;
+    }
+  }
+
+  return $vendor;
+}
+
+sub find_vendor {
+  my ($ustid, $taxnumber) = @_;
+  my $vendor;
+
+  if ( $ustid ) {
+    $vendor = find_vendor_by_ustid($ustid);
+  }
+
+  if (ref $vendor eq 'SL::DB::Vendor') { return $vendor; }
+
+  if ( $taxnumber ) {
+    $vendor = find_vendor_by_taxnumber($taxnumber);
+  }
+
+  if (ref $vendor eq 'SL::DB::Vendor') { return $vendor; }
+
+  return undef;
+}
+
+
 
 1;
 
