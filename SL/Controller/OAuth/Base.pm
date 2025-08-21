@@ -15,7 +15,7 @@ sub title {
   die "needs to be implemented";
 }
 
-sub create_authorization {
+sub create_authorization_url {
   die "needs to be implemented";
 }
 

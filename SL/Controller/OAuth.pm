@@ -14,11 +14,6 @@ use SL::Controller::OAuth::GoogleCal;
 use SL::Helper::Flash qw(flash_later);
 use SL::OAuth;
 
-use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(config) ],
-);
-
-
 
 #
 # actions
@@ -50,11 +45,8 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  my $regtype = $::form->{oauth_type};
-
-  $self->config({ registration => $::form->{oauth_type} });
   $self->setup_add_action_bar();
-  $self->render('oauth/form', title => t8('Add new OAuth2 token'));
+  $self->render('oauth/form', title => t8('Add new OAuth2 token'), registration => $::form->{oauth_type} );
 }
 
 sub action_create {
@@ -63,8 +55,7 @@ sub action_create {
   my $regtype = $::form->{registration};
   my $provider = SL::OAuth::providers()->{$regtype} or die "unknown provider";
 
-  $self->config($::form->{config});
-  my ($link, $tok) = $provider->create_authorization($self->config);
+  my ($link, $tok) = $provider->create_authorization_url($::form->{config});
 
   if ($::form->{user_or_clientwide} eq 'user') {
     $tok->employee_id(SL::DB::Manager::Employee->current->id);
@@ -73,10 +64,9 @@ sub action_create {
     $::auth->assert('admin');
   }
 
-  $self->{authorize_link} = $link;
   $tok->save;
 
-  $self->render('oauth/forward', title => t8('Add new OAuth2 token'));
+  $self->render('oauth/forward', title => t8('Add new OAuth2 token'), authorize_link => $link);
 }
 
 sub action_delete {
