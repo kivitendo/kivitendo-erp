@@ -19,6 +19,16 @@ Die nun gültigen Vorlagen lauten:
   email_template = templates/design40_webpages/task_server/failure_notification_email.txt
   email_template = templates/design40_webpages/oe/periodic_invoices_email.txt
 
+Das DB-Update Skript inventory_add_used_for_assembly.pl kann bei Datenbeständen mit
+vielen gefertigten Erzeugnissen zu lange laufen. In dem Skript gibt es ein kommentiertes
+LIMIT 5500, dass kann der kivi Admin einkommentieren und einen Wert einsetzen, der für
+seinen Datenbestand sinnvoll ist. Im entsprechendem Kundendatenbestand entsprachen 5500
+verbaute Waren einen Zeitraum von 9 Monaten, was für Analysezwecke ausreichend war.
+Eintrag in der Datei sieht so aus:
+      ORDER by inventory.itime DESC
+      -- LIMIT 5500
+  |;
+
 
 Upgrade auf v3.9.2
 
