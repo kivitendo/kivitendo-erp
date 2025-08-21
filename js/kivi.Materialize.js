@@ -145,6 +145,45 @@ namespace("kivi.Materialize", function(ns) {
     return true;
   };
 
+  ns.flash_type_to_color_class = {
+    error:   "red",
+    warning: "orange",
+    info:    "blue",
+    ok:      "green"
+  };
+
+
+  /**
+   * Flash interface. Materialize has toasts that do the same things
+   * so simply redirect the Flash interface into toasts
+   */
+  ns.display_flash = function(type, message, details, timestamp) {
+    // to save screenspace, don't include the timestamp or the translated type
+    let $content = $('<div>');
+
+    if (message !== undefined && message !== null) {
+      let $message = $('<p>');
+      $message.html(message);
+      $content.append($message);
+    }
+
+    if (details !== undefined && details !== null) {
+      let $details =  $('<p>');
+      $details.html(details);
+      $content.append($details);
+    }
+
+    M.toast({
+      html:          $content,
+      displayLength: 60 * 1000,
+      classes:       ns.flash_type_to_color_class[type]
+    });
+  }
+  ns.clear_flash = function(category, timeout) {
+    M.Toast.dismissAll()
+  }
+
+
   /**
    * upload file to local storage for later sync
    *
