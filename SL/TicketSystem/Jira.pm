@@ -79,7 +79,7 @@ sub get_tickets {
 sub init_connector {
   my ($self) = @_;
 
-  my $acctok = SL::OAuth::access_token_for('atlassian_jira', allow_client_wide => 1) or die "no access token";
+  my $acctok = SL::OAuth::access_token_for('atlassian_jira') or die 'no access token';
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
