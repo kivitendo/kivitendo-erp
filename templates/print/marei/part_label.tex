@@ -3,6 +3,12 @@
 $( USE KiviLatex )$
 $( USE P )$
 
+% das ist eine einfache Etiketten Beispieldatei.
+% Um dieses Beispiel zu verwenden muss zwingend der lualatex-Compiler verwendet werden.
+% das heißt in der kivitendo.conf den Wert latex entsprechend anpassen
+% latex = latexmk --lualatex
+% Das ist notwendig einmal für den Barcodedruck mit pst-barcode aber auch hier für die Schriften
+
 \documentclass[parskip]{scrartcl}
 \usepackage{scrlayer-scrpage}
 \usepackage{geometry}
@@ -22,7 +28,7 @@ $(IF KiviLatex.filter(part.image))$
     background,hoffset=7cm,voffset=1.7cm,
     contents={\resizebox{2cm}{3cm}
     {
-        \includegraphics[width=2cm ]{../$( part.image )$}
+        \includegraphics[width=2cm ]{$( part.image )$}
     }
     }
   ]{bild}
@@ -41,7 +47,7 @@ $( END )$
   contents={%\resizebox{1.5in}{0.5in}
   {
   \begin{pspicture}(0,2em)(1.5in,0.5in)
-    \psbarcode{$(KiviLatex.filter(part.partnumber))$}{width=1.5 height=0.5}{code128}
+    \psbarcode{$(KiviLatex.filter(part.ean))$}{includetext width=1.5 height=0.5}{ean13}
   \end{pspicture}
   }
   }

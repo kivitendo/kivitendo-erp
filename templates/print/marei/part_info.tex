@@ -6,6 +6,8 @@ $( USE Dumper )$
 $( USE LxERP )$
 \documentclass[a4paper]{scrartcl}[10pt]
 
+% Auch für diese Datei ist der lualatex-Compiler notwendig
+
 % Schriftart, Eingabelayout der Tastatur
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -20,6 +22,7 @@ $( USE LxERP )$
 \usepackage{xcolor,colortbl}
 \usepackage{lastpage}
 \usepackage{geometry}
+\usepackage{fontspec}
 
 $( KiviLatex.required_packages_for_html )$
 % Variablen, die in settings verwendet werden
@@ -37,7 +40,6 @@ $( KiviLatex.required_packages_for_html )$
 
 
 % Mandanten-/Firmenabhängigkeiten
-
 % Pfad zu firmenspez. Angaben
 % Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
 % Mandanten eingeben.
@@ -75,26 +77,18 @@ $( KiviLatex.required_packages_for_html )$
 
 
 % Befehl f. normale Schriftart und -größe
-%\setmainfont{cmunrm.otf}
-\newcommand{\ourfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont}
-%\newcommand{\ourfont}{\setmainfont
-%                      [ BoldFont={cmunsx.otf},
-%                        ItalicFont={cmunsi.otf},
-%                        BoldItalicFont={cmunso.otf}]{cmunss.otf}}
+\setmainfont{cmunrm.otf}
+%\newcommand{\ourfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont}
+\newcommand{\ourfont}{\setmainfont
+                      [ BoldFont={cmunsx.otf},
+                        ItalicFont={cmunsi.otf},
+                        BoldItalicFont={cmunso.otf}
+                      ]{cmunss.otf}
+                      }
 
 % Einstellungen f. Kopf und Fuss
 \pagestyle{scrheadings}
 \clearscrheadfoot
-%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
-%\setfootwidth[-39mm]{page} % Fusszeile verschieben
-
-% Befehl f. laufende Kopfzeile:
-% 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
-% 2. Kunden- oder Lieferantennummer (oder leer)
-% 3. Belegname {oder leer}
-% 4. Belegnummer {oder leer}
-% 5. Belegdatum {oder leer}
-% Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
 \newcommand{\ourhead}[5] {
 \chead{
   \ifthenelse{\equal{\thepage}{1}}
@@ -108,18 +102,6 @@ $( KiviLatex.required_packages_for_html )$
 }%ende chead
 }
 
-% Firmenfuss
-%\cfoot{
-%  {\normalfont\fontfamily{cmss} \tiny
-%     \begin{tabular}{p{5cm}p{4.5cm}lr}
-%        \firma                 & \email              & \textKontonummer & \kontonummer \\
-%        \strasse               & \homepage           & \textBank        & \bank \\
-%        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
-%        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
-%        \ifthenelse{\equal{\fax}{}}{}{\textFax~\fax} & &\textBankleitzahl	& \bankleitzahl \\
-%     \end{tabular}
-%  }
-%}
 
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} %Linksbündig mit eigener Breite
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % zentriert mit Breitenangabe
@@ -144,8 +126,8 @@ $(# Dumper.dump_html(part.assemblies) )$
   %$(IF part.classification )$
   Artikelklassifizierung: & $( KiviLatex.filter(LxERP.t8(part.classification.description)) )$ \\
   %$(END)$
-  %$(IF part.customm_tariff_number )$
-  Zolltarifnummer: & $( KiviLatex.filter(LxERP.t8(part.customm_tariff_number)) )$ \\
+  %$(IF part.tariff_code )$
+  Zolltarifnummer: & $( KiviLatex.filter(LxERP.t8(part.tariff_code)) )$ \\
   %$(END)$
   %$(IF part.ean )$
   EAN: & $( KiviLatex.filter(LxERP.t8(part.ean)) )$ \\
@@ -164,7 +146,7 @@ $(# Dumper.dump_html(part.assemblies) )$
   $(IF KiviLatex.filter(part.image))$
     \begin{minipage}{2cm}
       %          \begin{pspicture}(-5cm,2em)(1.5in,0.5in)
-            \includegraphics[width=7cm ]{../$( part.image )$}
+            \includegraphics[width=7cm ]{$( part.image )$}
       %    \end{pspicture}
     \end{minipage}
   $(END)$
