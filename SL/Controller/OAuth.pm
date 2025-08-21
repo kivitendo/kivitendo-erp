@@ -92,7 +92,7 @@ sub action_delete {
     $_->delete();
   } @$tokens;
 
-  flash_later('info', t8('#1 OAuth token deleted', scalar(@$tokens)));
+  flash_later('info', t8('#1 OAuth tokens deleted', scalar(@$tokens)));
   $self->redirect_to(action => 'list');
 }
 
