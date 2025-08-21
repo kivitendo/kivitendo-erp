@@ -32,6 +32,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
   wenn ein Preisfaktor gesetzt ist.
 
+- Beim Lagerbuchungsbericht Zu- und Abnahme der Menge mit + und - zusätzlich
+  visualisiert.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
