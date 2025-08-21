@@ -15,7 +15,8 @@ __PACKAGE__->meta->initialize;
 
 use constant PBKDF2_HASH       => 'SHA256';
 use constant PBKDF2_ITERATIONS => 600_000;
-use constant AES_KEY_LENGTH    => 256;
+use constant AES_KEY_BITS      => 256;
+use constant AES_KEY_BYTES     => AES_KEY_BITS / 8;
 use constant SALT_LENGTH       => 16;
 use constant IV_LENGTH         => 16;
 
@@ -60,7 +61,7 @@ sub _key {
 
   my $passphrase = encode_utf8($::lx_office_conf{secrets}{master_key}) or die 'no master key for secrets configured';
   $salt //= Crypt::PRNG::random_string(SALT_LENGTH);
-  my $stretched_key = Crypt::KeyDerivation::pbkdf2($passphrase, $salt, PBKDF2_ITERATIONS, PBKDF2_HASH, AES_KEY_LENGTH / 8);
+  my $stretched_key = Crypt::KeyDerivation::pbkdf2($passphrase, $salt, PBKDF2_ITERATIONS, PBKDF2_HASH, AES_KEY_BYTES);
 
   return ($stretched_key, $salt);
 }
