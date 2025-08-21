@@ -2,6 +2,7 @@ package SL::OAuth;
 
 use strict;
 
+use List::MoreUtils qw(all);
 use SL::DB::OAuthToken;
 
 my %providers = (
@@ -13,6 +14,17 @@ my %providers = (
 
 sub providers {
   \%providers;
+}
+
+sub configured_providers {
+  my %configured = %providers{
+    grep {
+      my $key = "oauth2_$_";
+      all { $::lx_office_conf{$key}{$_} } qw(client_id client_secret redirect_uri)
+    } keys %providers
+  };
+
+  \%configured;
 }
 
 sub access_token_for {
