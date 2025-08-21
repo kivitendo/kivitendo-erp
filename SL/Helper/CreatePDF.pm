@@ -71,6 +71,13 @@ sub create_parsed_file {
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
+  my $image_out_fh;
+  if ( $params{image_data} && $params{image_extensions} ) {
+    open($image_out_fh, '>', $form->{tmpdir} . '/image.' . $params{image_extension});
+    print $image_out_fh $params{image_data};
+    close($image_out_fh);
+  }
+
   my %driver_options;
   eval {
     %driver_options = _maybe_attach_zugferd_data($params{record});

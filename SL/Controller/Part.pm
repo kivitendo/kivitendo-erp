@@ -149,6 +149,15 @@ sub action_save_and_print {
       id => $::form->{print_options}->{language_id}
     );
   }
+  my ($image_data, $image_extension);
+  $self->part->image('');
+  if (my $file_obj = $self->part->default_partimage) {
+    my @suffixe      = split('/',$file_obj->mime_type);
+    my $suffix       = $suffixe[1];
+    $image_data      = File::Slurp::read_file($file_obj->get_file);
+    $image_extension = $suffix;
+    $self->part->image("image.$image_extension");
+  }
 
   eval {
 
@@ -194,10 +203,12 @@ sub action_save_and_print {
     $print_form->{currency}         = $default->currency->name;
 
     my $document = SL::Helper::CreatePDF->create_pdf(
-      format        => $format,
-      template_type => $template_type,
-      template      => $template_file,
-      variables     => $print_form,
+      format          => $format,
+      template_type   => $template_type,
+      template        => $template_file,
+      variables       => $print_form,
+      image_data      => $image_data,
+      image_extension => $image_extension,
       variable_content_types => {
         notes => 'html',
         # TODO: html cvars
