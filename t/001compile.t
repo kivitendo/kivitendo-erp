@@ -70,7 +70,7 @@ sub test_compile_file {
   my ($file, $T) = @{ $_[0] };
 
 
-  my $command = "$perlapp -w -c$T -Imodules/override -It -MSupport::CanonialGlobals $file 2>&1";
+  my $command = "$perlapp -w -c$T -Imodules/override -I. -It -MSupport::CanonialGlobals $file 2>&1";
   my $loginfo=`$command`;
 
   if ($loginfo =~ /syntax ok$/im) {
