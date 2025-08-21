@@ -24,7 +24,7 @@
         [% END %]
       </td>
     </tr>
-    [% IF registration == 'microsoft' %]
+    [% IF registration == 'microsoft_email' %]
       <tr>
         <th>[% 'E-Mail' | $T8 %]</th>
         <td>[% L.input_tag("config.email", "", "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>

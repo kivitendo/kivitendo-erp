@@ -19,7 +19,7 @@ my $scope               = join ' ',
   'https://outlook.office.com/SMTP.Send';
 
 sub type {
-  "microsoft"
+  "microsoft_email"
 }
 
 sub title {
