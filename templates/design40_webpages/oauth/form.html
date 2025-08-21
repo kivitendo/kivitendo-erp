@@ -7,14 +7,13 @@
 <h1>[% HTML.escape(title) %]</h1>
 
 <form action="controller.pl" method="post" id="form">
-[% L.hidden_tag("id", SELF.config.id) %]
-[% L.hidden_tag("registration", SELF.config.registration) %]
+[% L.hidden_tag("registration", registration) %]
 
 <div class="wrapper">
 
 <table class="tbl-horizontal">
   <tbody>
-    <tr><th>registration</th><td>[% SELF.config.registration %]</td></tr>
+    <tr><th>registration</th><td>[% registration %]</td></tr>
     <tr>
       <th>[% 'The token is valid for' | $T8 %]</th>
       <td>
@@ -25,10 +24,10 @@
         [% END %]
       </td>
     </tr>
-    [% IF SELF.config.registration == 'microsoft' %]
+    [% IF registration == 'microsoft' %]
       <tr>
         <th>[% 'E-Mail' | $T8 %]</th>
-        <td>[% L.input_tag("config.email", SELF.config.email, "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>
+        <td>[% L.input_tag("config.email", "", "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>
       </tr>
     [% END %]
   </tbody>
