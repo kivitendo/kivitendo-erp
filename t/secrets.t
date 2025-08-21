@@ -65,4 +65,21 @@ require_ok('SL::DB::Secret');
   is $pw_func->(), "letmein";
 }
 
+# encoding of password with null byte works
+{
+  is   "mypasswd\0continues", "mypasswd\0continues";
+  isnt "mypasswd\0continues", "mypasswd";
+
+  my $s = SL::DB::Secret->new(tag => "null password", description => "null bytes");
+
+  $s->encrypt("mypasswd\0continues");
+  $s->save;
+  $s->load;
+
+  my $pw_func = $s->decrypt();
+
+  is   $pw_func->(), "mypasswd\0continues";
+  isnt $pw_func->(), "mypasswd";
+}
+
 done_testing();
