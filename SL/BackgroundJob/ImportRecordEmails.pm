@@ -235,7 +235,10 @@ required, password for login of IMAP server by tag from L<SL::DB::Secret>
 
 =item password
 
-required, password for login of IMAP server (deprecated)
+(deprecated)
+
+password for login of IMAP server. C<password_secret> should be used instead.
+required if C<password_secret> is not set.
 
 =item port
 
