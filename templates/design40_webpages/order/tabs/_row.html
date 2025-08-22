@@ -20,8 +20,10 @@
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
       [% L.hidden_tag("basket_item_ids[+]", ITEM.basket_item_id) %]
+      [% L.hidden_tag("subtotal[]", ITEM.subtotal) %]
     </td>
-    <td class="center"><div name="position">[% HTML.escape(ITEM.position) %]</div></td>
+    <td class="hidden"><div name="position">[% HTML.escape(ITEM.position) %]</div></td>
+    <td class="numeric"><div name="position_subposition"></div></td>
     <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
     <td>
       [% L.button_tag("kivi.Order.delete_order_item_row(this)",
