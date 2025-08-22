@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash flash_later);
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Invoice;
 use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::PurchaseInvoice;
