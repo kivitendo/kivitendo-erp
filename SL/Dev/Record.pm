@@ -78,6 +78,7 @@ sub create_sales_invoice {
   my $invoice = SL::DB::Invoice->new(
     invoice      => 1,
     type         => 'invoice',
+    record_type  => 'invoice',
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone->id,
     invnumber    => delete $params{invnumber}   // undef,
@@ -109,6 +110,7 @@ sub create_minimal_purchase_invoice {
   my $invoice = SL::DB::PurchaseInvoice->new(
     invoice      => 1,
     type         => 'purchase_invoice',
+    record_type  => 'purchase_invoice',
     vendor       => $vendor->id,
     taxzone_id   => $vendor->taxzone->id,
     invnumber    => delete $params{invnumber}   // undef,
@@ -145,6 +147,7 @@ sub create_credit_note {
   my $invoice = SL::DB::Invoice->new(
     invoice      => 1,
     type         => 'credit_note',
+    record_type  => 'credit_note',
     customer_id  => $customer->id,
     taxzone_id   => $customer->taxzone->id,
     invnumber    => delete $params{invnumber}   // undef,
@@ -471,6 +474,7 @@ sub create_ap_transaction {
     taxzone_id       => $vendor->taxzone_id, # taxzone_id shouldn't have any effect on ap transactions
     currency_id      => $::instance_conf->get_currency_id,
     type             => undef, # isn't set for ap
+    record_type      => 'ap_transaction',
     employee_id      => SL::DB::Manager::Employee->current->id,
   );
   # assign any parameters that weren't explicitly handled above, e.g. itime
@@ -592,6 +596,7 @@ sub create_ar_transaction {
     taxzone_id       => $customer->taxzone_id, # taxzone_id shouldn't have any effect on ar transactions
     currency_id      => $::instance_conf->get_currency_id,
     type             => undef, # isn't set for ar
+    record_type      => 'ar_transaction',
     employee_id      => SL::DB::Manager::Employee->current->id,
   );
   # assign any parameters that weren't explicitly handled above, e.g. itime
