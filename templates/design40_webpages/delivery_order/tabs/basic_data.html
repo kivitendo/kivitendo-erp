@@ -210,10 +210,17 @@
       <td>[% L.input_tag('order.donumber', SELF.order.donumber, onchange='kivi.DeliveryOrder.set_number_in_title(this)', class='wi-normal numeric') %]</td>
     </tr>
 
+    [%- IF SELF.type == 'sales_delivery_order' %]
+    <tr>
+      <th>[% 'Order Confirmation Number' | $T8 %]</th>
+      <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-normal') %]</td>
+    </tr>
+    [%- ELSE %]
     <tr>
       <th>[% 'Order Number' | $T8 %]</th>
       <td>[% L.input_tag('order.ordnumber', SELF.order.ordnumber, class='wi-normal') %]</td>
     </tr>
+    [%- END %]
 
     [%- IF SELF.type == 'purchase_delivery_order' %]
     <tr>
