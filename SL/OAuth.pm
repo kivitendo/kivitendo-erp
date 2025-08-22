@@ -3,6 +3,9 @@ package SL::OAuth;
 use strict;
 
 use List::MoreUtils qw(all);
+use SL::Controller::OAuth::Atlassian;
+use SL::Controller::OAuth::GoogleCal;
+use SL::Controller::OAuth::Microsoft;
 use SL::DB::OAuthToken;
 
 my %providers = (
@@ -30,15 +33,17 @@ sub configured_providers {
 sub access_token_for {
   my ($target, %params) = @_;
 
-  my $token = SL::DB::Manager::OAuthToken->find_by(
-    tokenstate   => undef,
-    registration => $target,
-    email        => $params{email},
-    or           => [
-      (employee_id => SL::DB::Manager::Employee->current->id), # token for current user
-      (employee_id => undef), # client wide token
+  my $token = SL::DB::Manager::OAuthToken->get_first(
+    sort_by => 'employee_id ASC NULLS LAST',
+    where   => [
+      tokenstate   => undef,
+      registration => $target,
+      email        => $params{email},
+      or           => [
+        (employee_id => SL::DB::Manager::Employee->current->id), # token for current user
+        (employee_id => undef), # client wide token
+      ],
     ],
-    sort_by      => 'employee_id ASC NULLS LAST',
   );
 
   SL::X::OAuth::MissingToken->throw() unless $token;
@@ -55,10 +60,10 @@ sub refresh {
   my $ret = $provider->refresh($tok);
 
   my $response_code = $ret->responseCode();
-  SL::X::OAuth::RefreshFailed->throw() unless $response_code == 200;
+  SL::X::OAuth::RefreshFailed->throw(token => $tok) unless $response_code == 200;
 
   my $content = from_json($ret->responseContent());
-  SL::X::OAuth::RefreshFailed->throw() if exists $content->{error_code};
+  SL::X::OAuth::RefreshFailed->throw(token => $tok) if exists $content->{error_code};
 
   $tok->set_access_refresh_token($content);
   $tok->save;

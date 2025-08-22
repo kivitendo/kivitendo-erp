@@ -40,7 +40,7 @@ sub action_ajax_list {
     if (ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken') {
       flash('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'));
     } elsif (ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed') {
-      flash('error', t8('OAuth token refresh failed'));
+      flash('error', t8('OAuth token refresh failed, token ID #1', $EVAL_ERROR->token->id));
     } else {
       flash('error', $EVAL_ERROR);
     }
