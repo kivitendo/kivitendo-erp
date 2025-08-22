@@ -436,7 +436,7 @@ sub action_add_item {
       $self->recalc();
       $self->get_item_cvpartnumber($item);
       my $item_id = join('_', 'new', Time::HiRes::gettimeofday(), int rand 1000000000000);
-      my $row_as_html = $self->p->render('record/tabs/_row',
+      my $row_as_html = $self->p->render('invoice/tabs/_row',
                                          ITEM => $item,
                                          ID   => $item_id,
                                          SELF => $self,
