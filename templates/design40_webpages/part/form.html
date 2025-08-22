@@ -11,7 +11,7 @@
     [% SELF.print_options %]
     <br>
     [% L.button_tag('kivi.Part.save_and_print()', LxERP.t8('Print')) %]
-    <a href="#" onclick="$('#print_options').dialog('close');" class="button neutral">[% LxERP.t8("Cancel") %]</a>
+    [% L.button_tag("\$('#print_options').dialog('close')", LxERP.t8('Cancel'), class='neutral') %]
   </form>
 </div>
 
