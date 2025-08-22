@@ -1413,8 +1413,13 @@ sub ar_transactions {
       };
     }
 
-    $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
-      . "&id=" . E($ar->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    if ($::instance_conf->get_feature_experimental_invoice) {
+      $row->{invnumber}->{link} = build_std_url('script=controller.pl', 'action=Invoice/edit', 'id=' . E($ar->{id}) . '&type=' . ($ar->{invoice} ? 'invoice' : 'purchase_invoice'))
+         . "&callback=${callback}" unless $params{want_binary_pdf};
+    } else {
+      $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
+        . "&id=" . E($ar->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    }
 
     $row->{ids} = {
       raw_data =>  SL::Presenter::Tag::checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),
