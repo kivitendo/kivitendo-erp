@@ -101,8 +101,8 @@ sub _post_transaction {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
 
       $query =
-        qq|INSERT INTO ap (id, invnumber, employee_id, buyer_id, currency_id, taxzone_id) | .
-        qq|VALUES (?, ?, ?, ?,
+        qq|INSERT INTO ap (id, record_type, invnumber, employee_id, buyer_id, currency_id, taxzone_id) | .
+        qq|VALUES (?, 'ap_transaction', ?, ?, ?,
                       (SELECT id FROM currencies WHERE name = ?), (SELECT taxzone_id FROM vendor WHERE id = ?) )|;
       do_query($form, $dbh, $query, $form->{id}, $form->{invnumber}, $form->{employee_id}, $form->{buyer_id},  $form->{currency}, $form->{vendor_id});
 
@@ -1100,6 +1100,7 @@ sub _storno {
 
   $storno_row->{id}         = $new_id;
   $storno_row->{storno_id}  = $id;
+  $storno_row->{record_type} = 'ap_transaction_storno';
   $storno_row->{storno}     = 't';
   $storno_row->{invnumber}  = 'Storno-' . $storno_row->{invnumber};
   $storno_row->{amount}    *= -1;
