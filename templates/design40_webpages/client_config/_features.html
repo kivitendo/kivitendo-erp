@@ -264,6 +264,11 @@
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Experimental Features") %]</th>
       </tr>
+      <tr>
+        <th>[% 'Invoice Controller' | $T8 %]</th>
+        <td>[% L.yes_no_tag('defaults.feature_experimental_invoice', SELF.defaults.feature_experimental_invoice) %]</td>
+        <td class="long-desc">[% LxERP.t8('Replace legacy invoice controller with new one') %]</td>
+      </tr>
     </tbody>
   </table>
 
