@@ -69,4 +69,7 @@ is $contents[0]{qty}, '1.00000', "produce assembly does not multiply qty (1)";
 is $contents[1]{qty}, '1.00000', "produce assembly does not multiply qty (2)";
 is $contents[2]{qty}, '1.00000', "produce assembly does not multiply qty (3)";
 
+reset_inventory();
+$_->delete for ($bin, $wh, $part);
+
 1;
