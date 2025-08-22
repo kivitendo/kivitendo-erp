@@ -93,6 +93,7 @@ init_db();
 
   # set invnumber and currency
   $form{invnumber}    = $description;
+  $form{invdate}      = DateTime->now->to_kivitendo;
   $form{currency}     = $currency;
 
   # update
