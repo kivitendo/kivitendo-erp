@@ -51,6 +51,13 @@ use Exception::Class (
     isa                 => 'SL::X::Inventory::Allocation',
     fields              => [ qw(errors) ],
   },
+  'SL::X::OAuth::MissingToken' => {
+    isa                 => 'SL::X::Base',
+  },
+  'SL::X::OAuth::RefreshFailed' => {
+    isa                 => 'SL::X::Base',
+    fields              => [ qw(token) ],
+  },
 );
 
 1;
