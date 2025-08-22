@@ -66,7 +66,7 @@ sub action_create {
 
   $tok->save;
 
-  $self->render('oauth/forward', title => t8('Add new OAuth2 token'), authorize_link => $link);
+  return $self->redirect_to($link);
 }
 
 sub action_delete {

@@ -46,13 +46,6 @@ sub options_with_defaults {
   %opts;
 }
 
-sub new {
-  my ($type, %params) = @_;
-  my $self            = bless {}, $type;
-  $self->connector($self->init_connector());
-  $self;
-}
-
 sub get_tickets {
   my ($self, $params) = @_;
 
@@ -138,6 +131,7 @@ sub tickets {
 
   my $strp = DateTime::Format::Strptime->new(pattern => '%FT%T.%3N%z');
 
+  my $issues = $res->{issues};
   my @tickets = map +{
     key        => $_->{key},
     ext_url    => $cloud_url . '/browse/' . $_->{key},
@@ -149,7 +143,7 @@ sub tickets {
     updated    => $strp->parse_datetime($_->{fields}->{updated}),
     status     => $_->{fields}->{status}->{name},
     resolution => $_->{fields}->{resolution}->{name},
-  }, @$res->{issues};
+  }, @$issues;
 
   \@tickets;
 }

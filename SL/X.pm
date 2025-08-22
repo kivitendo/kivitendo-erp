@@ -53,10 +53,10 @@ use Exception::Class (
   },
   'SL::X::OAuth::MissingToken' => {
     isa                 => 'SL::X::Base',
-    #fields              => [ qw(errors) ],
   },
   'SL::X::OAuth::RefreshFailed' => {
     isa                 => 'SL::X::Base',
+    fields              => [ qw(token) ],
   },
 );
 

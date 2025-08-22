@@ -37,16 +37,11 @@ sub action_ajax_list {
     ($objects, $message) = $provider->get_tickets(\%params);
     1;
   } or do {
-    if (ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken') {
-      flash('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'));
-    } elsif (ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed') {
-      flash('error', t8('OAuth token refresh failed'));
-    } else {
-      flash('error', $EVAL_ERROR);
-    }
+    my ($type, $msg) = ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken'  ? ('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'))
+                     : ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed' ? ('error', t8('OAuth token refresh failed, token ID #1', $EVAL_ERROR->token->id))
+                     : ('error', $EVAL_ERROR);
 
-    $self->render('common/flash', { layout => 0 });
-    $::dispatcher->end_request();
+    return $self->render('ticket_system/message', { layout => 0 }, type => $type, message => $msg);
   };
 
   my $prov_cols    = $provider->ticket_columns();
