@@ -46,13 +46,6 @@ sub options_with_defaults {
   %opts;
 }
 
-sub new {
-  my ($type, %params) = @_;
-  my $self            = bless {}, $type;
-  $self->connector($self->init_connector());
-  $self;
-}
-
 sub get_tickets {
   my ($self, $params) = @_;
 
@@ -64,7 +57,7 @@ sub get_tickets {
   $q_order  =~ s/[^a-z0-9]//g;
   $q_search =~ s/"/\\"/g;
 
-  my $jql = 'textfields ~ "' . $q_search . '*"';
+  my $jql = 'reporter in organizationMembers("' . $q_search . '")';
   $jql   .= ' AND statusCategory != Done' unless ($params->{include_closed});
   $jql   .= " ORDER BY $q_order $q_dir";
 
@@ -76,7 +69,7 @@ sub get_tickets {
 sub init_connector {
   my ($self) = @_;
 
-  my $acctok = SL::OAuth::access_token_for('atlassian_jira') or die 'no access token';
+  my $acctok = SL::OAuth::access_token_for('atlassian_jira');
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
@@ -90,7 +83,7 @@ sub _decode_and_status_code {
 
   my $code    = $ret->responseCode();
   my $content = $ret->responseContent();
-  die "HTTP $code $content" unless $code == 200;
+  die "HTTP $code" unless ($code >= 200 && $code <= 299);
 
   from_json($content);
 }
@@ -138,18 +131,19 @@ sub tickets {
 
   my $strp = DateTime::Format::Strptime->new(pattern => '%FT%T.%3N%z');
 
+  my $issues = $res->{issues};
   my @tickets = map +{
     key        => $_->{key},
     ext_url    => $cloud_url . '/browse/' . $_->{key},
-    summary    => $_->{fields}->{summary},
-    creator    => $_->{fields}->{creator}->{displayName},
-    assignee   => $_->{fields}->{assignee}->{displayName},
-    priority   => $_->{fields}->{priority}->{name},
-    created    => $strp->parse_datetime($_->{fields}->{created}),
-    updated    => $strp->parse_datetime($_->{fields}->{updated}),
-    status     => $_->{fields}->{status}->{name},
-    resolution => $_->{fields}->{resolution}->{name},
-  }, @$res->{issues};
+    summary    => $_->{fields}{summary},
+    creator    => $_->{fields}{creator}{displayName},
+    assignee   => $_->{fields}{assignee}{displayName},
+    priority   => $_->{fields}{priority}{name},
+    created    => $strp->parse_datetime($_->{fields}{created}),
+    updated    => $strp->parse_datetime($_->{fields}{updated}),
+    status     => $_->{fields}{status}{name},
+    resolution => $_->{fields}{resolution}{name},
+  }, @$issues;
 
   \@tickets;
 }

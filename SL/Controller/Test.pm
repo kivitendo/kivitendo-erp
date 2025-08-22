@@ -5,9 +5,10 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use Data::Dumper;
+use English qw(-no_match_vars);
 use SL::ClientJS;
 
-use SL::Controller::OAuth;
+use SL::OAuth;
 use REST::Client;
 
 sub action_dump_form {
@@ -29,7 +30,12 @@ sub action_get_google_cal_list {
 
   my $api_host = 'https://www.googleapis.com';
 
-  my $acctok = SL::Controller::OAuth::access_token_for('google_cal') or die "no access token";
+  my $acctok;
+  eval {
+    $acctok = SL::OAuth::access_token_for('google_cal');
+  } or do {
+    die ref($EVAL_ERROR);
+  };
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
