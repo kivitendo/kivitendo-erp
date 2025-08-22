@@ -23,7 +23,7 @@
       [% L.hidden_tag("subtotal[]", ITEM.subtotal) %]
     </td>
     <td class="hidden"><div name="position">[% HTML.escape(ITEM.position) %]</div></td>
-    <td class="center"><div name="position_subposition"></div></td>
+    <td class="numeric"><div name="position_subposition"></div></td>
     <td><img src="image/updown.png" alt="[% LxERP.t8('reorder item') %]" class="dragdrop"></td>
     <td>
       [% L.button_tag("kivi.Order.delete_order_item_row(this)",
