@@ -95,7 +95,7 @@ sub _post_transaction {
     } else {
       $query = qq|SELECT nextval('glid')|;
       ($form->{id}) = selectrow_query($form, $dbh, $query);
-      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id, taxzone_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?), (SELECT taxzone_id FROM customer WHERE id = ?))|;
+      $query = qq|INSERT INTO ar (id, invnumber, record_type, employee_id, currency_id, taxzone_id) VALUES (?, 'dummy', 'ar_transaction', ?, (SELECT id FROM currencies WHERE name=?), (SELECT taxzone_id FROM customer WHERE id = ?))|;
       do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency}, $form->{customer_id});
       if (!$form->{invnumber}) {
         my $trans_number   = SL::TransNumber->new(type => 'invoice', dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
@@ -992,6 +992,7 @@ sub _storno {
   $storno_row = selectfirst_hashref_query($form, $dbh, $query, $id);
 
   $storno_row->{id}         = $new_id;
+  $storno_row->{record_type} = 'ar_transaction_storno';
   $storno_row->{storno_id}  = $id;
   $storno_row->{storno}     = 't';
   $storno_row->{invnumber}  = 'Storno-' . $storno_row->{invnumber};
