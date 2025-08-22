@@ -73,3 +73,10 @@ reset_inventory();
 $_->delete for ($bin, $wh, $part);
 
 1;
+
+#####
+# vim: ft=perl
+# set emacs to perl mode
+# Local Variables:
+# mode: perl
+# End:
