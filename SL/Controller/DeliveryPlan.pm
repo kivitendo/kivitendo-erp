@@ -28,9 +28,11 @@ my %sort_columns = (
   qty               => t8('Qty'),
   shipped_qty       => t8('shipped'),
   not_shipped_qty   => t8('not shipped'),
+  status            => t8('Status'),
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
+  microfiche        => t8('Microfiche'),
 );
 
 
@@ -65,6 +67,8 @@ sub prepare_report {
                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
     partnumber        => {      sub => sub { $_[0]->part->partnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+    microfiche        => {      sub => sub { $_[0]->part->microfiche                                                         },
+                           obj_link => sub { $self->link_to($_[0]->part)                                                     } },
     qty               => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
     shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]{shipped_qty}, 2) . ' ' . $_[0]->unit } },
     not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}, 2) . ' ' . $_[0]->unit } },
@@ -76,6 +80,7 @@ sub prepare_report {
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
                             visible => $vc eq 'customer',
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+    status            => {      sub => sub { ref $_[0]->order->order_status ? $_[0]->order->order_status->name : ''          } },
   );
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
