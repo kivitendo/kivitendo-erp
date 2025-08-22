@@ -8,7 +8,7 @@ use English qw(-no_match_vars);
 use File::Slurp ();
 use File::Spec  ();
 use File::Temp  ();
-use File::Copy qw(move);
+use File::Copy qw(copy move);
 use List::MoreUtils qw(uniq);
 use List::Util qw(first);
 use Scalar::Util qw(blessed);
@@ -71,11 +71,8 @@ sub create_parsed_file {
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
-  my $image_out_fh;
-  if ( $params{image_data} && $params{image_extensions} ) {
-    open($image_out_fh, '>', $form->{tmpdir} . '/image.' . $params{image_extension});
-    print $image_out_fh $params{image_data};
-    close($image_out_fh);
+  if ( $params{image_data} && $params{image_extension} ) {
+    File::Copy::copy($params{image_data}, $form->{tmpdir} . '/image.' . $params{image_extension});
   }
 
   my %driver_options;

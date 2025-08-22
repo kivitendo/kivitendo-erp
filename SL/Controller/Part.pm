@@ -154,7 +154,7 @@ sub action_save_and_print {
   if (my $file_obj = $self->part->default_partimage) {
     my @suffixe      = split('/',$file_obj->mime_type);
     my $suffix       = $suffixe[1];
-    $image_data      = File::Slurp::read_file($file_obj->get_file);
+    $image_data      = $file_obj->get_file;
     $image_extension = $suffix;
     $self->part->image("image.$image_extension");
   }
