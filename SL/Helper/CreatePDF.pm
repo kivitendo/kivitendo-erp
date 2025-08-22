@@ -71,8 +71,8 @@ sub create_parsed_file {
   $form->{tmpfile} = $tmpfile;
   (undef, undef, $form->{template_meta}{tmpfile}) = File::Spec->splitpath($tmpfile);
 
-  if ( $params{image_data} && $params{image_extension} ) {
-    File::Copy::copy($params{image_data}, $form->{tmpdir} . '/image.' . $params{image_extension});
+  if ( $params{image_src_path} && $params{image_extension} ) {
+    File::Copy::copy($params{image_src_path}, $form->{tmpdir} . '/image.' . $params{image_extension});
   }
 
   my %driver_options;

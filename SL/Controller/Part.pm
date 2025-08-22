@@ -149,12 +149,12 @@ sub action_save_and_print {
       id => $::form->{print_options}->{language_id}
     );
   }
-  my ($image_data, $image_extension);
+  my ($image_src_path, $image_extension);
   $self->part->image('');
   if (my $file_obj = $self->part->default_partimage) {
     my @suffixe      = split('/',$file_obj->mime_type);
     my $suffix       = $suffixe[1];
-    $image_data      = $file_obj->get_file;
+    $image_src_path  = $file_obj->get_file;
     $image_extension = $suffix;
     $self->part->image("image.$image_extension");
   }
@@ -206,7 +206,7 @@ sub action_save_and_print {
       template_type   => $template_type,
       template        => $template_file,
       variables       => $print_form,
-      image_data      => $image_data,
+      image_src_path  => $image_src_path,
       image_extension => $image_extension,
       variable_content_types => {
         notes => 'html',
