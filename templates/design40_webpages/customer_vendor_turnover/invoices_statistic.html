@@ -21,26 +21,34 @@
         [% IF FORM.db == 'customer' %]
           [% IF row.type == 'invoice' %]
             [% SET type = 'Invoice (one letter abbreviation)' %]
-            [% SET link = 'is.pl' %]
+            [% SET link = 'is.pl?action=edit&id=' _ row.id %]
+            [% IF INSTANCE_CONF.get_feature_experimental_invoice %]
+              [% SET link = 'controller.pl?action=Invoice/edit&type=invoice&id=' _ row.id %]
+            [% END %]
           [% ELSIF row.type == 'credit_note' %]
             [% SET type = 'Credit Note (one letter abbreviation)' %]
-            [% SET link = 'is.pl' %]
+            [% IF INSTANCE_CONF.get_feature_experimental_invoice %]
+              [% SET link = 'is.pl?action=edit&id=' _ row.id %]
+            [% END %]
           [% ELSE %]
             [% SET type = 'AR Transaction (abbreviation)' %]
-            [% SET link = 'ar.pl' %]
+            [% SET link = 'ar.pl?action=edit&id=' _ row.id %]
           [% END %]
           [% ELSE %]
             [% IF row.invoice %]
             [% SET type = 'Invoice (one letter abbreviation)' %]
-            [% SET link = 'ir.pl' %]
+            [% SET link = 'ir.pl?action=edit&id=' _ row.id %]
+            [% IF INSTANCE_CONF.get_feature_experimental_invoice %]
+              [% SET link = 'controller.pl?action=Invoice/edit&type=purchase_invoice&id=' _ row.id %]
+            [% END %]
           [% ELSE %]
             [% SET type = 'AP Transaction (abbreviation)' %]
-            [% SET link = 'ap.pl' %]
+            [% SET link = 'ap.pl?action=edit&id=' _ row.id %]
           [% END %]
         [% END %]
       <tr>
         <td>[% type | $T8 %]</td>
-        <td><a href="[% link %]?action=edit&id=[% row.id %]">[% row.invnumber | html %]</a></td>
+        <td><a href="[% link %]">[% row.invnumber | html %]</a></td>
         <td>[% row.transdate.to_kivitendo | html %]</td>
         <td class="numeric">[%- LxERP.format_amount(row.amount, 2) %]</td>
         <td>[% row.duedate.to_kivitendo | html %]</td>
