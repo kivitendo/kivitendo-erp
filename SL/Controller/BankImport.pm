@@ -5,12 +5,14 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(apply);
-use List::Util qw(max min);
+use List::Util qw(max min sum);
 
 use SL::DB::BankAccount;
 use SL::DB::BankTransaction;
+use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
 use SL::Helper::Flash;
+use SL::Locale::String qw(t8);
 use SL::MT940;
 use SL::SessionFile::Random;
 
@@ -69,6 +71,7 @@ sub parse_and_analyze_transactions {
 
   my $errors     = 0;
   my $duplicates = 0;
+  my $sepa       = 0;
   my ($min_date, $max_date);
 
   my $currency_id = SL::DB::Default->get->currency_id;
@@ -114,12 +117,18 @@ sub parse_and_analyze_transactions {
       $duplicates++;
       next;
     }
+    # check if endtoend id exists and matches one in kivi
+    if ($transaction->{end_to_end_id} && $transaction->{end_to_end_id} =~ m/^KIVITENDO/) {
+      $transaction->{sei} = $self->_check_sepa_automatic(transaction => $transaction);
+      $sepa++ if ref $transaction->{sei} eq 'SL::DB::SepaExportItem';
+    }
   }
 
   $self->statistics({
     total      => scalar(@{ $self->transactions }),
     errors     => $errors,
     duplicates => $duplicates,
+    sepa       => $sepa,
     to_import  => scalar(@{ $self->transactions }) - $errors - $duplicates,
   });
 }
@@ -128,25 +137,112 @@ sub import_transactions {
   my ($self, %params) = @_;
 
   my $imported = 0;
+  my $sepa     = 0;
 
-  SL::DB::client->with_transaction(sub {
+  my $db = SL::DB::client;
+  $db->with_transaction(sub {
     # make Emacs happy
     1;
 
     foreach my $transaction (@{ $self->transactions }) {
       next if $transaction->{error} || $transaction->{duplicate};
 
-      SL::DB::BankTransaction->new(
+      my $current_bt = SL::DB::BankTransaction->new(
         map { ($_ => $transaction->{$_}) } qw(amount currency_id local_bank_account_id purpose remote_account_number remote_bank_code remote_name transaction_code transdate valutadate end_to_end_id)
       )->save;
 
       $imported++;
+
+      if ($transaction->{sei} && !$::form->{"no_automatic_" . $transaction->{sei}->sepa_export->id}) {
+        $self->_book_sepa(bt => $current_bt, sei => $transaction->{sei});
+        $sepa++;
+        $transaction->{sei_ok} = 1;
+      }
     }
 
     1;
-  });
+  }) || die t8('db error while importing MT940: #1 ', $db->error);
 
   $self->statistics->{imported} = $imported;
+  $self->statistics->{sepa}     = $sepa;
+}
+
+sub _book_sepa {
+  my ($self, %params) = @_;
+  die "Need a bankt transaction" unless ref $params{bt}  eq 'SL::DB::BankTransaction';
+  die "Need a SEPA Export Item"  unless ref $params{sei} eq 'SL::DB::SepaExportItem';
+
+  my $bt  = delete $params{bt};
+  my $sei = delete $params{sei};
+
+  $bt->load;
+
+  my @seis;
+
+  if ($sei->is_combined_payment) {
+    $sei->set_executed;
+    @seis = grep { $_->collected_payment && $sei->end_to_end_id eq $_->end_to_end_id }
+                @{ $sei->sepa_export->find_sepa_export_item };
+  } else {
+    push @seis, $sei;
+  }
+
+  foreach my $sepa_export_item (@seis) {
+    my $invoice;
+    if ( $sepa_export_item->ar_id ) {
+      $invoice = SL::DB::Manager::Invoice->find_by(id => $sepa_export_item->ar_id);
+    } elsif ( $sepa_export_item->ap_id ) {
+      $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $sepa_export_item->ap_id);
+    } else {
+      die "sepa_export_item needs either ar_id or ap_id\n";
+    }
+    $sepa_export_item->set_executed;
+
+    # only real open invoices need payments
+    my $invoice_open_amount =     $sepa_export_item->payment_type eq 'with_skonto_pt'
+                              && ! abs($sepa_export_item->invoice_booked_skonto_amount) > 0.001
+                              ? $sepa_export_item->invoice_open_amount_less_skonto
+                              : $sepa_export_item->invoice_open_amount;
+
+    next if abs($invoice_open_amount) < 0.001;
+
+    my @acc_ids = $invoice->pay_invoice(amount       => $invoice_open_amount * -1,
+                                        chart_id     => $bt->local_bank_account->chart_id,
+                                        source       => $sepa_export_item->reference,
+                                        transdate    => $bt->valutadate->to_kivitendo,
+                                        bt_id        => $bt->id,
+                                        # if foreign currency, just send record exchange rate
+                                        (currency_id  => $invoice->currency_id)     x!! $invoice->forex,
+                                        (exchangerate => $invoice->get_exchangerate)x!! $invoice->forex,
+                                        # if no skonto booking yet but skonto_pt, just book skonto
+                                        (payment_type  => 'with_skonto_pt')         x!!(    $sepa_export_item->payment_type eq 'with_skonto_pt'
+                                                                                        && !$sepa_export_item->invoice_booked_skonto_amount    ),
+                                       );
+    # First element is the booked amount for accno bank
+    my $bank_amount = shift @acc_ids;
+    die "Invalid calc: $bank_amount->{return_bank_amount} " . $bt->amount unless ( $bank_amount->{return_bank_amount} < 0 && $bt->amount < 0
+                                                                                || $bank_amount->{return_bank_amount} > 0 && $bt->amount > 0 );
+    $bt->invoice_amount($bt->invoice_amount + $bank_amount->{return_bank_amount});
+    foreach my $acc_trans_id (@acc_ids) {
+        my $id_type = $invoice->is_sales ? 'ar' : 'ap';
+        my  %props_acc = (
+          acc_trans_id        => $acc_trans_id,
+          bank_transaction_id => $bt->id,
+          $id_type            => $invoice->id,
+        );
+        SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+    }
+    # Record a record link from the bank transaction to the invoice
+    my %props = (
+      from_table => 'bank_transactions',
+      from_id    => $bt->id,
+      to_table   => $invoice->is_sales ? 'ar' : 'ap',
+      to_id      => $invoice->id,
+    );
+    SL::DB::RecordLink->new(%props)->save;
+  }
+  $bt->save;
+  return undef;
 }
 
 sub check_auth {
@@ -182,6 +278,36 @@ sub make_transaction_idx {
                          $transaction->{valutadate}->ymd,
                          (apply { s{0+$}{} } $transaction->{amount} * 1),
                          map { $transaction->{$_} } @other_fields));
+}
+
+sub _check_sepa_automatic {
+  my ($self, %params) = @_;
+  die "Need a transaction" unless ref $params{transaction} eq 'HASH';
+
+  my $transaction = delete $params{transaction};
+
+  die "Invalid transaction, need amount and SEPA EndToEnd Id"
+                                   unless $transaction->{end_to_end_id} && $transaction->{amount};
+  die "Invalid kivi end_to_end_id" unless $transaction->{end_to_end_id} =~ m/^KIVITENDO/;
+  my $sei = SL::DB::Manager::SepaExportItem->find_by(end_to_end_id     => $transaction->{end_to_end_id},
+                                                     executed          => 0,
+                                                     collected_payment => 0);
+
+  return undef unless ref $sei eq 'SL::DB::SepaExportItem';
+
+  my $invoice_open_amount =  # combined total (open) amount should equal bank import amount
+                            $sei->is_combined_payment
+                            ? sum map  {   $_->payment_type eq 'with_skonto_pt' && ! abs($_->invoice_booked_skonto_amount) > 0.001
+                                         ? $_->invoice_open_amount_less_skonto
+                                         : $_->invoice_open_amount }
+                                  grep {$_->collected_payment && $_->end_to_end_id eq $sei->end_to_end_id} @{ $sei->sepa_export->sepa_export_item }
+                            # single sepa item with or without skonto
+                            : $sei->payment_type eq 'with_skonto_pt' && ! abs ($sei->invoice_booked_skonto_amount) > 0.001
+                            ? $sei->invoice_open_amount_less_skonto
+                            : $sei->invoice_open_amount;
+
+  return (abs ($transaction->{amount} - $invoice_open_amount) < 0.01 && abs( abs ($invoice_open_amount) - $sei->amount < 0.01 )) ? $sei : undef;
+
 }
 
 sub init_bank_accounts {

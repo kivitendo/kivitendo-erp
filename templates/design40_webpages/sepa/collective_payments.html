@@ -1,0 +1,61 @@
+[% USE T8 %]
+[% USE L %]
+[% USE HTML %]
+[% USE LxERP %]
+[% FOREACH bank_transfer = BANK_TRANSFERS %]
+  [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
+    [% IF bank_transfer.collective_transfer %]
+    <tr>
+        <input type="hidden" name="collective_bank_transfers[+].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
+        <input type="hidden" name="collective_bank_transfers[].payment_type"
+          [% IF        combine_payments.${bank_transfer.vc_id}.payment_type.with_skonto_pt && NOT combine_payments.${bank_transfer.vc_id}.payment_type.without_skonto %]
+           value="with_skonto_pt">
+          [% ELSIF NOT combine_payments.${bank_transfer.vc_id}.payment_type.with_skonto_pt &&     combine_payments.${bank_transfer.vc_id}.payment_type.without_skonto  %]
+           value="without_skonto">
+          [% ELSE %]
+           value="mixed">
+          [% END %]
+      <td> <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+                    [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
+            </a></td>
+      <td><b>[% 'Collective Payment' | $T8 %]</b></td>
+      <td></td>
+      <td></td>
+      <td><input type="text" name="collective_bank_transfers[].reference" value="[% HTML.escape(combine_payments.${bank_transfer.vc_id}.reference.substr(0, 140)) %]" size="100" maxlength="140"> </td>
+      <td><input type="text" id="[% bank_transfer.vc_id %]_amount" name="collective_bank_transfers[].amount" value="[% LxERP.format_amount(combine_payments.${bank_transfer.vc_id}.amount, -2) %]" style="text-align: right" size="12"></td>
+      <td></td>
+      <td></td>
+      <td>[% L.date_tag('collective_bank_transfers[].requested_execution_date', combine_payments.${bank_transfer.vc_id}.recommended_execution_date) %]</td>
+    </tr>
+    [% END %]
+  [% END %]
+    <tr>
+      <td>
+        <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(bank_transfer.id) %]">
+        <input type="hidden" name="bank_transfers[].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
+        <input type="hidden" name="bank_transfers[].selected" value="1">
+        <input type="hidden" name="bank_transfers[].collected_payment" value="[% bank_transfer.collective_transfer %]">
+        <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
+        <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
+        <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
+        <input type="hidden" id="invoice_open_amount_less_skonto_[% loop.count %]" name="invoice_open_amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount_less_skonto, 2) %]">
+        [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
+          <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+            [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
+          </a>
+        [% END %]
+      </td>
+      <td><a href="[% IF bank_transfer.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(bank_transfer.id) %]"> [% HTML.escape(bank_transfer.invnumber) %]</a></td>
+      <td>[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
+      <td>[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
+      <td><input type="text" style="color: #787878;" readonly="1" name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference.substr(0, 140)) %]" size="40" maxlength="140"></td>
+      <td><input type="text" style="color: #787878;" readonly="1" id="[% loop.count %]" name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
+      <td>[% L.select_tag('bank_transfers[].payment_type', bank_transfer.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target', readonly='1', style =>'color: #787878;') %]</td>
+      <td[% IF bank_transfer.within_skonto_period %] style="background-color:LightGreen"[% END %]>
+        [% IF bank_transfer.skonto_amount %]
+          [% LxERP.format_amount(bank_transfer.percent_skonto, 2) %] % = [% LxERP.format_amount(bank_transfer.skonto_amount, 2) %] € [% 'until' | $T8 %] [% bank_transfer.skonto_date %]
+        [% END %]
+      </td>
+      <td>[% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.recommended_execution_date, disabled='1') %]</td>
+    </tr>
+[% END %]

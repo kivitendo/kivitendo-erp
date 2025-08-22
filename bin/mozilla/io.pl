@@ -1077,6 +1077,7 @@ sub _order {
 
   $form->{old_employee_id} = $form->{employee_id};
   $form->{old_salesman_id} = $form->{salesman_id};
+  $form->{old_buyer_id}    = $form->{buyer_id};
 
   delete $form->{$_} foreach (qw(id printed emailed queued));
 

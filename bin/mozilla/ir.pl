@@ -303,10 +303,11 @@ sub setup_ir_action_bar {
   my $may_edit_create         = $::auth->assert('vendor_invoice_edit', 1);
 
   my $has_sepa_exports;
-  my $is_sepa_blocked;
+  my ($is_sepa_blocked, $is_payment_approved);
   if ($form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
+    $is_payment_approved = 1 if ($invoice->find_payment_approved()->[0]);
     $is_sepa_blocked  = !!$invoice->is_sepa_blocked;
   }
 
@@ -381,6 +382,14 @@ sub setup_ir_action_bar {
           submit   => [ '#form', { action => "block_or_unblock_sepa_transfer", unblock_sepa => !!$is_sepa_blocked } ],
           disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
                     : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    :                     undef,
+        ],
+        action => [ t8('Approve Payment'),
+          submit   => [ '#form', { action => "approve_payment", } ],
+          disabled => !$may_edit_create ? t8('You must not change this AP transaction.')
+                    : !$::form->{id}    ? t8('This invoice has not been posted yet.')
+                    : $is_payment_approved ? t8('This transaction is already approved.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction.')
                     :                     undef,
         ],
         action => [
@@ -486,9 +495,10 @@ sub form_header {
   $TMPL_VAR->{vendor_obj}  = SL::DB::Vendor->load_cached($form->{vendor_id})   if $form->{vendor_id};
   my $current_employee   = SL::DB::Manager::Employee->current;
   $form->{employee_id}   = $form->{old_employee_id} if $form->{old_employee_id};
-  $form->{salesman_id}   = $form->{old_salesman_id} if $form->{old_salesman_id};
+  $form->{buyer_id}      = $form->{old_buyer_id}    if $form->{old_buyer_id};
   $form->{employee_id} ||= $current_employee->id;
-  $form->{salesman_id} ||= $current_employee->id;
+  $form->{buyer_id}    ||= $TMPL_VAR->{vendor_obj}->buyer_id if ref $TMPL_VAR->{vendor_obj} eq 'SL::DB::Vendor';
+  $form->{buyer_id}    ||= $current_employee->id;
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -701,6 +711,14 @@ sub block_or_unblock_sepa_transfer {
   $invoice->update_attributes(is_sepa_blocked => 1) if !$::form->{unblock_sepa} && !$invoice->is_sepa_blocked;
 
   $::form->redirect($::form->{unblock_sepa} ? t8('Bank transfer via SEPA is unblocked') : t8('Bank transfer via SEPA is blocked'));
+}
+
+sub approve_payment {
+  $::auth->assert('ap_transactions');
+
+  SL::DB::PaymentApproved->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
+
+  $::form->redirect(t8('Payment Approved'));
 }
 
 sub show_draft {

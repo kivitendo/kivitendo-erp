@@ -13,6 +13,7 @@
  [% LxERP.t8("Invno.") %]: [% HTML.escape(invoice.invnumber) %]</br>
  [% LxERP.t8("Open amount") %]: [% LxERP.format_amount(invoice.open_amount, 2) %]</br>
  [% P.select_tag("invoice_skontos." _ bt_id _ "[]", SELECT_OPTIONS, value_key="payment_type", title_key="display", onChange="kivi.BankTransaction.update_skonto(this, " _ bt_id _ ", " _ invoice.id _ ", '$formatted_skonto_amount')"  ) %]</br>
+ [% IF invoice.booked_skonto_amount %][% LxERP.t8("Skonto already booked") %]:<b>[% LxERP.format_amount(invoice.booked_skonto_amount, 2) %]</b></br>[% END %]
  [% LxERP.t8("Skonto amount") %]: [% P.input_tag("free_skonto_amount." _ bt_id _ "." _ invoice.id _ "", "$formatted_skonto_amount_selected", default=0, style=style, disabled=1, size=4, class='numeric', onblur="kivi.BankTransaction.update_invoice_amount(" _ bt_id _ ", 0, this)") %]
  <!-- PENDENT: Loeschsymbol (einheitliches) -->
  [% IF invoice.forex %]

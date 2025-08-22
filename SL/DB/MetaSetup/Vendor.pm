@@ -15,6 +15,7 @@ __PACKAGE__->meta->columns(
   bcc              => { type => 'text' },
   bic              => { type => 'text' },
   business_id      => { type => 'integer' },
+  buyer_id         => { type => 'integer' },
   cc               => { type => 'text' },
   city             => { type => 'text' },
   contact          => { type => 'text' },
@@ -65,6 +66,11 @@ __PACKAGE__->meta->foreign_keys(
   business => {
     class       => 'SL::DB::Business',
     key_columns => { business_id => 'id' },
+  },
+
+  buyer => {
+    class       => 'SL::DB::Employee',
+    key_columns => { buyer_id => 'id' },
   },
 
   currency => {

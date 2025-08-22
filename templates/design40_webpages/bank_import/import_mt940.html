@@ -9,7 +9,6 @@
   <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     [% L.hidden_tag('file_name', SELF.file_name) %]
     [% L.hidden_tag('charset', SELF.charset) %]
-  </form>
 [% END %]
 
 <h2>[% LxERP.t8("Overview") %]</h2>
@@ -35,6 +34,10 @@
     <th>[% LxERP.t8("Imported entries") %]:</th>
     <td>[% SELF.statistics.imported %]</td>
 [% END %]
+  <tr>
+    <th>[% LxERP.t8("Includes Automatic SEPA bookings") %]:</th>
+    <td>[% SELF.statistics.sepa %]</td>
+  </tr>
   </tr>
 </table>
 
@@ -76,15 +79,28 @@
             [% HTML.escape(transaction.error) %]
           [% ELSIF transaction.duplicate %]
             [% LxERP.t8("Duplicate") %]
+          [% ELSIF transaction.sei && preview %]
+            [% LxERP.t8("SEPA Booking") %]
+            <a href="sepa.pl?action=bank_transfer_edit&vc=[% IF transaction.sei.vendor_id %]vendor[% ELSE %]customer[% END %]&id=[% HTML.url(transaction.sei.sepa_export_id) %]">[% HTML.escape(transaction.sei.sepa_export_id) %]</a><br/>
+            [% HTML.escape(transaction.sei.reference) %]
+            <br/><span>[% L.checkbox_tag('no_automatic_' _ transaction.sei.sepa_export_id, value => 1, checked => 0) %]
+            [% LxERP.t8("Disable automatic SEPA booking") %]</span>
           [% ELSIF preview %]
             [% LxERP.t8("To import") %]
           [% ELSE %]
             [% LxERP.t8("Imported") %]
+            [% IF transaction.sei_ok %]
+              <br/>[% LxERP.t8("SEPA Booking OK") %]
+            [% END %]
           [% END %]
         </td>
       </tr>
     [% END %]
   </tbody>
 </table>
-
 [% END %]
+[% IF preview %]
+</form>
+[% END %]
+
+

@@ -61,6 +61,10 @@
       <th>[% LxERP.t8("Account for workflow from purchase order to ap transaction") %]</th>
       <td>[% P.chart.picker('defaults.workflow_po_ap_chart_id', SELF.defaults.workflow_po_ap_chart_id, type='AP_amount', choose=1, style=style) %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8("Transit Items account") %]</th>
+      <td>[% P.chart.picker('defaults.transit_items_chart_id', SELF.defaults.transit_items_chart_id , category='A', choose=1, style=style) %]<td>
+    </tr>
   </tbody>
 </table>
 
@@ -90,12 +94,6 @@
       <td>[% P.chart.picker('defaults.loss_carried_forward_chart_id', SELF.defaults.loss_carried_forward_chart_id, category='A', choose=1, style=style) %]</td>
     </tr>
     [% END %]
-    <tr>
-   <th>[% LxERP.t8("Transit Items account") %]</th>
-   <td>[% P.chart.picker('defaults.transit_items_chart_id', SELF.defaults.transit_items_chart_id , category='A', choose=1, style=style) %]<td>
-  </tr>
-
-
   </tbody>
 </table>
 
