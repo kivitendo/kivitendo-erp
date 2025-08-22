@@ -19,7 +19,7 @@
       [% 'The following assembly items are ambigious. Please check the selection.' | $T8 %]
     </caption>
     <thead>
-      <tr class="listheading">
+      <tr>
         <th>[% 'Partnumber'   | $T8%]</th>
         <th>[% 'Description'  | $T8%]</th>
         <th>[% 'Chargenumber' | $T8%]</th>
@@ -36,8 +36,8 @@
     <tbody>
       [% FOREACH part_id = stocked_by_parts_id.keys.sort -%]
         [% NEXT UNLESS stocked_by_parts_id.$part_id.size > 1 %]
-        <tr class="listheading">
-          <td colspan="[% IF INSTANCE_CONF.get_show_bestbefore %]7[% ELSE %]6[% END %]">[% 'needed qty' | $T8 %]</td>
+        <tr>
+          <td colspan="[% IF INSTANCE_CONF.get_show_bestbefore %]7[% ELSE %]6[% END %]" class="right">[% 'needed qty' | $T8 %]</td>
           <td class="numeric">[% LxERP.format_amount(needed_by_parts_id.$part_id, -2) %]</td>
           <td>[% stocked_by_parts_id.$part_id.0.part.unit | html %]</td>
         </tr>
@@ -83,7 +83,7 @@
       [% 'The following assembly items are unambigious and will be used for production.' | $T8 %]
     </caption>
     <thead>
-      <tr class="listheading">
+      <tr>
         <th>[% 'Partnumber'   | $T8%]</th>
         <th>[% 'Description'  | $T8%]</th>
         <th>[% 'Chargenumber' | $T8%]</th>
