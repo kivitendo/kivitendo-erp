@@ -220,6 +220,7 @@ pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
     itime mtime
+    taxkey_id
     )) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);

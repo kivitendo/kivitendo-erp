@@ -227,7 +227,7 @@ foreach (qw(
 pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id reclamation_id
-    itime mtime
+    itime mtime taxkey_id
     )) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
@@ -254,6 +254,7 @@ pairwise { my $first_tmp = clone($a); my $second_tmp = clone($b);
   foreach (qw(
     id trans_id
     itime mtime
+    taxkey_id
     )) {
     $first_tmp->$_(undef);
     $second_tmp->$_(undef);
