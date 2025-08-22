@@ -14,6 +14,7 @@ use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Order;
 use SL::DB::Invoice;
+use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
 use SL::File;
@@ -229,7 +230,7 @@ sub _create_periodic_invoice {
   if (!$self->{db_obj}->db->with_transaction(sub {
     1;                          # make Emacs happy
 
-    $invoice = SL::DB::Invoice->new_from($order, honor_recurring_billing_mode => 1);
+    $invoice = SL::DB::Invoice->new_from($order, record_type => INVOICE_TYPE, honor_recurring_billing_mode => 1);
 
     my $tax_point = ($invoice->tax_point // $time_period_vars->{period_end_date}->[0])->clone;
 
