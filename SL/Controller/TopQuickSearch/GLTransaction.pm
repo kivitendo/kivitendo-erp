@@ -65,7 +65,9 @@ sub query_autocomplete {
            transdate => $_->transdate->ymd(''),
            label     => $_->oneline_summary,
            value     => "",
-           id        => ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
+           id        => $::instance_conf->get_feature_experimental_invoice
+                          ? 'controller.pl?action=Invoice/edit&type=' . ($_->invoice ? "invoice" : "purchase_invoice" ) . '&id=' . $_->id
+                          : ($_->invoice ? "is" : "ar" ) . '.pl?action=edit&id=' . $_->id,
         }
       }
       @{$ars}
