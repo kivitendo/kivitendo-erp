@@ -200,7 +200,7 @@ sub action_delete_user {
 
   my $login =$self->user->login;
 
-  if (!SL::Auth->delete_user($login)) {
+  if (!SL::Auth->delete_user($self->user)) {
     flash('error', t8('The user could not be deleted.'));
     $self->edit_user_form(title => t8('Edit User'));
     return;

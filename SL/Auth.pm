@@ -559,12 +559,9 @@ sub get_user_id {
 
 sub delete_user {
   my $self  = shift;
-  my $login = shift;
+  my $user  = shift;
 
-  die "Need login" unless $login;
-
-  my $user = SL::DB::Manager::AuthUser->find_by(login => $login) // undef;
-  die ("Cannot find valid user for login:" . $login) unless ref $user eq 'SL::DB::AuthUser';
+  die "Need user object" unless ref $user eq 'SL::DB::AuthUser';
 
   my @clients = @{ $user->clients || [] };
 
