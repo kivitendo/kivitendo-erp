@@ -219,6 +219,8 @@ sub new_from {
                employee_id => (SL::DB::Manager::Employee->current || SL::DB::Employee->new(id => $source->employee_id))->id,
             );
 
+  $args{record_type} = $params{record_type} or die "new_from needs explicit record_type";
+
   $args{payment_id} = ( $terms ? $terms->id : $source->payment_id);
 
   if ($source->type =~ /_delivery_order$/) {
