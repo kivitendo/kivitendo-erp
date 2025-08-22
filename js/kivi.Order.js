@@ -392,6 +392,10 @@ namespace('kivi.Order', function(ns) {
       $(elt).change(ns.unit_change);
     });
 
+    kivi.run_once_for('.kivi_orderjs_subtotal', 'on_change_subtotal_change', function(elt) {
+      $(elt).change(ns.on_subtotal_change);
+    });
+
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
         var row;
