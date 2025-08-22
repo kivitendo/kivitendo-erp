@@ -242,7 +242,7 @@ my @different_record_values = qw(
   delivered closed exchangerate record_type reqdate vendor_id
   cp_id contact_id
   cusordnumber cv_record_number
-  invnumber record_number
+  invnumber record_number ticket_id
 );
 my @different_record_item_values = qw(
   id trans_id reclamation_id itime mtime
@@ -267,7 +267,7 @@ my @different_record_values2 = qw(
     datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
     billing_address_id customer_id cv_record_number delivered closed exchangerate record_type reqdate salesman_id shippingpoint shipto_id
     cp_id contact_id
-    invnumber record_number qrbill_data
+    invnumber record_number qrbill_data ticket_id
 );
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,

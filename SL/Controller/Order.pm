@@ -59,6 +59,7 @@ use English qw(-no_match_vars);
 use File::Spec;
 use Cwd;
 use Sort::Naturally;
+use Try::Tiny;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -2102,6 +2103,9 @@ sub save {
     die t8('This record contains not orderable items at position #1', join ', ', @order_locked_positions) if @order_locked_positions;
   }
 
+  SL::Helper::KIX18->create_kix18_ticket('foo', order => $self->order) if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
+                                                                           && $is_new && !$::form->{transaction_description}                   );
+
   # create first version if none exists
   $self->order->add_order_version(SL::DB::OrderVersion->new(version => 1)) if !$self->order->order_version;
 
@@ -2161,6 +2165,9 @@ sub save {
                           link_requirement_specs_linking_to_created_from_objects => \@converted_from_oe_ids,
                           set_project_in_linked_requirement_specs                => 1,
   );
+  SL::Helper::KIX18->create_kix18_article('foo', order => $self->order) if (   $::instance_conf->get_kix18 && $self->type eq SALES_ORDER_TYPE()
+                                                                && $is_new && $self->order->ticket_id                               );
+
 
   if ($::form->{email_journal_id}) {
     my $email_journal = SL::DB::EmailJournal->new(
