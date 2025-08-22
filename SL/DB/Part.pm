@@ -606,6 +606,18 @@ sub init_get_open_ordered_qty {
   return $result;
 }
 
+sub default_partimage {
+  my ( $self ) = @_;
+
+  return 0 unless $self->id;
+  my $fileobj = SL::DB::Manager::File->get_first( where => [ object_id   => $self->id, object_type => 'part', file_type => 'image' ], sort_by => 'itime DESC' );
+  return 0 unless $fileobj;
+
+  my $file = SL::File->get(id => $fileobj->id);
+  return 0 unless $file;
+  return $file;
+}
+
 1;
 
 __END__
@@ -782,6 +794,10 @@ Examples:
  my $qty = $part->get_stock(bin_id => 52);
 
  $part->get_stock(shippingdate => DateTime->today->add(days => -5));
+
+=item C<default_partimage>
+
+Returns the first file_obj from files or 0
 
 =back
 

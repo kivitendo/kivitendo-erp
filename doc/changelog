@@ -21,6 +21,9 @@ Kleinere neue Features und Detailverbesserungen:
 - neue Optionen für den E-Mail-Import, sowie Verbesserund der Doku für
   das Setzen der IMAP-Flags, s.a. Kapitel 2.9.2 in der Doku.
 
+- Es können jetzt Artikeldaten aus der Artikelmaske gedruckt werden. Z.B
+  Etiketten oder Stammblätter.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
