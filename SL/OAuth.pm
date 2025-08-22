@@ -7,6 +7,7 @@ use SL::Controller::OAuth::Atlassian;
 use SL::Controller::OAuth::GoogleCal;
 use SL::Controller::OAuth::Microsoft;
 use SL::DB::OAuthToken;
+use SL::JSON qw(from_json);
 
 my %providers = (
   atlassian_jira  => 'SL::Controller::OAuth::Atlassian',
