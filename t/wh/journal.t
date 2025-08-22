@@ -39,9 +39,6 @@ sub init  {
   SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
   SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
   SL::DB::Inventory->new(%args, trans_type => $tt_assembled, qty => 1)->save;
-
-  qty                           => { type => 'numeric', precision => 25, scale => 5 },
-  shippingdate                  => { type => 'date', not_null => 1 },
 }
 
 sub reset_inventory {
