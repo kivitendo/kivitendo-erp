@@ -1596,7 +1596,9 @@ sub list_payments {
         };
       }
 
-      $row->{invnumber}->{link} = build_std_url("script=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
+      $row->{invnumber}->{link} = $::instance_conf->get_feature_experimental_invoice
+                                ? build_std_url('script=controller.pl', 'action=Invoice/edit', 'type=' . ($module eq 'is' ? 'invoice' : 'purchase_invoice') . '&id=' . E($payment->{id}), 'callback')
+                                : build_std_url("script=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
 
       $report->add_data($row);
     }
