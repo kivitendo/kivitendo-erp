@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 4;
+use Test::More tests => 6;
 
 use lib 't';
 
@@ -12,7 +12,8 @@ Support::TestSetup::login();
 
 use_ok("SL::WH");
 
-my ($wh, $bin, $part);
+my ($wh,  $bin,  $part);
+my ($wh2, $bin2, $part2);
 
 sub init  {
   ($wh, $bin) = create_warehouse_and_bins(
@@ -40,8 +41,23 @@ sub init  {
   SL::DB::Inventory->new(%args, trans_type => $tt_used, qty => -1)->save;
   SL::DB::Inventory->new(%args, trans_type => $tt_assembled, qty => 1)->save;
 
-  qty                           => { type => 'numeric', precision => 25, scale => 5 },
-  shippingdate                  => { type => 'date', not_null => 1 },
+  ($wh2, $bin2) = create_warehouse_and_bins(
+    warehouse_description => 'Test warehouse 2',
+    bin_description       => 'Test bin 2',
+    number_of_bins        => 1,
+  );
+  $part2 = new_part()->save->load;
+  my $tt_transfered = SL::DB::Manager::TransferType->find_by(direction => 'transfer', description => 'transfer') or die;
+  %args = (
+    trans_id     => 2,
+    trans_type   => $tt_transfered,
+    part         => $part2,
+    employee     => SL::DB::Manager::Employee->current,
+    shippingdate => DateTime->now,
+  );
+
+  SL::DB::Inventory->new(%args, qty => -1, warehouse => $wh,  bin => $bin) ->save;
+  SL::DB::Inventory->new(%args, qty =>  1, warehouse => $wh2, bin => $bin2)->save;
 }
 
 sub reset_inventory {
@@ -72,4 +88,17 @@ is $contents[0]{qty}, '1.00000', "produce assembly does not multiply qty (1)";
 is $contents[1]{qty}, '1.00000', "produce assembly does not multiply qty (2)";
 is $contents[2]{qty}, '1.00000', "produce assembly does not multiply qty (3)";
 
+is grep({ $_->{trans_id} == 2 } @contents), 1, "entry count for transfer is right";
+is $contents[3]{qty}, '1.00000', "journal gets transfers qty right (1)";
+
+reset_inventory();
+$_->delete for ($bin, $bin2, $wh, $wh2, $part, $part2);
+
 1;
+
+#####
+# vim: ft=perl
+# set emacs to perl mode
+# Local Variables:
+# mode: perl
+# End:
