@@ -299,6 +299,8 @@ sub get_warehouse_journal {
     'employee'       => ['employee'],
     'projectnumber'  => ['projectnumber'],
     'chargenumber'   => ['chargenumber'],
+    'trans_id'       => ['trans_id'],
+    'bestbefore'     => ['bestbefore'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
