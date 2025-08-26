@@ -3,12 +3,12 @@ package SL::TicketSystem::Redmine;
 use strict;
 use parent qw(SL::TicketSystem::Base);
 
-use SL::OAuth;
 use SL::JSON;
 use SL::Locale::String;
 use SL::MoreCommon qw(uri_encode);
 use MIME::Base64 qw(encode_base64);
 use REST::Client;
+use File::Slurp;
 
 
 use parent qw(Rose::Object);
@@ -30,6 +30,7 @@ sub ticket_columns {
     { name => 'status',      text => t8('Status'),      sortable => 1},
     { name => 'author',      text => t8('Author'),      sortable => 1},
     { name => 'assigned_to', text => t8('Assignee'),    sortable => 1},
+    { name => 'done_ratio',  text => t8('Done'),        sortable => 1},
     { name => 'created_on',  text => t8('Created'),     sortable => 1, is_date => 1},
     { name => 'updated_on',  text => t8('Updated'),     sortable => 1, is_date => 1},
   ];
@@ -55,7 +56,11 @@ sub new {
 sub get_tickets {
   my ($self, $params) = @_;
 
+  # To fetch issues for which custom field 4 contains the substring "foo" :
+  # GET /issues.xml?cf_4=~foo
+
   my %redmine_params = (
+    # cf_4      => '~' . $params->{search_string},
     status_id => $params->{include_closed} ? '*' : 'open',
     sort      => $params->{sort_by} . ($params->{sort_dir} ? '' : ':desc'),
   );
@@ -72,7 +77,7 @@ sub init_connector {
   my $user     = $config->{user};
   my $password = $config->{password};
 
-  my $client = REST::Client->new(host => $host);
+  my $client = REST::Client->new(host => $host, timeout => 10);
   $client->addHeader('Accept',        'application/json');
   $client->addHeader('Authorization', 'Basic ' . encode_base64("$user:$password", ''));
 
@@ -80,13 +85,13 @@ sub init_connector {
 }
 
 sub _decode_and_status_code {
-  my ($ret) = @_;
+  my ($ret, $expected_http_code) = @_;
 
   my $code    = $ret->responseCode();
   my $content = $ret->responseContent();
-  die "HTTP $code $content" unless $code == 200;
+  die "HTTP $code $content" unless $code == $expected_http_code;
 
-  from_json($content);
+  $content && from_json($content);
 }
 
 sub _query {
@@ -99,7 +104,7 @@ sub tickets {
 
   my $url = '/issues.json' . '?' . _query(\%params);
   my $ret = $self->connector->GET($url);
-  my $res = _decode_and_status_code($ret);
+  my $res = _decode_and_status_code($ret, 200);
 
   my $strp = DateTime::Format::Strptime->new(pattern => '%FT%T%z');
 
@@ -121,4 +126,53 @@ sub tickets {
   \@tickets;
 }
 
+sub _upload_file {
+  my ($self, $filename, $data) = @_;
+
+  my $ret = $self->connector->POST('/uploads.json?filename=' . uri_encode($filename) , $data, {'Content-Type' => 'application/octet-stream'});
+
+  my $res = _decode_and_status_code($ret, 201);
+
+  $res->{upload}->{token};
+}
+
+sub update_create_ticket {
+  my ($self, $create, %params) = @_;
+
+#my $filedata = File::Slurp::read_file('/home/niklas/kivitendo-erp/image/kivitendo.png');
+#my $token = $self->_upload_file('image.png', $filedata);
+
+  my %data = (
+    project_id  => 1,
+    tracker_id  => 1,
+    status_id   => 1,
+    #priority_id => 1,
+    subject     => 'ABC',
+    description => 'GPS Tracker mit Richtantenne mit +6dB',
+    #category_id
+    #fixed_version_id - ID of the Target Versions (previously called 'Fixed Version' and still referred to as such in the API)
+    #assigned_to_id => 1, #- ID of the user to assign the issue to (currently no mechanism to assign by name)
+    #parent_issue_id - ID of the parent issue
+    #custom_fields - See Custom fields
+    #watcher_user_ids - Array of user ids to add as watchers (since 2.3.0)
+    #is_private => 0, #- Use true or false to indicate whether the issue is private or not
+    #estimated_hours => undef, #- Number of hours estimated for issue
+#    uploads => [{ token => $token }],
+  );
+
+  my $body_content = encode_json({issue => \%data});
+
+  my $issue_id = 20;
+
+  my $ret = $create
+          ? $self->connector->POST('/issues.json', $body_content, {'Content-Type' => 'application/json'})
+          : $self->connector->PUT("/issues/$issue_id.json", $body_content, {'Content-Type' => 'application/json'});
+
+  _decode_and_status_code($ret, $create ? 201 : 204);
+}
+
 1;
+
+
+# use SL::TicketSystem::Redmine; my $rm = SL::TicketSystem::Redmine->new(); $rm->update_create_ticket(1);
+
