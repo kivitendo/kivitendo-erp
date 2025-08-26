@@ -453,6 +453,8 @@ sub show_dunning {
       $ref->{language} = SL::DB::Manager::Language->find_by('id' => $ref->{'language_id'})->{'description'};
     }
 
+    $ref->{$_} = $form->format_amount(\%myconfig, $ref->{$_}, 2) for qw(amount fee interest);
+
     my $row = { };
     foreach my $column (keys %{ $ref }) {
       $row->{$column} = {

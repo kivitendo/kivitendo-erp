@@ -857,10 +857,6 @@ sub get_dunning {
 
   $form->{DUNNINGS} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  foreach my $ref (@{ $form->{DUNNINGS} }) {
-    map { $ref->{$_} = $form->format_amount($myconfig, $ref->{$_}, 2)} qw(amount fee interest);
-  }
-
   $main::lxdebug->leave_sub();
 }
 
