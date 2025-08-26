@@ -8,12 +8,14 @@ use English qw(-no_match_vars);
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
+use SL::TicketSystem::Redmine;
 use SL::Helper::Flash qw(flash);
 use Try::Tiny;
 
 
 my %providers = (
   jira => 'SL::TicketSystem::Jira',
+  redmine => 'SL::TicketSystem::Redmine',
 );
 
 sub action_ajax_list {
