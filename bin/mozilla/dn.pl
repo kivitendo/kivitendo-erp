@@ -356,6 +356,18 @@ sub search {
 
 }
 
+sub create_subtotal_row {
+  my ($totals, $all_columns, $column_alignment, $subtotal_columns, $class) = @_;
+
+  my $row  = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $all_columns } };
+
+  $row->{$_}->{data} = $::form->format_amount(\%::myconfig, $totals->{$_}, 2) for @{ $subtotal_columns };
+
+  $totals->{$_} = 0 for @{ $subtotal_columns };
+
+  return $row;
+}
+
 sub show_dunning {
   $main::lxdebug->enter_sub();
 
@@ -368,7 +380,7 @@ sub show_dunning {
 
   my @filter_field_list = qw(customer_id customer dunning_id dunning_level department_id invnumber ordnumber
                              transdatefrom transdateto dunningfrom dunningto notes showold l_salesman salesman_id
-                             l_mails l_webdav l_documents);
+                             l_mails l_webdav l_documents l_subtotal);
 
   report_generator_set_default_sort('customername', 1);
 
@@ -432,6 +444,10 @@ sub show_dunning {
 
   my %alignment = map { $_ => 'right' } qw(transdate duedate amount dunning_date dunning_duedate fee interest salesman dunning_id);
 
+  my @subtotal_columns = qw(amount fee interest);
+  my %subtotals        = map { $_ => 0 } @subtotal_columns;
+  my %totals           = map { $_ => 0 } @subtotal_columns;
+
   my ($current_dunning_rows, $previous_dunning_id, $first_row_for_dunning);
 
   $current_dunning_rows  = [];
@@ -452,6 +468,9 @@ sub show_dunning {
     if ($ref->{'language_id'}) {
       $ref->{language} = SL::DB::Manager::Language->find_by('id' => $ref->{'language_id'})->{'description'};
     }
+
+    $subtotals{$_} += $ref->{$_} for @subtotal_columns;
+    $totals{$_}    += $ref->{$_} for @subtotal_columns;
 
     $ref->{$_} = $form->format_amount(\%myconfig, $ref->{$_}, 2) for qw(amount fee interest);
 
@@ -524,17 +543,28 @@ sub show_dunning {
 
     push @{ $current_dunning_rows }, $row;
 
+    if (($form->{l_subtotal})
+        && (($i == (scalar @{ $form->{DUNNINGS} }))
+            || ($ref->{ $form->{sort} } ne $form->{DUNNINGS}->[$i]->{ $form->{sort} }))) {
+      my $subtotal_row = create_subtotal_row(\%subtotals, [keys %column_defs], \%alignment, \@subtotal_columns, 'listsubtotal');
+      push @{ $current_dunning_rows }, $subtotal_row;
+    }
+
     $previous_dunning_id   = $ref->{dunning_id};
     $first_row_for_dunning = 0;
   }
 
   $report->add_data($current_dunning_rows) if (scalar @{ $current_dunning_rows });
 
+  my $total_row = create_subtotal_row(\%totals, [keys %column_defs], \%alignment, \@subtotal_columns, 'listsubtotal');
+  $report->add_separator();
+  $report->add_data($total_row);
+
   $report->set_options('raw_top_info_text'    => $form->parse_html_template('dunning/show_dunning_top'),
                        'raw_bottom_info_text' => $form->parse_html_template('dunning/show_dunning_bottom'),
                        'output_format'        => 'HTML',
                        'attachment_basename'  => $locale->text('dunning_list') . strftime('_%Y%m%d', localtime time),
-    );
+  );
 
   $report->set_options_from_form();
 
