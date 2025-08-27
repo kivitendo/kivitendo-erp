@@ -502,7 +502,7 @@ sub _exchanged_document {
     $params{xml}->dataElement("ram:LanguageID", uc($1));
   }
 
-  require SL::DB::Manager::GenericTranslation;
+  require SL::DB::GenericTranslation;
   my $std_notes = SL::DB::Manager::GenericTranslation->get_all(
     where => [
       translation_type => 'ZUGFeRD/notes',
