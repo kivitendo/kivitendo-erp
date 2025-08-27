@@ -24,7 +24,7 @@ use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any pairwise);
-use List::Util qw(first sum);
+use List::Util qw(first sum sum0);
 use Template;
 use XML::Writer;
 use Params::Validate qw(:all);
@@ -294,30 +294,26 @@ sub _specified_trade_settlement_payment_means {
 sub _taxes {
   my ($self, %params) = @_;
 
-  my %taxkey_info;
+  my $taxes = [];
+  my $pat   = $params{ptc_data};
+  foreach my $tax_id (keys %{ $pat->{taxes_by_tax_id} }) {
+    my $netamount = sum0 map { $pat->{amounts}->{$_}->{amount} } grep { $pat->{amounts}->{$_}->{tax_id} == $tax_id } keys %{ $pat->{amounts} };
 
-  foreach my $item (@{ $params{ptc_data}->{items} }) {
-    $taxkey_info{$item->{taxkey_id}} //= {
-      linetotal  => 0,
-      tax_amount => 0,
-    };
-    my $info             = $taxkey_info{$item->{taxkey_id}};
-    $info->{taxkey}    //= SL::DB::TaxKey->load_cached($item->{taxkey_id});
-    $info->{tax}       //= SL::DB::Tax->load_cached($info->{taxkey}->tax_id);
-    $info->{linetotal}  += $item->{linetotal};
+    push(@{ $taxes }, { amount    => $pat->{taxes_by_tax_id}->{$tax_id},
+                        netamount => $netamount,
+                        tax       => SL::DB::Tax->new(id => $tax_id)->load });
   }
 
-  foreach my $taxkey_id (sort keys %taxkey_info) {
-    my $info     = $taxkey_info{$taxkey_id};
-    my %tax_info = _tax_rate_and_code($self->taxzone, $info->{tax});
+  foreach my $taxinfo (@$taxes) {
+    my %rate_and_code = _tax_rate_and_code($self->taxzone, $taxinfo->{tax});
 
     #     <ram:ApplicableTradeTax>
     $params{xml}->startTag("ram:ApplicableTradeTax");
-    $params{xml}->dataElement("ram:CalculatedAmount",      _r2($params{ptc_data}->{taxes_by_tax_id}->{$info->{taxkey}->tax_id}));
+    $params{xml}->dataElement("ram:CalculatedAmount",      _r2($taxinfo->{amount}));
     $params{xml}->dataElement("ram:TypeCode",              "VAT");
-    $params{xml}->dataElement("ram:BasisAmount",           _r2($info->{linetotal}));
-    $params{xml}->dataElement("ram:CategoryCode",          $tax_info{code});
-    $params{xml}->dataElement("ram:RateApplicablePercent", _r2($tax_info{rate}));
+    $params{xml}->dataElement("ram:BasisAmount",           _r2($taxinfo->{netamount}));
+    $params{xml}->dataElement("ram:CategoryCode",          $rate_and_code{code});
+    $params{xml}->dataElement("ram:RateApplicablePercent", _r2($rate_and_code{rate}));
     $params{xml}->endTag;
     #     </ram:ApplicableTradeTax>
   }
