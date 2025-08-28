@@ -69,7 +69,7 @@ sub get_tickets {
 sub init_connector {
   my ($self) = @_;
 
-  my $acctok = SL::OAuth::access_token_for('atlassian_jira') or die 'no access token';
+  my $acctok = SL::OAuth::access_token_for('atlassian_jira');
 
   my $client = REST::Client->new(host => $api_host);
   $client->addHeader('Accept',        'application/json');
@@ -83,7 +83,7 @@ sub _decode_and_status_code {
 
   my $code    = $ret->responseCode();
   my $content = $ret->responseContent();
-  die "HTTP $code $content" unless $code == 200;
+  die "HTTP $code" unless ($code >= 200 && $code <= 299);
 
   from_json($content);
 }
@@ -135,14 +135,14 @@ sub tickets {
   my @tickets = map +{
     key        => $_->{key},
     ext_url    => $cloud_url . '/browse/' . $_->{key},
-    summary    => $_->{fields}->{summary},
-    creator    => $_->{fields}->{creator}->{displayName},
-    assignee   => $_->{fields}->{assignee}->{displayName},
-    priority   => $_->{fields}->{priority}->{name},
-    created    => $strp->parse_datetime($_->{fields}->{created}),
-    updated    => $strp->parse_datetime($_->{fields}->{updated}),
-    status     => $_->{fields}->{status}->{name},
-    resolution => $_->{fields}->{resolution}->{name},
+    summary    => $_->{fields}{summary},
+    creator    => $_->{fields}{creator}{displayName},
+    assignee   => $_->{fields}{assignee}{displayName},
+    priority   => $_->{fields}{priority}{name},
+    created    => $strp->parse_datetime($_->{fields}{created}),
+    updated    => $strp->parse_datetime($_->{fields}{updated}),
+    status     => $_->{fields}{status}{name},
+    resolution => $_->{fields}{resolution}{name},
   }, @$issues;
 
   \@tickets;

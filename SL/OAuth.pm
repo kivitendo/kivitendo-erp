@@ -61,7 +61,7 @@ sub refresh {
   my $ret = $provider->refresh($tok);
 
   my $response_code = $ret->responseCode();
-  SL::X::OAuth::RefreshFailed->throw(token => $tok) unless $response_code == 200;
+  SL::X::OAuth::RefreshFailed->throw(token => $tok) unless ($response_code >= 200 && $response_code <= 299);
 
   my $content = from_json($ret->responseContent());
   SL::X::OAuth::RefreshFailed->throw(token => $tok) if exists $content->{error_code};

@@ -5,7 +5,6 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::DB::OAuthToken;
-use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
 use SL::Controller::OAuth::Microsoft;

@@ -8,7 +8,6 @@ use English qw(-no_match_vars);
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
-use Try::Tiny;
 
 
 my %providers = (
