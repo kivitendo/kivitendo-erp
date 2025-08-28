@@ -47,7 +47,7 @@ sub access_token_for {
     ],
   );
 
-  SL::X::OAuth::MissingToken->throw() unless $token;
+  SL::X::OAuth::MissingToken->throw(registration => $target) unless $token;
 
   refresh($token) unless $token->is_valid();
 

@@ -46,7 +46,7 @@ sub action_new {
   my ($self) = @_;
 
   $self->setup_add_action_bar();
-  $self->render('oauth/form', title => t8('Add new OAuth2 token'), registration => $::form->{oauth_type} );
+  $self->render('oauth/form', title => t8('Add new OAuth2 token'), registration => $::form->{registration} );
 }
 
 sub action_create {
@@ -117,7 +117,7 @@ sub setup_list_action_bar {
   my @btns = map { (
     link => [
       t8('Add') . ': ' . $providers->{$_}->title(),
-      link => $self->url_for(action => 'new', oauth_type => $providers->{$_}->type()),
+      link => $self->url_for(action => 'new', registration => $providers->{$_}->type()),
     ]
   ) } sort(keys(%$providers));
 

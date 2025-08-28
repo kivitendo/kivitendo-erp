@@ -8,7 +8,6 @@ use English qw(-no_match_vars);
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
-use SL::Helper::Flash qw(flash);
 use Try::Tiny;
 
 
@@ -37,11 +36,11 @@ sub action_ajax_list {
     ($objects, $message) = $provider->get_tickets(\%params);
     1;
   } or do {
-    my ($type, $msg) = ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken'  ? ('info',  t8('Create an OAuth token first under Program -> OAuth Tokens'))
-                     : ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed' ? ('error', t8('OAuth token refresh failed, token ID #1', $EVAL_ERROR->token->id))
-                     : ('error', $EVAL_ERROR);
+    my ($type, $msg, $url) = ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken'  ? ('info',  t8('Create an OAuth token for #1 first', $EVAL_ERROR->registration), $self->url_for(controller => 'OAuth', action => 'new', registration => $EVAL_ERROR->registration))
+                           : ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed' ? ('error', t8('OAuth token refresh failed, token ID #1', $EVAL_ERROR->token->id), undef)
+                           : ('error', $EVAL_ERROR, undef);
 
-    return $self->render('ticket_system/message', { layout => 0 }, type => $type, message => $msg);
+    return $self->render('ticket_system/message', { layout => 0 }, type => $type, message => $msg, url => $url);
   };
 
   my $prov_cols    = $provider->ticket_columns();

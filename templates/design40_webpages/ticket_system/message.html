@@ -1,5 +1,10 @@
 [% USE HTML %]
+[% USE L %]
 
 <p class="message message_[% type %]">
-  [% HTML.escape(message) %]
+  [% IF url %]
+    [% L.link(url, HTML.escape(message)) %]
+  [% ELSE %]
+    [% HTML.escape(message) %]
+  [% END %]
 </p>
