@@ -18,7 +18,7 @@ use SL::OAuth;
 # actions
 #
 
-sub action_consume_authorization_code {
+sub action_authcode {
   my ($self) = @_;
 
   my $search_state = $::form->{state} or die 'Request has no state parameter';
@@ -63,7 +63,7 @@ SL::Controller::OAuthAuthorization - Client side OAuth2 authorization code handl
 
 =over 4
 
-=item C<action_consume_authorization_code>
+=item C<action_authcode>
 
 This is the controller action that is invoked from the dispatcher, when an
 OAuth2 provider redirects the user's web browser to the redirect_uri. In
@@ -71,28 +71,6 @@ this case, the authorization code is transferred in the query parameter
 C<code>.
 
 =back
-
-=head1 BUGS
-
-When an OAuth2 provider redirects the user's web browser to our
-dispatcher, the web browser does not send the session cookie as
-sending the cookie would violate the SameSite=strict policy. The
-user is asked to log in again and only then the controller action
-C<action_consume_authorization_code> is called.  This works,
-but can be unexpected for the user.
-
-Possible solutions include:
-
-1. Storing the session cookie just once, before redirecting to the OAuth2
-provider, with SameSite=Lax.
-
-2. Allowing unauthenticated (in the sense that no session cookie
-is required) requests for just C<action_consume_authorization_code>,
-processing and storing the token as implemented currently and then either
-ending the request or clearing all form parameters and callbacks and
-redirecting the user to us, now in compliance with the SameSite policy.
-Care must be taken to prevent denial of service attacks by means of
-guessing valid C<tokenstate> values of inflight tokens.
 
 =head1 AUTHOR
 

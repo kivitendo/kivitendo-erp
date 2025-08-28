@@ -249,6 +249,18 @@ sub handle_request {
 
   $::request->read_cgi_input($::form);
 
+  if ($ENV{SCRIPT_NAME} =~ m/oauth\.pl/) {
+    # OAuth providers redirect the browser to 'oauth.pl' and the SameSite=strict policy prevents
+    # the browser to include our session cookie. It is safe to redirect the browser to ourselfes,
+    # avoiding the policy violation, provided that only known-safe query parameters are included.
+    my $redirect_url = 'controller.pl'
+                     . '?action=' . uri_encode('OAuthAuthorization/authcode')
+                     . '&code='   . uri_encode($::form->{code})
+                     . '&state='  . uri_encode($::form->{state});
+    print $::request->cgi->redirect($redirect_url);
+    return $self->end_request;
+  }
+
   my %routing;
   eval { %routing = $self->_route_request($ENV{SCRIPT_NAME}); 1; } or return;
   ($routing_type, $script_name, $action) = @routing{qw(type controller action)};
@@ -481,7 +493,6 @@ sub _route_request {
 
   return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        $self->_route_dispatcher_request)
        : $script_name =~ m/controller\.pl/  ? (type => 'controller', $self->_route_controller_request)
-       : $script_name =~ m/oauth\.pl/       ? (type => 'controller', $self->_route_oauth_controller_request)
        :                                      (type => 'old',        controller => $script_name, action => $::form->{action});
 }
 
@@ -540,11 +551,6 @@ sub _route_controller_request {
   };
 
   return (controller => $controller, action => $action, request_type => $request_type);
-}
-
-sub _route_oauth_controller_request {
-  my ($self) = @_;
-  return (controller => 'OAuthAuthorization', action => 'consume_authorization_code', request_type => 'html');
 }
 
 sub _cache_file_modification_times {
