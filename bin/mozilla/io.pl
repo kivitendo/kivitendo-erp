@@ -2359,7 +2359,7 @@ sub _maybe_attach_zugferd_data {
         mime_type    => 'text/xml',
       }
     ];
-  };
+  } or do { $::form->error($@) };
 
   if (my $e = SL::X::ZUGFeRDValidation->caught) {
     $::form->error($e->message);
@@ -2378,7 +2378,7 @@ sub download_factur_x_xml {
       || !$record->can('create_zugferd_data')
       || !$record->customer->create_zugferd_invoices_for_this_customer;
 
-  my $xml_content = eval { $record->create_zugferd_data };
+  my $xml_content = eval { $record->create_zugferd_data } or do { $::form->error($@) };
 
   if (my $e = SL::X::ZUGFeRDValidation->caught) {
     $::form->error($e->message);
