@@ -181,10 +181,11 @@ sub all_parts {
   my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand notes);
   my @project_filters      = qw(projectnumber projectdescription);
   my @makemodel_filters    = qw(make model);
+  my @pcp_filters          = qw(customer customer_partnumber);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
-  my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
+  my @all_columns          = (@simple_filters, @makemodel_filters, @pcp_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
   my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin',  price_factor_description => 'pfac.description as price_factor_description', bookinggroup => 'bg.description as bookinggroup');
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
@@ -209,6 +210,13 @@ sub all_parts {
                                LEFT JOIN vendor mv ON (mv.id = mm.make)
                         WHERE  mm.parts_id = p.id
                      ) mm ON TRUE",
+    pcp         => "LEFT JOIN LATERAL (
+                      SELECT string_agg(customer.customernumber || ' ' || customer.name, ', ') AS customer,
+                             string_agg(part_customer_prices.customer_partnumber, ', ')        AS customer_partnumber
+                        FROM part_customer_prices
+                        LEFT JOIN customer ON (customer.id = part_customer_prices.customer_id)
+                        WHERE part_customer_prices.parts_id = p.id
+                    ) pcp ON TRUE",
     pfac         => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi   =>
       q|LEFT JOIN (
@@ -230,7 +238,7 @@ sub all_parts {
     warehouse    => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
     bin          => 'LEFT JOIN bin ON bin.id = p.bin_id',
   );
-  my @join_order = qw(bookinggroup partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
+  my @join_order = qw(bookinggroup partsgroup makemodel pcp invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -242,8 +250,8 @@ sub all_parts {
      lastcost     => 'p.',  , soldtotal    => ' ',
      factor       => 'pfac.', projectnumber => 'pj.',
      'SUM(ioi.qty)' => ' ',   projectdescription => 'pj.',
-     description  => 'p.',
-     qty          => 'ioi.',
+     description  => 'p.',    customer     => 'pcp.',
+     qty          => 'ioi.',  customer_partnumber => 'pcp.',
      serialnumber => 'ioi.',
      record_type  => 'apoe.',
      cv           => 'cv.',
@@ -408,7 +416,7 @@ sub all_parts {
         WHERE (a_lc.id = p.id)) AS assembly_lastcost|;
   $table_prefix{$q_assembly_lastcost} = ' ';
 
-  # special case makemodel search
+  # special case makemodel and part_customer_prices search
   # all_parts is based upon the assumption that every parameter is named like the column it represents
   # unfortunately make would have to match vendor.name which is already taken for vendor.name in bsooqr mode.
   # fortunately makemodel doesn't need to be displayed later, so adding a special clause to where_token is sufficient.
@@ -421,6 +429,14 @@ sub all_parts {
   if ($form->{model}) {
     push @where_tokens, 'mm.model ILIKE ?';
     push @bind_vars, like($form->{model});
+  }
+  if ($form->{customer}) {
+    push @where_tokens, 'pcp.customer ILIKE ?';
+    push @bind_vars, like($form->{customer});
+  }
+  if ($form->{customer_partnumber}) {
+    push @where_tokens, 'pcp.customer_partnumber ILIKE ?';
+    push @bind_vars, like($form->{customer_partnumber});
   }
 
   # special case: sorting by partnumber
@@ -459,6 +475,7 @@ sub all_parts {
   $joins_needed{pfac}         = 1;
   $joins_needed{project}      = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
   $joins_needed{makemodel}    = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
+  $joins_needed{pcp}          = 1 if grep { $form->{$_} || $form->{"l_$_"} } @pcp_filters;
   $joins_needed{cv}           = 1 if $bsooqr;
   $joins_needed{apoe}         = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}   = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
