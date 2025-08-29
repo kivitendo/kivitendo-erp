@@ -57,7 +57,7 @@ sub get_tickets {
   $q_order  =~ s/[^a-z0-9]//g;
   $q_search =~ s/"/\\"/g;
 
-  my $jql = 'textfields ~ "' . $q_search . '*"';
+  my $jql = 'reporter in organizationMembers("' . $q_search . '")';
   $jql   .= ' AND statusCategory != Done' unless ($params->{include_closed});
   $jql   .= " ORDER BY $q_order $q_dir";
 
