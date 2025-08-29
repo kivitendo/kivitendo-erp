@@ -38,7 +38,7 @@ sub _validate_european_union {
   # 1. Two upper-case letters with the ISO 3166-1 Alpha-2 country code (exception: Greece uses EL instead of GR)
   # 2. Up to twelve alphanumeric characters
 
-  return 0 unless $ustid =~ m{^(?:AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK|SM)[[:alnum:]]{1,12}$};
+  return 0 unless $ustid =~ m{^(?:AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|GB|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK|SM|XI)[[:alnum:]]{1,12}$};
 
   my $algo_name = "ustid_" . lc(substr($ustid, 0, 2));
   my $checker   = eval { CheckDigits($algo_name) };
