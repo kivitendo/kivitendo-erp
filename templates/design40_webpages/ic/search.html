@@ -71,6 +71,14 @@
         <td>[% L.input_tag("model", "", class='wi-mediumsmall') %]</td>
       </tr>
       <tr>
+        <th>[% 'Customer' | $T8 %]</th>
+        <td>[% L.input_tag("customer", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Customer Part Number' | $T8 %]</th>
+        <td>[% L.input_tag("customer_partnumber", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
         <th>[% 'Shop article' | $T8 %]</th>
         <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='', class='wi-mediumsmall') %]</td>
       </tr>
@@ -199,6 +207,10 @@
     <h4>[% 'Vendor' | $T8 %]</h4>
     <p>[% L.checkbox_tag('l_make', label=LxERP.t8('Make'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_model', label=LxERP.t8('Model'), value='Y') %]</p>
+    <p>&nbsp;</p>
+    <h4>[% 'Customer' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_customer', label=LxERP.t8('Customer'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_customer_partnumber', label=LxERP.t8('Customer Part Number'), value='Y') %]</p>
   </div>
 
   <div class="col list">
