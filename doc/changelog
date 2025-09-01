@@ -23,6 +23,9 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Gesamt- und Zwischensummen werden im Mahnungsbericht angezeigt.
 
+- Rechnungen mit Nicht-Euro-Währung nicht für einen SEPA-Einzug oder
+  eine SEPA-Überweisung zur Auswahl anbieten.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
