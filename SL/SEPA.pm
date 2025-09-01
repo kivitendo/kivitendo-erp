@@ -10,6 +10,7 @@ use SL::DBUtils;
 use SL::DB::Invoice;
 use SL::DB::PurchaseInvoice;
 use SL::DB;
+use SL::Helper::ISO4217;
 use SL::Locale::String qw(t8);
 use DateTime;
 use Carp;
@@ -37,6 +38,7 @@ sub retrieve_open_invoices {
   my $query =
     qq|
        SELECT ${arap}.id, ${arap}.invnumber, ${arap}.transdate, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+         ${arap}.currency_id,
          (${arap}.transdate + pt.terms_skonto) as skonto_date, (pt.percent_skonto * 100) as percent_skonto,
          (${arap}.amount - (${arap}.amount * pt.percent_skonto)) as amount_less_skonto,
          (${arap}.amount * pt.percent_skonto) as skonto_amount,
@@ -80,6 +82,10 @@ sub retrieve_open_invoices {
     push @options, { payment_type => 'without_skonto',  display => t8('without skonto') };
     push @options, { payment_type => 'with_skonto_pt',  display => t8('with skonto acc. to pt'), selected => 1 } if $result->{within_skonto_period};
     $result->{payment_select_options}  = \@options;
+
+    # add the original record's currency
+    $result->{currency}         = SL::DB::Currency->load_cached($result->{currency_id})->name;
+    $result->{currency_not_eur} = 'EUR' ne SL::Helper::ISO4217::map_currency_name_to_code($result->{currency});
   }
 
   $main::lxdebug->leave_sub();
