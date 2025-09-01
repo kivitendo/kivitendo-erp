@@ -49,17 +49,18 @@
       <th>[% 'Bank transfer amount' | $T8 %]</th>
       <th>[% 'Payment type' | $T8 %]</th>
       <th>[% 'Skonto information' | $T8 %]</th>
+      <th>[% 'Currency of record' | $T8 %]</th>
     </tr>
   </thead>
   <tbody>
     [% FOREACH invoice = INVOICES %]
-      <tr[% IF (!invoice.vc_bank_info_ok && invoice.checked) || invoice.is_sepa_blocked %] class="listrow_error"[% END %]>
+      <tr[% IF (!invoice.vc_bank_info_ok && invoice.checked) || invoice.is_sepa_blocked || invoice.currency_not_eur %] class="listrow_error"[% END %]>
         <td>
           <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
           <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(invoice.amount_less_skonto, 2) %]">
           <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %]">
           <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(invoice.skonto_amount, 2) %]">
-          [% IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked %]
+          [% IF invoice.vc_bank_info_ok && !invoice.is_sepa_blocked && !invoice.currency_not_eur %]
             [% L.checkbox_tag("ids[]", value=invoice.id, checked=invoice.checked) %]
           [% END %]
         </td>
@@ -84,6 +85,10 @@
           [%- GET HTML.escape(invoice.invnumber);
               IF invoice.is_sepa_blocked;
                 GET ' <sup>(*)</sup>';
+                SET show_is_sepa_blocked_footnote = '1';
+              END;
+              IF invoice.currency_not_eur;
+                GET ' <sup>(°)</sup>';
                 SET show_is_sepa_blocked_footnote = '1';
               END;
           -%]
@@ -112,6 +117,9 @@
           [% IF invoice.skonto_amount %]
             [% LxERP.format_amount(invoice.percent_skonto, 2) %] % = [% LxERP.format_amount(invoice.skonto_amount, 2) %] € bis [% invoice.skonto_date %]
           [% END %]
+        </td>
+        <td>
+          [% invoice.currency %][% IF invoice.currency_not_eur %] <sup>[% L.link('#currency_not_euro', '(°)')%]</sup>[% END %]
         </td>
       </tr>
     [% END %]
@@ -142,6 +150,9 @@
   <p>
     <sup>(*)</sup>
     [%- 'For this invoice the bank tranfer via SEPA was blocked manually.' | $T8 %]
+    <br>
+    <sup id="currency_not_euro">(°)</sup>
+    [%- 'The currency of this invoice is not "EUR".' | $T8 %]
   </p>
   [%- END %]
 </div><!-- /.long-desc -->
