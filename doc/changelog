@@ -23,6 +23,9 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Gesamt- und Zwischensummen werden im Mahnungsbericht angezeigt.
 
+- Suche nach und Anzeige von Kundenartikelnummer und Kunde im Artikelbericht
+  analog zur Suche nach Lieferantenartiklenummer und Lieferant ermöglicht.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
