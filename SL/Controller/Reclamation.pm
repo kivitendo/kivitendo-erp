@@ -288,23 +288,10 @@ sub action_print {
     return $self->js->flash('error', t8('Media \'#1\' is not supported yet/anymore.', $media))->render;
   }
 
-  # create a form for generate_attachment_filename
-  my $form   = Form->new;
-  $form->{record_number} = $self->reclamation->record_number;
-  $form->{type}          = $self->type;
-  $form->{format}        = $format;
-  $form->{formname}      = $formname;
-  $form->{language}      = '_' . $self->reclamation->language->template_code if $self->reclamation->language;
-  my $pdf_filename       = $form->generate_attachment_filename();
+  my %params = ( 'print_options' => $::form->{print_options} );
+  my $file_result = SL::Model::Record->print_record($self->reclamation, %params);
 
-  my $pdf;
-  my @errors = generate_pdf($self->reclamation, \$pdf, {
-                              format     => $format,
-                              formname   => $formname,
-                              language   => $self->reclamation->language,
-                              printer_id => $printer_id,
-                              groupitems => $groupitems,
-                            });
+  my @errors = $file_result->{errors} || ();
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
@@ -312,21 +299,21 @@ sub action_print {
   if ($media eq 'screen') { # screen/download
     $self->js->flash('info', t8('The PDF has been created'));
     $self->send_file(
-      \$pdf,
-      type         => SL::MIME->mime_type_from_ext($pdf_filename),
-      name         => $pdf_filename,
+      \$file_result->{file},
+      type         => SL::MIME->mime_type_from_ext($file_result->{filename}),
+      name         => $file_result->{filename},
       js_no_render => 1,
     );
   } elsif ($media eq 'printer') { # printer
     my $printer_id = $::form->{print_options}->{printer_id};
     SL::DB::Printer->new(id => $printer_id)->load->print_document(
-      copies  => $copies,
-      content => $pdf,
+      copies  => $::form->{print_options}->{copies},
+      content => $file_result->{file},
     );
     $self->js->flash('info', t8('The PDF has been printed'));
   }
 
-  my @warnings = store_pdf_to_webdav_and_filemanagement($self->reclamation, $pdf, $pdf_filename);
+  my @warnings = store_pdf_to_webdav_and_filemanagement($self->reclamation, $file_result->{filename}, $self->type_data->properties('template'));
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
@@ -359,12 +346,10 @@ sub action_preview_pdf {
   $form->{language}      = '_' . $self->reclamation->language->template_code if $self->reclamation->language;
   my $pdf_filename       = $form->generate_attachment_filename();
 
-  my $pdf;
-  my @errors = generate_pdf($self->reclamation, \$pdf, {
-                             format     => $format,
-                             formname   => $formname,
-                             language   => $self->reclamation->language,
-                           });
+  my %params = ( 'print_options' => { format => $format, formname => $formname, language => $self->reclamation->language, } );
+  my $file_result = SL::Model::Record->print_record($self->reclamation, %params);
+
+  my @errors = $file_result->{errors} || ();
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
@@ -372,7 +357,7 @@ sub action_preview_pdf {
   $self->js->flash('info', t8('The PDF has been previewed'));
   # screen/download
   $self->send_file(
-    \$pdf,
+    \$file_result->{file},
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
     name         => $pdf_filename,
     js_no_render => 0,
@@ -2193,80 +2178,80 @@ sub _setup_search_action_bar {
   }
 }
 
-sub generate_pdf {
-  my ($reclamation, $pdf_ref, $params) = @_;
-
-  my @errors = ();
-
-  my $print_form = Form->new('');
-  $print_form->{type}        = $reclamation->type;
-  $print_form->{formname}    = $params->{formname} || $reclamation->type;
-  $print_form->{format}      = $params->{format}   || 'pdf';
-  $print_form->{media}       = $params->{media}    || 'file';
-  $print_form->{groupitems}  = $params->{groupitems};
-  $print_form->{printer_id}  = $params->{printer_id};
-  $print_form->{language_id} = $params->{language} ? $params->{language}->id : undef;
-  $print_form->{media}       = 'file'       if $print_form->{media} eq 'screen';
-
-  $reclamation->language($params->{language});
-
-  # Make reclamation available in template
-  $print_form->{reclamation} = $reclamation;
-
-  my $template_ext;
-  my $template_type;
-  my $variable_content_types;
-  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
-    $template_ext  = 'odt';
-    $template_type = 'OpenDocument';
-
-    # add variables for printing with the built-in parser
-    $reclamation->flatten_to_form($print_form, format_amounts => 1);
-    $reclamation->add_legacy_template_arrays($print_form);
-
-    $variable_content_types = {
-      longdescription => 'html',
-      notes           => 'html',
-      $::form->get_variable_content_types_for_cvars,
-    }
-  }
-
-  # search for the template
-  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
-    name        => $print_form->{formname},
-    extension   => $template_ext,
-    email       => $print_form->{media} eq 'email',
-    language    => $params->{language},
-    printer_id  => $print_form->{printer_id},
-  );
-
-  if (!defined $template_file) {
-    push @errors, t8(
-      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
-      join ', ',
-      map { "'$_'"} @template_files
-    );
-  }
-
-  return @errors if scalar @errors;
-
-  $print_form->throw_on_error(sub {
-    eval {
-      $print_form->prepare_for_printing;
-
-      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
-        format        => $print_form->{format},
-        template_type => $template_type,
-        template      => $template_file,
-        variables     => $print_form,
-        variable_content_types => $variable_content_types,
-      );
-      1;
-    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
-  });
-
-  return @errors;
-}
+#sub generate_pdf {
+#  my ($reclamation, $pdf_ref, $params) = @_;
+#
+#  my @errors = ();
+#
+#  my $print_form = Form->new('');
+#  $print_form->{type}        = $reclamation->type;
+#  $print_form->{formname}    = $params->{formname} || $reclamation->type;
+#  $print_form->{format}      = $params->{format}   || 'pdf';
+#  $print_form->{media}       = $params->{media}    || 'file';
+#  $print_form->{groupitems}  = $params->{groupitems};
+#  $print_form->{printer_id}  = $params->{printer_id};
+#  $print_form->{language_id} = $params->{language} ? $params->{language}->id : undef;
+#  $print_form->{media}       = 'file'       if $print_form->{media} eq 'screen';
+#
+#  $reclamation->language($params->{language});
+#
+#  # Make reclamation available in template
+#  $print_form->{reclamation} = $reclamation;
+#
+#  my $template_ext;
+#  my $template_type;
+#  my $variable_content_types;
+#  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
+#    $template_ext  = 'odt';
+#    $template_type = 'OpenDocument';
+#
+#    # add variables for printing with the built-in parser
+#    $reclamation->flatten_to_form($print_form, format_amounts => 1);
+#    $reclamation->add_legacy_template_arrays($print_form);
+#
+#    $variable_content_types = {
+#      longdescription => 'html',
+#      notes           => 'html',
+#      $::form->get_variable_content_types_for_cvars,
+#    }
+#  }
+#
+#  # search for the template
+#  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+#    name        => $print_form->{formname},
+#    extension   => $template_ext,
+#    email       => $print_form->{media} eq 'email',
+#    language    => $params->{language},
+#    printer_id  => $print_form->{printer_id},
+#  );
+#
+#  if (!defined $template_file) {
+#    push @errors, t8(
+#      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
+#      join ', ',
+#      map { "'$_'"} @template_files
+#    );
+#  }
+#
+#  return @errors if scalar @errors;
+#
+#  $print_form->throw_on_error(sub {
+#    eval {
+#      $print_form->prepare_for_printing;
+#
+#      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
+#        format        => $print_form->{format},
+#        template_type => $template_type,
+#        template      => $template_file,
+#        variables     => $print_form,
+#        variable_content_types => $variable_content_types,
+#      );
+#      1;
+#    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
+#  });
+#
+#  return @errors;
+#}
 
 sub get_files_for_email_dialog {
   my ($self) = @_;

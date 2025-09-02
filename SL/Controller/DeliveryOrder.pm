@@ -321,7 +321,7 @@ sub action_print {
   my %params = ( 'print_options' => $::form->{print_options} );
   my $file_result = SL::Model::Record->print_record($self->order, %params);
 
-  my @errors; #  = @{$file_result->{errors}};
+  my @errors = $file_result->{errors} || ();
   if ( scalar(@errors) ) {
     flash_later('error', t8('Generating the document failed: #1', $errors[0]));
     $self->js->redirect_to($redirect_url)->render;
@@ -348,7 +348,7 @@ sub action_print {
     flash_later('info', t8('The document has been printed.'));
   }
 
-  my @warnings = store_pdf_to_webdav_and_filemanagement(
+  my @warnings = SL::Model::Record->store_pdf_to_webdav_and_filemanagement(
     $self->order, $file_result->{file}, $file_result->{filename}, $self->type_data->properties('template')
   );
   if (scalar @warnings) {
@@ -388,21 +388,19 @@ sub action_preview_pdf {
     '_' . $self->order->language->template_code if $self->order->language;
   my $pdf_filename          = $form->generate_attachment_filename();
 
-  my $pdf;
-  my @errors = generate_pdf($self->order, \$pdf, {
-      format     => $format,
-      formname   => $formname,
-      language   => $self->order->language,
-    });
-  if (scalar @errors) {
-    flash_later('error', t8('Conversion to PDF failed: #1', $errors[0]));
-    return $self->js->redirect_to($redirect_url)->render;
+  my %params = ( 'print_options' => { format => $format, formname => $formname, language => $self->order->language, } );
+  my $file_result = SL::Model::Record->print_record($self->order, %params);
+
+  my @errors = $file_result->{errors} || ();
+  if ( scalar(@errors) ) {
+    flash_later('error', t8('Generating the document failed: #1', $errors[0]));
+    $self->js->redirect_to($redirect_url)->render;
   }
   $self->save_history('PREVIEWED');
   flash_later('info', t8('The PDF has been previewed'));
   # screen/download
   $self->send_file(
-    \$pdf,
+    \$file_result->{file},
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
     name         => $pdf_filename,
     js_no_render => 1,
@@ -2421,46 +2419,46 @@ sub save_history {
   )->save;
 }
 
-sub store_pdf_to_webdav_and_filemanagement {
-  my($order, $content, $filename, $variant) = @_;
-
-  my @errors;
-
-  # copy file to webdav folder
-  if ($order->number && $::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => $order->type,
-      number   => $order->number,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $filename,
-    );
-    eval {
-      $webdav_file->store(data => \$content);
-      1;
-    } or do {
-      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
-    };
-  }
-  if ($order->id && $::instance_conf->get_doc_storage) {
-    eval {
-      SL::File->save(object_id     => $order->id,
-                     object_type   => $order->type,
-                     mime_type     => 'application/pdf',
-                     source        => 'created',
-                     file_type     => 'document',
-                     file_name     => $filename,
-                     file_contents => $content,
-                     print_variant => $variant);
-      1;
-    } or do {
-      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
-    };
-  }
-
-  return @errors;
-}
+#sub store_pdf_to_webdav_and_filemanagement {
+#  my($order, $content, $filename, $variant) = @_;
+#
+#  my @errors;
+#
+#  # copy file to webdav folder
+#  if ($order->number && $::instance_conf->get_webdav_documents) {
+#    my $webdav = SL::Webdav->new(
+#      type     => $order->type,
+#      number   => $order->number,
+#    );
+#    my $webdav_file = SL::Webdav::File->new(
+#      webdav   => $webdav,
+#      filename => $filename,
+#    );
+#    eval {
+#      $webdav_file->store(data => \$content);
+#      1;
+#    } or do {
+#      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
+#    };
+#  }
+#  if ($order->id && $::instance_conf->get_doc_storage) {
+#    eval {
+#      SL::File->save(object_id     => $order->id,
+#                     object_type   => $order->type,
+#                     mime_type     => 'application/pdf',
+#                     source        => 'created',
+#                     file_type     => 'document',
+#                     file_name     => $filename,
+#                     file_contents => $content,
+#                     print_variant => $variant);
+#      1;
+#    } or do {
+#      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
+#    };
+#  }
+#
+#  return @errors;
+#}
 
 sub calculate_stock_in_out_from_stock_info {
   my ($self, $unit, $stock_info) = @_;

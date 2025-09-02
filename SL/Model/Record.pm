@@ -344,9 +344,7 @@ sub print_record {
   my ($class, $record, %params) = @_;
 
   my $format      = $params{print_options}->{format};
-  my $media       = $params{print_options}->{media};
   my $formname    = $params{print_options}->{formname};
-  my $copies      = $params{print_options}->{copies};
   my $groupitems  = $params{print_options}->{groupitems};
   my $printer_id  = $params{print_options}->{printer_id};
 
@@ -361,7 +359,7 @@ my $result = {
 
   # create a form for generate_attachment_filename
   my $form   = Form->new;
-  $form->{$record->type_data->properties('nr_key')}  = $record->number;
+  $form->{$record->type_data->properties('nr_key')}  = $record->type_data->properties('nr_key');
   $form->{type}             = $record->type;
   $form->{format}           = $format;
   $form->{formname}         = $formname;
@@ -389,56 +387,25 @@ my $result = {
   $result->{message} = t8("The document has been created");
 
   return $result;
-
-  if ($media eq 'screen') {
-    # screen/download
-    #    flash_later('info', t8('The document has been created.'));
-    $record->send_file(
-      \$pdf,
-      type         => SL::MIME->mime_type_from_ext($pdf_filename),
-      name         => $pdf_filename,
-      js_no_render => 1,
-    );
-
-  } elsif ($media eq 'printer') {
-    # printer
-    my $printer_id = $::form->{print_options}->{printer_id};
-    SL::DB::Printer->new(id => $printer_id)->load->print_document(
-      copies  => $copies,
-      content => $pdf,
-    );
-
-    flash_later('info', t8('The document has been printed.'));
-  }
-
-  #  my @warnings = store_pdf_to_webdav_and_filemanagement(
-  #    $record, $pdf, $pdf_filename, $formname
-  #  );
-  #  if (scalar @warnings) {
-  #    flash_later('warning', $_) for @warnings;
-  #  }
-
-  #$record->save_history('PRINTED');
-  return $result;
 }
 
 sub _generate_pdf {
 #  my ($class, $record, %params) = @_;
-  my ($order, $pdf_ref, $params) = @_;
+  my ($record, $pdf_ref, $params) = @_;
 
   my @errors = ();
 
   my $print_form = Form->new('');
-  $print_form->{type}        = $order->type;
-  $print_form->{formname}    = $params->{formname} || $order->type;
+  $print_form->{type}        = $record->type;
+  $print_form->{formname}    = $params->{formname} || $record->type;
   $print_form->{format}      = $params->{format}   || 'pdf';
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
   $print_form->{printer_id}  = $params->{printer_id};
   $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
 
-  $order->language($params->{language});
-  $order->flatten_to_form($print_form, format_amounts => 1);
+  $record->language($params->{language});
+  $record->flatten_to_form($print_form, format_amounts => 1);
 
   my $template_ext;
   my $template_type;
@@ -488,6 +455,47 @@ sub _generate_pdf {
 #}
 }
 
+sub store_pdf_to_webdav_and_filemanagement {
+  my($class, $record, $content, $filename, $variant) = @_;
+
+  my @errors;
+
+  # copy file to webdav folder
+  #$form->{$record->type_data->properties('nr_key')}  = $record->number;
+  if ($record->number && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $record->type,
+      number   => $record->number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $filename,
+    );
+    eval {
+      $webdav_file->store(data => \$content);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
+    };
+  }
+  if ($record->id && $::instance_conf->get_doc_storage) {
+    eval {
+      SL::File->save(object_id     => $record->id,
+                     object_type   => $record->type,
+                     mime_type     => 'application/pdf',
+                     source        => 'created',
+                     file_type     => 'document',
+                     file_name     => $filename,
+                     file_contents => $content,
+                     print_variant => $variant);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
+    };
+  }
+
+  return @errors;
+}
 1;
 
 __END__
