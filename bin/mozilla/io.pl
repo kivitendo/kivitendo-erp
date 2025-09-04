@@ -2360,10 +2360,6 @@ sub _maybe_attach_zugferd_data {
       }
     ];
   } or do { $::form->error($@) };
-
-  if (my $e = SL::X::ZUGFeRDValidation->caught) {
-    $::form->error($e->message);
-  }
 }
 
 sub download_factur_x_xml {
@@ -2379,10 +2375,6 @@ sub download_factur_x_xml {
       || !$record->customer->create_zugferd_invoices_for_this_customer;
 
   my $xml_content = eval { $record->create_zugferd_data } or do { $::form->error($@) };
-
-  if (my $e = SL::X::ZUGFeRDValidation->caught) {
-    $::form->error($e->message);
-  }
 
   my $attachment_filename = "factur-x_" . $::form->generate_attachment_filename;
   $attachment_filename    =~ s{\.[^.]+$}{.xml};
