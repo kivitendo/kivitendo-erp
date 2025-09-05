@@ -242,7 +242,10 @@ body > div.login .message{
   position: fixed;
   z-index: @zindex-flash;
   top: 128px; // position below title bar 28px (header) + 32px (menu) + 42.6px (title) + 25px (one action bar menu entry) (+ 5px padding included in the flash message)
-  right: 20px;
+  bottom: 0px;
+  right: 0px;
+  padding-right: 20px;
+  overflow-y: scroll;
   min-width: 30%;
   animation: fadein .5s;
 }
