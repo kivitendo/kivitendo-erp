@@ -933,12 +933,9 @@ sub generate_journal {
       }
     }
     if ($form->{l_used_for} && $entry->{used_for}) {
-      $row->{used_for}->{data} = '';
-      my $info = $entry->{used_for};
-      if ($info->{parts_id} && $info->{description}) {
-        $row->{used_for} = { data => $info->{description},
-                             link => build_std_url("script=controller.pl", 'action=Part/edit', 'part.id=' . E($info->{parts_id}), 'callbackd', $href)
-                           };
+      $row->{used_for}->{data} = $entry->{used_for};
+      if ($entry->{used_forid}) {
+        $row->{used_for}{link} = build_std_url("script=controller.pl", 'action=Part/edit', 'part.id=' . E($entry->{used_forid}), 'callbackd', $href);
       }
     }
 
