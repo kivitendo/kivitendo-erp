@@ -67,7 +67,6 @@ __PACKAGE__->meta->add_relationship(
     type         => 'one to many',
     class        => 'SL::DB::Dunning',
     column_map   => { id => 'trans_id' },
-    manager_args => { with_objects => [ 'dunnings' ] }
   },
 );
 
