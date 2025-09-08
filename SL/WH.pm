@@ -345,10 +345,8 @@ sub get_warehouse_journal {
      "partdescription"   => "p.description",
      "classification_id" => "p.classification_id",
      "part_type"         => "p.part_type",
-     "bin"               => "b.description",
      "chargenumber"      => "i1.chargenumber",
      "bestbefore"        => "i1.bestbefore",
-     "warehouse"         => "w.description",
      "partunit"          => "p.unit",
      "bin_from"          => "b1.description",
      "bin_to"            => "b2.description",
@@ -359,8 +357,8 @@ sub get_warehouse_journal {
      "direction"         => "tt.direction",
      "trans_id"          => "i1.trans_id",
      "id"                => "i1.id",
-     "oe_id"             => "COALESCE(i1.oe_id, i2.oe_id)",
-     "invoice_id"        => "COALESCE(i1.invoice_id, i2.invoice_id)",
+     "oe_id"             => "i1.oe_id",
+     "invoice_id"        => "i1.invoice_id",
      "date"              => "i1.shippingdate",
      "itime"             => "i1.itime",
      "shippingdate"      => "i1.shippingdate",
@@ -368,15 +366,12 @@ sub get_warehouse_journal {
      "projectnumber"     => "COALESCE(pr.projectnumber, '$filter{na}')",
      };
 
-  $select_tokens{'out'} = {
-     "bin_to"               => "'$filter{na}'",
-     "warehouse_to"         => "'$filter{na}'",
-     };
-
-  $select_tokens{'in'} = {
-     "bin_from"             => "'$filter{na}'",
-     "warehouse_from"       => "'$filter{na}'",
-     };
+  $select_tokens{'in_out'} = {
+    "bin_from"       => "(CASE WHEN tt.direction = 'out' THEN b1.description ELSE '-' END)",
+    "bin_to"         => "(CASE WHEN tt.direction = 'in'  THEN b1.description ELSE '-' END)",
+    "warehouse_from" => "(CASE WHEN tt.direction = 'out' THEN w1.description ELSE '-' END)",
+    "warehouse_to"   => "(CASE WHEN tt.direction = 'in'  THEN w1.description ELSE '-' END)",
+  };
 
   $form->{l_classification_id}  = 'Y';
   $form->{l_part_type}          = 'Y';
@@ -387,7 +382,7 @@ sub get_warehouse_journal {
 
   # build the select clauses.
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
-  for my $i ('trans', 'out', 'in') {
+  for my $i ('trans', 'in_out') {
     $select{$i} = join ', ', map { +/^l_/; ($select_tokens{$i}{"$'"} || $select_tokens{'trans'}{"$'"}) . " AS r_$'" }
           ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
   }
@@ -413,46 +408,27 @@ sub get_warehouse_journal {
      LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
      LEFT JOIN project pr ON i1.project_id = pr.id
      LEFT JOIN employee e ON i1.employee_id = e.id
-     WHERE $where_clause i2.qty = -i1.qty AND i2.qty > 0 AND tt.direction = 'transfer' AND
-           i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) = 2 )
+     WHERE $where_clause tt.direction = 'transfer' AND i2.qty = -i1.qty AND i2.qty > 0
      GROUP BY $group_clause
 
-    UNION
+     UNION
 
-    SELECT DISTINCT $select{out}
-    FROM inventory i1
-    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id AND i1.id = i2.id
-    LEFT JOIN parts p ON i1.parts_id = p.id
-    LEFT JOIN bin b1 ON i1.bin_id = b1.id
-    LEFT JOIN bin b2 ON i2.bin_id = b2.id
-    LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
-    LEFT JOIN warehouse w2 ON i2.warehouse_id = w2.id
-    LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
-    LEFT JOIN project pr ON i1.project_id = pr.id
-    LEFT JOIN employee e ON i1.employee_id = e.id
-    WHERE $where_clause i1.qty != 0 AND tt.direction = 'out' AND
-          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
-    GROUP BY $group_clause
+     SELECT DISTINCT $select{in_out}
+     FROM inventory i1
+     LEFT JOIN parts p ON i1.parts_id = p.id
+     LEFT JOIN bin b1 ON i1.bin_id = b1.id
+     LEFT JOIN bin b2 ON i1.bin_id = b2.id
+     LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
+     LEFT JOIN warehouse w2 ON i1.warehouse_id = w2.id
+     LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
+     LEFT JOIN project pr ON i1.project_id = pr.id
+     LEFT JOIN employee e ON i1.employee_id = e.id
+     WHERE $where_clause tt.direction IN ('in', 'out')
+     GROUP BY $group_clause
 
-    UNION
-
-    SELECT DISTINCT $select{in}
-    FROM inventory i1
-    LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id AND i1.id = i2.id
-    LEFT JOIN parts p ON i1.parts_id = p.id
-    LEFT JOIN bin b1 ON i1.bin_id = b1.id
-    LEFT JOIN bin b2 ON i2.bin_id = b2.id
-    LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
-    LEFT JOIN warehouse w2 ON i2.warehouse_id = w2.id
-    LEFT JOIN transfer_type tt ON i1.trans_type_id = tt.id
-    LEFT JOIN project pr ON i1.project_id = pr.id
-    LEFT JOIN employee e ON i1.employee_id = e.id
-    WHERE $where_clause i1.qty != 0 AND tt.direction = 'in' AND
-          i1.trans_id IN ( SELECT i.trans_id FROM inventory i GROUP BY i.trans_id HAVING COUNT(i.trans_id) >= 1 )
-    GROUP BY $group_clause
     ORDER BY r_${sort_spec}) AS lines WHERE r_qty != 0|;
 
-  my @all_vars = (@filter_vars, @filter_vars, @filter_vars);
+  my @all_vars = (@filter_vars, @filter_vars);
 
   if ($filter{limit}) {
     $query .= " LIMIT ?";
