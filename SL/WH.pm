@@ -286,7 +286,7 @@ sub get_warehouse_journal {
 
   # if of a property number or description is requested,
   # automatically check the matching id too.
-  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin);
+  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin used_for);
 
   # customize shown entry for not available fields.
   $filter{na} = '-' unless $filter{na};
@@ -364,13 +364,17 @@ sub get_warehouse_journal {
      "shippingdate"      => "i1.shippingdate",
      "employee"          => "e.name",
      "projectnumber"     => "COALESCE(pr.projectnumber, '$filter{na}')",
-     };
+     "used_for"          => "'$filter{na}'",
+     "used_forid"        => 0,
+  };
 
   $select_tokens{'in_out'} = {
     "bin_from"       => "(CASE WHEN tt.direction = 'out' THEN b1.description ELSE '$filter{na}' END)",
     "bin_to"         => "(CASE WHEN tt.direction = 'in'  THEN b1.description ELSE '$filter{na}' END)",
     "warehouse_from" => "(CASE WHEN tt.direction = 'out' THEN w1.description ELSE '$filter{na}' END)",
     "warehouse_to"   => "(CASE WHEN tt.direction = 'in'  THEN w1.description ELSE '$filter{na}' END)",
+    "used_for"       => "COALESCE(assembly_part.description, '$filter{na}')",
+    "used_forid"     => "assembly_part.id",
   };
 
   $form->{l_classification_id}  = 'Y';
@@ -384,11 +388,11 @@ sub get_warehouse_journal {
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
   for my $i ('trans', 'in_out') {
     $select{$i} = join ', ', map { +/^l_/; ($select_tokens{$i}{"$'"} || $select_tokens{'trans'}{"$'"}) . " AS r_$'" }
-          ( grep( { !/used_for$/ and !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
+          ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_qty l_partunit l_shippingdate) );
   }
 
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
-        ( grep( { !/used_for$/ and !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
+        ( grep( { !/qty$/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_shippingdate l_itime) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
 
@@ -401,6 +405,7 @@ sub get_warehouse_journal {
      FROM inventory i1
      LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
      LEFT JOIN parts p ON i1.parts_id = p.id
+     LEFT JOIN parts assembly_part ON i1.used_for_assembly_id = assembly_part.id
      LEFT JOIN bin b1 ON i1.bin_id = b1.id
      LEFT JOIN bin b2 ON i2.bin_id = b2.id
      LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
@@ -416,6 +421,7 @@ sub get_warehouse_journal {
      SELECT DISTINCT $select{in_out}
      FROM inventory i1
      LEFT JOIN parts p ON i1.parts_id = p.id
+     LEFT JOIN parts assembly_part ON i1.used_for_assembly_id = assembly_part.id
      LEFT JOIN bin b1 ON i1.bin_id = b1.id
      LEFT JOIN bin b2 ON i1.bin_id = b2.id
      LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
@@ -469,19 +475,7 @@ SQL
     $h_oe_id = prepare_query($form, $dbh, $q_oe_id);
   }
 
-  my ($h_used_for, $q_used_for);
-  if ($form->{l_used_for}) {
-    $q_used_for = <<SQL;
-      SELECT parts_id, p.description FROM inventory
-      LEFT JOIN parts p ON (p.id=parts_id)
-      WHERE  trans_id= ?
-      AND    trans_type_id = (SELECT id FROM transfer_type WHERE description='assembled')
-SQL
-    $h_used_for = prepare_query($form, $dbh, $q_used_for);
-  }
-
   my @contents = ();
-  my %trans_id_to_assembly_id;
 
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     map { /^r_/; $ref->{"$'"} = $ref->{$_} } keys %$ref;
@@ -503,20 +497,11 @@ SQL
       $ref->{oe_id_info} = $h_oe_id->fetchrow_hashref() || {};
     }
 
-    if ($form->{l_used_for} && $ref->{trans_type} eq 'used') {
-      if (! $trans_id_to_assembly_id{$ref->{trans_id}}) {
-        do_statement($form, $h_used_for, $q_used_for, $ref->{trans_id});
-        $trans_id_to_assembly_id{$ref->{trans_id}} = $h_used_for->fetchrow_hashref() || {};
-      }
-      $ref->{used_for} = $trans_id_to_assembly_id{$ref->{trans_id}};
-    }
-
     push @contents, $ref;
   }
 
   $sth->finish();
   $h_oe_id->finish() if $h_oe_id;
-  $h_used_for->finish() if $h_used_for;
 
   $main::lxdebug->leave_sub();
 
