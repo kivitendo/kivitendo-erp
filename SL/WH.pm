@@ -206,6 +206,12 @@ sub get_warehouse_journal {
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
 
+
+  my $count_only = delete $filter{count_only};
+  if ($count_only) {
+    delete local $form->{l_oe_id};
+  }
+
   # filters
   my (@filter_ary, @filter_vars, $joins, %select_tokens, %select);
 
@@ -390,8 +396,10 @@ sub get_warehouse_journal {
 
   $where_clause = defined($where_clause) ? $where_clause : '';
 
+  my $columns = $count_only ? 'COUNT(*)' : '*';
+
   my $query =
-  qq|SELECT * FROM (
+  qq|SELECT $columns FROM (
 
      SELECT DISTINCT $select{trans}
      FROM inventory i1
@@ -455,6 +463,11 @@ sub get_warehouse_journal {
   }
 
   my $sth = prepare_execute_query($form, $dbh, $query, @all_vars);
+
+  if ($count_only) {
+    $main::lxdebug->leave_sub();
+    return $sth->fetchrow_array();
+  }
 
   my ($h_oe_id, $q_oe_id);
   if ($form->{l_oe_id}) {

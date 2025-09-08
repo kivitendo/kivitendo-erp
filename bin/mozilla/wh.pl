@@ -768,6 +768,12 @@ sub generate_journal {
 
   my $allrows        = !!($form->{report_generator_output_format} ne 'HTML') ;
 
+  # get maxcount
+  if (!$allrows && !$form->{maxrows}) {
+    local $filter{count_only} = 1;
+    $form->{maxrows} = WH->get_warehouse_journal(%filter);
+  }
+
   # manual paginating
   my $pages          = {};
   my $page           = $::form->{page} || 1;
@@ -787,7 +793,7 @@ sub generate_journal {
   my @contents  = WH->get_warehouse_journal(%filter);
   $form->{l_trans_id} = $old_l_trans_id;
 
-  # get maxcount
+  # get maxcount if not already got
   if (!$form->{maxrows}) {
     $form->{maxrows} = scalar @contents ;
   }
