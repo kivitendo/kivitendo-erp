@@ -1,0 +1,38 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post" id="form">
+[% L.hidden_tag("registration", registration) %]
+
+<div class="wrapper">
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr><th>registration</th><td>[% registration %]</td></tr>
+    <tr>
+      <th>[% 'The token is valid for' | $T8 %]</th>
+      <td>
+        [% IF (AUTH.assert('admin', 'may_fail')) %]
+          [% L.select_tag('user_or_clientwide', [ [ 'user', LxERP.t8('only myself') ], [ 'client', LxERP.t8('client-wide') ] ], default='user') %]
+        [% ELSE %]
+          [% L.select_tag('user_or_clientwide', [ [ 'user', LxERP.t8('only myself') ] ], default='user') %]
+        [% END %]
+      </td>
+    </tr>
+    [% IF registration == 'microsoft_email' %]
+      <tr>
+        <th>[% 'E-Mail' | $T8 %]</th>
+        <td>[% L.input_tag("config.email", "", "data-validate"="required", "data-title"=LxERP.t8("E-Mail"), size=50) %]</td>
+      </tr>
+    [% END %]
+  </tbody>
+</table>
+
+
+</div><!-- /.wrapper -->
+</form>
