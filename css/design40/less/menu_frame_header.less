@@ -28,6 +28,7 @@
   width: 100%;
   justify-content: space-between;
   align-items: center;
+  height: 35px;
 }
 
 // --------------------------------------
@@ -72,14 +73,16 @@ div.frame-header-quicksearch {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  padding: 5px;
+  padding: 4px 5px 4px 5px;
+  /* padding: 5px; */
   // limit maximum height and make input fields scrollable if needed
   // TODO: later this can be adapted so that the input fields wrap on a narrower
   // screen (up to 1 or 2 lines/rows), but for this to work more changes in the
   // underlying less/CSS are required so that the content below can shift down
   // dynamically, currently these heights are hard coded
   max-height: 35px;
-  overflow-y: scroll;
+  // do not show scroll bar if not necessary
+  overflow-y: auto;
 }
 
 span.frame-header-quicksearch input {
