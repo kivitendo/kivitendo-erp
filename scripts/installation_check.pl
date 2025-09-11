@@ -21,7 +21,7 @@ my $exit_code = 0;
 unless (eval { require Config::Std; 1 }){
   print STDERR <<EOL ;
 +------------------------------------------------------------------------------+
-  Perl Modul Config::Std could not be loaded.
+  Perl Module Config::Std could not be loaded.
 
   Debian: you may install the needed *.deb package with:
     apt-get install libconfig-std-perl
@@ -34,6 +34,12 @@ unless (eval { require Config::Std; 1 }){
 
   Arch Linux: using yay
     yay -S perl-config-std
+
+  OpenBSD:
+    pkg_add p5-Config-Std
+
+  FreeBSD:
+    pkg install p5-Config-Std
 +------------------------------------------------------------------------------+
 EOL
 
@@ -44,7 +50,7 @@ EOL
 unless (eval { require List::MoreUtils; 1 }){
   print STDERR <<EOL ;
 +------------------------------------------------------------------------------+
-  Perl Modul List::MoreUtils could not be loaded.
+  Perl Module List::MoreUtils could not be loaded.
 
   Debian: you may install the needed *.deb package with:
     apt install liblist-moreutils-perl
@@ -55,6 +61,11 @@ unless (eval { require List::MoreUtils; 1 }){
   Arch Linux: using yay
     yay -S perl-list-moreutils
 
+  OpenBSD:
+    pkg_add p5-List-MoreUtils
+
+  FreeBSD:
+    pkg install p5-List-MoreUtils
 +------------------------------------------------------------------------------+
 EOL
 
@@ -87,7 +98,7 @@ my %install_methods = (
   yum    => { key => 'fedora', install => 'sudo yum install',     system => "RHEL, Fedora, CentOS" },
   zypper => { key => 'suse',   install => 'sudo zypper install',  system => "SLES, openSUSE" },
   yay    =>  { key => 'arch', install => 'yay -S', system => "Arch Linux" },
-  cpan   => { key => 'name',   install => "sudo cpan",            system => "CPAN" },
+  cpan   => { key => 'name',   install => "sudo cpan -Ti",            system => "CPAN" },
 );
 
 # if nothing is requested check "required"
