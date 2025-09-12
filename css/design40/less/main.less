@@ -55,20 +55,18 @@
 // GENERAL FONT SIZES
 // --------------------------------------
 
+// NOTE: I removed the content here because it was overwriting
+// font sizes with smaller variants, the base font size is set in
+// scaffolding.less on the body element and should be inherited
+// from there
 #content {
-
-  & > p,
-  & > div,
-  & > td,
-  & > th {
-    font-size: @font-size-smaller ;
-  }
   input,
   select, option,
   textarea {
-    font-size: @font-size-smaller ;
+    // NOTE: I had to set the font size explicitly for input elements otherwise
+    // the browser renders it as 13.3333px, despite inheriting 14px
+    font-size: @font-size-base ;
   }
-
 }
 
 
@@ -93,7 +91,7 @@ h1 {
 #content > h1 {
   position:           fixed;
   z-index:            @zindex-h1; //hps:12
-  top:                60px;
+  top:                66px;
   width:              100%;
   color:              @base-h1-color ;
   background-color:   @base-h1-bg;
@@ -255,14 +253,6 @@ a {
 // -----------------------
 // Lists (UL & OL)
 // -----------------------
-ul,
-ol {
-  font-size: @font-size-base ;
-
-  li {
-    font-size: @font-size-small ;
-  }
-}
 .wrapper .col{
   ul {
     list-style: circle outside;
@@ -318,18 +308,15 @@ div.long-description,
 div.long-desc,
 div.longdescription,
 div.longdesc {
-  font-size: @font-size-smaller ;
+  font-size: @font-size-small ;
 
-  &.small {
-    font-size: @font-size-smaller ;
-  }
   p {
     margin: 0 0 0.6em 0;
   }
   ul,
   ol {
     margin-top: 0 ;
-    li { font-size: @font-size-smaller ; }
+    li { font-size: @font-size-small ; }
   }
 }
 
@@ -375,7 +362,6 @@ div.instructions {
 // -----------------------
 span.label{
   //color: @base-data-label-color ;
-  font-size: @font-size-smaller ;
   font-style: normal ;
   //margin: 0 0.3em 0 0 ; // PENDENT: gehoert nicht hierher
 }
@@ -559,7 +545,6 @@ pre.filecontent {
   & > p {
     max-width:       36.0em ;
     overflow:        hidden ;
-    font-size:       @font-size-smaller ;
     line-height:     140%;
     //color:           @gray-darker ;
     padding-bottom:  1.0em ;
