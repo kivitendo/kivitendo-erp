@@ -40,6 +40,7 @@ sub _sort_spec {
                         sellprice     => [ 'orderitems.sellprice' ],
                         discount      => [ 'orderitems.discount' ],
                         transdate     => [ 'orderitems.transdate::date', 'order.reqdate' ],
+                        transaction_description => [ 'lower(order.transaction_description)'],
                       },
            default => [ 'position', 1 ],
            nulls   => { }
