@@ -31,6 +31,7 @@ my %sort_columns = (
   ordnumber         => t8('Order'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
+  transaction_description => t8('Transaction description'),
 );
 
 
@@ -55,9 +56,9 @@ sub prepare_report {
   $report->{title} = t8('Delivery Plan');
   $self->{report}  = $report;
 
-  my @columns     = qw(reqdate customer vendor ordnumber partnumber description qty shipped_qty not_shipped_qty);
+  my @columns     = qw(reqdate customer vendor ordnumber transaction_description partnumber description qty shipped_qty not_shipped_qty);
 
-  my @sortable    = qw(reqdate customer vendor ordnumber partnumber description);
+  my @sortable    = qw(reqdate customer vendor ordnumber transaction_description partnumber description);
 
   my %column_defs = (
     reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
@@ -76,6 +77,7 @@ sub prepare_report {
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
                             visible => $vc eq 'customer',
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+    transaction_description => { sub => sub { $_[0]->order->transaction_description                                          } },
   );
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
@@ -130,6 +132,7 @@ sub make_filter_summary {
 
   my @filters = (
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
+    [ $filter->{order}{"transaction_description:substr::ilike"},      $::locale->text('Transaction description')                            ],
     [ $filter->{order}{globalproject}{"projectnumber:substr::ilike"}, $::locale->text('Document Project Number')                            ],
     [ $filter->{part}{"partnumber:substr::ilike"},                    $::locale->text('Part Number')                                        ],
     [ $filter->{"description:substr::ilike"},                         $::locale->text('Part Description')                                   ],

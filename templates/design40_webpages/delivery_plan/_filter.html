@@ -18,6 +18,10 @@
       <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', filter.order.ordnumber_substr__ilike, class='wi-normal') %]</td>
     </tr>
     <tr>
+     <th>[% 'Transaction description' | $T8 %]</th>
+      <td>[% L.input_tag('filter.order.transaction_description:substr::ilike', filter.order.transaction_description_substr__ilike, class='wi-normal') %]</td>
+    </tr>
+    <tr>
       <th>[% 'Document Project Number' | $T8 %]</th>
       <td>[% L.input_tag('filter.order.globalproject.projectnumber:substr::ilike', filter.order.globalproject.projectnumber_substr__ilike, class='wi-normal') %]</td>
     </tr>
