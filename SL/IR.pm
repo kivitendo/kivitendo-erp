@@ -267,10 +267,8 @@ sub _post_invoice {
         $a->update_attributes(lastcost => $new_lastcost);
         $a->set_lastcost_assemblies_and_assortiments;
 
-        # trigger hack
-        #    SL::DB::Manager::SomeClass->get_all(where => [ … ], limit => 1)
-        $ph = SL::DB::Manager::PartsPriceHistory->get_all(where => [ part_id => $a->id ], sort_by => 'id DESC', limit => 1)->[0];
-        $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
+        # new entry is created by trigger on the fly CAVEAT: db behaviour might change
+        $a->last_price_update->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
       }
 
       # check if we sold the item already and
@@ -436,9 +434,8 @@ sub _post_invoice {
         $a->update_attributes(lastcost => $new_lastcost);
         $a->set_lastcost_assemblies_and_assortiments;
 
-        # trigger hack - new entry is created by trigger on the fly CAVEAT: db behaviour might change
-        my $ph = SL::DB::Manager::PartsPriceHistory->get_all(where => [ part_id => $a->id ], sort_by => 'id DESC', limit => 1)->[0];
-        $ph->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
+        # new entry is created by trigger on the fly CAVEAT: db behaviour might change
+        $a->last_price_update->update_attributes(vendor_id => $form->{vendor_id}, ap_id => $form->{id});
       }
     }
 
