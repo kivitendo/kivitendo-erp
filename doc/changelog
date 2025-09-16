@@ -29,6 +29,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Lieferplan um das Feld Status u. Vorgangsbezeichnung des Auftrags und Mikrofilm
   erweitert und nach Vorgangsbezeichnis filterbar gemacht.
 
+- Preishistorie in den Stammdaten um die Felder Lieferant und Rechnung
+  erweitert, falls die Preisaktualisierung über eine Einkaufsrechnung
+  passiert ist.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
