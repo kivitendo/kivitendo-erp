@@ -92,7 +92,7 @@
             [% options = [
                  [ "old_file", LxERP.t8("Send the last or create the first version for this record") ],
                  [ "merge_file", LxERP.t8("Merge all PDF files which are in the tab 'Documents', place created doc first.") ],
-                 [ "normal",   LxERP.t8("Create and send a new printout for this record") ],
+                 [ "normal",   LxERP.t8("Create and send a new printout for this record"), INSTANCE_CONF.get_email_default_create_new_record_checked ],
                  [ "no_file",  no_file_label ], ]
             %]
           [%- END %]
