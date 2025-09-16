@@ -58,7 +58,7 @@ sub prepare_report {
   $report->{title} = t8('Delivery Plan');
   $self->{report}  = $report;
 
-  my @columns     = qw(reqdate customer vendor ordnumber transaction_description partnumber description qty shipped_qty not_shipped_qty);
+  my @columns     = qw(reqdate customer vendor ordnumber status transaction_description partnumber description microfiche qty shipped_qty not_shipped_qty);
 
   my @sortable    = qw(reqdate customer vendor ordnumber transaction_description partnumber description);
 
