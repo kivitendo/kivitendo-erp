@@ -77,6 +77,10 @@ Kleinere neue Features und Detailverbesserungen:
   etwas versteckte Möglichkeit dafür über eine zweite Aktion in der Action-Bar
   entfällt.
 
+- Preishistorie in den Stammdaten um die Felder Lieferant und Rechnung
+  erweitert, falls die Preisaktualisierung über eine Einkaufsrechnung
+  passiert ist.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
