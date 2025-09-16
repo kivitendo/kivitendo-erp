@@ -93,7 +93,7 @@ sub prepare_report {
 
   my $title       = $::locale->text('Price history for master data');
 
-  my @columns     = qw(valid_from lastcost listprice sellprice price_factor vendor_id ap_id customer_id ar_id);
+  my @columns     = qw(valid_from lastcost listprice sellprice price_factor vendor_id ap_id);
 
   my $column_defs = $self->column_defs;
 

@@ -10,8 +10,6 @@ __PACKAGE__->meta->table('parts_price_history');
 
 __PACKAGE__->meta->columns(
   ap_id        => { type => 'integer' },
-  ar_id        => { type => 'integer' },
-  customer_id  => { type => 'integer' },
   id           => { type => 'serial', not_null => 1 },
   lastcost     => { type => 'numeric', precision => 15, scale => 5 },
   listprice    => { type => 'numeric', precision => 15, scale => 5 },
@@ -28,16 +26,6 @@ __PACKAGE__->meta->foreign_keys(
   ap => {
     class       => 'SL::DB::PurchaseInvoice',
     key_columns => { ap_id => 'id' },
-  },
-
-  ar => {
-    class       => 'SL::DB::Invoice',
-    key_columns => { ar_id => 'id' },
-  },
-
-  customer => {
-    class       => 'SL::DB::Customer',
-    key_columns => { customer_id => 'id' },
   },
 
   part => {
