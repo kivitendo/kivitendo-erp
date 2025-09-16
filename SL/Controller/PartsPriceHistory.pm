@@ -7,6 +7,8 @@ use Clone qw(clone);
 use SL::DB::PartsPriceHistory;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Presenter::CustomerVendor qw();
+use SL::Presenter::Invoice qw();
 
 sub action_list {
   my ($self) = @_;
@@ -76,11 +78,9 @@ sub column_defs {
     sellprice    => { text => $::locale->text('Sell Price'),   sub => sub { $_[0]->sellprice_as_number }},
     price_factor => { text => $::locale->text('Price Factor'), sub => sub { $_[0]->price_factor_as_number }},
     vendor       => { text => $::locale->text('Vendor'),
-                           sub => sub { $_[0]->vendor_id ? SL::DB::Manager::Vendor->find_by(id => $_[0]->vendor_id)->name                   : undef },
-                      obj_link => sub { my $id = $_[0]->vendor_id; return $id ? "controller.pl?action=CustomerVendor/edit&id=$id&db=vendor" : undef }},
+                      raw_data => sub { $_[0]->vendor ? SL::Presenter::CustomerVendor::vendor($_[0]->vendor, display => 'table-cell') : undef }},
     ap           => { text => $::locale->text('Purchase Invoice'),
-                           sub => sub { $_[0]->ap_id ? SL::DB::Manager::PurchaseInvoice->find_by(id => $_[0]->ap_id)->invnumber : undef },
-                      obj_link => sub { my $id = $_[0]->ap_id; return $id ? "ir.pl?action=edit&id=$id"                          : undef }},
+                      raw_data => sub { $_[0]->ap ? SL::Presenter::Invoice::purchase_invoice($_[0]->ap, display => 'table-cell') : undef }},
   };
 }
 
