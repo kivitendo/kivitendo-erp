@@ -26,6 +26,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Rechnungen mit Nicht-Euro-Währung nicht für einen SEPA-Einzug oder
   eine SEPA-Überweisung zur Auswahl anbieten.
 
+- Lieferplan um das Feld Status u. Vorgangsbezeichnung des Auftrags und Mikrofilm
+  erweitert und nach Vorgangsbezeichnis filterbar gemacht.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
