@@ -29,6 +29,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Lieferplan um das Feld Status u. Vorgangsbezeichnung des Auftrags und Mikrofilm
   erweitert und nach Vorgangsbezeichnis filterbar gemacht.
 
+- Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
+  wenn ein Preisfaktor gesetzt ist.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
