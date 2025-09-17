@@ -10,6 +10,7 @@ use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::AttrSorted;
+use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::Payment qw(:ALL);
 use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECORD_ITEM_TYPE_REF);
@@ -19,7 +20,7 @@ use SL::Locale::String qw(t8);
 use Rose::DB::Object::Helpers qw(has_loaded_related forget_related as_tree strip);
 
 # The calculator hasn't been adjusted for purchase invoices yet.
-# use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Helper::PriceTaxCalculator;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems   => {
