@@ -1450,7 +1450,7 @@ sub print_form {
     $form->{TEMPLATE_DRIVER_OPTIONS}->{variable_content_types} = $form->get_variable_content_types();
   }
 
-  if ($form->{format} =~ m{pdf}) {
+  if ($form->{format} =~ m{pdf} && !$form->{preview}) {
     _maybe_attach_zugferd_data($form);
   }
 
