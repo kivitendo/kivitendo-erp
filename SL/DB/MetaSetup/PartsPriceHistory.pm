@@ -9,6 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('parts_price_history');
 
 __PACKAGE__->meta->columns(
+  ap_id        => { type => 'integer' },
   id           => { type => 'serial', not_null => 1 },
   lastcost     => { type => 'numeric', precision => 15, scale => 5 },
   listprice    => { type => 'numeric', precision => 15, scale => 5 },
@@ -16,14 +17,25 @@ __PACKAGE__->meta->columns(
   price_factor => { type => 'numeric', default => 1, precision => 15, scale => 5 },
   sellprice    => { type => 'numeric', precision => 15, scale => 5 },
   valid_from   => { type => 'timestamp', not_null => 1 },
+  vendor_id    => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->foreign_keys(
+  ap => {
+    class       => 'SL::DB::PurchaseInvoice',
+    key_columns => { ap_id => 'id' },
+  },
+
   part => {
     class       => 'SL::DB::Part',
     key_columns => { part_id => 'id' },
+  },
+
+  vendor => {
+    class       => 'SL::DB::Vendor',
+    key_columns => { vendor_id => 'id' },
   },
 );
 

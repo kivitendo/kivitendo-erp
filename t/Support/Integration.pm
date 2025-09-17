@@ -26,10 +26,10 @@ sub make_request {
     };
 
     open(my $out_fh, '>', \$out) or die;
-    open(my $err_fh, '>', \$err) or die;
+    #open(my $err_fh, '>', \$err) or die;
 
     local *STDOUT = $out_fh;
-    local *STDERR = $err_fh;
+    #local *STDERR = $err_fh;
 
     local $::form = Form->new;
     $::form->{$_} = $form_vars{$_} for keys %form_vars;
