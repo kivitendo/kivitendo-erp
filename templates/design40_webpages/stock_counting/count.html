@@ -2,8 +2,6 @@
 [%- USE LxERP %]
 [%- USE P %]
 
-[%- INCLUDE 'common/flash.html' %]
-
 <h1>[% 'Stock Counting' | $T8 %]</h1>
 
 <div class="wrapper">
@@ -45,14 +43,31 @@
               <span class="data">[% SELF.stock_counting_item.counting.bin.full_description %]</span>
               [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
             [% ELSE %]
-              [% P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
+              [% P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', bin_default=FORM.stock_counting_item.bin_id, 'data-validate'='required') %]
             [% END %]
           </td>
         </tr>
         <tr>
+          <th>[% 'Partnumber' | $T8 %]</th>
+          <td>[% P.part.picker('part_id', undef, part_type='part') %]</td>
+        </tr>
+        <tr>
           <th>[% 'EAN' | $T8 %]</th>
-          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required') %]</td>
+          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN')) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Chargenumber' | $T8 %]</th>
+          <td>[% P.input_tag('chargenumber', '' ) %]</td>
+        </tr>
+        <tr>
+          <th>[% 'Qty' | $T8 %]</th>
+          <td>[% P.input_tag('qty', '', class="numeric") %]</td>
         </tr>
     </table>
   </form>
 </div>
+<div class="wrapper">
+  <div id="list_data" >
+</div>
+</div>
+

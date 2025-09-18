@@ -15,6 +15,7 @@ use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_total);
+use SL::Helper::Inventory qw(:ALL);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::WH;
@@ -34,12 +35,13 @@ __PACKAGE__->run_before(sub { $::auth->assert('warehouse_management'); });
 __PACKAGE__->run_before(sub { $::request->layout->add_javascripts('kivi.Validator.js'); });
 
 my %sort_columns = (
-  counting   => t8('Stock Counting'),
-  counted_at => t8('Counted At'),
-  qty        => t8('Qty'),
-  part       => t8('Article'),
-  bin        => t8('Bin'),
-  employee   => t8('Employee'),
+  counting     => t8('Stock Counting'),
+  counted_at   => t8('Counted At'),
+  qty          => t8('Qty'),
+  part         => t8('Article'),
+  chargenumber => t8('Chargenumber'),
+  bin          => t8('Bin'),
+  employee     => t8('Employee'),
 );
 
 
@@ -94,38 +96,46 @@ sub action_reconcile {
           my $counted_qty   = $group_item->qty;
           my $stocked_qty   = $group_item->{stocked};
           my $inbetween_qty = $group_item->{inbetweens};
-
           my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
 
           my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
           $transfer_qty  = abs($transfer_qty);
 
+            if ( $transfer_qty == 0) {
+              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
+                                                             where => [id => $group_item->{ids}]);
+              next;
+            }
           # Do stock.
           # todo: run in transaction and record the inventory id in the counting items
           my %transfer_params = (
             parts_id              => $group_item->part_id,
             $src_or_dst.'_bin_id' => $group_item->bin_id,
             qty                   => $transfer_qty,
+            chargenumber          => $group_item->chargenumber,
             transfer_type         => 'correction',
             comment               => $comment,
           );
-
           my @trans_ids = WH->transfer(\%transfer_params);
-
           if (scalar(@trans_ids) != 1) {
-            die "Program logic error: no error, but no transfer" if scalar(@trans_ids) == 0;
+            die "Program logic error: no error, but no inventory entry" if scalar(@trans_ids) == 0;
             die "Program logic error: too many transfers"        if scalar(@trans_ids) >  1;
           }
 
           # Get inventory entries via trans_ids-
           my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
           if (scalar(@$inventories) != 1) {
+            if ( scalar(@$inventories) == 0 && $transfer_qty == 0) {
+              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
+                                                             where => [id => $group_item->{ids}]);
+              next;
+            }
             die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
             die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
           }
 
 
-          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
+          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id, cleared => 'T'},
                                                          where => [id => $group_item->{ids}]);
         }
 
@@ -160,7 +170,7 @@ sub init_models {
 
 sub init_countings {
   my $countings = SL::DB::Manager::StockCounting->get_all_sorted;
-  $countings    = [ grep { !$_->is_reconciliated } @$countings ];
+  $countings    = [ grep { !$_->is_cleared } @$countings ];
 
   return $countings;
 }
@@ -172,13 +182,14 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = qw(counting part bin qty stocked inbetweens);
+  my @columns = qw(counting part chargenumber bin qty stocked inbetweens);
 
   my %column_defs = (
     counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
     counted_at => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
     qty        => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
     part       => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
+    chargenumber      => { text => t8('Chargenumber'), sub => sub { $_[0]->chargenumber }, },
     bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
@@ -252,14 +263,14 @@ sub group_items_by_part_and_bin {
   my @grouped_objects;
   foreach my $object (@$objects) {
     my $group_object;
-    if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}) {
+    if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}) {
       $group_object = SL::DB::StockCountingItem->new(
-        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
       push @grouped_objects, $group_object;
-      $grouped_objects_by->{$object->part_id}->{$object->bin_id} = $group_object;
+      $grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber} = $group_object;
 
     } else {
-      $group_object = $grouped_objects_by->{$object->part_id}->{$object->bin_id}
+      $group_object = $grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}
     }
 
     push @{$group_object->{ids}}, $object->id;
@@ -271,8 +282,7 @@ sub group_items_by_part_and_bin {
 
 sub get_stocked {
   my ($self, $objects) = @_;
-
-  $_->{stocked} = $_->part->get_stock(bin_id => $_->bin_id) for @$objects;
+  $_->{stocked} = SL::Helper::Inventory::get_stock(part => $_->part, bin => $_->bin, chargenumber => $_->chargenumber) for @$objects;
 }
 
 sub get_inbetweens {

@@ -1,0 +1,32 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE HTML %]
+[%- USE L %]
+
+<div class="counted">
+  <table class="tbl-list">
+    <caption>[% "Last 20 counting operations" | $T8 %]</caption>
+    <thead>
+      <tr>
+        <th>[% "Date" | $T8 %]</th>
+        <th>[% "Bin" | $T8 %]</th>
+        <th>[% "Article" | $T8 %]</th>
+        <th>[% "Chargenumber" | $T8 %]</th>
+        <th>[% "Qty" | $T8 %]</th>
+        <th>[% "Employee" | $T8 %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [%  FOREACH row = OBJECTS %]
+      <tr>
+        <td>[% HTML.escape(row.counted_at.to_kivitendo) %] [% HTML.escape(row.counted_at.to_kivitendo_time) %]</td>
+        <td>[% HTML.escape(row.bin.description) %]</td>
+        <td>[% HTML.escape(row.part.displayable_name) %]</td>
+        <td>[% HTML.escape(row.chargenumber) %]</td>
+        <td>[% HTML.escape(row.qty_as_number) %]</td>
+        <td>[% HTML.escape(row.employee.safe_name) %]</td>
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div>
