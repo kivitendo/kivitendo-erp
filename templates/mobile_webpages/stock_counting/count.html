@@ -18,15 +18,14 @@
           [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
         [% ELSE %]
           <div class="row">
-            [% P.M.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required', label=LxERP.t8('Bin'), class='col s12') %]
+            [% P.M.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', 'data-validate'='required', label=LxERP.t8('Bin'), class='col s12') %]
           </div>
         [% END %]
         <div class="row">
           [% P.M.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required', label=LxERP.t8('Part to count'), class='col s12') %]
         </div>
         <div class="row">
-          [% P.hidden_tag("action", "StockCounting/count") %]
-          [% P.M.submit_tag("btn_count", LxERP.t8("Do count"), class="col s12", large=1) %]
+          [% P.M.button_tag("kivi.StockCounting.submit_count()", LxERP.t8("Do count"), class="col s12", large=1) %]
         </div>
       </form>
     </div>
@@ -55,10 +54,3 @@
     [% P.M.button_tag("", LxERP.t8("Ok"), class="modal-close") %]
   </div>
 </div>
-
-<script>
-  // using $(document).ready didn't work here
-  window.onload = () => {
-    kivi.StockCounting.count_window_onload();
-  };
-</script>
