@@ -72,14 +72,24 @@ sub action_count {
   }
 
   my @errors;
-  push @errors, t8('EAN is missing')    if !$::form->{ean};
+    if (!$::form->{ean} && !$::form->{part_id} ) {
+    push @errors, t8('EAN or Partnumber is missing') ;
+  } #if !$::form->{ean};
 
   return $self->render_count_error(\@errors) if @errors;
-
-  my $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean},
+  my $parts;
+  $main::lxdebug->dump(0, "TST:FORM ", $::form);
+  if ($::form->{ean}) {
+   $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean},
                                                        or  => [obsolete => 0, obsolete => undef]]);
-  push @errors, t8 ('Part not found')    if scalar(@$parts) == 0;
-  push @errors, t8 ('Part is ambiguous') if scalar(@$parts) >  1;
+  }
+  if ($::form->{part_id}) {
+   $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{part_id},
+                                                       or  => [obsolete => 0, obsolete => undef]]);
+  }
+  $main::lxdebug->dump(0, "TST: PARTS", $parts);
+  push @errors, t8 ('Part not found')    if scalar(@{$parts}) == 0;
+  push @errors, t8 ('Part is ambiguous') if scalar(@{$parts}) >  1;
 
   return $self->render_count_error(\@errors) if @errors;
 
@@ -90,7 +100,8 @@ sub action_count {
 
   return $self->render_count_error(\@errors) if @errors;
 
-  $self->stock_counting_item->qty(1);
+  my $qty = $::form->{qty} || 1;
+  $self->stock_counting_item->qty($qty);
   $self->stock_counting_item->save;
 
   if ($::request->is_mobile) {

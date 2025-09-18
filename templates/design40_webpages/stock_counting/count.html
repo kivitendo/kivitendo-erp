@@ -51,8 +51,17 @@
         </tr>
         <tr>
           <th>[% 'EAN' | $T8 %]</th>
-          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN'), 'data-validate'='required') %]</td>
+          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN')) %]</td>
         </tr>
+        <tr>
+          <th>[% 'Partnumber' | $T8 %]</th>
+          <td>[% P.part.picker('part_id', undef, part_type='part') %]</td>
+        </tr>
+        <tr>
+          <th>[% 'QTY' | $T8 %]</th>
+          <td>[% P.input_tag('qty', '', class="numeric") %]</td>
+        </tr>
+        <!-- TODO chargenumber -->
     </table>
   </form>
 </div>
