@@ -312,6 +312,7 @@ sub get_warehouse_journal {
     'trans_id'       => ['trans_id'],
     'bestbefore'     => ['bestbefore'],
     'direction'      => ['direction'],
+    'used_for'       => ['used_for'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
