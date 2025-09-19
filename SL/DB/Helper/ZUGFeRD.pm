@@ -156,6 +156,22 @@ sub _customer_postal_trade_address {
   #       </ram:PostalTradeAddress>
 }
 
+sub _shipto_postal_trade_address {
+  my (%params) = @_;
+
+  #       <ram:PostalTradeAddress>
+  $params{xml}->startTag("ram:PostalTradeAddress");
+
+  my @parts = grep { $_ } map { $params{shipto}->$_ } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet);
+
+  $params{xml}->dataElement("ram:PostcodeCode", _u8($params{shipto}->shiptozipcode));
+  $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @parts;
+  $params{xml}->dataElement("ram:CityName",     _u8($params{shipto}->shiptocity));
+  $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{shipto}->shiptocountry) // 'DE'));
+  $params{xml}->endTag;
+  #       </ram:PostalTradeAddress>
+}
+
 sub _buyer_communication {
   my (%params) = @_;
   my $customer = $params{customer};
@@ -668,6 +684,31 @@ sub _applicable_header_trade_delivery {
 
   #     <ram:ApplicableHeaderTradeDelivery>
   $params{xml}->startTag("ram:ApplicableHeaderTradeDelivery");
+
+
+  my $shipto = first { $_ } (
+    $self->custom_shipto,
+    $self->shipto
+  );
+
+  if ($shipto) {
+    #       <ram:ShipToTradeParty>
+    $params{xml}->startTag("ram:ShipToTradeParty");
+
+    if ($shipto->shiptogln) {
+      $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
+    }
+
+    if ($shipto->shiptoname) {
+      $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
+    }
+
+    _shipto_postal_trade_address(%params, shipto => $shipto);
+
+    $params{xml}->endTag;
+    #       </ram:ShipToTradeParty>
+  }
+
   #       <ram:ActualDeliverySupplyChainEvent>
   $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
 
@@ -783,6 +824,12 @@ sub _validate_data {
   #
   if ($self->customer->gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->customer->gln)) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Customer GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->customer->gln));
+  }
+
+  if ($self->custom_shipto && $self->custom_shipto->shiptogln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->custom_shipto->shiptogln)) {
+    SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Custom shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->custom_shipto->shiptogln));
+  } elsif ($self->shipto && $self->shipto->shiptogln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->shipto->shiptogln)) {
+    SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->shipto->shiptogln));
   }
 
   if ($::instance_conf->get_gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($::instance_conf->get_gln)) {
