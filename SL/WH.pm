@@ -311,6 +311,7 @@ sub get_warehouse_journal {
     'chargenumber'   => ['chargenumber'],
     'trans_id'       => ['trans_id'],
     'bestbefore'     => ['bestbefore'],
+    'direction'      => ['direction'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
