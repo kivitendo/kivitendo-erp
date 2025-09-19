@@ -4,9 +4,10 @@
 [%- USE L %]
 [%- USE P %]
 
+[% SET maxcols = (MYCONFIG.form_cvars_nr_cols || 3) %]
 <table>
   <tr>
-    <td>
+    <td colspan="[% maxcols %]">
       <b>[%- 'Serial No.' | $T8 %]</b>&nbsp;
       [%- L.input_tag("reclamation.reclamation_items[].serialnumber", ITEM.serialnumber, size = 15 "data-validate"="trimmed_whitespaces") %]&nbsp;
     <b>[%- 'Project' | $T8 %]</b>&nbsp;
@@ -43,7 +44,7 @@
       [% L.hidden_tag('reclamation.reclamation_items[].custom_variables[].sub_module', var.sub_module) %]
       [% INCLUDE 'common/render_cvar_input.html' var_name='reclamation.reclamation_items[].custom_variables[].unparsed_value' %]
     </td>
-      [%- IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
+      [%- IF (n % maxcols) == 0 %]
         </tr><tr>
       [%- END %]
     [%- END %]
