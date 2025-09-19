@@ -218,8 +218,8 @@ sub allocate_for_assembly {
   my $part = $params{part} or Carp::croak('allocate needs a part');
   my $qty  = $params{qty}  or Carp::croak('allocate needs a qty');
   my $wh   = $params{warehouse};
-  my $wh_strict       = $::instance_conf->get_produce_assembly_same_warehouse;
-  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
+  my $wh_strict         = $::instance_conf->get_produce_assembly_same_warehouse;
+  my $consume_service   = $::instance_conf->get_produce_assembly_transfer_service;
   my $allow_empty_items = $::instance_conf->get_produce_assembly_allow_empty_items;
 
   Carp::croak('not an assembly')       unless $part->is_assembly;
