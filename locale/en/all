@@ -4706,6 +4706,7 @@ $self->{texts} = {
   'Useable for sections'        => '',
   'Useable for text blocks'     => '',
   'Useable for…'                => '',
+  'Used for Assembly'           => '',
   'Used for Purchase'           => '',
   'Used for Sale'               => '',
   'Used for assembly #1 #2'     => '',
