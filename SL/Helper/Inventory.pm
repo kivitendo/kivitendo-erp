@@ -200,10 +200,9 @@ sub allocate {
     die SL::X::Inventory::Allocation::MissingQty->new(
       code             => 'not enough to allocate',
       message          => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
-      part_description => $part->displayable_name,
+      part             => $part,
       to_allocate_qty  => $qty,
       missing_qty      => $rest_qty,
-      part             => $part,
     );
   } else {
     if ($params{constraints}) {
@@ -775,7 +774,7 @@ than needed for production a falsish value is returned. Optional.
 Checks if enough stock is availbale for the transfer requests. Returns a list
 of missing quantities as hashref with the keys C<part>, C<bin>, C<missing_qty>, C<chargenumber>
 and C<bestbefore>. C<chargenumber> and C<bestbefore> can be C<undef> if not set
-in the transfer requests. 
+in the transfer requests.
 
 Accepted parameters:
 
