@@ -1,5 +1,6 @@
 \documentclass[paper=a4,fontsize=10pt]{scrartcl}
 \usepackage{kiviletter}
+\usepackage{xstring}
 <%if template_meta.formname == "invoice_copy"%>
   \usepackage{transparent}
   \DeclareNewLayer[page,foreground,contents={
@@ -31,6 +32,7 @@
 
 <%if template_meta.formname == "storno_invoice"%>
   \renewcommand{\rechnung}{\stornorechnung}
+
 <%end template_meta.formname == "storno_invoice"%>
 
 % laufende Kopfzeile:
@@ -49,7 +51,14 @@
 \setkomavar{info10}[\textEmail]        {<%employee_email%>}
 \setkomavar{fromname}                  {<%employee_name%>}
 
-\setkomavar{title}{\rechnung~\nr~<%invnumber%>}
+<%if template_meta.formname == "storno_invoice"%>
+  \setkomavar{title}{\rechnungs-<%invnumber%>}
+
+  \setkomavar{info5}[\rechnung~\nr]    {\StrSubstitute{<%invnumber%>}{Storno zu }{}}
+<%else%>
+  \setkomavar{title}{\rechnung~\nr~<%invnumber%>}
+<%end%>
+
 
 <%if shiptoname%>%
   \makeatletter
@@ -109,10 +118,10 @@
   }
   \thispagestyle{kivitendo.letter.first}
 
-  <%if template_meta.formname != "storno_invoice"%>
-    \rechnungsformel
+  <%if template_meta.formname == "storno_invoice"%>
+    \stornoErstatten{\StrSubstitute{<%invnumber%>}{Storno zu }{}}
   <%else%>
-    \stornoErstatten{<%invnumber%>}
+    \rechnungsformel
   <%end%>
 
   <%if notes%>%
