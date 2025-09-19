@@ -4,9 +4,10 @@
 [% USE L %]
 [% USE P %]
 
+[% SET maxcols = (MYCONFIG.form_cvars_nr_cols || 3) %]
 <table>
   <tr>
-    <td colspan="100%">
+    <td colspan="[% maxcols %]">
       [% IF (TYPE == "sales_order_intake" || TYPE == "sales_order" || TYPE == "purchase_order" || TYPE == "purchase_order_confirmation") %]
         <b>[% 'Serial No.' | $T8 %]</b> [% L.input_tag("order.orderitems[].serialnumber", ITEM.serialnumber, size = 15, "data-validate"="trimmed_whitespaces") %]
       [% END %]
@@ -56,7 +57,7 @@
         [% L.hidden_tag('order.orderitems[].custom_variables[].sub_module', var.sub_module) %]
         [% INCLUDE 'common/render_cvar_input.html' var_name='order.orderitems[].custom_variables[].unparsed_value' %]
       </td>
-      [% IF (n % (MYCONFIG.form_cvars_nr_cols || 3)) == 0 %]
+      [% IF (n % maxcols) == 0 %]
         </tr><tr>
       [% END %]
     [% END %]
