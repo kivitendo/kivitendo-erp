@@ -747,7 +747,7 @@ sub generate_journal {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   my %filter;
-  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore comment transfer direction qty partunit trans_type employee oe_id projectnumber);
+  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore comment direction qty partunit trans_type employee oe_id projectnumber);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber trans_id id);
