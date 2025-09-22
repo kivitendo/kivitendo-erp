@@ -718,6 +718,16 @@ sub _applicable_header_trade_delivery {
 
   $params{xml}->endTag;
   #       </ram:ActualDeliverySupplyChainEvent>
+
+  if ($self->donumber) {
+    #       <ram:DespatchAdviceReferencedDocument>
+    $params{xml}->startTag("ram:DespatchAdviceReferencedDocument");
+    $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->donumber));
+
+    $params{xml}->endTag;
+    #       </ram:DespatchAdviceReferencedDocument>
+  }
+
   $params{xml}->endTag;
   #     </ram:ApplicableHeaderTradeDelivery>
 }
