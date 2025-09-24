@@ -5,7 +5,7 @@ use warnings;
 use utf8;
 
 use Exporter qw(import);
-our @EXPORT_OK = qw(map_name_to_alpha_2_code);
+our @EXPORT_OK = qw(map_name_to_code);
 
 use List::Util qw(first);
 
@@ -49,7 +49,7 @@ my @mappings = (
   [ 'E34', qr{^(?:gb|gigabyte)$}i ],
   [ 'E35', qr{^(?:tb|terabyte)$}i ],
   [ 'E36', qr{^(?:pb|petabyte)$}i ],
-  
+
   # miscellaneous
   [ 'C62', qr{^(?:stck|stück|pieces?|pc|psch|pauschal|licenses?|lizenz(?:en)?)$}i ],
 );
@@ -63,7 +63,7 @@ sub map_name_to_code {
   return $code->[0] if $code;
 
   no warnings 'once';
-  $::lxdebug->message(LXDebug::WARN(), "UNECERecommendation20::map_name_code: no mapping found for '$unit'");
+  $::lxdebug->message(LXDebug::WARN(), "UNECERecommendation20::map_name_to_code: no mapping found for '$unit'");
 
   return undef;
 }
