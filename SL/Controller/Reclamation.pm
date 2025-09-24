@@ -1555,9 +1555,7 @@ sub setup_custom_shipto_from_form {
 sub recalc {
   my ($self) = @_;
 
-  my %pat = $self->reclamation->calculate_prices_and_taxes();
-
-  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->reclamation->items_sorted}, @{$pat{items}};
+  $self->reclamation->calculate_prices_and_taxes;
 }
 
 # get data for saving, printing, ..., that is not changed in the form
