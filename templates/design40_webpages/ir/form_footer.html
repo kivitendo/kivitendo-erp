@@ -51,7 +51,7 @@
   </tfoot>
 </table>
 
-<div class="after-item">[%- P.button_tag('kivi.SalesPurchase.delete_positions()', LxERP.t8('Delete marked positions')) %]<div>
+<div class="after-item">[%- P.button_tag('kivi.SalesPurchase.delete_positions()', LxERP.t8('Delete marked positions')) %]</div>
 [% IF taxaccounts %]
 <div class="after-item"><input name="taxincluded" type="checkbox"[% IF taxincluded %] checked[% END %]> [% 'Tax Included' | $T8 %]</div>
 [% END %]
