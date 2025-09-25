@@ -5,9 +5,9 @@ use parent qw(SL::Layout::Base);
 use SL::Presenter::EscapedText qw(escape escape_js);
 use SL::Helper::Flash;
 
-sub pre_content {
-  '<div style="position:relative"><div id="layout_flash_container"></div></div>'
-}
+#sub pre_content {
+#  '<div style="position:relative"><div id="layout_flash_container2"></div></div>'
+#}
 
 sub _escape_br_html_js {
   my ($s) = @_;

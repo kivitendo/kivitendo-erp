@@ -238,18 +238,26 @@ body > div.login .message{
 // --------------------------------------
 
 // Styles for Flash Refactor/new Flash Messages
+#layout_flash_container_anchor {
+  width: 50%;
+  max-width: 800px;
+  margin-left: 25%;
+  max-height: 3em;
+}
 #layout_flash_container {
+  position: relative;
   //position: absolute;
-  //z-index: @zindex-flash;
+  z-index: @zindex-flash;
   //top: 101px; // position below title bar 28px (header) + 32px (menu) + 42.6px (title) (+ 5px padding included in the flash message)
   //right: 20px;
-  width: 50%;
+  //width: 50%;
   //animation: fadein .5s;
-  left: 25%;
-  right: 25%;
-  background-color: @brand-color;
-  padding-left: 5px;
-  padding-right: 5px;
+  //left: 25%;
+  //right: 25%;
+  //background-color: @actionbar-bg;
+  //background-color: #1b1b0e;
+  //padding: 5px;
+  //border-radius: 5px;
 }
 @keyframes hop {
   to  { transform: scale(1.01); }
@@ -262,12 +270,12 @@ body > div.login .message{
   to  { opacity: 1; }
 }
 .layout-flash-message {
-  margin-top: 5px;
+  //margin-top: 5px;
   margin-bottom: 5px;
   padding: 5px;
   border-width: 1px;
   border-style: solid;
-  max-width: 800px;
+  //max-width: 800px;
  /* animation: .5s ease-out .2s 1 normal none running flash;*/
 }
 .layout-flash-body{
