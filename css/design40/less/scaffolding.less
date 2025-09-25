@@ -32,6 +32,9 @@
 // --------------------------------------
 // BODY
 // --------------------------------------
+html {
+  height: 100%;
+}
 
 body {
   margin:           0 ;
@@ -90,7 +93,8 @@ body {
     //float: left !important;
     float: right !important;
     width: auto;
-    top: 68px ;
+height: 25px;
+    //top: 68px ;
     //left: 656px ;
     right: 0.2em ;
     margin: 0 0.4em 0 0;
@@ -115,7 +119,9 @@ body {
   // --------------------------------------
   //& > #content {
   & #content {
-    overflow:         hidden;
+    flex: 1;
+    overflow: auto;
+    //overflow:         hidden;
     display:          block;
     //padding:          @content-padding;
     margin:           @content-margin;
