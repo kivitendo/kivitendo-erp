@@ -39,6 +39,12 @@ Kleinere neue Features und Detailverbesserungen:
   Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
   deaktiviert.
 
+- Es gibt ein neues Feld Einkäufer für Lieferanten, die im Lieferanten-Workflow
+  bei den Belegen gesetzt werden können.
+
+- Konfigurierbares Feature in der Mandatenkonfiguration:
+  Lieferantenrechnungen können erst nach Freigabe per SEPA überwiesen werden.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
