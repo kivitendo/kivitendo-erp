@@ -292,7 +292,7 @@
         <th>[% 'Delivery Date' | $T8 %]</th>
         <td>[% L.date_tag('deliverydate', deliverydate, class='wi-small') %]</td>
       </tr>
-      [% IF invoice_obj.find_payment_approved %]
+      [% IF INSTANCE_CONF.get_payment_approval %]
         <tr>
           <th>[% 'Payment Approved' | $T8 %]</th>
           <td>[% invoice_obj.find_payment_approved.itime_as_date | html %] [% invoice_obj.find_payment_approved.employee.name | html %]</td>
