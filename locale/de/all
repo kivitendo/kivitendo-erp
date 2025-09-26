@@ -604,6 +604,7 @@ $self->{texts} = {
   'Business type (database ID)' => 'Kunden-/Lieferantentyp (Datenbank-ID)',
   'Business type (name)'        => 'Kunden-/Lieferantentyp (Name)',
   'Businesses'                  => 'Kunden-/Lieferantentypen',
+  'Buyer'                       => 'Einkäufer',
   'CANCELED'                    => 'Storniert',
   'CB Transaction'              => 'SB-Buchung',
   'CB Transactions'             => 'SB-Buchungen',

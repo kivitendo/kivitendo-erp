@@ -604,6 +604,7 @@ $self->{texts} = {
   'Business type (database ID)' => '',
   'Business type (name)'        => '',
   'Businesses'                  => '',
+  'Buyer'                       => '',
   'CANCELED'                    => '',
   'CB Transaction'              => '',
   'CB Transactions'             => '',
