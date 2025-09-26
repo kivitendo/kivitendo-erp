@@ -65,22 +65,26 @@
 <table class="tbl-list">
   <thead>
     <tr>
-      <th>[% 'Date'           | $T8 %]</th>
-      <th>[% 'Trans Type'     | $T8 %]</th>
-      <th>[% 'Warehouse From' | $T8 %]</th>
-      <th>[% 'Qty'            | $T8 %]</th>
-      <th>[% 'Unit'           | $T8 %]</th>
-      <th>[% 'Warehouse To'   | $T8 %]</th>
-      <th>[% 'Charge Number'  | $T8 %]</th>
-      <th>[% 'Comment'        | $T8 %]</th>
+      <th>[% 'Date'             | $T8 %]</th>
+      <th>[% 'Transfer Details' | $T8 %]</th>
+      <th>[% 'Trans Type'       | $T8 %]</th>
+      <th>[% 'Warehouse From'   | $T8 %]</th>
+      <th>[% '+/-'              | $T8 %]</th>
+      <th>[% 'Qty'              | $T8 %]</th>
+      <th>[% 'Unit'             | $T8 %]</th>
+      <th>[% 'Warehouse To'     | $T8 %]</th>
+      <th>[% 'Charge Number'    | $T8 %]</th>
+      <th>[% 'Comment'          | $T8 %]</th>
     </tr>
   </thead>
   <tbody>
     [% FOREACH row = SELF.journal %]
     <tr>
       <td>[% row.base.itime_as_date  %]</td>
+      <td><a href="wh.pl?action=journal&trans_id=[% HTML.escape(row.base.trans_id) %]">[% HTML.escape(row.base.trans_id) | $T8 %]</a> </td>
       <td>[% row.base.trans_type.description | $T8 %]</td>
       <td>[% row.out ? row.out.bin.full_description : '-' | html %]</td>
+      <td>[% row.base.trans_type.direction_symbol | html %]</td>
       <td class='numeric'>[% row.in ? row.in.qty_as_number : LxERP.format_amount(-1 * row.out.qty, 2) %]</td>
       <td>[% row.base.part.unit | html %]</td>
       <td>[% row.in ? row.in.bin.full_description : '-' | html %]</td>

@@ -310,6 +310,13 @@ namespace('kivi.Order', function(ns) {
     html_elt.html(price_str);
   };
 
+  ns.on_subtotal_change = function(event) {
+    $(event.target).parents('tbody.row_entry.listrow')
+      .find('[name="subtotal[]"]')
+      .val(event.target.value);
+    ns.renumber_positions();
+  }
+
   ns.load_second_row = function(row) {
     var item_id_dom = $(row).find('[name="orderitem_ids[+]"]');
     var div_elt     = $(row).find('[name="second_row"]');
@@ -385,6 +392,10 @@ namespace('kivi.Order', function(ns) {
       $(elt).change(ns.unit_change);
     });
 
+    kivi.run_once_for('.kivi_orderjs_subtotal', 'on_change_subtotal_change', function(elt) {
+      $(elt).change(ns.on_subtotal_change);
+    });
+
     kivi.run_once_for('.row_entry', 'on_kbd_click_show_hide', function(elt) {
       $(elt).keydown(function(event) {
         var row;
@@ -440,6 +451,21 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.renumber_positions = function() {
+    let pos_level0 = 0;
+    let pos_level1 = 0;
+    let subtotal_active = 0;
+    $('.row_entry').each(function(idx, elt) {
+      let $div = $(elt).find('[name="position_subposition"]');
+      if (!subtotal_active) {
+        pos_level0 += 1;
+        pos_level1 = 0;
+        $div.html(pos_level0);
+      } else {
+        pos_level1 += 1;
+        $div.html(pos_level0 + '.' + pos_level1);
+      }
+      subtotal_active ^= $(elt).find('[name="subtotal[]"]').val() == 1;
+    });
     $('.row_entry [name="position"]').each(function(idx, elt) {
       $(elt).html(idx+1);
     });
@@ -488,7 +514,7 @@ namespace('kivi.Order', function(ns) {
     // selection by data does not seem to work if data is changed at runtime
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
-      if ($(elt).data("position") == wanted_pos) {
+      if ($(elt).find('[name="position_subposition"]').html() == wanted_pos) {
         insert_before_item_id = $(elt).find('[name="orderitem_ids[+]"]').val();
         return false;
       }
@@ -1044,4 +1070,5 @@ $(function() {
 
   $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
 
+  kivi.Order.renumber_positions();
 });

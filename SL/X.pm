@@ -45,7 +45,7 @@ use Exception::Class (
   },
   'SL::X::Inventory::Allocation::MissingQty' => {
     isa                 => 'SL::X::Inventory::Allocation',
-    fields              => [ qw(code part_description to_allocate_qty missing_qty) ],
+    fields              => [ qw(code part to_allocate_qty missing_qty) ],
   },
   'SL::X::Inventory::Allocation::Multi' => {
     isa                 => 'SL::X::Inventory::Allocation',

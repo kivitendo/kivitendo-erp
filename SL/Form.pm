@@ -1281,8 +1281,6 @@ sub generate_email_body {
     $body  = GenericTranslations->get(translation_type => "salutation_general", language_id => $self->{language_id});
   }
 
-  return undef unless $body;
-
   $body .= GenericTranslations->get(translation_type => "salutation_punctuation_mark", language_id => $self->{language_id});
   $body  = '<p>' . $::locale->quote_special_chars('HTML', $body) . '</p>';
 

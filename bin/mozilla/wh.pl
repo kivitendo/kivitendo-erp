@@ -747,10 +747,14 @@ sub generate_journal {
   $form->{report_generator_output_format} = 'HTML' if !$form->{report_generator_output_format};
 
   my %filter;
-  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore trans_type comment qty unit partunit employee oe_id projectnumber);
+  my @columns = qw(ids trans_id date warehouse_from bin_from warehouse_to bin_to partnumber type_and_classific partdescription chargenumber bestbefore comment transfer direction qty partunit trans_type employee oe_id projectnumber);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore transtype_id transtype_ids comment projectnumber trans_id id);
+
+  # ids are directly to db
+  $form->show_generic_error($locale->text("ID needs to be a number.")) if    ($filter{trans_id} && $filter{trans_id} !~ /^[0-9]*$/)
+                                                                          || ($filter{id}       && $filter{id}       !~ /^[0-9]*$/);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -797,7 +801,7 @@ sub generate_journal {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit unit partunit fromdate todate transtype_ids comment projectnumber);
-  push @hidden_variables, qw(classification_id);
+  push @hidden_variables, qw(classification_id trans_id id);
   push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
   push @hidden_variables, map({'cvar_'. $_->{name} .'_from'}  grep({$_->{type} eq  'date'}  @searchable_custom_variables));
   push @hidden_variables, map({'cvar_'. $_->{name} .'_to'}    grep({$_->{type} eq  'date'}  @searchable_custom_variables));
@@ -819,6 +823,7 @@ sub generate_journal {
     'partdescription' => { 'text' => $locale->text('Part Description'), },
     'chargenumber'    => { 'text' => $locale->text('Charge Number'), },
     'bestbefore'      => { 'text' => $locale->text('Best Before'), },
+    'direction'       => { 'text' => $locale->text('+/-'), },
     'qty'             => { 'text' => $locale->text('Qty'), },
     'unit'            => { 'text' => $locale->text('Part Unit'), },
     'partunit'        => { 'text' => $locale->text('Unit'), },
@@ -899,6 +904,9 @@ sub generate_journal {
         'data'  => $entry->{$column},
         'align' => $column_alignment{$column},
       };
+      if ($column eq 'partnumber') {
+        $row->{$column}->{link}  = build_std_url("script=controller.pl", 'action=Part/edit', 'part.id=' . E($entry->{parts_id}), 'callback', $href);
+      }
     }
 
     if ($entry->{assembled}) {
@@ -908,6 +916,12 @@ sub generate_journal {
       }
     }
     $row->{trans_type}->{raw_data} = $entry->{trans_type};
+
+    $row->{direction}->{raw_data} =   $entry->{direction} eq 'in'       ? '+'
+                                    : $entry->{direction} eq 'out'      ? '-'
+                                    : $entry->{direction} eq 'transfer' ? '='
+                                    : die "Invalid direction entry";
+
     if ($form->{l_oe_id}) {
       $row->{oe_id}->{data} = '';
       my $info              = $entry->{oe_id_info};

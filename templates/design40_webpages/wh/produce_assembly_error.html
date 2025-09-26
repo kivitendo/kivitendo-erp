@@ -20,7 +20,7 @@
       <tbody>
         [% FOREACH ex = missing_qty_exceptions %]
           <tr class="listrow">
-            <td>[% HTML.escape(ex.part_description) %]</td>
+            <td><a href="controller.pl?action=Part/edit&part.id=[% ex.part.id %]">[% HTML.escape(ex.part.displayable_name) %]</a></td>
             <td class="numeric">[% HTML.escape(LxERP.format_amount(ex.to_allocate_qty)) %]</td>
             <td class="numeric">[% HTML.escape(LxERP.format_amount(ex.missing_qty)) %]</td>
           </tr>

@@ -258,6 +258,16 @@ sub get_warehouse_journal {
     $joins .= "";
   }
 
+  if ($filter{trans_id}) {
+    push @filter_ary, "i1.trans_id = ?";
+    push @filter_vars, $filter{trans_id};
+  }
+
+  if ($filter{id}) {
+    push @filter_ary, "i1.id = ?";
+    push @filter_vars, $filter{id};
+  }
+
   # prepare qty comparison for later filtering
   my ($f_qty_op, $f_qty, $f_qty_base_unit);
   if ($filter{qty_op} && defined($filter{qty}) && $filter{qty_unit} && $all_units->{$filter{qty_unit}}) {
@@ -301,6 +311,7 @@ sub get_warehouse_journal {
     'chargenumber'   => ['chargenumber'],
     'trans_id'       => ['trans_id'],
     'bestbefore'     => ['bestbefore'],
+    'direction'      => ['direction'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
@@ -339,6 +350,7 @@ sub get_warehouse_journal {
      "warehouse_to"      => "w2.description",
      "comment"           => "i1.comment",
      "trans_type"        => "tt.description",
+     "direction"         => "tt.direction",
      "trans_id"          => "i1.trans_id",
      "id"                => "i1.id",
      "oe_id"             => "COALESCE(i1.oe_id, i2.oe_id)",

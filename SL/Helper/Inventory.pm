@@ -200,7 +200,7 @@ sub allocate {
     die SL::X::Inventory::Allocation::MissingQty->new(
       code             => 'not enough to allocate',
       message          => t8("can not allocate #1 units of #2, missing #3 units", _format_number($qty), $part->displayable_name, _format_number($rest_qty)),
-      part_description => $part->displayable_name,
+      part             => $part,
       to_allocate_qty  => $qty,
       missing_qty      => $rest_qty,
     );
@@ -218,8 +218,9 @@ sub allocate_for_assembly {
   my $part = $params{part} or Carp::croak('allocate needs a part');
   my $qty  = $params{qty}  or Carp::croak('allocate needs a qty');
   my $wh   = $params{warehouse};
-  my $wh_strict       = $::instance_conf->get_produce_assembly_same_warehouse;
-  my $consume_service = $::instance_conf->get_produce_assembly_transfer_service;
+  my $wh_strict         = $::instance_conf->get_produce_assembly_same_warehouse;
+  my $consume_service   = $::instance_conf->get_produce_assembly_transfer_service;
+  my $allow_empty_items = $::instance_conf->get_produce_assembly_allow_empty_items;
 
   Carp::croak('not an assembly')       unless $part->is_assembly;
   Carp::croak('No warehouse selected') if $wh_strict && !$wh;
@@ -228,6 +229,8 @@ sub allocate_for_assembly {
 
   for my $assembly ($part->assemblies) {
     next if $assembly->part->type eq 'service' && !$consume_service;
+    next if $assembly->qty == 0                && $allow_empty_items;
+
     $parts_to_allocate{ $assembly->part->id } //= 0;
     $parts_to_allocate{ $assembly->part->id } += $assembly->qty * $qty;
   }
@@ -774,7 +777,7 @@ than needed for production a falsish value is returned. Optional.
 Checks if enough stock is availbale for the transfer requests. Returns a list
 of missing quantities as hashref with the keys C<part>, C<bin>, C<missing_qty>, C<chargenumber>
 and C<bestbefore>. C<chargenumber> and C<bestbefore> can be C<undef> if not set
-in the transfer requests. 
+in the transfer requests.
 
 Accepted parameters:
 

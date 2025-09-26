@@ -134,6 +134,16 @@
       </td>
     </tr>
     <tr>
+      <th>[% 'Trans Id' | $T8 %]:</th>
+      <td><input type="text" id="trans_id" name="trans_id" value="[% trans_id %]" class="wi-normal">
+      </td>
+    </tr>
+    <tr>
+      <th>[% 'ID (lit)' | $T8 %]:</th>
+      <td><input type="text" id="id" name="id" value="[% id %]" class="wi-normal">
+      </td>
+    </tr>
+    <tr>
       <th>[% 'From Date' | $T8 %]</th>
       <td> <span class="wi-date">[% L.date_tag('fromdate') %]</span> </td>
     </tr>
@@ -141,6 +151,16 @@
       <th>[% 'To Date' | $T8 %]</th>
       <td> <span class="wi-date">[% L.date_tag('todate') %]</span> </td>
     </tr>
+    <tr>
+      <th>[% 'Sort order' | $T8 %]:</th>
+      <td>
+        <select name="order" class="wi-normal">
+          <option value="1">[% 'Newest first' | $T8 %]</option>
+          <option value="">[% 'Oldest first' | $T8 %]</option>
+        </select>
+      </td>
+    </tr>
+
   [% CUSTOM_VARIABLES_FILTER_CODE %]
   </tbody>
 </table>
@@ -167,6 +187,10 @@
   <div>
     <input name="l_qty" id="l_qty" type="checkbox" value="Y" checked>
     <label for="l_qty">[% 'Quantity' | $T8 %]</label>
+  </div>
+  <div>
+    <input name="l_direction" id="l_direction" type="checkbox" value="Y" checked>
+    <label for="l_direction">[% 'Direction +/-' | $T8 %]</label>
   </div>
 </div>
 
