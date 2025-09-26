@@ -25,6 +25,10 @@ Kleinere neue Features und Detailverbesserungen:
   - Kundenstammdaten: »E-Mail des Rechnungsempfängers«, »E-Mail« oder
     »GLN« auf dem Tab »Rechnungsadresse«
 
+- ZUGFeRD-Export: Unterstützung für abweichende Lieferadresse und Referenz auf
+  Lieferschein.
+
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
