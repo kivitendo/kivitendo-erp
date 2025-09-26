@@ -612,6 +612,7 @@ $self->{texts} = {
   'Business type (database ID)' => '',
   'Business type (name)'        => '',
   'Businesses'                  => '',
+  'Buyer'                       => '',
   'By default, create and send a new record as a mail attachment.' => '',
   'CANCELED'                    => '',
   'CB Transaction'              => '',

@@ -612,6 +612,7 @@ $self->{texts} = {
   'Business type (database ID)' => 'Kunden-/Lieferantentyp (Datenbank-ID)',
   'Business type (name)'        => 'Kunden-/Lieferantentyp (Name)',
   'Businesses'                  => 'Kunden-/Lieferantentypen',
+  'Buyer'                       => 'Einkäufer',
   'By default, create and send a new record as a mail attachment.' => 'Voreinstellung: Erzeuge und verschicke einen neuen Belegausdruck.',
   'CANCELED'                    => 'Storniert',
   'CB Transaction'              => 'SB-Buchung',
