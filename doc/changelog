@@ -203,6 +203,12 @@ Kleinere neue Features und Detailverbesserungen:
   Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
   deaktiviert.
 
+- Es gibt ein neues Feld Einkäufer für Lieferanten, die im Lieferanten-Workflow
+  bei den Belegen gesetzt werden können.
+
+- Konfigurierbares Feature in der Mandatenkonfiguration:
+  Lieferantenrechnungen können erst nach Freigabe per SEPA überwiesen werden.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 755 CSV-Import für Auftrage: Fehler, wenn record_type fehlt
 710 Bericht Lagerbuchungen zeigt nur Ein- und auslagerte Bucheungen und nicht die Umlagerungen
