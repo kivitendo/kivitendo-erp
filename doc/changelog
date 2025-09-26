@@ -39,6 +39,9 @@ Kleinere neue Features und Detailverbesserungen:
   Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
   deaktiviert.
 
+- ZUGFeRD-Export: Unterstützung für abweichende Lieferadresse, Referenz auf
+  Lieferschein und Leistungsdatum.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
