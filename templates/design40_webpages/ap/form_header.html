@@ -171,6 +171,14 @@
       <th></th>
       <td>[% L.checkbox_tag('direct_debit', checked=direct_debit, label=LxERP.t8('direct debit')) %]</td>
     </tr>
+    <tr>
+      <th>[% 'Employee' | $T8 %]</th>
+      <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name', class='wi-lightwide') %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Buyer' | $T8 %]</th>
+      <td>[% L.select_tag('buyer_id', ALL_EMPLOYEES, default = buyer_id, title_key = 'safe_name', class='wi-lightwide', with_empty = 1) %]</td>
+    </tr>
   </tbody>
 </table>
 
@@ -230,6 +238,12 @@
       <th>[% 'Project Number' | $T8 %]</th>
       <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]</td>
     </tr>
+    [% IF invoice_obj.find_payment_approved %]
+      <tr>
+        <th>[% 'Payment Approved' | $T8 %]</th>
+        <td>[% invoice_obj.find_payment_approved.itime_as_date | html %] [% invoice_obj.find_payment_approved.employee.name | html %]</td>
+      </tr>
+    [% END %]
   </tbody>
 </table>
 

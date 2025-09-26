@@ -679,6 +679,7 @@ sub action_customer_vendor_changed {
   }
 
   $self->js->val( '#order_salesman_id',      $self->order->salesman_id)        if $self->order->is_sales;
+  $self->js->val( '#order_buyer_id',         $self->order->buyer_id)           if !$self->order->is_sales;
 
   $self->js
     ->replaceWith('#order_cp_id',            $self->build_contact_select)

@@ -2525,6 +2525,7 @@ sub create_links {
 
   my $extra_columns = '';
   $extra_columns   .= 'a.direct_debit, ' if ($module eq 'AR') || ($module eq 'AP');
+  $extra_columns   .= 'a.buyer_id, '     if ($module eq 'AP');
 
   if ($self->{id}) {
     $query =

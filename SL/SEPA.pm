@@ -32,7 +32,7 @@ sub retrieve_open_invoices {
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
 
   my $is_sepa_blocked = $params{vc} eq 'customer' ? 'FALSE' : "${arap}.is_sepa_blocked";
-
+  my $only_approved   = $params{payment_approval} ? ' AND ap.id IN (SELECT ap_id from payment_approved) ' : undef;
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
   my $query =
@@ -65,7 +65,7 @@ sub retrieve_open_invoices {
        LEFT JOIN payment_terms pt ON (${arap}.payment_id = pt.id)
 
        WHERE (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
-
+       $only_approved
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
     #  $main::lxdebug->message(LXDebug->DEBUG2(),"sepa add query:".$query);
