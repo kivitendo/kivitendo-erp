@@ -29,6 +29,11 @@ Kleinere neue Features und Detailverbesserungen:
 - Lieferplan um das Feld Status u. Vorgangsbezeichnung des Auftrags und Mikrofilm
   erweitert und nach Vorgangsbezeichnis filterbar gemacht.
 
+- Beim E-Mail-Versand von Belegen wird abhängig von der Mandanteneinstellung
+  "Belegausdruck mitschicken: bevorzuge Erzeugung eines neuen Belegs"
+  standardmäßig ein neuer Belegausdruck erstellt und verschickt (zuvor
+  wurde standardmäßig der zuletzt erstellte Belegausdruck verwendet).
+  
 - Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
   wenn ein Preisfaktor gesetzt ist.
 

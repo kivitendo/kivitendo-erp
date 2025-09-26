@@ -108,6 +108,11 @@
         <td class="long-desc">[% LxERP.t8('Preselect all documents saved for the current record as a mail attachment.') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('Send printout of record: prefer creating a new printout') %]</th>
+        <td>[% L.yes_no_tag('defaults.email_default_create_new_record_checked', SELF.defaults.email_default_create_new_record_checked) %]</td>
+        <td class="long-desc">[% LxERP.t8('By default, create and send a new record as a mail attachment.') %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Storage Backends") %]</th>
       </tr>
       <tr>

@@ -86,6 +86,7 @@ __PACKAGE__->meta->columns(
   email_attachment_part_files_checked       => { type => 'boolean', default => 'true' },
   email_attachment_record_files_checked     => { type => 'boolean', default => 'true' },
   email_attachment_vc_files_checked         => { type => 'boolean', default => 'true' },
+  email_default_create_new_record_checked   => { type => 'boolean', default => 'true' },
   email_journal                             => { type => 'integer', default => 2 },
   email_sender_dunning                      => { type => 'text', default => '' },
   email_sender_invoice                      => { type => 'text', default => '' },
