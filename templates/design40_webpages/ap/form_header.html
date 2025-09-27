@@ -156,7 +156,7 @@
     [% IF ALL_DEPARTMENTS %]
     <tr>
       <th>[% 'Department' | $T8 %]</th>
-      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, class='wi-lightwide') %]</td>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', class='wi-lightwide') %]</td>
     </tr>
     [% END %]
     <tr>
