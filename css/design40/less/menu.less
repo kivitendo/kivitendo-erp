@@ -59,7 +59,6 @@
     position:      relative;
     float:         none;
     font-weight:   normal !important ;
-    font-size:     @font-size-smaller;
     line-height:   96%;
     white-space:   nowrap;
     border:        0;
@@ -247,18 +246,18 @@ body > div.layout-split-left {
 body > div.layout-split-right {
   margin-left:   200px;
   //margin-top:   70px;
-  padding-top: 28px;
+  padding-top: 34px;
   display:       block;
   z-index:       1;
   height:       auto;
 
-  .layout-actionbar { top: 36px; }
+  .layout-actionbar { top: 42px; }
 
   & > #content {
     top: 68px;
     padding-top: 40px;
 
-    h1 { top: 28px !important; }
+    h1 { top: 34px !important; }
 
     & > .wrapper{
       padding-top: 2em ;
@@ -282,7 +281,7 @@ body > div.layout-split-right {
           .tabwidget ul.ui-tabs-nav{ position: relative; }
         }
         & > ul.ui-tabs-nav{
-          top: 69px;
+          top: 75px;
           width: ~"calc(100% - 200px)";
         }
 
@@ -317,10 +316,9 @@ div.layout-split-left #html-menu {
   overflow-x:         hidden;
   width:              100%;
   height:             100%;
-  margin:             27px 0 0 0;
+  margin:             33px 0 0 0;
   padding:            0 0 150px 0;
   background-color:   @menu_left_bg ;
-  font-size:          @font-size-small;
   border-bottom:      20px @menu_border_color solid ; // PENDENT: Rand unten sollte vorhanden sein
 
   // menu item icons (mii) ausblenden
@@ -344,7 +342,6 @@ div.layout-split-left #html-menu {
     display:       block ;
     a {
       display:     block;
-      word-wrap:   break-word;
       text-decoration: none;
       font-weight: normal;
     }
@@ -365,11 +362,10 @@ div.layout-split-left #html-menu {
     background-color: @menu_left_level_1_bg ;
     color:             @menu_left_level_1_color;
     border-top:       @menu_border ;
-    font-size:         90% ;
     text-transform:   uppercase;
 
     a {
-      padding:   5px 0 6px 8px ;
+      padding:   8px 0 5px 8px ;
       cursor:   pointer ;
 
       &:hover,
@@ -390,7 +386,7 @@ div.layout-split-left #html-menu {
       border-bottom:     0 ;
 
       a {
-        padding:         5px 0 6px 8px ;
+        padding:         8px 0 5px 8px ;
         cursor:         auto ;
 
         &:hover,
@@ -409,7 +405,6 @@ div.layout-split-left #html-menu {
   // Sub Menu Item (2nd Level)
   // -----------------------
   .s1{
-    font-size: 80% ;
     padding: 0 ;
     background-color: @menu_left_level_2_bg ;
     border-top:       @menu_border ;
@@ -432,7 +427,6 @@ div.layout-split-left #html-menu {
       &:after{
         content:     "▼" ;
         color:       @gray-standard ;
-        font-size:   80% ;
       }
       a {
         display:   inline-block ;
@@ -461,7 +455,6 @@ div.layout-split-left #html-menu {
   // -----------------------
   .s2{
     padding:           0 ;
-    font-size:         80% ;
     background-color: @menu_left_level_3_bg ;
 
     a {
@@ -495,10 +488,12 @@ div.layout-split-left #html-menu {
   // -----------------------
 
   .DHTMLSuite_menuBar_top {
-    top:         28px;
+    top:         34px;
     height:     31px !important;
     padding:     0;
     margin:     0 ;
+    background-color: @menu_bg ;
+    color: @menu_link ;
 
     // -----------------------
     // Menu Item on Top
@@ -512,7 +507,6 @@ div.layout-split-left #html-menu {
       div:first-child { }
       // Text Menu Item top
       .DHTMLSuite_menuItem_textContent {
-        font-size:   90% ;
         padding:     0.1em 0.2em 0.2em 0.2em ;
       }
       // Arrow down Top
@@ -535,7 +529,7 @@ div.layout-split-left #html-menu {
     .DHTMLSuite_menuItem_top_over,
     .DHTMLSuite_menuItem_top_click {
       color:             @color-red-strong ;
-      background-color: @base-superlight ;
+      background-color:  @menu_bg ;
       .DHTMLSuite_menuItem_top_arrowShowSub{
         border:         none !important ;
       }
@@ -571,11 +565,11 @@ div.layout-split-left #html-menu {
     clear:               both;
     padding-left:       25px;
     padding-right:       0.7em;
-    padding-top:         0.2em;
-    padding-bottom:     0.2em;
+    padding-top:         0.25em;
+    padding-bottom:     0.25em;
     cursor:             pointer;
     background-repeat:   no-repeat;
-    font-size:           90%;
+    text-wrap:           nowrap;
 
     .DHTMLSuite_menuItem_sub_arrowShowSub {
       right:             3px !important;
