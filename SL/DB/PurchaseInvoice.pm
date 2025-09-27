@@ -53,9 +53,9 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { with_objects => [ 'chart' ],
                       sort_by      => 'acc_trans_id ASC' }
   },
-  payment_approved => {
+  payment_approvals => {
     type            => 'one to many',
-    class           => 'SL::DB::PaymentApproved',
+    class           => 'SL::DB::PaymentApprovals',
     column_map      => { id => 'ap_id' },
   },
 

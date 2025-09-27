@@ -295,7 +295,7 @@
       [% IF INSTANCE_CONF.get_payment_approval %]
         <tr>
           <th>[% 'Payment Approved' | $T8 %]</th>
-          <td>[% invoice_obj.find_payment_approved.itime_as_date | html %] [% invoice_obj.find_payment_approved.employee.name | html %]</td>
+          <td>[% invoice_obj.find_payment_approvals.itime_as_date | html %] [% invoice_obj.find_payment_approvals.employee.name | html %]</td>
         </tr>
       [% END %]
     </tbody>

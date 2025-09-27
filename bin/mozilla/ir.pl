@@ -307,7 +307,7 @@ sub setup_ir_action_bar {
   if ($form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
-    $is_payment_approved = 1 if ($invoice->find_payment_approved()->[0]);
+    $is_payment_approved = 1 if ($invoice->find_payment_approvals()->[0]);
     $is_sepa_blocked  = !!$invoice->is_sepa_blocked;
   }
 
@@ -716,7 +716,7 @@ sub block_or_unblock_sepa_transfer {
 sub approve_payment {
   $::auth->assert('ap_transactions');
 
-  SL::DB::PaymentApproved->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
+  SL::DB::PaymentApprovals->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
 
   $::form->redirect(t8('Payment Approved'));
 }
