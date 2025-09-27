@@ -558,7 +558,7 @@ sub ap_transactions {
     qq|  a.intnotes, a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
-    qq|  e.name AS employee, | .
+    qq|  e.name AS employee, eb.name AS buyer, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
     qq|  tz.description AS taxzone, | .
     qq|  pt.description AS payment_terms, | .
@@ -582,6 +582,7 @@ sub ap_transactions {
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
+    qq|LEFT JOIN employee eb ON (a.buyer_id = eb.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
