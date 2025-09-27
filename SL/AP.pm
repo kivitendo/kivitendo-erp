@@ -561,7 +561,7 @@ sub ap_transactions {
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  pr.description   AS globalprojectdescription, | .
-    qq|  e.name AS employee, | .
+    qq|  e.name AS employee, eb.name AS buyer, | .
     qq|  v.vendornumber, v.ustid, | .
     qq|  tz.description AS taxzone, | .
     qq|  countries.$country_description_key as country, | .
@@ -586,6 +586,7 @@ sub ap_transactions {
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
+    qq|LEFT JOIN employee eb ON (a.buyer_id = eb.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
     qq|LEFT JOIN countries ON (v.country_id = countries.id)| .

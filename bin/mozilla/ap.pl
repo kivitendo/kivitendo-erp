@@ -1212,7 +1212,7 @@ sub ap_transactions {
 
   my @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
-       due duedate transaction_description notes intnotes employee globalprojectdescription globalprojectnumber department
+       due duedate transaction_description notes intnotes buyer employee globalprojectdescription globalprojectnumber department
        vendornumber country ustid taxzone payment_terms payment_approved charts debit_chart direct_debit
        insertdate items);
 
@@ -1242,6 +1242,7 @@ sub ap_transactions {
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'notes'                   => { 'text' => $locale->text('Notes'), },
     'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
+    'buyer'                   => { 'text' => $locale->text('Buyer'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'globalprojectdescription' => { 'text' => $locale->text('Document Project Description'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
