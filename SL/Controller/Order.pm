@@ -588,14 +588,17 @@ sub action_send_email {
     && !($::form->{attachment_policy} eq 'old_file' && $attfile)
   ) {
     my $doc;
-    my @errors = $self->generate_doc(\$doc, {
-        media      => $::form->{media},
-        format     => $::form->{print_options}->{format},
-        formname   => $::form->{print_options}->{formname},
-        language   => $self->order->language,
-        printer_id => $::form->{print_options}->{printer_id},
-        groupitems => $::form->{print_options}->{groupitems},
-      });
+  my %params = ( 'print_options' => $::form->{print_options} );
+  my $file_result = SL::Model::Record->print_record($self->order, %params);
+  #  my @errors = $self->generate_doc(\$doc, {
+  #      media      => $::form->{media},
+  #      format     => $::form->{print_options}->{format},
+  #      formname   => $::form->{print_options}->{formname},
+  #      language   => $self->order->language,
+  #      printer_id => $::form->{print_options}->{printer_id},
+  #      groupitems => $::form->{print_options}->{groupitems},
+  #    });
+  my @errors = $file_result->{errors} || ();
     if (scalar @errors) {
       $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
