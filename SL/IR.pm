@@ -801,7 +801,8 @@ SQL
                 cp_id        = ?, employee_id = ?, department_id = ?, delivery_term_id = ?,
                 payment_id   = ?, transaction_description        = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?),
-                globalproject_id = ?, direct_debit = ?
+                globalproject_id = ?, direct_debit = ?,
+                buyer_id = ?
               WHERE id = ?|;
   @values = (
                 $form->{invnumber},          $form->{ordnumber},           $form->{quonumber},      conv_date($form->{invdate}),
@@ -814,6 +815,7 @@ SQL
                 $form->{"currency"},
          conv_i($form->{globalproject_id}),
                 $form->{direct_debit} ? 't' : 'f',
+         conv_i($form->{employee_id}),
          conv_i($form->{id})
   );
   do_query($form, $dbh, $query, @values);
