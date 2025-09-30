@@ -1,0 +1,46 @@
+[% USE T8 %]
+[% USE LxERP %]
+[% USE HTML %]
+[% USE P %]
+
+
+<div id="linked_customer_vendor">
+<div class="wrapper">
+  <p>[% 'Customers and vendors can be linked to express that they are the same entity in different roles. Each customer can only be linked to one vendor and vice versa. Linked customer/vendors will sync some of their data on saving:' | $T8 %]</p>
+
+  <ul>
+    <li>[% 'Name' | $T8 %]</li>
+    <li>[% 'Obsolete' | $T8 %]</li>
+    <li>[% 'Tax zone' | $T8 %]</li>
+    <li>[% 'Currency' | $T8 %]</li>
+  </ul>
+
+  <p>[% 'Warning: adding a link to an existing object will overwrite synced fields in the target.' | $T8 %]</p>
+
+  <table class="tbl-horizontal">
+    <caption>[% 'Change linked customer/vendor' | $T8 %]</caption>
+    <colgroup><col class="wi-normal"><col class="wi-lightwide"></colgroup>
+    <tbody>
+      <tr>
+        <th>[% 'Change linked status' | $T8 %]</th>
+        <td>[% P.select_tag("customer_vendor_link", [[ "none", LxERP.t8("dont link")], ["existing", LxERP.t8("link to existing")], ["new", LxERP.t8("create new linked")]], default=(SELF.cv.linked_customer_vendor ? "existing" : "none")) %]</td>
+      </tr>
+      <tr>
+        <th>
+          [%- IF SELF.is_customer %]
+            [% 'Linked Vendor' | $T8 %]</th>
+          [%- ELSE %]
+            [% 'Linked Customer' | $T8 %]</th>
+          [%- END %]
+        <td>
+          [%- IF SELF.is_customer %]
+            [% P.customer_vendor.picker('customer_vendor_link_id', SELF.cv.linked_customer_vendor, type='vendor') %]
+          [%- ELSE %]
+            [% P.customer_vendor.picker('customer_vendor_link_id', SELF.cv.linked_customer_vendor, type='customer') %]
+          [%- END %]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
