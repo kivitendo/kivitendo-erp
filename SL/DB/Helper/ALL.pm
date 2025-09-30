@@ -45,6 +45,7 @@ use SL::DB::CustomVariableConfig;
 use SL::DB::CustomVariableConfigPartsgroup;
 use SL::DB::CustomVariableValidity;
 use SL::DB::Customer;
+use SL::DB::CustomerVendorLink;
 use SL::DB::Datev;
 use SL::DB::Default;
 use SL::DB::DeliveryOrder;

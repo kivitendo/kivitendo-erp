@@ -11,6 +11,7 @@ use SL::DB::Manager::Vendor;
 use SL::DB::Helper::IBANValidation;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::VATIDNrValidation;
+use SL::DB::Helper::CustomerVendorLink (mode => 'vendor');
 use SL::DB::Helper::CustomVariables (
   module      => 'CT',
   cvars_alias => 1,
@@ -41,6 +42,10 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Contact',
     column_map   => { id      => 'cp_cv_id' },
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
+  },
+  linked_customer_vendor_rel => {
+    type       => 'many to many',
+    map_class  => 'SL::DB::CustomerVendorLink',
   },
 );
 
