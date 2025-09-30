@@ -46,11 +46,7 @@ sub update_after_customer_vendor_change {
 
   $record->intnotes($new_customervendor->notes);
 
-  if (!$record->is_sales) {
-    my $new_vendor = $new_customervendor;
-    $record->buyer_id($new_vendor->buyer_id
-      || SL::DB::Manager::Employee->current->id);
-  } elsif ($record->is_sales) {
+  if ($record->is_sales) {
     my $new_customer = $new_customervendor;
     $record->salesman_id($new_customer->salesman_id
       || SL::DB::Manager::Employee->current->id);
@@ -61,6 +57,10 @@ sub update_after_customer_vendor_change {
       my $address = $new_customer->default_billing_address;;
       $record->billing_address_id($address ? $address->id : undef);
     }
+  } elsif (!$record->is_sales) {
+    my $new_vendor = $new_customervendor;
+    $record->buyer_id($new_vendor->buyer_id
+      || SL::DB::Manager::Employee->current->id);
   } else { die "invalid state"; }
 
   return $record;
