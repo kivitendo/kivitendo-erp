@@ -249,6 +249,21 @@ sub _save {
     my $ustid_taxnumber_error = $self->_check_ustid_taxnumber_unique;
     $::form->error($ustid_taxnumber_error) if $ustid_taxnumber_error;
 
+    # handle customer_vendor link
+    if ($::form->{customer_vendor_link} eq 'none' && $self->{cv}->linked_customer_vendor) {
+      $self->{cv}->linked_customer_vendor_rel([]);
+    }
+    if ($::form->{customer_vendor_link} eq 'existing') {
+      if (!$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id)) {
+        $self->{cv}->linked_customer_vendor($::form->{customer_vendor_link_id});
+      }
+    }
+    if ($::form->{customer_vendor_link} eq 'new') {
+      my $new_cv = $self->is_vendor ? SL::DB::Customer->new : SL::DB::Vendor->new;
+      $self->{cv}->linked_customer_vendor($new_cv);
+      $self->{cv}->sync_linked_customer_vendor;
+    }
+
     $self->{cv}->save(cascade => 1);
 
     SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;

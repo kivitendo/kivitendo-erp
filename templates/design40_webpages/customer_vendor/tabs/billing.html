@@ -171,6 +171,20 @@
       </th>
     </tr>
     [% END %]
+    [% IF SELF.cv.linked_customer_vendor %]
+    <tr>
+      <th>
+        [% IF SELF.cv.linked_customer_vendor.is_customer %]
+          [% 'Linked to customer' | $T8 %]
+        [% ELSE %]
+          [% 'Linked to vendor' %]
+        [% END %]
+      </th>
+      <td>
+        [% P.customer_vendor.customer_vendor(SELF.cv.linked_customer_vendor) %]
+      </td>
+    </tr>
+    [% END %]
   </tbody>
 </table>
 
