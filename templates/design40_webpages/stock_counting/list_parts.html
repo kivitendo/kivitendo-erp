@@ -1,0 +1,22 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE HTML %]
+[%- USE P %]
+[%- USE Dumper %]
+<table class="tbl-list">
+  <caption>[% "On stock" | $T8 %]</caption>
+  <tr>
+    <th>[% "Bin" | $T8 %]</th>
+    <th>[% "Partnumber" | $T8 %]</th>
+    <th>[% "Description" | $T8 %]</th>
+    <th>[% "Chargenumber" | $T8 %]</th>
+  </tr>
+  [%  FOREACH row = DATA %]
+  <tr>
+    <td>[% HTML.escape(row.bin.description) %]</td>
+    <td>[% HTML.escape(row.part.partnumber) %]</td>
+    <td>[% HTML.escape(row.part.description) %]</td>
+    <td>[% HTML.escape(row.chargenumber) %]</td>
+  </tr>
+  [% END %]
+</table>
