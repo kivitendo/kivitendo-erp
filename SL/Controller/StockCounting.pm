@@ -14,6 +14,7 @@ use SL::DB::StockCountingItem;
 
 use SL::Helper::Flash qw(flash);
 use SL::Helper::Number qw(_format_total);
+use SL::Helper::Inventory qw(:ALL);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 
@@ -87,7 +88,6 @@ sub action_count {
    $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{part_id},
                                                        or  => [obsolete => 0, obsolete => undef]]);
   }
-  $main::lxdebug->dump(0, "TST: PARTS", $parts);
   push @errors, t8 ('Part not found')    if scalar(@{$parts}) == 0;
   push @errors, t8 ('Part is ambiguous') if scalar(@{$parts}) >  1;
 
@@ -153,6 +153,17 @@ sub action_list {
   $self->report_generator_list_objects(report => $self->{report}, objects => $objects);
 }
 
+sub action_show_parts_in_bin {
+  my ($self) = @_;
+  my $data = get_stock(
+    bin          => $::form->{'stock_counting_item'}->{'bin_id'},
+    by           => [ qw(part chargenumber bin) ],
+    with_objects => [ qw(bin part) ],
+  );
+  my $html = $self->render('stock_counting/list_parts', { output => 0 }, DATA => $data);
+  $self->js->replaceWith('#list_data', $html)
+           ->render;
+}
 sub init_is_developer {
   !!$::auth->assert('developer', 'may_fail')
 }

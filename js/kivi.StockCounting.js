@@ -9,4 +9,11 @@ namespace('kivi.StockCounting', function(ns) {
     }
   };
 
+  ns.show_parts_in_bin = function() {
+    let data = $('#count_form').serializeArray();
+    alert('Bin hier');
+    data.push({name: 'action', value: 'StockCounting/show_parts_in_bin'});
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
 });
