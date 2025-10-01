@@ -68,18 +68,19 @@ sub action_start_counting {
 sub action_count {
   my ($self) = @_;
 
+  my @errors;
+  my $qty = $::form->{qty} || 1;
   if (!$::request->is_mobile) {
+    $qty = $::form->{qty} == 0 ? 0 : $::form->{qty} || 1;
     $self->setup_count_action_bar;
   }
 
-  my @errors;
     if (!$::form->{ean} && !$::form->{part_id} ) {
     push @errors, t8('EAN or Partnumber is missing') ;
   } #if !$::form->{ean};
 
   return $self->render_count_error(\@errors) if @errors;
   my $parts;
-  $main::lxdebug->dump(0, "TST:FORM ", $::form);
   if ($::form->{ean}) {
    $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean},
                                                        or  => [obsolete => 0, obsolete => undef]]);
