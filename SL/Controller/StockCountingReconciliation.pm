@@ -15,6 +15,7 @@ use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_total);
+use SL::Helper::Inventory qw(:ALL);
 use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::WH;
@@ -38,6 +39,7 @@ my %sort_columns = (
   counted_at => t8('Counted At'),
   qty        => t8('Qty'),
   part       => t8('Article'),
+  chargenumber       => t8('Chargenumber'),
   bin        => t8('Bin'),
   employee   => t8('Employee'),
 );
@@ -89,6 +91,7 @@ sub action_reconcile {
   my $transfer_error;
   $::form->throw_on_error(sub {
     eval {
+  chargenumber       => t8('Chargenumber'),
       SL::DB->client->with_transaction(sub {
         foreach my $group_item (@$grouped_counting_items) {
           my $counted_qty   = $group_item->qty;
@@ -172,13 +175,14 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = qw(counting part bin qty stocked inbetweens);
+  my @columns = qw(counting part chargenumber bin qty stocked inbetweens);
 
   my %column_defs = (
     counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
     counted_at => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
     qty        => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
     part       => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
+    chargenumber      => { text => t8('Chargenumber'), sub => sub { $_[0]->chargenumber }, },
     bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
@@ -252,14 +256,14 @@ sub group_items_by_part_and_bin {
   my @grouped_objects;
   foreach my $object (@$objects) {
     my $group_object;
-    if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}) {
+    if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}) {
       $group_object = SL::DB::StockCountingItem->new(
-        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
       push @grouped_objects, $group_object;
-      $grouped_objects_by->{$object->part_id}->{$object->bin_id} = $group_object;
+      $grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber} = $group_object;
 
     } else {
-      $group_object = $grouped_objects_by->{$object->part_id}->{$object->bin_id}
+      $group_object = $grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}
     }
 
     push @{$group_object->{ids}}, $object->id;
@@ -272,7 +276,7 @@ sub group_items_by_part_and_bin {
 sub get_stocked {
   my ($self, $objects) = @_;
 
-  $_->{stocked} = $_->part->get_stock(bin_id => $_->bin_id) for @$objects;
+  $_->{stocked} = get_stock(part => $_->part, bin_id => $_->bin_id, chargenumber => $_->chargenumber) for @$objects;
 }
 
 sub get_inbetweens {

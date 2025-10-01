@@ -36,6 +36,7 @@ my %sort_columns = (
   counted_at => t8('Counted At'),
   qty        => t8('Qty'),
   part       => t8('Article'),
+  chargenumber       => t8('Chargenumber'),
   bin        => t8('Bin'),
   employee   => t8('Employee'),
 );
@@ -101,8 +102,8 @@ sub action_count {
 
   return $self->render_count_error(\@errors) if @errors;
 
-  my $qty = $::form->{qty} || 1;
   $self->stock_counting_item->qty($qty);
+  $self->stock_counting_item->chargenumber($::form->{chargenumber});
   $self->stock_counting_item->save;
 
   if ($::request->is_mobile) {
@@ -126,15 +127,15 @@ sub action_list {
     my @grouped_objects;
     foreach my $object (@$objects) {
       my $group_object;
-      if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}) {
+      if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}) {
         $group_object = SL::DB::StockCountingItem->new(
-          counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0);
+          counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
         $group_object->{reconciliated} = 1;
         push @grouped_objects, $group_object;
-        $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id} = $group_object;
+        $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber} = $group_object;
 
       } else {
-        $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}
+        $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber};
       }
 
       $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
@@ -196,14 +197,15 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = $::form->{group_counting_items} ? qw(counting part bin qty stocked reconciliated)
-              : qw(counting counted_at part bin qty stocked employee reconciliated);
+  my @columns = $::form->{group_counting_items} ? qw(counting part chargenumber bin qty stocked reconciliated)
+              : qw(counting counted_at part chargenumber bin qty stocked employee reconciliated);
 
   my %column_defs = (
     counting      => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
     counted_at    => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
     qty           => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
     part          => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
+    chargenumber      => { text => t8('Chargenumber'), sub => sub { $_[0]->chargenumber }, },
     bin           => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee      => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked       => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
@@ -283,7 +285,7 @@ sub setup_list_action_bar {
 sub get_stocked {
   my ($self, $objects) = @_;
 
-  $_->{stocked} = $_->part->get_stock(bin_id => $_->bin_id) for @$objects;
+  $_->{stocked} = get_stock(part => $_->part, bin_id => $_->bin_id, chargenumber => $_->chargenumber) for @$objects;
 }
 
 sub render_count_error {
