@@ -45,7 +45,17 @@
               <span class="data">[% SELF.stock_counting_item.counting.bin.full_description %]</span>
               [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
             [% ELSE %]
-              [% P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
+              <table>
+               <tr>
+                <td>Warehouse picker</th>
+                <td>[% P.bin.warehousepicker('warehouse_id',undef, with_empty=1) %]</th>
+               </tr>
+               <tr>
+                <td>Bin picker</td>
+                <td>[% P.bin.picker('stock_counting_item.bin_id',undef, warehouse_field='warehouse_id', onchange="kivi.StockCounting.show_parts_in_bin()") %]</td>
+               </tr>
+              </table>
+              [%  # P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
             [% END %]
           </td>
         </tr>
@@ -65,3 +75,6 @@
     </table>
   </form>
 </div>
+<div class="wrapper" id="list_data" >
+</div>
+
