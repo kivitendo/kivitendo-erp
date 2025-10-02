@@ -24,7 +24,18 @@
   <tr>
     [%- SET n = 0 %]
     [%- FOREACH var = ITEM.cvars_by_config %]
-    [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
+      [%- NEXT UNLESS (var.config.processed_flags.editable && ITEM.part.cvar_by_name(var.config.name).is_valid) %]
+      [%-
+        IF (var.config.processed_flags.partsgroup_filter);
+          SET show = 0;
+          FOREACH pg = var.config.partsgroups;
+            IF (ITEM.part.partsgroup.id == pg.id); show = 1; LAST; END;
+          END;
+        ELSE;
+          show = 1;
+        END;
+        NEXT IF (!show);
+      %]
     [%- SET n = n + 1 %]
     <th>
       [% var.config.description %]
