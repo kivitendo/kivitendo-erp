@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE P %]
+[%- USE Dumper %]
 
 [%- INCLUDE 'common/flash.html' %]
 
@@ -48,37 +49,37 @@
               <table>
                <tr>
                 <td>Warehouse picker</th>
-                <td>[% P.bin.warehousepicker('warehouse_id',undef, with_empty=1) %]</th>
+                <td>[% P.bin.warehousepicker('warehouse_id',warehouse_id, with_empty=1 ) %]</th>
                </tr>
                <tr>
                 <td>Bin picker</td>
-                <td>[% P.bin.picker('stock_counting_item.bin_id',undef, warehouse_field='warehouse_id', onchange="kivi.StockCounting.show_parts_in_bin()") %]</td>
+                <td>[% P.bin.picker('stock_counting_item.bin_id',stock_counting_item_bin_id, warehouse_field='warehouse_id', onchange="kivi.StockCounting.show_parts_in_bin()") %]</td>
                </tr>
               </table>
-              [%  # P.warehouse.wh_bin_select('dummy_wh', bin_name='stock_counting_item.bin_id', with_empty=1, 'data-validate'='required') %]
             [% END %]
           </td>
-        </tr>
-        <tr>
-          <th>[% 'EAN' | $T8 %]</th>
-          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN')) %]</td>
         </tr>
         <tr>
           <th>[% 'Partnumber' | $T8 %]</th>
           <td>[% P.part.picker('part_id', undef, part_type='part') %]</td>
         </tr>
         <tr>
-          <th>[% 'QTY' | $T8 %]</th>
-          <td>[% P.input_tag('qty', '', class="numeric") %]</td>
+          <th>[% 'EAN' | $T8 %]</th>
+          <td>[% P.input_tag('ean', '', placeholder=last_ean || LxERP.t8('EAN')) %]</td>
         </tr>
-        <!-- TODO chargenumber -->
         <tr>
           <th>[% 'Chargenumber' | $T8 %]</th>
           <td>[% P.input_tag('chargenumber', '' ) %]</td>
         </tr>
+        <tr>
+          <th>[% 'QTY' | $T8 %]</th>
+          <td>[% P.input_tag('qty', '', class="numeric") %]</td>
+        </tr>
     </table>
   </form>
 </div>
-<div class="wrapper" id="list_data" >
+<div class="wrapper">
+  <div id="list_data" >
+</div>
 </div>
 

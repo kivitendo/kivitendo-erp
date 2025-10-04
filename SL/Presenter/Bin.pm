@@ -19,7 +19,7 @@ sub warehousepicker {
   my $all = delete $params{objects} // SL::DB::Manager::Warehouse->get_all();
   unshift @$all, $curr if $curr && !any { $_->id == $curr } @$all;
 
-  select_tag($name, $all, %params, default_sub => sub { $curr && $_[0]->id == $curr }, title_key => 'description');
+  select_tag($name, $all, %params, default =>  $curr , title_key => 'description');
 }
 
 sub bin_picker {
@@ -29,7 +29,6 @@ sub bin_picker {
   my $id      = delete($params{id}) || name_to_id($name);
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'bin_autocomplete';
-
   my $ret =
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id) .
     join('', map { $params{$_} ? input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(warehouse_field)) .

@@ -16,4 +16,6 @@ sub full_description {
     : $self->description
 }
 
+sub displayable_name { goto &full_description };
+
 1;
