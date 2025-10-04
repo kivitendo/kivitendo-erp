@@ -109,8 +109,8 @@ sub action_count {
   if ($::request->is_mobile) {
     $self->render('stock_counting/count', successfully_counted => 1);
   } else {
-    flash('info', t8('Part successfully counted'));
-    $self->render('stock_counting/count');
+    flash('info', t8('Part successfully counted #1 == #2',$::form->{'stock_counting_item.bin_id'}, warehouse_id => $::form->{warehouse_id} ));
+    $self->render('stock_counting/count', stock_counting_item_bin_id => $::form->{'stock_counting_item'}->{'bin_id'}, warehouse_id => $::form->{warehouse_id} );
   }
 }
 
@@ -163,7 +163,8 @@ sub action_show_parts_in_bin {
     with_objects => [ qw(bin part) ],
   );
   my $html = $self->render('stock_counting/list_parts', { output => 0 }, DATA => $data);
-  $self->js->replaceWith('#list_data', $html)
+  $self->js->html('#list_data', $html)
+           ->reinit_widgets
            ->render;
 }
 sub init_is_developer {
