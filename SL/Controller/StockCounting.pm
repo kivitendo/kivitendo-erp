@@ -32,13 +32,13 @@ __PACKAGE__->run_before(sub { $::request->layout->add_javascripts('kivi.Validato
 
 
 my %sort_columns = (
-  counting   => t8('Stock Counting'),
-  counted_at => t8('Counted At'),
-  qty        => t8('Qty'),
-  part       => t8('Article'),
-  chargenumber       => t8('Chargenumber'),
-  bin        => t8('Bin'),
-  employee   => t8('Employee'),
+  counting     => t8('Stock Counting'),
+  counted_at   => t8('Counted At'),
+  qty          => t8('Qty'),
+  part         => t8('Article'),
+  chargenumber => t8('Chargenumber'),
+  bin          => t8('Bin'),
+  employee     => t8('Employee'),
 );
 
 
@@ -162,7 +162,11 @@ sub action_show_parts_in_bin {
     by           => [ qw(part chargenumber bin) ],
     with_objects => [ qw(bin part) ],
   );
-  my $html = $self->render('stock_counting/list_parts', { output => 0 }, DATA => $data);
+  my $objects = $self->models->get;
+  foreach my $row (@$data) {
+    $row->{counted} = grep { $_->{part_id} == $row->{parts_id}} @$objects;
+  }
+  my $html = $self->render('stock_counting/list_parts', { output => 0 }, DATA => $data, OBJECTS => $objects);
   $self->js->html('#list_data', $html)
            ->reinit_widgets
            ->render;

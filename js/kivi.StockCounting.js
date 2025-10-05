@@ -17,7 +17,14 @@ namespace('kivi.StockCounting', function(ns) {
 });
 
 $(function() {
+  $('#stock_counting_item_bin_id').on('set_item:BinPicker', function (e, item) {
+  $('#part_id_name').focus();
+  kivi.StockCounting.show_parts_in_bin();
+  });
   if ( $('#stock_counting_item_bin_id').val() ){
     kivi.StockCounting.show_parts_in_bin();
   }
+  $("div.counted table tbody tr").click(function () {
+   alert ("clicked");
+  });
 });
