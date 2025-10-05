@@ -35,13 +35,13 @@ __PACKAGE__->run_before(sub { $::auth->assert('warehouse_management'); });
 __PACKAGE__->run_before(sub { $::request->layout->add_javascripts('kivi.Validator.js'); });
 
 my %sort_columns = (
-  counting   => t8('Stock Counting'),
-  counted_at => t8('Counted At'),
-  qty        => t8('Qty'),
-  part       => t8('Article'),
-  chargenumber       => t8('Chargenumber'),
-  bin        => t8('Bin'),
-  employee   => t8('Employee'),
+  counting     => t8('Stock Counting'),
+  counted_at   => t8('Counted At'),
+  qty          => t8('Qty'),
+  part         => t8('Article'),
+  chargenumber => t8('Chargenumber'),
+  bin          => t8('Bin'),
+  employee     => t8('Employee'),
 );
 
 
@@ -91,9 +91,9 @@ sub action_reconcile {
   my $transfer_error;
   $::form->throw_on_error(sub {
     eval {
-  chargenumber       => t8('Chargenumber'),
       SL::DB->client->with_transaction(sub {
         foreach my $group_item (@$grouped_counting_items) {
+          $main::lxdebug->dump(0, "TST: GROUPITEM ", $group_item);
           my $counted_qty   = $group_item->qty;
           my $stocked_qty   = $group_item->{stocked};
           my $inbetween_qty = $group_item->{inbetweens};
@@ -103,32 +103,42 @@ sub action_reconcile {
           my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
           $transfer_qty  = abs($transfer_qty);
 
+          $main::lxdebug->dump(0, "TST: TRANSFERQTY", $transfer_qty);
+            if ( $transfer_qty == 0) {
+              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
+                                                             where => [id => $group_item->{ids}]);
+              next;
+            }
           # Do stock.
           # todo: run in transaction and record the inventory id in the counting items
           my %transfer_params = (
             parts_id              => $group_item->part_id,
             $src_or_dst.'_bin_id' => $group_item->bin_id,
             qty                   => $transfer_qty,
+            chargenumber          => $group_item->chargenumber,
             transfer_type         => 'correction',
             comment               => $comment,
           );
-
           my @trans_ids = WH->transfer(\%transfer_params);
-
           if (scalar(@trans_ids) != 1) {
-            die "Program logic error: no error, but no transfer" if scalar(@trans_ids) == 0;
+            die "Program logic error: no error, but no inventory entry" if scalar(@trans_ids) == 0;
             die "Program logic error: too many transfers"        if scalar(@trans_ids) >  1;
           }
 
           # Get inventory entries via trans_ids-
           my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
           if (scalar(@$inventories) != 1) {
+            if ( scalar(@$inventories) == 0 && $transfer_qty == 0) {
+              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
+                                                             where => [id => $group_item->{ids}]);
+              next;
+            }
             die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
             die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
           }
 
 
-          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
+          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id, cleared => 'T'},
                                                          where => [id => $group_item->{ids}]);
         }
 
@@ -163,7 +173,7 @@ sub init_models {
 
 sub init_countings {
   my $countings = SL::DB::Manager::StockCounting->get_all_sorted;
-  $countings    = [ grep { !$_->is_reconciliated } @$countings ];
+  $countings    = [ grep { !$_->is_cleared } @$countings ];
 
   return $countings;
 }

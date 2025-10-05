@@ -47,6 +47,10 @@ sub is_reconciliated {
   any { !!$_->correction_inventory_id } @{$_[0]->items};
 }
 
+sub is_cleared {
+  any { !!$_->cleared } @{$_[0]->items};
+}
+
 sub start_time_of_counting {
   min map { $_->counted_at } @{$_[0]->items};
 }
