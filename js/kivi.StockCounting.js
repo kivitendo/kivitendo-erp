@@ -24,7 +24,4 @@ $(function() {
   if ( $('#stock_counting_item_bin_id').val() ){
     kivi.StockCounting.show_parts_in_bin();
   }
-  $("div.counted table tbody tr").click(function () {
-   alert ("clicked");
-  });
 });

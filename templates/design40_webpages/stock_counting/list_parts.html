@@ -3,7 +3,7 @@
 [%- USE HTML %]
 [%- USE L %]
 [%- USE Dumper %]
-<div class="counted">
+<div class="stocked">
   <table class="tbl-list">
     <caption>[% "On stock" | $T8 %]</caption>
     <thead>
@@ -11,6 +11,7 @@
         <th>[% "Bin" | $T8 %]</th>
         <th>[% "Article" | $T8 %]</th>
         <th>[% "Chargenumber" | $T8 %]</th>
+        <th>[% "Counted" | $T8 %]</th>
       </tr>
     </thead>
     <tbody>
@@ -20,11 +21,79 @@
       [% SET style = 'style="background-color:green;"' %]
       [% END %]
       <tr [% style %]>
-        <td>[% HTML.escape(row.bin.description) %]</td>
+        <td>[% HTML.escape(row.bin.description) %]
+          [% L.hidden_tag('part_id_' _ loop.count,row.part.id) %]
+          [% L.hidden_tag('part_displayable_name_' _ loop.count,row.part.displayable_name) %]
+          [% L.hidden_tag('part_chargenumber_' _ loop.count,row.chargenumber) %]
+          [% L.hidden_tag('part_counted_' _ loop.count,row.counted) %]
+        </td>
         <td>[% HTML.escape(row.part.displayable_name) %]</td>
         <td>[% HTML.escape(row.chargenumber) %]</td>
+        <td>[% HTML.escape(row.counted) %]</td>
       </tr>
       [% END %]
     </tbody>
   </table>
 </div>
+<div class="counted">
+  <table class="tbl-list">
+    <caption>[% "Counted" | $T8 %]</caption>
+    <thead>
+      <tr>
+        <th>[% "Date" | $T8 %]</th>
+        <th>[% "Bin" | $T8 %]</th>
+        <th>[% "Article" | $T8 %]</th>
+        <th>[% "Chargenumber" | $T8 %]</th>
+        <th>[% "Qty" | $T8 %]</th>
+        <th>[% "Employee" | $T8 %]</th>
+      </tr>
+    </thead>
+    <tbody>
+      [%  FOREACH row = OBJECTS %]
+      <tr>
+        <td>[% HTML.escape(row.counted_at.to_kivitendo) %] [% HTML.escape(row.counted_at.to_kivitendo_time) %]</td>
+        <td>[% HTML.escape(row.bin.description) %]</td>
+        <td>[% HTML.escape(row.part.displayable_name) %]</td>
+        <td>[% HTML.escape(row.chargenumber) %]</td>
+        <td>[% HTML.escape(row.qty_as_number) %]</td>
+        <td>[% HTML.escape(row.employee.login) %]</td>
+      </tr>
+      [% END %]
+    </tbody>
+  </table>
+</div>
+<style>
+.clicked {
+  background-color: #ccc;
+}
+</style>
+<script>
+  $(function() {
+    $( "div.stocked table tbody tr" ).on( "mouseover", function() {
+      $(this).css({
+        'background-color': 'lightgreen',
+        'cursor': 'pointer'
+      });
+    });
+    $( "div.stocked table tbody tr" ).on( "mouseout", function() {
+      if ( $(this).find('input[name^="part_counted_"]').val() >= 1 ){
+      $(this).css({
+        'background-color': 'green',
+        'cursor': 'pointer'
+      });
+      } else {
+      $(this).css({
+        'background-color': '#e0e0d6',
+        'cursor': 'pointer'
+      });
+      }
+    });
+    $("div.stocked table tbody tr").click(function () {
+      $('#part_id').val($(this).find('input[name^="part_id_"]').val());
+      $('#part_id_name').val(jQuery(this).find('input[name^="part_displayable_name_"]').val());
+      $('#chargenumber').val(jQuery(this).find('input[name^="part_chargenumber_"]').val());
+      $(this).toggleClass('clicked');
+      $('#qty').focus();
+    });
+  });
+</script>

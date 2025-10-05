@@ -162,9 +162,10 @@ sub action_show_parts_in_bin {
     by           => [ qw(part chargenumber bin) ],
     with_objects => [ qw(bin part) ],
   );
+  $::form->{'filter'}->{'counting_id'} = $::form->{'stock_counting_item'}->{'counting_id'};
   my $objects = $self->models->get;
   foreach my $row (@$data) {
-    $row->{counted} = grep { $_->{part_id} == $row->{parts_id}} @$objects;
+    $row->{counted} = grep { $_->{part_id} == $row->{parts_id} && $_->chargenumber eq $row->{chargenumber} } @$objects;
   }
   my $html = $self->render('stock_counting/list_parts', { output => 0 }, DATA => $data, OBJECTS => $objects);
   $self->js->html('#list_data', $html)
@@ -192,7 +193,7 @@ sub init_models {
     model          => 'StockCountingItem',
     sorted         => \%sort_columns,
     disable_plugin => 'paginated',
-    with_objects   => [ 'counting', 'employee', 'part' ],
+    with_objects   => [ 'counting', 'employee', 'part', 'bin' ],
   );
 }
 
