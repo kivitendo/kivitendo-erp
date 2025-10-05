@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('stock_counting_items');
 __PACKAGE__->meta->columns(
   bin_id                  => { type => 'integer', not_null => 1 },
   chargenumber            => { type => 'text' },
+  cleared                 => { type => 'boolean', default => 'false' },
   comment                 => { type => 'text' },
   correction_inventory_id => { type => 'integer' },
   counted_at              => { type => 'timestamp', default => 'now()', not_null => 1 },
