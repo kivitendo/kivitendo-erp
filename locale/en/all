@@ -2260,6 +2260,7 @@ $self->{texts} = {
   'Linked invoices'             => '',
   'Linked to'                   => '',
   'Linked to customer'          => '',
+  'Linked to vendor'            => '',
   'Linked to...'                => '',
   'Linking to Record'           => '',
   'Liquidity projection'        => '',
