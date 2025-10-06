@@ -318,7 +318,7 @@
     </p>
     <p>
       [2]:
-      [% LxERP.t8('Onhand only sets the quantity in master data, not in inventory. This is only a legacy info field and will be overwritten as soon as a inventory transfer happens.') %]
+      [% LxERP.t8('Onhand only sets the quantity in master data, not in the inventory. This is only an info field, whose value will be added to or subtracted from for each inventory transfer via a DB trigger. As it\' value is never set to the actual value, in most cases this should not be imported.') %]
     </p>
     <p>
       [3]:
