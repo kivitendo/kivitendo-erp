@@ -1500,14 +1500,14 @@ sub new_item {
   my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
 
   my %new_attr;
-  $new_attr{description}            = $texts->{description}       if ! $item->description;
-  $new_attr{qty}                    = 1.0                         if ! $item->qty;
+  $new_attr{description}            = $texts->{description}        if ! $item->description;
+  $new_attr{qty}                    = 1.0                          if ! $item->qty;
   $new_attr{price_factor_id}        = $item->part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
   $new_attr{active_price_source}    = $price_src;
   $new_attr{active_discount_source} = $discount_src;
-  $new_attr{longdescription}        = $texts->{longdescription}   if ! defined $attr->{longdescription};
+  $new_attr{longdescription}        = $texts->{longdescription}    if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
   $new_attr{lastcost}               = $record->is_sales ? $item->part->lastcost : 0;
 
