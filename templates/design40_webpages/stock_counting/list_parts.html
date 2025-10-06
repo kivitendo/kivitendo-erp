@@ -12,25 +12,29 @@
         <th>[% "Article" | $T8 %]</th>
         <th>[% "Chargenumber" | $T8 %]</th>
         <th>[% "Counted" | $T8 %]</th>
+        <th>[% "Qty" | $T8 %]</th>
       </tr>
     </thead>
     <tbody>
       [%  FOREACH row = DATA %]
-      [% SET style ='' %]
-      [% IF row.counted %]
-      [% SET style = 'style="background-color:green;"' %]
-      [% END %]
-      <tr [% style %]>
-        <td>[% HTML.escape(row.bin.description) %]
-          [% L.hidden_tag('part_id_' _ loop.count,row.part.id) %]
-          [% L.hidden_tag('part_displayable_name_' _ loop.count,row.part.displayable_name) %]
-          [% L.hidden_tag('part_chargenumber_' _ loop.count,row.chargenumber) %]
-          [% L.hidden_tag('part_counted_' _ loop.count,row.counted) %]
-        </td>
-        <td>[% HTML.escape(row.part.displayable_name) %]</td>
-        <td>[% HTML.escape(row.chargenumber) %]</td>
-        <td>[% HTML.escape(row.counted) %]</td>
-      </tr>
+      [%  IF row.qty > 0 %]
+          [% SET style ='' %]
+          [% IF row.counted %]
+          [% SET style = 'style="background-color:green;"' %]
+          [% END %]
+          <tr [% style %]>
+            <td>[% HTML.escape(row.bin.description) %]
+              [% L.hidden_tag('part_id_' _ loop.count,row.part.id) %]
+              [% L.hidden_tag('part_displayable_name_' _ loop.count,row.part.displayable_name) %]
+              [% L.hidden_tag('part_chargenumber_' _ loop.count,row.chargenumber) %]
+              [% L.hidden_tag('part_counted_' _ loop.count,row.counted) %]
+            </td>
+            <td>[% HTML.escape(row.part.displayable_name) %]</td>
+            <td>[% HTML.escape(row.chargenumber) %]</td>
+            <td>[% HTML.escape(row.counted) %]</td>
+            <td>[% LxERP.format_amount(row.qty,2) %]</td>
+          </tr>
+        [%  END %]
       [% END %]
     </tbody>
   </table>
@@ -71,22 +75,8 @@
   $(function() {
     $( "div.stocked table tbody tr" ).on( "mouseover", function() {
       $(this).css({
-        'background-color': 'lightgreen',
         'cursor': 'pointer'
       });
-    });
-    $( "div.stocked table tbody tr" ).on( "mouseout", function() {
-      if ( $(this).find('input[name^="part_counted_"]').val() >= 1 ){
-      $(this).css({
-        'background-color': 'green',
-        'cursor': 'pointer'
-      });
-      } else {
-      $(this).css({
-        'background-color': '#e0e0d6',
-        'cursor': 'pointer'
-      });
-      }
     });
     $("div.stocked table tbody tr").click(function () {
       $('#part_id').val($(this).find('input[name^="part_id_"]').val());

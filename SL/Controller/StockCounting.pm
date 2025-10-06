@@ -162,6 +162,7 @@ sub action_show_parts_in_bin {
     by           => [ qw(part chargenumber bin) ],
     with_objects => [ qw(bin part) ],
   );
+  @$data = sort { $a->{part}->{partnumber} cmp $b->{part}->{partnumber} } @$data;
   $::form->{'filter'}->{'counting_id'} = $::form->{'stock_counting_item'}->{'counting_id'};
   my $objects = $self->models->get;
   foreach my $row (@$data) {
