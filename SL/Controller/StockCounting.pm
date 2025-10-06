@@ -164,6 +164,8 @@ sub action_show_parts_in_bin {
   );
   @$data = sort { $a->{part}->{partnumber} cmp $b->{part}->{partnumber} } @$data;
   $::form->{'filter'}->{'counting_id'} = $::form->{'stock_counting_item'}->{'counting_id'};
+  $::form->{'sort_by'} = 'counted_at';
+  $::form->{'sort_dir'} = 0;
   my $objects = $self->models->get;
   foreach my $row (@$data) {
     $row->{counted} = grep { $_->{part_id} == $row->{parts_id} && $_->chargenumber eq $row->{chargenumber} } @$objects;
