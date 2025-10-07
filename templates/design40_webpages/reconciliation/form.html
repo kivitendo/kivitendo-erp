@@ -7,57 +7,59 @@
 
 <form id="reconciliation_form" method="post" action="controller.pl" id="filter_form">
 
-  <table class="tbl-horizontal test margin-top-50">
-    <tbody>
-    <tr>
-     <th>[% 'Bank account' | $T8 %]</th>
-     <td>[% L.select_tag('filter.local_bank_account_id:number',
-                          SELF.BANK_ACCOUNTS,
-                          default=FORM.filter.local_bank_account_id_number,
-                          title_key='displayable_name',
-                          with_empty=0,
-                          style='width:450px',
-                          onchange='filter_table();') %]</td>
-    </tr>
+  <div class="wrapper">
+    <table class="tbl-horizontal test margin-top-50">
+      <tbody>
+      <tr>
+       <th>[% 'Bank account' | $T8 %]</th>
+       <td>[% L.select_tag('filter.local_bank_account_id:number',
+                            SELF.BANK_ACCOUNTS,
+                            default=FORM.filter.local_bank_account_id_number,
+                            title_key='displayable_name',
+                            with_empty=0,
+                            style='width:450px',
+                            onchange='filter_table();') %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'From' | $T8 %]</th>
-     <td>[% L.date_tag('filter.fromdate:date::ge', FORM.filter.fromdate_date__ge, onchange='filter_table();') %]</td>
-     <th>[% 'to (date)' | $T8 %]</th>
-     <td>[% L.date_tag('filter.todate:date::le', FORM.filter.todate_date__le, onchange='filter_table();') %]</td>
-    </tr>
+      <tr>
+       <th>[% 'From' | $T8 %]</th>
+       <td>[% L.date_tag('filter.fromdate:date::ge', FORM.filter.fromdate_date__ge, onchange='filter_table();') %]</td>
+       <th>[% 'to (date)' | $T8 %]</th>
+       <td>[% L.date_tag('filter.todate:date::le', FORM.filter.todate_date__le, onchange='filter_table();') %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'Cleared/uncleared only' | $T8 %]</th>
-     <td>[% L.select_tag('filter.cleared:eq_ignore_empty', SELF.cleared, value_key = 'value', title_key = 'title', default=FORM.filter.cleared_eq_ignore_empty, onchange='filter_table();') %]</td>
-    </tr>
+      <tr>
+       <th>[% 'Cleared/uncleared only' | $T8 %]</th>
+       <td>[% L.select_tag('filter.cleared:eq_ignore_empty', SELF.cleared, value_key = 'value', title_key = 'title', default=FORM.filter.cleared_eq_ignore_empty, onchange='filter_table();') %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'Show Stornos' | $T8 %]</th>
-     <td>[% L.checkbox_tag('filter.show_stornos', checked=FORM.filter.show_stornos, value='1', onchange='filter_table();') %]</td>
-    </tr>
+      <tr>
+       <th>[% 'Show Stornos' | $T8 %]</th>
+       <td>[% L.checkbox_tag('filter.show_stornos', checked=FORM.filter.show_stornos, value='1', onchange='filter_table();') %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'Absolute BT Balance' | $T8 %]</th>
-     <td class="absolut_bt_balance">[% LxERP.format_amount(SELF.absolut_bt_balance, 2) %]</td>
-    </tr>
+      <tr>
+       <th>[% 'Absolute BT Balance' | $T8 %]</th>
+       <td class="absolut_bt_balance">[% LxERP.format_amount(SELF.absolut_bt_balance, 2) %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'Absolute BB Balance' | $T8 %]</th>
-     <td class="absolut_bb_balance">[% LxERP.format_amount(-1 * SELF.absolut_bb_balance, 2) %]</td>
-    </tr>
+      <tr>
+       <th>[% 'Absolute BB Balance' | $T8 %]</th>
+       <td class="absolut_bb_balance">[% LxERP.format_amount(-1 * SELF.absolut_bb_balance, 2) %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'BT Balance' | $T8 %]</th>
-     <td class="bt_balance">[% LxERP.format_amount(SELF.bt_balance, 2) %]</td>
-    </tr>
+      <tr>
+       <th>[% 'BT Balance' | $T8 %]</th>
+       <td class="bt_balance">[% LxERP.format_amount(SELF.bt_balance, 2) %]</td>
+      </tr>
 
-    <tr>
-     <th>[% 'BB Balance' | $T8 %]</th>
-     <td class="bb_balance">[% LxERP.format_amount(-1 * SELF.bb_balance, 2) %]</td>
-    </tr>
-    </tbody>
-  </table>
+      <tr>
+       <th>[% 'BB Balance' | $T8 %]</th>
+       <td class="bb_balance">[% LxERP.format_amount(-1 * SELF.bb_balance, 2) %]</td>
+      </tr>
+      </tbody>
+    </table>
+  </div><!-- .wrapper -->
 
   <div id="reconc_tabs" class="tabwidget" style="height:100%">
     <ul>
@@ -65,14 +67,16 @@
       <li><a href="#automatic" onclick='load_proposals();'>[% 'Proposals' | $T8 %]</a></li>
     </ul>
 
-    <div id="overview" style="height:calc(100% - 60px);overflow: auto;">
-    [%- IF ui_tab == 0 %]
-      [% PROCESS "reconciliation/tabs/overview.html" %]
-    [%- END %]</div>
-    <div id="automatic" style="height:calc(100% - 60px);overflow: auto;">
-    [%- IF ui_tab == 1 %]
-      [% PROCESS "reconciliation/tabs/automatic.html" %]
-    [%- END %]</div>
+    <div class="wrapper">
+      <div id="overview" style="height:calc(100% - 60px);overflow: auto;">
+      [%- IF ui_tab == 0 %]
+        [% PROCESS "reconciliation/tabs/overview.html" %]
+      [%- END %]</div>
+      <div id="automatic" style="height:calc(100% - 60px);overflow: auto;">
+      [%- IF ui_tab == 1 %]
+        [% PROCESS "reconciliation/tabs/automatic.html" %]
+      [%- END %]</div>
+    </div><!-- .wrapper -->
   </div>
 
 </form>
