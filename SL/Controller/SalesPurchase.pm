@@ -17,11 +17,6 @@ sub action_check_duplicate_invnumber {
                    invnumber => $::form->{invnumber},
                    vendor_id => $::form->{vendor_id},
                  );
-  # we are modifying a existing daily booking - allow this if
-  # booking conditions are not super strict
-  undef $exists_ap if ($exists_ap
-                    && $::instance_conf->get_ap_changeable != 0
-                    && $exists_ap->gldate == DateTime->today_local);
 
   $_[0]->render(\ !!$exists_ap, { type => 'text' });
 }
