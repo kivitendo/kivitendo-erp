@@ -359,7 +359,7 @@ my $result = {
 
   # create a form for generate_attachment_filename
   my $form   = Form->new;
-  $form->{$record->type_data->properties('nr_key')}  = $record->type_data->properties('nr_key');
+  $form->{$record->type_data->properties('nr_key')}  = $record->number;
   $form->{type}             = $record->type;
   $form->{format}           = $format;
   $form->{formname}         = $formname;
