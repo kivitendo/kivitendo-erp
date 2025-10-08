@@ -44,6 +44,9 @@ Kleinere neue Features und Detailverbesserungen:
   Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
   deaktiviert.
 
+- Falls eine Ware in einem Erzeugnis verbaut wurde, wird das Erzeugnis im
+  Lagerbuchungsbericht zusätzlich als Link zum Erzeugnis angezeigt.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
 Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
 
