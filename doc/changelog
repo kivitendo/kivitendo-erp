@@ -8,6 +8,11 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
+- Verbundene Kunden/Lieferanten
+  Es ist jetzt möglich Kunden und Lieferanten zu verbinden um Geschäftspartner
+  abzubilden die in beiden Rollen auftreten. Dabei werden dann die Name,
+  Währung, Steuergruppe und Ungültig zwischen beiden synchronisiert.
+
 
 Kleinere neue Features und Detailverbesserungen:
 

@@ -61,6 +61,8 @@
         [% END %]
       [% END %]
 
+      <li><a href="#linked_customer_vendor">[% IF SELF.is_customer %][% 'Linked Vendor' | $T8 %][% ELSE %][% 'Linked Customer' | $T8 %][% END %]</a></li>
+
     </ul>
 
     [% PROCESS "customer_vendor/tabs/billing.html" %]
@@ -87,6 +89,7 @@
     [% IF SELF.cv.id && ( (FORM.db == 'customer' && AUTH.assert('show_extra_record_tab_customer', 1)) || (FORM.db == 'vendor' && AUTH.assert('show_extra_record_tab_vendor', 1)) ) %]
       <div id="turnover_stat">[% PROCESS "customer_vendor_turnover/turnover_statistic.html" %]</div>
     [% END %]
+    [% PROCESS "customer_vendor/tabs/linked_customer_vendor.html" %]
   </div>
 </form>
 
