@@ -379,10 +379,11 @@ sub get_warehouse_journal {
      };
 
   $form->{l_classification_id}  = 'Y';
-  $form->{l_trans_id}           = 'Y';
   $form->{l_part_type}          = 'Y';
   $form->{l_itime}              = 'Y';
   $form->{l_invoice_id} = $form->{l_oe_id} if $form->{l_oe_id};
+
+  local $form->{l_trans_id}     = 'Y';
 
   # build the select clauses.
   # take all the requested ones from the first hash and overwrite them from the out/in hashes if present.
