@@ -772,7 +772,9 @@ sub generate_journal {
   # get maxcount
   if (!$allrows && !$form->{maxrows}) {
     local $filter{count_only} = 1;
-    $form->{maxrows} = WH->get_warehouse_journal(%filter);
+    my $old_l_trans_id  = $form->{l_trans_id};
+    $form->{maxrows}    = WH->get_warehouse_journal(%filter);
+    $form->{l_trans_id} = $old_l_trans_id;
   }
 
   # manual paginating
