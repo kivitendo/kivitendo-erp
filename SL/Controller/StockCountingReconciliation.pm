@@ -93,17 +93,14 @@ sub action_reconcile {
     eval {
       SL::DB->client->with_transaction(sub {
         foreach my $group_item (@$grouped_counting_items) {
-          $main::lxdebug->dump(0, "TST: GROUPITEM ", $group_item);
           my $counted_qty   = $group_item->qty;
           my $stocked_qty   = $group_item->{stocked};
           my $inbetween_qty = $group_item->{inbetweens};
-
           my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
 
           my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
           $transfer_qty  = abs($transfer_qty);
 
-          $main::lxdebug->dump(0, "TST: TRANSFERQTY", $transfer_qty);
             if ( $transfer_qty == 0) {
               SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
                                                              where => [id => $group_item->{ids}]);
@@ -285,8 +282,7 @@ sub group_items_by_part_and_bin {
 
 sub get_stocked {
   my ($self, $objects) = @_;
-
-  $_->{stocked} = get_stock(part => $_->part, bin_id => $_->bin_id, chargenumber => $_->chargenumber) for @$objects;
+  $_->{stocked} = SL::Helper::Inventory::get_stock(part => $_->part, bin => $_->bin, chargenumber => $_->chargenumber) for @$objects;
 }
 
 sub get_inbetweens {
