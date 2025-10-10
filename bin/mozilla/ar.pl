@@ -1132,7 +1132,7 @@ sub ar_transactions {
     ids transdate id type invnumber ordnumber cusordnumber donumber
     deliverydate name netamount tax amount paid datepaid due duedate
     transaction_description notes salesman employee shippingpoint shipvia
-    marge_total marge_percent globalprojectnumber customernumber country
+    marge_total marge_percent globalprojectdescription globalprojectnumber customernumber country
     ustid taxzone payment_terms charts customertype direct_debit
     dunning_description department attachments items customer_dunning_lock
     shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
@@ -1184,6 +1184,7 @@ sub ar_transactions {
     'employee'                => { 'text' => $locale->text('Employee'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
+    'globalprojectdescription' => { 'text' => $locale->text('Document Project Description'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
@@ -1218,6 +1219,7 @@ sub ar_transactions {
   my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
 
   $form->{"l_type"} = "Y";
+  $form->{"l_globalprojectdescription"} = "Y" if $form->{"l_globalprojectnumber"};
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $column_defs{ids}->{visible} = 'HTML';
