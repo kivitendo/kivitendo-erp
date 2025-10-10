@@ -1176,6 +1176,7 @@ $self->{texts} = {
   'Delete for Customers'        => 'Bei Kunden löschen',
   'Delete for customers & vendors' => 'Bei Kunden & Lieferanten löschen',
   'Delete links'                => 'Verknüpfungen löschen',
+  'Delete marked positions'     => 'Markierte Positionen löschen',
   'Delete picture'              => 'Bild löschen',
   'Delete printfiles'           => 'Dokumente löschen',
   'Delete profile'              => 'Profil löschen',
