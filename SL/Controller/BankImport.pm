@@ -153,7 +153,7 @@ sub import_transactions {
 
       $imported++;
 
-      if ($transaction->{sei} && !$::form->{"no_automatic_" . $transaction->{sei}->sepa_export->id}) {
+      if ($transaction->{sei} && !$::form->{"no_automatic_" . $transaction->{sei}->id}) {
         $self->_book_sepa(bt => $current_bt, sei => $transaction->{sei});
         $sepa++;
         $transaction->{sei_ok} = 1;
