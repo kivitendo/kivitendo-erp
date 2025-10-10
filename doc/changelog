@@ -10,6 +10,12 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Im Bericht VK-Rechnungen/Debitorenbuchungen und
+  EK-Rechnungen/Kreditorenbuchungen wird neben der Projektnummer des Belegs
+  auch die Projektbeschreibung angezeigt und es kann nach Nummer und
+  Beschreibung des Projekt sortiert werden.
+
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
