@@ -1315,6 +1315,7 @@ $self->{texts} = {
   'Document Project (database ID)' => '',
   'Document Project (description)' => '',
   'Document Project (number)'   => '',
+  'Document Project Description' => '',
   'Document Project Number'     => '',
   'Document generating failed. Please check Templates an LateX !' => '',
   'Documentation'               => '',
