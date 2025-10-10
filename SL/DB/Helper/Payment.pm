@@ -70,6 +70,7 @@ sub pay_invoice {
           . $self->open_amount_less_skonto . "\n" if $params{amount}
                                                   && abs($self->open_amount_less_skonto - $params{amount} ) > 0.0000001;
     # croak "payment type with_skonto_pt can't be used if payments have already been made" if $self->paid != 0;
+    croak "Percent skonto is too low for automatic skonto calculation for the invoice: " . $self->invnumber if $self->percent_skonto < 0.00001;
   }
 
   my $transdate_obj;
