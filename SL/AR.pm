@@ -521,6 +521,7 @@ sub ar_transactions {
     qq|  a.transaction_description, a.direct_debit, | .
     qq|  a.type, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
+    qq|  pr.description   AS globalprojectdescription, | .
     qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
     qq|  c.id as customer_id, c.dunning_lock as customer_dunning_lock,| .
     qq|  e.name AS employee, | .
@@ -805,7 +806,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name datepaid employee shippingpoint shipvia transaction_description department taxzone))) {
+  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name datepaid employee shippingpoint shipvia transaction_description department taxzone globalprojectdescription globalprojectnumber))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 
