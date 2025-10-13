@@ -244,7 +244,7 @@ sub retrieve_export {
     my $mandator_id = $params{vc} eq 'customer' ? ', mandator_id, mandate_date_of_signature' : '';
 
     if ($params{details}) {
-      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description ${mandator_id}|;
+      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, COALESCE (NULLIF(vc.depositor,''), vc.name) AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description ${mandator_id}|;
       $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
                     LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
                     LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
