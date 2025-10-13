@@ -634,6 +634,7 @@ $self->{texts} = {
   'Calculate due date automatically' => '',
   'Calling #1 now'              => '',
   'Can not find a tax for tax rate #1' => '',
+  'Can not link to a customer/vendor that is already linked.' => '',
   'Can only delete the "Storno zu" part of the cancellation pair.' => '',
   'Can only save template if amounts,i.e. 1 for debit and credit are set.' => '',
   'Can\'t change data of a linked item. Part: ' => '',

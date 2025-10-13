@@ -634,6 +634,7 @@ $self->{texts} = {
   'Calculate due date automatically' => 'Fälligkeitsdatum automatisch berechnen',
   'Calling #1 now'              => 'Wähle jetzt #1',
   'Can not find a tax for tax rate #1' => 'Es konnte keine Steuer mit dem Steuersatz #1 gefunden werden.',
+  'Can not link to a customer/vendor that is already linked.' => 'Kann nicht mit einem Kunden oder Lieferanten verbunden werden, der schon verbunden ist.',
   'Can only delete the "Storno zu" part of the cancellation pair.' => 'Löschen von R(S) Rechnung nicht erlaubt. Löschen der entsprechenden "Storno zu" Gutschrift reaktiviert diese Rechnung wieder.',
   'Can only save template if amounts,i.e. 1 for debit and credit are set.' => 'Kann die Vorlage nicht speichern. Es wird mindestens ein Betrag im Soll und im Haben benötigt (bspw. 1), damit bspw. Beträge aus Kontoauszügen korrekt gesetzt werden können.',
   'Can\'t change data of a linked item. Part: ' => 'Daten von verlinkten Artikeln sind unveränderbar. Artikel:',
