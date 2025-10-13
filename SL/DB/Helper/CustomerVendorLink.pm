@@ -94,6 +94,7 @@ sub _linked_customer_vendor {
     $self->linked_customer_vendor_rel([ grep defined, $new_other ]);
   }
 
+  return unless $self->linked_customer_vendor_rel;
   $self->linked_customer_vendor_rel->[0];
 }
 
