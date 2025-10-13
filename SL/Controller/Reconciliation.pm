@@ -281,7 +281,7 @@ sub _get_proposals {
     #add proposal if something in acc_trans was found
     #otherwise try to find another entry in acc_trans and add it
     # for linked_records we allow a slight difference / imprecision, for acc_trans search we don't
-    if (scalar @{ $proposal->{BB} } and abs($check_sum) <= 0.01 ) {
+    if (scalar @{ $proposal->{BB} } and abs($check_sum) < 0.005 ) {
       push @proposals, $proposal;
     } elsif (!scalar @{ $proposal->{BB} }) {
       # use account_number and iban for matching remote account number
