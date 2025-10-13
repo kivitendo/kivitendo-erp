@@ -223,6 +223,27 @@ sub _save {
     && $::instance_conf->get_contact_departments_use_textfield
     && SL::DB::Manager::ContactDepartment->get_all_count(where => [description => $self->{contact}->cp_abteilung]) == 0;
 
+  # handle customer_vendor link
+  if ($::form->{customer_vendor_link} eq 'none' && $self->{cv}->linked_customer_vendor) {
+    $self->{cv}->linked_customer_vendor_rel([]);
+  }
+  if ($::form->{customer_vendor_link} eq 'existing') {
+    if (!$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id)) {
+      $self->{cv}->linked_customer_vendor($::form->{customer_vendor_link_id});
+
+      # check whether this is already linked to some other
+      # this is only okay if it's self->cv, otherwise throw an error
+      if ($self->{cv}->linked_customer_vendor->linked_customer_vendor && (!$self->{cv}->id || $self->{cv}->id != $self->{cv}->linked_customer_vendor->linked_customer_vendor->id)) {
+        $::form->error($::locale->text('Can not link to a customer/vendor that is already linked.'));
+      }
+    }
+  }
+  if ($::form->{customer_vendor_link} eq 'new') {
+    my $new_cv = $self->is_vendor ? SL::DB::Customer->new : SL::DB::Vendor->new;
+    $self->{cv}->linked_customer_vendor($new_cv);
+    $self->{cv}->sync_linked_customer_vendor;
+  }
+
   my $db = $self->{cv}->db;
 
   $db->with_transaction(sub {
@@ -248,21 +269,6 @@ sub _save {
 
     my $ustid_taxnumber_error = $self->_check_ustid_taxnumber_unique;
     $::form->error($ustid_taxnumber_error) if $ustid_taxnumber_error;
-
-    # handle customer_vendor link
-    if ($::form->{customer_vendor_link} eq 'none' && $self->{cv}->linked_customer_vendor) {
-      $self->{cv}->linked_customer_vendor_rel([]);
-    }
-    if ($::form->{customer_vendor_link} eq 'existing') {
-      if (!$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id)) {
-        $self->{cv}->linked_customer_vendor($::form->{customer_vendor_link_id});
-      }
-    }
-    if ($::form->{customer_vendor_link} eq 'new') {
-      my $new_cv = $self->is_vendor ? SL::DB::Customer->new : SL::DB::Vendor->new;
-      $self->{cv}->linked_customer_vendor($new_cv);
-      $self->{cv}->sync_linked_customer_vendor;
-    }
 
     $self->{cv}->save(cascade => 1);
 
