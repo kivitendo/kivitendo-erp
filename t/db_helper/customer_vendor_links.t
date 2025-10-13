@@ -231,6 +231,27 @@ $v->load;
 
 ok $v->linked_customer->obsolete, "obsolete got synced";
 
+
+# special cases
+
+# add by id and then access as object
+$c = new_customer()->save;
+$v = new_vendor()->save;
+$c->linked_vendor($v->id);
+ok $c->linked_vendor, "access after id works";
+
+$c = new_customer()->save;
+$v = new_vendor()->save;
+$c->linked_vendor($v->id);
+is $c->linked_vendor->linked_customer, undef, "linked of linked is not set until save";
+$c->save;
+
+# deep relations don't get reloaded on a simple load, so reconstruct the object
+my $c_id = $c->id;
+$c = SL::DB::Customer->new(id => $c_id)->load;
+
+ok $c->linked_vendor->linked_customer, "linked of linked is set after save";
+
 # done
 
 done_testing();
