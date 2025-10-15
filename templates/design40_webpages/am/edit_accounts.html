@@ -163,6 +163,12 @@ $(function() {
       <td><select name="pos_er" class="wi-wider">[% select_er %]</select></td>
     </tr>
   [% END %]
+  [% IF feature_erfolgsrechnung_detailed %]
+    <tr>
+      <th>[% 'Detailed Swiss Income Statement' | $T8 %]</th>
+      <td>[% L.select_tag('pos_er_detailed', er_detailed_data, class => "wi-wider") %]</td>
+    </tr>
+  [% END %]
   [% IF feature_eurechnung %]
     <tr>
       <th>[% 'EUER' | $T8 %]</th>
