@@ -8,6 +8,11 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
+- Verbundene Kunden/Lieferanten
+  Man kann jetzt Kunden und Lieferanten verbinden und so Geschäftspartner
+  abbilden, die in beiden Rollen auftreten. Dabei werden dann die Name,
+  Währung, Steuergruppe und Ungültig zwischen beiden synchronisiert.
+
 
 Kleinere neue Features und Detailverbesserungen:
 
@@ -33,7 +38,7 @@ Kleinere neue Features und Detailverbesserungen:
   "Belegausdruck mitschicken: bevorzuge Erzeugung eines neuen Belegs"
   standardmäßig ein neuer Belegausdruck erstellt und verschickt (zuvor
   wurde standardmäßig der zuletzt erstellte Belegausdruck verwendet).
-  
+
 - Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
   wenn ein Preisfaktor gesetzt ist.
 

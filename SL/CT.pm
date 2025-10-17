@@ -56,6 +56,7 @@ sub search {
   my $dbh = $form->dbconnect($myconfig);
 
   my $cv = $form->{db} eq "customer" ? "customer" : "vendor";
+  my $vc = $form->{db} eq "customer" ? "vendor" : "customer";
   my $join_records = $form->{l_invnumber} || $form->{l_ordnumber} || $form->{l_quonumber};
 
   my $where = "1 = 1";
@@ -306,7 +307,7 @@ sub search {
   }
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-    qq|  pt.description as payment, tz.description as taxzone | .
+    qq|  pt.description as payment, tz.description as taxzone, vc.name as linked_customer_vendor, vc.id as linked_customer_vendor_id | .
     $pg_select .
     $main_cp_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
@@ -315,6 +316,8 @@ sub search {
     qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
     qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+    qq|LEFT JOIN customer_vendor_links cvl ON (ct.id = cvl.${cv}_id) | .
+    qq|LEFT JOIN $vc vc ON (vc.id = cvl.${vc}_id) | .
     $pg_join .
     qq|WHERE $where|;
 
