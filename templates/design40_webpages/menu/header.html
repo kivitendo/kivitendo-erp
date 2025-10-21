@@ -18,6 +18,12 @@
    <span class="frame-header-element frame-header-right" id="ajax-spinner">
       <img src="image/spinner-white.gif" alt="[% LxERP.t8('Loading...') %]">
    </span>
+   <span class="frame-header-element frame-header-right" id="flash-number">
+     <span class="layout-flash-number">0</span>
+   </span>
+   <span class="frame-header-element frame-header-right" id="flash-toggle">
+     <span class="layout-flash-toggle">Flash</span>
+   </span>
    <div class="frame-header-quicksearch">
   [% FOREACH search = quick_search.enabled_modules %]
      <span class='frame-header-quicksearch'><input type="text" id="top-quick-search-[% search.name %]" module="[% search.name %]" placeholder="[% search.description_field %]" maxlength="20" class="quick-search"></span>
