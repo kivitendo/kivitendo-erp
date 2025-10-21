@@ -25,6 +25,11 @@ namespace('kivi.ActionBar', function(k){
       var toggler = function(event){
         $('div.' + CLASSES.combobox + '[id!=' + obj.combobox.id + ']').removeClass(CLASSES.active);
         $(obj.combobox).toggleClass(CLASSES.active);
+
+        // make sure that no active Flash messages interact with the comboboxes
+        if (kivi.Flash)
+          kivi.Flash.hide_all();
+
         event.stopPropagation();
       };
 
