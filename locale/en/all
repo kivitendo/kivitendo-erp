@@ -3716,6 +3716,7 @@ $self->{texts} = {
   'Show weights'                => '',
   'Show your TODO list after logging in' => '',
   'Show »not delivered qty/value« column in sales and purchase orders' => '',
+  'Show/Hide flash messages'    => '',
   'Signature'                   => '',
   'Since bin is not enforced in the parts data, please specify a bin where goods without a specified bin will be put.' => '',
   'Single quotes'               => '',
