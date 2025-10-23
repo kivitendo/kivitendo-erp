@@ -70,6 +70,7 @@ namespace("kivi.Flash", function(ns) {
 
     ns.show();
     ns.update_indicator();
+    ns.shake_bell();
   };
 
   ns.display_flash_detail = function(type, message) {
@@ -119,6 +120,7 @@ namespace("kivi.Flash", function(ns) {
   };
   ns.hide_all = function() {
     $('#layout_flash_container').slideUp(100);
+    ns.shake_bell();
   };
   ns.show = function() {
     if (kivi.Materialize) return; // materialize doesn't have a show/hide all
@@ -136,6 +138,9 @@ namespace("kivi.Flash", function(ns) {
   };
   ns.update_indicator = function() {
     $('.layout-flash-number').html($('#layout_flash_container .layout-flash-message').length);
+  }
+  ns.shake_bell = function() {
+    $('.layout-flash-toggle img').addClass('shake').on('animationend', () => $('.layout-flash-toggle img').removeClass('shake'));
   }
 
   ns.reinit_widgets = function() {

@@ -109,9 +109,26 @@
     .layout-flash-toggle {
         cursor: pointer;
     }
+    .layout-flash-toggle img {
+        transform-origin: top center;
+    }
+    .layout-flash-toggle img.shake {
+        animation: shake-bell 0.6s ease-in-out;
+    }
     #flash-number {
       padding-left: 2px;
     }
+
+    @keyframes shake-bell {
+      0% { transform: rotate(0); }
+      15% { transform: rotate(10deg); }
+      30% { transform: rotate(-10deg); }
+      45% { transform: rotate(8deg); }
+      60% { transform: rotate(-8deg); }
+      75% { transform: rotate(4deg); }
+      100% { transform: rotate(0); }
+    }
+
 
     // --------------------------------------
     // AJAX-SPINNER (Beach Ball)
