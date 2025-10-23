@@ -118,7 +118,7 @@ namespace("kivi.Flash", function(ns) {
     $('#layout_flash_container .layout-flash-message').show();
   };
   ns.hide_all = function() {
-    $('#layout_flash_container').hide();
+    $('#layout_flash_container').slideUp(100);
   };
   ns.show = function() {
     if (kivi.Materialize) return; // materialize doesn't have a show/hide all
@@ -153,4 +153,7 @@ $(function() {
 
   $('.layout-flash-toggle').click(kivi.Flash.toggle);
   $('#layout_flash_container').on('click', '.layout-flash-remove', kivi.Flash.remove_entry);
+
+  // hide flash if main menu is clicked
+  $('#main_menu_div').click(kivi.Flash.hide_all);
 });
