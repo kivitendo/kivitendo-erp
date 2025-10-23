@@ -118,6 +118,12 @@ namespace("kivi.Flash", function(ns) {
     $('#layout_flash_container').show();
     $('#layout_flash_container .layout-flash-message').show();
   };
+  ns.hide_all_with_bell = function() {
+    if ($('#layout_flash_container .layout-flash-message:visible').length > 0) {
+      ns.hide_all();
+      ns.shake_bell();
+    }
+  };
   ns.hide_all = function() {
     $('#layout_flash_container').slideUp(100);
     ns.shake_bell();
@@ -140,7 +146,7 @@ namespace("kivi.Flash", function(ns) {
     $('.layout-flash-number').html($('#layout_flash_container .layout-flash-message').length);
   }
   ns.shake_bell = function() {
-    $('.layout-flash-toggle img').addClass('shake').on('animationend', () => $('.layout-flash-toggle img').removeClass('shake'));
+    $('.layout-flash-toggle img').addClass('shake').one('animationend', () => $('.layout-flash-toggle img').removeClass('shake'));
   }
 
   ns.reinit_widgets = function() {
@@ -160,5 +166,5 @@ $(function() {
   $('#layout_flash_container').on('click', '.layout-flash-remove', kivi.Flash.remove_entry);
 
   // hide flash if main menu is clicked
-  $('#main_menu_div').click(kivi.Flash.hide_all);
+  $('#main_menu_div').click(kivi.Flash.hide_all_with_bell);
 });
