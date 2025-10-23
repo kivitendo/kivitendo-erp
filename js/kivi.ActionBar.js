@@ -28,7 +28,7 @@ namespace('kivi.ActionBar', function(k){
 
         // make sure that no active Flash messages interact with the comboboxes
         if (kivi.Flash)
-          kivi.Flash.hide_all();
+          kivi.Flash.hide_all_with_bell();
 
         event.stopPropagation();
       };
