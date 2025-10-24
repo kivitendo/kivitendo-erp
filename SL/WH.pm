@@ -367,10 +367,10 @@ sub get_warehouse_journal {
      };
 
   $select_tokens{'in_out'} = {
-    "bin_from"       => "(CASE WHEN tt.direction = 'out' THEN b1.description ELSE '-' END)",
-    "bin_to"         => "(CASE WHEN tt.direction = 'in'  THEN b1.description ELSE '-' END)",
-    "warehouse_from" => "(CASE WHEN tt.direction = 'out' THEN w1.description ELSE '-' END)",
-    "warehouse_to"   => "(CASE WHEN tt.direction = 'in'  THEN w1.description ELSE '-' END)",
+    "bin_from"       => "(CASE WHEN tt.direction = 'out' THEN b1.description ELSE '$filter{na}' END)",
+    "bin_to"         => "(CASE WHEN tt.direction = 'in'  THEN b1.description ELSE '$filter{na}' END)",
+    "warehouse_from" => "(CASE WHEN tt.direction = 'out' THEN w1.description ELSE '$filter{na}' END)",
+    "warehouse_to"   => "(CASE WHEN tt.direction = 'in'  THEN w1.description ELSE '$filter{na}' END)",
   };
 
   $form->{l_classification_id}  = 'Y';
