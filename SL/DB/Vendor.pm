@@ -38,9 +38,8 @@ __PACKAGE__->meta->add_relationship(
     query_args   => [ module  => 'CT' ],
   },
   contacts => {
-    type         => 'one to many',
-    class        => 'SL::DB::Contact',
-    column_map   => { id      => 'cp_cv_id' },
+    type         => 'many to many',
+    map_class    => 'SL::DB::VendorContact',
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
   linked_customer_vendor_rel => {
