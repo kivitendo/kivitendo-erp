@@ -9,6 +9,19 @@ use SL::DB::Helper::CustomVariables (
   cvars_alias => 1,
 );
 
+__PACKAGE__->meta->add_relationship(
+  customer => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::CustomerContact',
+    manager_args => { sort_by => 'customer.customernumber' },
+  },
+  vendor => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::VendorContact',
+    manager_args => { sort_by => 'vendor.vendornumber' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 sub used {
