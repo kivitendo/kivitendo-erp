@@ -682,10 +682,11 @@ sub customer_details {
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
          cu.name AS currency, ctc.$country_description_key AS country, cpc.$country_description_key AS cp_country
        FROM customer ct
-       LEFT JOIN currencies cu  ON (ct.currency_id = cu.id)
-       LEFT JOIN contacts   cp  ON (ct.id = cp.cp_cv_id)
-       LEFT JOIN countries  ctc ON (ct.country_id = ctc.id)
-       LEFT JOIN countries  cpc ON (cp.cp_country_id = cpc.id)
+       LEFT JOIN currencies        cu  ON (ct.currency_id = cu.id)
+       LEFT JOIN customer_contacts cc  ON (ct.id = cc.customer_id)
+       LEFT JOIN contacts          cp  ON (ct.id = cp.cp_cv_id)
+       LEFT JOIN countries         ctc ON (ct.country_id = ctc.id)
+       LEFT JOIN countries         cpc ON (cp.cp_country_id = cpc.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
