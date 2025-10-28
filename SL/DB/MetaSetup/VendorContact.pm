@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('vendor_contacts');
 __PACKAGE__->meta->columns(
   contact_id => { type => 'integer', not_null => 1 },
   id         => { type => 'serial', not_null => 1 },
+  main       => { type => 'boolean', default => 'false', not_null => 1 },
   vendor_id  => { type => 'integer', not_null => 1 },
 );
 

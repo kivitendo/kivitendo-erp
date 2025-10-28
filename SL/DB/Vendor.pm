@@ -41,6 +41,11 @@ __PACKAGE__->meta->add_relationship(
     map_class    => 'SL::DB::VendorContact',
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
+  main_contact => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::VendorContact',
+    query_args   => [ 'vendor_contacts.main' => 1 ],
+  },
 );
 
 __PACKAGE__->meta->initialize;

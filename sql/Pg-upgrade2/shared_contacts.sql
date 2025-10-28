@@ -21,6 +21,7 @@ create table customer_contacts (
   id serial primary key,
   customer_id integer references customer(id)    not null,
   contact_id  integer references contacts(cp_id) not null,
+  main boolean not null default false,
 
   unique(customer_id, contact_id)
 );
@@ -29,17 +30,22 @@ create table vendor_contacts (
   id serial primary key,
   vendor_id  integer references vendor(id)      not null,
   contact_id integer references contacts(cp_id) not null,
+  main boolean not null default false,
 
   unique(vendor_id, contact_id)
 );
 
+-- index for customer/vendor fkeys
 create index on customer_contacts(customer_id);
 create index on vendor_contacts(vendor_id);
 
+-- constraint so that only one contact can be main
+create unique index on customer_contacts(customer_id) where main;
+create unique index on vendor_contacts(vendor_id)     where main;
+
 -- migrate old contacts
+insert into customer_contacts (customer_id, contact_id, main)
+  select id, cp_id, cp_main from contacts inner join customer on (id = cp_cv_id);
 
-insert into customer_contacts (customer_id, contact_id)
-  select id, cp_id from contacts inner join customer on (id = cp_cv_id);
-
-insert into vendor_contacts (vendor_id, contact_id)
-  select id, cp_id from contacts inner join vendor on (id = cp_cv_id);
+insert into vendor_contacts (vendor_id, contact_id, main)
+  select id, cp_id, cp_main from contacts inner join vendor on (id = cp_cv_id);
