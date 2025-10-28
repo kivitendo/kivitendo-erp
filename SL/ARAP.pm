@@ -53,7 +53,10 @@ sub close_orders_if_billed {
   my @oe_ids = keys %oe_id_map;
 
   # No orders found? Nothing to do then, so let's return.
-  return $main::lxdebug->leave_sub unless @oe_ids;
+  unless(@oe_ids) {
+    $main::lxdebug->leave_sub;
+    return ();
+  }
 
   my $all_units = AM->retrieve_all_units;
 
@@ -155,7 +158,7 @@ sub close_orders_if_billed {
   $h_ordered->finish;
 
   # Close orders that have been billed fully.
-  if (scalar @close_oe_ids) {
+  if (scalar @close_oe_ids && !$params{dry_run}) {
     SL::DB->client->with_transaction(sub {
       my $query = qq|UPDATE oe SET closed = TRUE WHERE id IN (| . join(', ', ('?') x scalar @close_oe_ids) . qq|)|;
       do_query($form, $dbh, $query, @close_oe_ids);
@@ -164,6 +167,7 @@ sub close_orders_if_billed {
   }
 
   $main::lxdebug->leave_sub();
+  return @close_oe_ids;
 }
 
 1;
