@@ -50,6 +50,11 @@ __PACKAGE__->meta->add_relationship(
     map_class    => 'SL::DB::CustomerContact',
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
+  main_contact => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::CustomerContact',
+    query_args   => [ 'customer_contacts.main' => 1 ],
+  },
   linked_customer_vendor_rel => {
     type       => 'many to many',
     map_class  => 'SL::DB::CustomerVendorLink',
