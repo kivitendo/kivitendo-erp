@@ -60,6 +60,10 @@ sub close_orders_if_billed {
 
   my $all_units = AM->retrieve_all_units;
 
+  my $exclude   = @{$params{exclude_partsgroup_ids} || []}
+                ? sprintf 'AND NOT p.partsgroup_id IN (%s)', join ', ', ('?') x scalar(@{$params{exclude_partsgroup_ids} || []})
+                : '';
+
   my $qtyfactor = $params{table} eq 'ap' ? '* -1' : '';
   my $q_billed  = qq|SELECT i.parts_id, i.qty ${qtyfactor} AS qty, i.unit, p.unit AS partunit
                      FROM invoice i
@@ -71,7 +75,8 @@ sub close_orders_if_billed {
                       FROM orderitems oi
                       LEFT JOIN parts p ON (oi.parts_id = p.id)
                       WHERE oi.trans_id = ?
-                      AND not oi.optional|;
+                      AND not oi.optional
+                      ${exclude}|;
   my $h_ordered = prepare_query($form, $dbh, $q_ordered);
 
   my @close_oe_ids;
@@ -113,7 +118,7 @@ sub close_orders_if_billed {
     # Retrieve all positions for this order. Calculate the ordered quantity for each position.
     my %ordered = ();
 
-    do_statement($form, $h_ordered, $q_ordered, $oe_id);
+    do_statement($form, $h_ordered, $q_ordered, $oe_id, @{$params{exclude_partsgroup_ids} || []});
 
     while (my $ref = $h_ordered->fetchrow_hashref()) {
       $ref->{baseqty} = $ref->{qty} * AM->convert_unit($ref->{unit}, $ref->{partunit}, $all_units);
