@@ -66,11 +66,18 @@ sub run {
     }
   }
 
+  my @sales_order_numbers_closed =
+    @$sales_order_ids_closed ? map { $_->ordnumber } @{SL::DB::Manager::Order->get_all(where => [ id => $sales_order_ids_closed ])}
+    : ();
+  my @purchase_order_numbers_closed =
+    @$purchase_order_ids_closed ? map { $_->ordnumber } @{SL::DB::Manager::Order->get_all(where => [ id => $purchase_order_ids_closed ])}
+    : ();
+
   return $dry_run
     ? t8('Sales order ids not yet closed: #1 Purchase order ids not yet closed: #2',
-      join(', ', @$sales_order_ids_closed), join(', ', @$purchase_order_ids_closed))
+      join(', ', @sales_order_numbers_closed), join(', ', @purchase_order_numbers_closed))
     : t8('Sales order ids closed: #1 Purchase order ids closed: #2',
-      join(', ', @$sales_order_ids_closed), join(', ', @$purchase_order_ids_closed));
+      join(', ', @sales_order_numbers_closed), join(', ', @purchase_order_numbers_closed));
 }
 
 1;
