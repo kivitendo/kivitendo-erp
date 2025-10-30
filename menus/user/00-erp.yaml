@@ -758,6 +758,12 @@
   order: 200
   params:
     action: BankImport/upload_mt940
+- parent: cash_bank_import_menu
+  id: cash_bank_import_camt053
+  name: Camt.053 format
+  order: 300
+  params:
+    action: BankImport/upload_camt053
 - parent: cash
   id: cash_bank_transactions_mt940
   name: Bank transactions MT940

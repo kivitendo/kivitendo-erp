@@ -1,0 +1,20 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE T8 %]
+
+<h1>[% FORM.title %]</h1>
+
+<div class="wrapper">
+  <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
+    <table class="tbl-horizontal">
+    <caption>[% "Import a Camt.053 file:" | $T8 %]</caption>
+      <tbody>
+        <tr>
+          <th>[% LxERP.t8("Camt.053 file") %]:</th>
+          <td>[% L.input_tag('file', '', type='file', accept='*') %]</td>
+        </tr>
+    <tbody>
+    </table>
+  </form>
+</div>
