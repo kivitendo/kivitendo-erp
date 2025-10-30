@@ -127,4 +127,9 @@ sub default_billing_address {
   return first { $_->default_address } @{ $self->additional_billing_addresses };
 }
 
+sub detach_contact {
+  my ($self, $contact) = @_;
+  $self->contacts([ grep { $_->id != $contact->id } $self->contacts ]);
+}
+
 1;

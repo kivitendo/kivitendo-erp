@@ -97,4 +97,9 @@ EOSQL
   return SL::DB::Chart->load_cached($chart_id);
 }
 
+sub detach_contact {
+  my ($self, $contact) = @_;
+  $self->contacts([ grep { $_->id != $contact->id } $self->contacts ]);
+}
+
 1;
