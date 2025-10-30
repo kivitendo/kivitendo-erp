@@ -40,11 +40,6 @@ sub used {
        + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ]);
 }
 
-sub detach {
-  $_[0]->cp_cv_id(undef);
-  $_[0];
-}
-
 sub full_name {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;
