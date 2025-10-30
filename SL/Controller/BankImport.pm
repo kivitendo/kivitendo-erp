@@ -12,6 +12,7 @@ use SL::DB::BankTransaction;
 use SL::DB::Default;
 use SL::Helper::Flash;
 use SL::MT940;
+use SL::Camt053;
 use SL::SessionFile::Random;
 
 use Rose::Object::MakeMethods::Generic
@@ -27,6 +28,14 @@ sub action_upload_mt940 {
 
   $self->setup_upload_mt940_action_bar;
   $self->render('bank_import/upload_mt940', title => $::locale->text('MT940 import'));
+}
+
+
+sub action_upload_camt053 {
+  my ($self, %params) = @_;
+
+  $self->setup_upload_camt053_action_bar;
+  $self->render('bank_import/upload_camt053', title => $::locale->text('Camt.053 import'));
 }
 
 sub action_import_mt940_preview {
@@ -45,11 +54,33 @@ sub action_import_mt940_preview {
 
   $self->charset($::form->{charset});
   $self->file_name($file->file_name);
-  $self->parse_and_analyze_transactions;
+  $self->parse_and_analyze_transactions(mode => 'mt940');
 
   $self->setup_upload_mt940_preview_action_bar;
   $self->render('bank_import/import_mt940', title => $::locale->text('MT940 import preview'), preview => 1);
 }
+
+sub action_import_camt053_preview {
+  my ($self, %params) = @_;
+
+  if (!$::form->{file}) {
+    flash_later('error', $::locale->text('You have to upload an Camt.053 file to import.'));
+    return $self->redirect_to(action => 'upload_camt053');
+  }
+
+  die "missing file for action import_camt053_preview" unless $::form->{file};
+
+  my $file = SL::SessionFile::Random->new(mode => '>');
+  $file->fh->print($::form->{file});
+  $file->fh->close;
+
+  $self->file_name($file->file_name);
+  $self->parse_and_analyze_transactions(mode => 'camt053');
+
+  $self->setup_upload_camt053_preview_action_bar;
+  $self->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import preview'), preview => 1);
+}
+
 
 sub action_import_mt940 {
   my ($self, %params) = @_;
@@ -58,10 +89,22 @@ sub action_import_mt940 {
 
   $self->file_name($::form->{file_name});
   $self->charset($::form->{charset});
-  $self->parse_and_analyze_transactions;
+  $self->parse_and_analyze_transactions(mode => 'mt940');
   $self->import_transactions;
 
   $self->render('bank_import/import_mt940', title => $::locale->text('MT940 import result'));
+}
+
+sub action_import_camt053 {
+  my ($self, %params) = @_;
+
+  die "missing file for action import_camt053" unless $::form->{file_name};
+
+  $self->file_name($::form->{file_name});
+  $self->parse_and_analyze_transactions(mode => 'camt053');
+  $self->import_transactions;
+
+  $self->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import result'));
 }
 
 sub parse_and_analyze_transactions {
@@ -73,7 +116,11 @@ sub parse_and_analyze_transactions {
 
   my $currency_id = SL::DB::Default->get->currency_id;
 
-  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } SL::MT940->parse($self->file_name, charset => $self->charset) ]);
+  my @transactions = $params{mode} eq 'mt940'   ? SL::MT940->parse($self->file_name, charset => $self->charset)
+                   : $params{mode} eq 'camt053' ? SL::Camt053->parse_file($self->file_name)
+                   : die "unknown mode $params{mode}";
+
+  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } @transactions ]);
 
   foreach my $transaction (@{ $self->transactions }) {
     $transaction->{bank_account}   = $self->bank_accounts->{ make_bank_account_idx($transaction->{local_bank_code}, $transaction->{local_account_number}) };
@@ -223,6 +270,35 @@ sub setup_upload_mt940_preview_action_bar {
       action => [
         $::locale->text('Import'),
         submit    => [ '#form', { action => 'BankImport/import_mt940' } ],
+        accesskey => 'enter',
+        disabled  => $self->statistics->{to_import} ? undef : $::locale->text('No entries can be imported.'),
+      ],
+    );
+  }
+}
+
+sub setup_upload_camt053_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Preview'),
+        submit    => [ '#form', { action => 'BankImport/import_camt053_preview' } ],
+        accesskey => 'enter',
+      ],
+    );
+  }
+}
+
+sub setup_upload_camt053_preview_action_bar {
+  my ($self) = @_;
+
+  for my $bar ($::request->layout->get('actionbar')) {
+    $bar->add(
+      action => [
+        $::locale->text('Import'),
+        submit    => [ '#form', { action => 'BankImport/import_camt053' } ],
         accesskey => 'enter',
         disabled  => $self->statistics->{to_import} ? undef : $::locale->text('No entries can be imported.'),
       ],
