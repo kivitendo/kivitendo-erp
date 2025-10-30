@@ -130,7 +130,7 @@ sub search {
   }
 
   if ($form->{cp_name}) {
-    $where .= " AND ct.id IN (SELECT cp_cv_id FROM contacts WHERE lower(cp_name) LIKE lower(?))";
+    $where .= " AND ct.id IN (SELECT cc.customer_id FROM customer_contacts cc inner join contacts cp on cc.contact_id = cp.cp_id WHERE lower(cp.cp_name) LIKE lower(?))";
     push @values, like($form->{cp_name});
   }
 
@@ -284,7 +284,8 @@ sub search {
     $where .= qq| AND (ct.phone ~* ? OR
                        ct.fax   ~* ? OR
                        ct.id    IN
-                         (SELECT cp_cv_id FROM contacts
+                         (SELECT ${cv}_id FROM ${cv}_contacts
+                          LEFT JOIN contacts ON cp_id = contact_id
                           WHERE cp_phone1      ~* ? OR
                                 cp_phone2      ~* ? OR
                                 cp_fax         ~* ? OR
@@ -317,7 +318,9 @@ sub search {
   my $main_cp_select = '';
   if ($form->{l_main_contact_person}) {
     $main_cp_select =  qq/, (SELECT concat(cp.cp_givenname, ' ', cp.cp_name, ' | ', cp.cp_email, ' | ', cp.cp_phone1)
-                              FROM contacts cp WHERE ct.id=cp.cp_cv_id AND cp.cp_main LIMIT 1)
+                              FROM ${cv}_contacts
+                              LEFT JOIN contacts cp ON cp_id = contact_id
+                              WHERE ct.id=${cv}_id AND main LIMIT 1)
                               AS main_contact_person /;
   }
   my $query =
@@ -547,8 +550,14 @@ sub search_contacts {
     }
     add_token(\@where_tokens, \@values, col => "COALESCE(c.name, v.name)", val => $filter->{vcname}, method => 'ILIKE', esc => 'substr') if $filter->{vcname};
 
-    push @where_tokens, 'COALESCE(c.obsolete, v.obsolete) is FALSE' if $filter->{status} eq 'active';
-    push @where_tokens, 'cp.cp_cv_id IS NULL'                       if $filter->{status} eq 'orphaned';
+    push @where_tokens, '
+      (EXISTS(SELECT COUNT(*) FROM customer_contacts WHERE contact_id = cp_id) OR
+       EXISTS(SELECT COUNT(*) FROM vendor_contacts WHERE contact_id = cp_id))
+    ' if $filter->{status} eq 'active';
+    push @where_tokens, '
+      (NOT EXISTS(SELECT COUNT(*) FROM customer_contacts WHERE contact_id = cp_id) AND
+       NOT EXISTS(SELECT COUNT(*) FROM vendor_contacts WHERE contact_id = cp_id))
+    ' if $filter->{status} eq 'orphaned';
   }
 
   my $where = @where_tokens ? 'WHERE ' . join ' AND ', @where_tokens : '';
@@ -562,9 +571,11 @@ sub search_contacts {
                        CASE WHEN c.name IS NULL THEN 'vendor' ELSE 'customer' END AS db,
                        countries.$country_description_key AS cp_country
                      FROM contacts cp
-                     LEFT JOIN countries ON cp.cp_country_id = countries.id
-                     LEFT JOIN customer c ON (cp.cp_cv_id = c.id)
-                     LEFT JOIN vendor v   ON (cp.cp_cv_id = v.id)
+                     LEFT JOIN countries            ON (cp.cp_country_id = countries.id)
+                     LEFT JOIN customer_contacts cc ON (cc.contact_id = cp.cp_id)
+                     LEFT JOIN customer c           ON (cc.customer_id = c.id)
+                     LEFT JOIN vendor_contacts vc   ON (vc.contact_id = cp.cp_id)
+                     LEFT JOIN vendor v             ON (vc.vendor_id = v.id)
                      $where
                      ORDER BY $order_by|;
 
