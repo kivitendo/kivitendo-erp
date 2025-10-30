@@ -244,7 +244,7 @@ body > div.login .message{
   top: 103px; // position below title bar 28px (header) + 32px (menu) + 42.6px (title) (+ 5px padding included in the flash message)
   right: 20px;
   min-width: 30%;
-  height: 100vh;
+  max-height: calc(100vh - 103px);
   animation: fadein .5s;
   overflow-y: scroll;
 }
