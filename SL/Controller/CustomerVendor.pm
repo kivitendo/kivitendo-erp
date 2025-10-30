@@ -496,8 +496,8 @@ sub action_delete_contact {
 
     $db->with_transaction(sub {
       if ( $self->{contact}->used ) {
-        $self->{contact}->detach();
-        $self->{contact}->save();
+        $self->{cv}->detach_contact($self->{cv});
+        $self->{cv}->save();
         SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
       } else {
         $self->{contact}->delete(cascade => 1);
