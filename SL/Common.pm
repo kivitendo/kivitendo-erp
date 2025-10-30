@@ -286,7 +286,7 @@ sub get_vc_details {
     $form->{ADDITIONAL_BILLING_ADDRESSES} = selectall_hashref_query($form, $dbh, $query, $vc_id);
   }
 
-  $query = qq|SELECT * FROM contacts WHERE (cp_cv_id = ?)|;
+  $query = qq|SELECT * FROM contacts LEFT JOIN ${vc}_contacts ON contact_id = cp_id WHERE (${vc}_id = ?)|;
   $form->{CONTACTS} = selectall_hashref_query($form, $dbh, $query, $vc_id);
 
   # Only show default pricegroup for customer, not vendor, which is why this is outside the main query
