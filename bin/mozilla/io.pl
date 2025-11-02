@@ -333,7 +333,8 @@ sub display_row {
     $subtotal_active ^= $form->{"subtotal_$i"};
 
     # quick delete single row
-    $column_data{runningnumber}  = q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
+    $column_data{runningnumber} = SL::Presenter::Tag::checkbox_tag('', value => $i, class => 'deletion_checkbox tooltipster-html', title => t8('delete'));
+    $column_data{runningnumber} .= q|<a onclick= "$('#partnumber_| . $i . q|').val(''); $('#update_button').click();">| .
                                    q|<img class="icon-delete" alt="| . $locale->text('Remove') . q|"></a> |;
     $column_data{runningnumber} .= $cgi->textfield(-name => "runningnumber_$i", -id => "runningnumber_$i", -size => 5,  -value => $position);    # HuT
 

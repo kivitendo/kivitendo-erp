@@ -10,13 +10,14 @@
 -->
 <table class="tbl-list footer-only full-width">
   <colgroup>
-    <col style="width: 75%;">
+    <col style="width: 10%;">
+    <col style="width: 65%;">
     <col style="width: 15%;">
     <col style="width: 10%;">
   </colgroup>
   <tfoot>
-  [% UNLESS taxincluded %]
   <tr>
+    <td>[%- P.button_tag('kivi.SalesPurchase.delete_positions()', LxERP.t8('Delete marked positions')) %]</td>
     <td>
       [% IF show_weight %]
         <div class="info-block"><!-- PENDENT: vereinheitlichen -->
@@ -24,7 +25,12 @@
           <span class="info-value">[% LxERP.format_amount(totalweight) %] [% HTML.escape(weightunit) %]</span>
         </div>
       [% END %]
-    </td><!-- <td></td><td></td><td></td><td></td><td></td><td></td><td></td> -->
+    </td>
+    <td colspan="2"></td>
+  </tr>
+  [% UNLESS taxincluded %]
+  <tr>
+    <td colspan="2"></td>
     <th>[% 'Subtotal' | $T8 %]</th>
     <td class="numeric">[% LxERP.format_amount(invsubtotal, 2) %]</td>
   </tr>
@@ -37,13 +43,13 @@
     [% SET total_ref       = item _ '_total' %]
     [% SET netto_ref       = item _ '_netto' %]
     <tr>
-      <td></td>
+      <td colspan="2"></td>
       <th>[% 'Including' | $T8 %] [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
       <td class="numeric">[% LxERP.format_amount($total_ref, 2) %]</td>
     </tr>
     [% IF taxincluded %]
       <tr>
-        <td></td>
+        <td colspan="2"></td>
         <th>[% 'Net amount' | $T8 %]</th>
         <td class="numeric">[% LxERP.format_amount($netto_ref, 2) %]</td>
       </tr>
@@ -51,18 +57,18 @@
   [% END %]
   [% IF rounding %]
     <tr>
-    <td></td>
+    <td colspan="2"></td>
       <th>[% 'Rounding' | $T8 %]</th>
       <td class="numeric">[% LxERP.format_amount(rounding, 2) %]</td>
     </tr>
   [% END %]
   <tr>
-    <td></td>
+    <td colspan="2"></td>
     <th>[% 'Total' | $T8 %]</th>
     <td class="numeric">[% LxERP.format_amount(invtotal, 2) %]</td>
   </tr>
   <tr>
-    <td></td>
+    <td colspan="2"></td>
     <th>[% 'Ertrag' | $T8 %]</th>
     <td class="numeric">
       [% LxERP.format_amount(marge_total, 2, 0) %]
@@ -70,7 +76,7 @@
     </td>
   </tr>
   <tr>
-    <td></td>
+    <td colspan="2"></td>
     <th>[% 'Ertrag prozentual' | $T8 %]</th>
     <td class="numeric">
       [% LxERP.format_amount(marge_percent, 2, 0) %] %
