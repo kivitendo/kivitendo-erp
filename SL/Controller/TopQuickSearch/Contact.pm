@@ -38,7 +38,10 @@ SQL
         cp_givenname => { ilike => like($::form->{term}) },
         cp_email     => { ilike => like($::form->{term}) },
       ],
-      cp_cv_id => [ \$cv_query ],
+      or => [
+        "customer.id" => [ \$cv_query ],
+        "vendor.id"   => [ \$cv_query ]
+      ],
     ],
     limit => 10,
     sort_by => 'cp_name',
@@ -58,7 +61,11 @@ sub select_autocomplete {
 
   my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{id});
 
-  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $contact->cp_cv_id, contact_id => $contact->cp_id, db => db_for_contact($contact), fragment => 'contacts');
+  my @customers = $contact->customers;
+  my @vendors   = $contact->vendors;
+  my @cv = (@customers, @vendors);
+
+  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $cv[0]->id, contact_id => $contact->cp_id, db => $cv[0]->meta->table, fragment => 'contacts');
 }
 
 sub do_search {
@@ -77,19 +84,6 @@ sub do_search {
     $::form->{id} = $results->[0]{id};
     return $self->select_autocomplete;
   }
-}
-
-
-sub db_for_contact {
-  my ($contact) = @_;
-
-  my ($customer, $vendor) = selectfirst_array_query($::form, $::form->get_standard_dbh, <<SQL, ($contact->cp_cv_id)x2);
-    SELECT (SELECT COUNT(id) FROM customer WHERE id = ?), (SELECT COUNT(id) FROM vendor WHERE id = ?);
-SQL
-
-  die 'Contact is orphaned, cannot link to it'         if !$customer && !$vendor;
-
-  $customer ? 'customer' : 'vendor';
 }
 
 # TODO: multi search
