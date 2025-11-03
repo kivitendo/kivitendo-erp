@@ -127,9 +127,14 @@ sub default_billing_address {
   return first { $_->default_address } @{ $self->additional_billing_addresses };
 }
 
+sub link_contact {
+  my ($self, $contact) = @_;
+  SL::DB::CustomerContact->new(where => [ customer_id => $self->id, contact_id => $contact->cp_id ])->save;
+}
+
 sub detach_contact {
   my ($self, $contact) = @_;
-  $self->contacts([ grep { $_->id != $contact->id } $self->contacts ]);
+  SL::DB::Manager::CustomerContact->delete_all(where => [ customer_id => $self->id, contact_id => $contact->cp_id ]);
 }
 
 1;

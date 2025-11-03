@@ -3,7 +3,7 @@ package SL::Controller::CustomerVendor;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 
 use SL::JSON;
 use SL::DBUtils;
@@ -253,13 +253,14 @@ sub _save {
 
     SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;
 
-    $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
       SL::DB::ContactTitle     ->new(description => $self->{contact}->cp_title)    ->save if $save_contact_title;
       SL::DB::ContactDepartment->new(description => $self->{contact}->cp_abteilung)->save if $save_contact_department;
 
       $self->{contact}->save(cascade => 1);
     }
+    $self->{cv}->link_contact($self->{contact});
+
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
 
@@ -1083,7 +1084,7 @@ sub _load_customer_vendor {
   if ( $::form->{contact_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact_id})->load();
 
-    if ( $self->{contact}->cp_cv_id != $self->{cv}->id ) {
+    if (none { $self->{contact}->cp_id == $_->cp_id } $self->{cv}->contacts) {
       die($::locale->text('Error'));
     }
   } else {

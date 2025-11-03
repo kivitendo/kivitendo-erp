@@ -25,6 +25,8 @@ use SL::Presenter::Tag qw(select_tag);
 use SL::ReportGenerator;
 use SL::Webdav;
 use SL::Webdav::File;
+use List::Util qw(first);
+use List::MoreUtils qw(any);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(letter all_employees models webdav_objects is_sales) ],
@@ -116,9 +118,9 @@ sub action_update_contacts {
 
   my $default;
   if (   $letter->contact
-      && $letter->contact->cp_cv_id
-      && $letter->contact->cp_cv_id == $letter->customer_vendor_id) {
-    $default = $letter->contact->cp_id;
+      && $letter->contact->vendors
+      && any { $_->id == $letter->customer_vendor_id } $letter->contact->vendors) {
+    $default = (first { $_->id == $letter->customer_vendor_id } $letter->contact->vendors)->cp_id;
   } else {
     $default = '';
   }

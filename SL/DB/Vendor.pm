@@ -97,9 +97,14 @@ EOSQL
   return SL::DB::Chart->load_cached($chart_id);
 }
 
+sub link_contact {
+  my ($self, $contact) = @_;
+  SL::DB::VendorContact->new(where => [ vendor_id => $self->id, contact_id => $contact->cp_id ])->save;
+}
+
 sub detach_contact {
   my ($self, $contact) = @_;
-  $self->contacts([ grep { $_->id != $contact->id } $self->contacts ]);
+  SL::DB::Manager::VendorContact->delete_all(where => [ vendor_id => $self->id, contact_id => $contact->cp_id ]);
 }
 
 1;
