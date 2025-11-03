@@ -55,20 +55,24 @@ sub find_contact_for_number {
 
   return if !@hits;
 
-  my @cv_ids = grep { $_ } map { $_->cp_cv_id } @hits;
+  my $c_contacts = SL::DB::Manager::CustomerContact->get_all(
+    inject_results => 1,
+    where          => [ contact_id => [ map { $_->cp_id } @hits ] ],
+  );
+  my $v_contacts = SL::DB::Manager::VendorContact->get_all(
+    inject_results => 1,
+    where          => [ contact_id => [ map { $_->cp_id } @hits ] ],
+  );
 
-  my %customers_vendors =
-    map { ($_->id => $_) } (
-      @{ SL::DB::Manager::Customer->get_all(where => [ id => \@cv_ids ], inject_results => 1) },
-      @{ SL::DB::Manager::Vendor  ->get_all(where => [ id => \@cv_ids ], inject_results => 1) },
-    );
+  my %customer_vendors = map { $_->id => $_ }
+    @{ SL::DB::Manager::Customer->get_all(where => [ id => [ map { $_->customer_id } @$c_contacts ], obsolete => 0 ], inject_results => 1) },
+    @{ SL::DB::Manager::Vendor  ->get_all(where => [ id => [ map { $_->vendor_id   } @$v_contacts ], obsolete => 0 ], inject_results => 1) };
 
-  my $chosen = first {
-       $_->cp_cv_id
-    &&  $customers_vendors{$_->cp_cv_id}
-    && !$customers_vendors{$_->cp_cv_id}->obsolete
-    && ($_->cp_name !~ m{ungültig}i)
-  } @hits;
+  my %cv_by_contacts;
+  $cv_by_contacts{$_->contact_id}++ for grep { $customer_vendors{ $_->customer_id } } @$c_contacts;
+  $cv_by_contacts{$_->contact_id}++ for grep { $customer_vendors{ $_->vendor_id   } } @$v_contacts;
+
+  my $chosen = first { $cv_by_contacts{$_->cp_id} && ($_->cp_name !~ m{ungültig}i) } @hits;
 
   $chosen //= $hits[0];
 
