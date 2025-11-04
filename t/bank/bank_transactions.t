@@ -222,6 +222,7 @@ sub test_ar_transaction {
       currency_id  => $currency_id,
       transactions => [],
       payment_id   => $params{payment_id} || undef,
+      record_type  => $params{record_type} // 'ar_transaction',
       notes        => 'test_ar_transaction',
   );
   $invoice->add_ar_amount_row(
@@ -262,6 +263,7 @@ sub test_ap_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => $params{record_type} // 'ap_transaction',
     notes        => 'test_ap_transaction',
   );
   $invoice->add_ap_amount_row(
@@ -870,6 +872,7 @@ sub test_neg_ap_transaction_skonto {
     currency_id  => $currency_id,
     transactions => [],
     notes        => 'test_neg_ap_transaction_with_skonto',
+    record_type  => 'purchase_credit_note',
     payment_id   => $payment_skonto->id,
   );
   $invoice->add_ap_amount_row(
@@ -937,6 +940,7 @@ sub test_neg_ap_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => 'purchase_credit_note',
     notes        => 'test_neg_ap_transaction',
   );
   $invoice->add_ap_amount_row(
@@ -992,6 +996,7 @@ sub test_two_neg_ap_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => 'purchase_credit_note',
     notes        => 'test_neg_ap_transaction',
   );
   $invoice->add_ap_amount_row(
@@ -1019,6 +1024,7 @@ sub test_two_neg_ap_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => 'purchase_credit_note',
     notes        => 'test_neg_ap_transaction_two',
   );
   $invoice_two->add_ap_amount_row(
@@ -1080,6 +1086,7 @@ sub test_ap_payment_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => 'ap_transaction',
     notes        => $testname,
   );
   $invoice->add_ap_amount_row(
@@ -1133,6 +1140,7 @@ sub test_ap_payment_part_transaction {
     taxzone_id   => $vendor->taxzone_id,
     currency_id  => $currency_id,
     transactions => [],
+    record_type  => 'ap_transaction',
     notes        => $testname,
   );
   $invoice->add_ap_amount_row(
@@ -1595,6 +1603,7 @@ sub ap_transaction_fx_gain_fees {
                                                     netamount   => $eur_amount,
                                                     invoice_set => 1,
                                                     buysell     => 'sell',
+                                                    record_type => 'ap_transaction',
                                                    );
   # check exchangerate
   is($ap_transaction_fx->currency->name   , 'USD'     , "$testname: USD currency");
@@ -1658,6 +1667,7 @@ sub ap_transaction_fx_gain_fees_two_payments {
                                                     netamount   => $eur_amount,
                                                     invoice_set => 0,
                                                     buysell     => 'sell',
+                                                    record_type => 'ap_transaction',
                                                    );
   # check exchangerate
   is($ap_transaction_fx->currency->name   , 'USD'     , "$testname: USD currency");
@@ -1788,6 +1798,7 @@ sub ap_transaction_fx_loss_fees {
                                                     netamount   => $eur_amount,
                                                     invoice_set => 1,
                                                     buysell     => 'sell',
+                                                    record_type => 'ap_transaction',
                                                    );
   # check exchangerate
   is($ap_transaction_fx->currency->name   , 'USD'     , "$testname: USD currency");
@@ -1845,6 +1856,7 @@ sub negative_ap_transaction_fx_gain_fees_error {
                                                     netamount   => $eur_amount,
                                                     invoice_set => 0,
                                                     buysell     => 'sell',
+                                                    record_type => 'purchase_credit_note',
                                                    );
   # check exchangerate
   is($ap_transaction_fx->currency->name   , 'USD'       , "$testname: USD currency");
@@ -1890,6 +1902,7 @@ sub negative_ap_transaction_fx_gain_fees {
                                                     netamount   => $eur_amount,
                                                     invoice_set => 0,
                                                     buysell     => 'sell',
+                                                    record_type => 'purchase_credit_note',
                                                    );
   # check exchangerate
   is($ap_transaction_fx->currency->name   , 'USD'       , "$testname: USD currency");
@@ -2019,6 +2032,7 @@ sub test_negative_ar_transaction_fx_loss {
       currency_id  => $currency_usd->id,
       transactions => [],
       payment_id   => $params{payment_id} || undef,
+      record_type  => 'ar_transaction',
       notes        => 'test_ar_transaction',
   );
   $invoice->add_ar_amount_row(
@@ -2097,6 +2111,7 @@ sub test_ar_transaction_fx_partial_payment {
       currency_id  => $currency_usd->id,
       transactions => [],
       payment_id   => $params{payment_id} || undef,
+      record_type  => 'ar_transaction',
       notes        => 'test_ar_transaction_fx_partial_payment',
   );
   my $acno_8100 = SL::DB::Manager::Chart->find_by( accno => '8100' );
@@ -2174,6 +2189,7 @@ sub test_ar_transaction_fx_gain {
       currency_id  => $currency_usd->id,
       transactions => [],
       payment_id   => $params{payment_id} || undef,
+      record_type  => 'ar_transaction',
       notes        => 'test_ar_transaction',
   );
   $invoice->add_ar_amount_row(
@@ -2253,6 +2269,7 @@ sub test_ar_transaction_fx_loss {
       currency_id  => $currency_usd->id,
       transactions => [],
       payment_id   => $params{payment_id} || undef,
+      record_type  => 'ar_transaction',
       notes        => 'test_ar_transaction',
   );
   $invoice->add_ar_amount_row(
@@ -2310,6 +2327,8 @@ sub test_ar_transaction_fx_loss {
 sub create_ap_fx_transaction {
   my (%params) = @_;
 
+  die "need record_type" unless $params{record_type};
+
   my $netamount     = $params{netamount};
   my $amount        = $params{netamount};
   my $invoice_set   = $params{invoice};
@@ -2334,6 +2353,7 @@ sub create_ap_fx_transaction {
     currency_id  => $currency_usd->id,
     transactions => [],
     notes        => 'ap_transaction_fx',
+    record_type  => $params{record_type},
   );
   $invoice->add_ap_amount_row(
     amount     => $netamount,
