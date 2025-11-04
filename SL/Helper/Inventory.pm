@@ -425,7 +425,7 @@ sub check_allocations_for_assembly {
     $allocations_by_part{ $assembly->parts_id } -= $assembly->qty * $qty;
   }
 
-  return (none { $_ < 0 } values %allocations_by_part) && (!$check_overfulfilment || (none { $_ > 0 } values %allocations_by_part));
+  return (none { $_ < -0.00001 } values %allocations_by_part) && (!$check_overfulfilment || (none { $_ > 0.00001 } values %allocations_by_part));
 }
 
 sub check_stock_out_transfer_requests {
