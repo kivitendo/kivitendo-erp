@@ -2023,7 +2023,6 @@ sub recalc {
                                 netamount => $netamount,
                                 tax       => SL::DB::Tax->new(id => $tax_id)->load });
   }
-  pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->order->items_sorted}, @{$pat{items}};
 }
 
 # get data for saving, printing, ..., that is not changed in the form

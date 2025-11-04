@@ -23,6 +23,14 @@ use SL::DB::Helper::CustomVariables (
   },
 );
 
+__PACKAGE__->meta->add_relationship(
+  taxkey => {
+    type        => 'many to one',
+    class       => 'SL::DB::TaxKey',
+    key_columns => { taxkey_id => 'id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(reclamation_id)]);
@@ -61,6 +69,7 @@ sub new_from {
       pricegroup_id project_id qty reason_description_ext reason_description_int
       reason_id reqdate sellprice serialnumber
       unit
+      linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
     );
     $item_args{custom_variables} = \@custom_variables;
   } elsif (ref($source) eq 'SL::DB::OrderItem') {
@@ -68,6 +77,7 @@ sub new_from {
       active_discount_source active_price_source base_qty description discount
       lastcost longdescription parts_id position price_factor price_factor_id
       pricegroup_id project_id qty reqdate sellprice serialnumber unit
+      linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
     );
     $item_args{custom_variables} = \@custom_variables;
   } elsif (ref($source) eq 'SL::DB::DeliveryOrderItem') {
@@ -82,6 +92,7 @@ sub new_from {
       active_discount_source active_price_source base_qty description discount
       lastcost longdescription parts_id position price_factor price_factor_id
       pricegroup_id project_id qty sellprice serialnumber unit
+      linetotal linetotal_cost sellprice_taxable net_amount tax_amount taxkey_id
     );
     $item_args{custom_variables} = \@custom_variables;
   }

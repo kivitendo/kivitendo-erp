@@ -183,6 +183,7 @@ my @different_record_values = qw(
 my @different_record_item_values = qw(
   id reclamation_id
   itime mtime
+  taxkey_id
 );
 
 ## created sales und purchase reclamation should be nearly the same

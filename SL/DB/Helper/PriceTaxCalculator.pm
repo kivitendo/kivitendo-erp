@@ -40,7 +40,6 @@ sub calculate_prices_and_taxes {
                exchangerate        => undef,
                is_sales            => $self->can('customer') && $self->customer,
                is_invoice          => (ref($self) =~ /Invoice/) || $params{invoice},
-               items               => [ ],
              );
 
   # set exchangerate in $data>{exchangerate}
@@ -69,7 +68,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes_by_chart_id taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
+  return map { ($_ => $data{$_}) } qw(taxes_by_chart_id taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items rounding);
 }
 
 sub _get_exchangerate {
@@ -141,6 +140,7 @@ sub _calculate_item {
     $data->{amounts}->{ $chart->id }->{amount}  -= $tax_amount if $self->taxincluded;
   }
   my $linetotal_cost = 0;
+  my $linetotal_net  = 0;
 
   if (!$linetotal) {
     $item->marge_total(  0) if $marge_calculations;
@@ -149,7 +149,7 @@ sub _calculate_item {
   } else {
     my $lastcost       = !(($item->lastcost // 0) * 1) ? ($part->lastcost || 0) : $item->lastcost;
     $linetotal_cost    = _round($lastcost * $item->qty / ( $marge_calculations ? $item->marge_price_factor : 1 ), 2);
-    my $linetotal_net  = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
+    $linetotal_net     = $self->taxincluded ? $linetotal - $tax_amount : $linetotal;
 
     $item->marge_total(  $linetotal_net - $linetotal_cost) if $marge_calculations;
     $item->marge_percent($item->marge_total * 100 / $linetotal_net) if $marge_calculations;
@@ -171,15 +171,12 @@ sub _calculate_item {
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
 
-  my $item_sellprice = _round($sellprice * (1 - $item->discount), $num_dec);
-
-  push @{ $data->{items} }, {
-    linetotal      => $linetotal,
-    linetotal_cost => $linetotal_cost,
-    sellprice      => $item_sellprice,
-    tax_amount     => $tax_amount,
-    taxkey_id      => $taxkey->id,
-  };
+  $item->linetotal($linetotal);
+  $item->linetotal_cost($linetotal_cost);
+  $item->sellprice_taxable(_round($sellprice * (1 - $item->discount), $num_dec));
+  $item->net_amount($linetotal_net);
+  $item->tax_amount($tax_amount);
+  $item->taxkey_id($taxkey->id);
 
   #_dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
   #     "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
@@ -383,24 +380,6 @@ column. Only valid for invoices.
 =item C<exchangerate>
 
 The exchangerate used for the calculation.
-
-=item C<items>
-
-An array reference. For each line item this array contains a hash ref
-entry with additional values that have been calculated for that item
-but that aren't stored in the item object itself. These include
-C<linetotal>, C<linetotal_cost>, C<sellprice>, C<tax_amount> and
-C<taxkey_id>.
-
-The items are stored in the same order the items are stored in the
-object that L</calculate_prices_and_taxes> has been called on.
-
-For example:
-
-  my $invoice     = SL::DB::Invoice->new(id => 12345)->load;
-  my %data        = $invoice->calculate_prices_and_taxes;
-
-  print "line total of second item: " . $data{items}->[1]->{linetotal};
 
 =back
 
