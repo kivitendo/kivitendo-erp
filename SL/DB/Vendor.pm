@@ -99,7 +99,7 @@ EOSQL
 
 sub link_contact {
   my ($self, $contact, %params) = @_;
-  my $existing = SL::DB::VendorContact->get_first(vendor_id => $self->id, contact_id => $contact->cp_id);
+  my $existing = SL::DB::Manager::VendorContact->get_first(query => [ vendor_id => $self->id, contact_id => $contact->cp_id ]);
   $existing //= SL::DB::VendorContact->new(vendor_id => $self->id, contact_id => $contact->cp_id);
 
   if (exists $params{main}) {

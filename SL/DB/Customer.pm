@@ -134,13 +134,14 @@ sub default_billing_address {
 
 sub link_contact {
   my ($self, $contact, %params) = @_;
-  my $existing = SL::DB::CustomerContact->get_first(customer_id => $self->id, contact_id => $contact->cp_id);
+  my $existing = SL::DB::Manager::CustomerContact->get_first(query => [ customer_id => $self->id, contact_id => $contact->cp_id ]);
   $existing //= SL::DB::CustomerContact->new(customer_id => $self->id, contact_id => $contact->cp_id);
 
   if (exists $params{main}) {
     $existing->main($params{main});
   }
 
+  $::lxdebug->dump(0,  "saving", $existing);
   $existing->save;
 }
 
