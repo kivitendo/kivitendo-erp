@@ -259,7 +259,7 @@ sub _save {
 
       $self->{contact}->save(cascade => 1);
     }
-    $self->{cv}->link_contact($self->{contact});
+    $self->{cv}->link_contact($self->{contact}, main => !!$self->{contact}{cp_main});
 
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
@@ -723,16 +723,18 @@ sub action_ajaj_get_contact {
       }
       qw(
         id gender abteilung title position givenname name email phone1 phone2 fax mobile1 mobile2
-        satphone satfax project street zipcode city privatphone privatemail birthday main
+        satphone satfax project street zipcode city privatphone privatemail birthday
       )
     )
   };
 
+  $data->{contact}{cp_main} = $self->{contact}{main};
+
   $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
 
   # avoid two or more main_cp
-  my $has_main_cp = grep { $_->cp_main == 1 } @{ $self->{cv}->contacts };
-  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}->{cp_main});
+  my $has_main_cp = $self->{cv}->main_contact;
+  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}{cp_main});
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -1083,6 +1085,14 @@ sub _load_customer_vendor {
 
   if ( $::form->{contact_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact_id})->load();
+
+
+    my $cv_contact = $self->is_vendor()
+      ? SL::DB::Manager::VendorContact->get_all(query => [ contact_id => $::form->{contact_id}, vendor_id => $::form->{id} ])->[0]
+      : SL::DB::Manager::CustomerContact->get_all(query => [ contact_id => $::form->{contact_id}, customer_id => $::form->{id} ])->[0];
+    die "missing contact" unless $cv_contact;
+
+    $self->{contact}->{main} = $cv_contact->main;
 
     if (none { $self->{contact}->cp_id == $_->cp_id } $self->{cv}->contacts) {
       die($::locale->text('Error'));

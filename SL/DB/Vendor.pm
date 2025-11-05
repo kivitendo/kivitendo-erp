@@ -98,8 +98,15 @@ EOSQL
 }
 
 sub link_contact {
-  my ($self, $contact) = @_;
-  SL::DB::VendorContact->new(where => [ vendor_id => $self->id, contact_id => $contact->cp_id ])->save;
+  my ($self, $contact, %params) = @_;
+  my $existing = SL::DB::VendorContact->get_first(vendor_id => $self->id, contact_id => $contact->cp_id);
+  $existing //= SL::DB::VendorContact->new(vendor_id => $self->id, contact_id => $contact->cp_id);
+
+  if (exists $params{main}) {
+    $existing->main($params{main});
+  }
+
+  $existing->save;
 }
 
 sub detach_contact {

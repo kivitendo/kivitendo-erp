@@ -44,6 +44,11 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ module   => 'CT' ],
   },
+  customer_contacts => {
+    type => 'one to many',
+    class => 'SL::DB::CustomerContact',
+    column_map => { id => 'customer_id' },
+  },
   contacts => {
     type         => 'many to many',
     map_class    => 'SL::DB::CustomerContact',
@@ -128,8 +133,15 @@ sub default_billing_address {
 }
 
 sub link_contact {
-  my ($self, $contact) = @_;
-  SL::DB::CustomerContact->new(where => [ customer_id => $self->id, contact_id => $contact->cp_id ])->save;
+  my ($self, $contact, %params) = @_;
+  my $existing = SL::DB::CustomerContact->get_first(customer_id => $self->id, contact_id => $contact->cp_id);
+  $existing //= SL::DB::CustomerContact->new(customer_id => $self->id, contact_id => $contact->cp_id);
+
+  if (exists $params{main}) {
+    $existing->main($params{main});
+  }
+
+  $existing->save;
 }
 
 sub detach_contact {
