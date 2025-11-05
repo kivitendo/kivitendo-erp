@@ -683,15 +683,15 @@ sub form_header {
   $TMPL_VAR{ALL_SHIPTO}            = SL::DB::Manager::Shipto->get_all_sorted(query => [
     or => [ and => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, module => 'CT' ], and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
-  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(query => [
-    or => [
-      cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
-      and      => [
-        cp_cv_id => undef,
-        cp_id    => $::form->{cp_id} * 1
+  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(
+    require_objects => ["$::form->{vc}s"],
+    query => [
+      or => [
+        "$::form->{vc}s.id" => $::form->{"$::form->{vc}_id"} * 1,
+        cp_id               => $::form->{cp_id} * 1
       ]
     ]
-  ]);
+  );
 
   # currencies and exchangerate
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
