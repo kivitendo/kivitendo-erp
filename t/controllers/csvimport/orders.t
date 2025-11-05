@@ -162,6 +162,31 @@ $entry = $entries->[12];
 is $entry->{object}->record_type, PURCHASE_ORDER_CONFIRMATION_TYPE, '"purchase_order_confirmation" as explicitly given record type works';
 
 #####
+# test error handling if no customer or vendor ist given/found
+#####
+$file = \<<EOL;
+datatype;customer;vendor
+datatype;description;qty
+Order;;
+OrderItem;TestPart1;
+Order;CustomerUnknown;
+OrderItem;TestPart2;10
+Order;;VendorUnknown
+OrderItem;TestPart2;20
+EOL
+
+$entries = do_import($file);
+
+$entry = $entries->[0];
+is $entry->{errors}->[0], 'Error: Customer/vendor missing', 'show correct error if customer/vendor missing';
+
+$entry = $entries->[2];
+is $entry->{errors}->[0], 'Error: Customer/vendor not found', 'show correct error if customer not found';
+
+$entry = $entries->[4];
+is $entry->{errors}->[0], 'Error: Customer/vendor not found', 'show correct error if vendor not found';
+
+#####
 $entries = undef;
 clear_up;
 
