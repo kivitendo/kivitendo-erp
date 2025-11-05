@@ -391,11 +391,9 @@ sub handle_type {
     # if no type is present - set to sales order or purchase
     # order depending on customer/vendor
 
-    $entry->{object}->record_type(
-      $entry->{object}->customer_id ? SALES_ORDER_TYPE :
-      $entry->{object}->vendor_id   ? PURCHASE_ORDER_TYPE
-                                    : undef
-    );
+    $entry->{object}->record_type($entry->{object}->customer_id
+                                  ? SALES_ORDER_TYPE
+                                  : PURCHASE_ORDER_TYPE);
   }
 
   $entry->{info_data}->{record_type} = $::locale->text($entry->{object}->record_type);
