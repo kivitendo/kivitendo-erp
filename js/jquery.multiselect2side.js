@@ -68,10 +68,8 @@
       var htmlToAdd =
         "<div class='ms2side__div'>" +
         ((o.selectedPosition != 'right' && o.moveOptions) ? divUpDown : "") +
-        "<div class='ms2side__select'>" +
-        (o.labelsx ? ("<div class='ms2side__header'>" + o.labelsx + "</div>") : "") +
-        "<select title='" + o.labelsx + "' name='" + nameSx + "' id='" + nameSx + "' size='" + size + "' multiple='multiple' ></select>" +
-        "</div>" +
+        (o.labelsx ? ("<div class='ms2side__header ms2side__header-l'>" + o.labelsx + "</div>") : "") +
+        "<select class='ms2side__select-l' title='" + o.labelsx + "' name='" + nameSx + "' id='" + nameSx + "' size='" + size + "' multiple='multiple' ></select>" +
         "<div class='ms2side__options'>" +
         ((o.selectedPosition == 'right')
          ?
@@ -86,10 +84,8 @@
           "<p class='RemoveAll' title='Remove All'>&raquo;</p>")
         ) +
         "</div>" +
-        "<div class='ms2side__select'>" +
-        (o.labeldx ? ("<div class='ms2side__header'>" + o.labeldx + "</div>") : "") +
-        "<select title='" + o.labeldx + "' name='" + nameDx + "' id='" + idDx + "' size='" + size + "' multiple='multiple' ></select>" +
-        "</div>" +
+        (o.labeldx ? ("<div class='ms2side__header ms2side__header-r'>" + o.labeldx + "</div>") : "") +
+        "<select class='ms2side__select-r' title='" + o.labeldx + "' name='" + nameDx + "' id='" + idDx + "' size='" + size + "' multiple='multiple' ></select>" +
         "<span id=\"" + hiddenId + "\"></span>" +
         ((o.selectedPosition == 'right' && o.moveOptions) ? divUpDown : "") +
         "</div>";
