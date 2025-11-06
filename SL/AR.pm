@@ -806,7 +806,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name datepaid employee shippingpoint shipvia transaction_description department taxzone globalprojectdescription globalprojectnumber))) {
+  if (grep({ $_ eq $form->{sort} } qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name netamount amount datepaid employee shippingpoint shipvia transaction_description department taxzone globalprojectdescription globalprojectnumber))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 
