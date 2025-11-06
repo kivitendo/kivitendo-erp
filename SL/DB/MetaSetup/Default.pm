@@ -227,6 +227,7 @@ __PACKAGE__->meta->columns(
   sudonumber                                => { type => 'text' },
   taxnumber                                 => { type => 'text' },
   templates                                 => { type => 'text' },
+  ticket_system_provider                    => { type => 'text' },
   transfer_default                          => { type => 'boolean', default => 'true' },
   transfer_default_ignore_onhand            => { type => 'boolean', default => 'false' },
   transfer_default_services                 => { type => 'boolean', default => 'true' },

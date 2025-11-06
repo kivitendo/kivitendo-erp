@@ -257,6 +257,11 @@
       <tr>
         <th class="caption" colspan="3">[% LxERP.t8("Experimental Features") %]</th>
       </tr>
+      <tr>
+        <th>[% LxERP.t8('Ticket system provider') %]</th>
+        <td>[% L.select_tag('defaults.ticket_system_provider', [ [ '', LxERP.t8('None') ], [ 'jira', 'Atlassian Jira' ] ], default=SELF.defaults.ticket_system_provider) %]</td>
+        <td class="long-desc">[% LxERP.t8('Provider for tickets, shown in the Ticket system tab in the customer and vendor master data. Refer to the documentation for necessary additional configuration.') %]</td>
+      </tr>
     </tbody>
   </table>
 
