@@ -1245,7 +1245,6 @@ foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid empl
   my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
 
   $form->{"l_type"} = "Y";
-  $form->{"l_globalprojectdescription"} = "Y" if $form->{"l_globalprojectnumber"};
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $report->set_columns(%column_defs);
