@@ -81,7 +81,7 @@ sub make_sync_customer_vendor {
 
     return unless $other;
 
-    $other->assign_attributes($_ => $self->$_) for qw(name taxzone_id currency_id obsolete);
+    $other->assign_attributes($_ => $self->$_) for qw(city country currency_id email fax homepage language_id name obsolete phone street taxnumber ustid zipcode);
   };
 }
 
