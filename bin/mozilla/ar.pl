@@ -1219,7 +1219,6 @@ sub ar_transactions {
   my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
 
   $form->{"l_type"} = "Y";
-  $form->{"l_globalprojectdescription"} = "Y" if $form->{"l_globalprojectnumber"};
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $column_defs{ids}->{visible} = 'HTML';
