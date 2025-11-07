@@ -557,6 +557,7 @@ sub ap_transactions {
     qq|  a.intnotes, a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
+    qq|  pr.description   AS globalprojectdescription, | .
     qq|  e.name AS employee, | .
     qq|  v.vendornumber, v.country, v.ustid, | .
     qq|  tz.description AS taxzone, | .
@@ -790,7 +791,7 @@ SQL
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "$_ $sortdir" } @a);
 
-  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone insertdate))) {
+  if (grep({ $_ eq $form->{sort} } qw(transdate id invnumber ordnumber name netamount tax amount paid datepaid due duedate notes employee transaction_description direct_debit department taxzone insertdate globalprojectdescription globalprojectnumber))) {
     $sortorder = $form->{sort} . " $sortdir";
   }
 

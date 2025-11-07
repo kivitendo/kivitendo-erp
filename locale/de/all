@@ -1315,6 +1315,7 @@ $self->{texts} = {
   'Document Project (database ID)' => 'Projektnummer des Belegs (Datenbank-ID)',
   'Document Project (description)' => 'Projektnummer des Belegs (Beschreibung)',
   'Document Project (number)'   => 'Projektnummer des Belegs',
+  'Document Project Description' => 'Projektbeschreibung des Belegs',
   'Document Project Number'     => 'Projektnummer des Belegs',
   'Document generating failed. Please check Templates an LateX !' => 'Das Dokument konnte nicht erzeugt werden. Bitte Vorlagen und LateX prüfen!',
   'Documentation'               => 'Dokumentation',
