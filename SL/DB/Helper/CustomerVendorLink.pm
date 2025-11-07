@@ -82,6 +82,12 @@ sub make_sync_customer_vendor {
     return unless $other;
 
     $other->assign_attributes($_ => $self->$_) for qw(city country currency_id email fax homepage language_id name obsolete phone street taxnumber ustid zipcode);
+
+    my $own_cvars = $self->cvar_as_hashref;
+    foreach my $other_cvar (@{$other->cvars_by_config}) {
+      next unless $other_cvar->config->sync_linked_cv;
+      $other_cvar->value($own_cvars->{$other_cvar->config->name}{value});
+    }
   };
 }
 
