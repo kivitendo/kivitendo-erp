@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   options             => { type => 'text' },
   searchable          => { type => 'boolean', not_null => 1 },
   sortkey             => { type => 'integer', not_null => 1 },
+  sync_linked_cv      => { type => 'boolean', default => 'false' },
   type                => { type => 'text', not_null => 1 },
 );
 

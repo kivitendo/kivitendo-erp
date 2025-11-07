@@ -108,6 +108,13 @@
         [% L.radio_button_tag('config.first_tab', value='0', id='config.first_tab', label=LxERP.t8('No'),  checked=(SELF.config.first_tab ? '' :  1)) %]
       </td>
     </tr>
+    <tr data-show-for="CT"[% UNLESS SELF.module == 'CT' %] style="display: none;"[% END %]>
+      <td>[% 'Synchronize value with linked customer or vendor' | $T8 %]</td>
+      <td class="horizontal">
+        [% L.radio_button_tag('config.sync_linked_cv', value='1', id='config.sync_linked_cv', label=LxERP.t8('Yes'), checked=(SELF.config.sync_linked_cv ?  1 : '')) %]
+        [% L.radio_button_tag('config.sync_linked_cv', value='0', id='config.sync_linked_cv', label=LxERP.t8('No'),  checked=(SELF.config.sync_linked_cv ? '' :  1)) %]
+      </td>
+    </tr>
   </tbody>
 </table>
 
