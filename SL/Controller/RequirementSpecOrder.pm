@@ -75,7 +75,8 @@ sub action_create {
 
     $self->requirement_spec->link_to_record($order);
   }) or do {
-    $::lxdebug->message(LXDebug::WARN(), "Error creating the order object: $@");
+    $::lxdebug->message(LXDebug::WARN(), "Error creating the order object: " . SL::DB->client->error);
+    die "Error creating the order object: " . SL::DB->client->error;
   };
 
   $self->init_requirement_spec;
