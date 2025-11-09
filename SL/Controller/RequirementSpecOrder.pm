@@ -16,6 +16,7 @@ use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecOrder;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use SL::Model::Record;
 
 use constant LIST_SELECTOR  => '#quotations_and_orders';
 use constant FORMS_SELECTOR => '#quotations_and_orders_article_assignment,#quotations_and_orders_new,#quotations_and_orders_update';
@@ -253,11 +254,11 @@ sub do_update_sections {
     my $section   = $sections_by_id{   $attributes->{section_id} };
     next unless $orderitem && $section;
 
-    $self->create_order_item(section => $section, item => $orderitem, language_id => $language_id)->save;
+    $self->create_order_item(order => $order, section => $section, item => $orderitem, language_id => $language_id)->save;
     $sections_seen{ $section->id } = 1;
   }
 
-  my @new_orderitems = map  { $self->create_order_item(section => $_, language_id => $language_id) }
+  my @new_orderitems = map  { $self->create_order_item(order => $order, section => $_, language_id => $language_id) }
                        grep { !$sections_seen{ $_->id } }
                        @{ $sections };
 
@@ -282,10 +283,10 @@ sub do_update_additional_parts {
     my $orderitem = $orderitems_by{$key};
 
     if ($orderitem) {
-      $self->create_additional_part_order_item(additional_part => $add_part, item => $orderitem, language_id => $language_id)->save;
+      $self->create_additional_part_order_item(order => $order, additional_part => $add_part, item => $orderitem, language_id => $language_id)->save;
 
     } else {
-      push @new_orderitems, $self->create_additional_part_order_item(additional_part => $add_part, language_id => $language_id);
+      push @new_orderitems, $self->create_additional_part_order_item(order => $order, additional_part => $add_part, language_id => $language_id);
     }
   }
 
@@ -322,8 +323,13 @@ sub create_order_item {
     unit            => $is_time_based ? $self->h_unit_name            : $part->unit,
     sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate * ($is_time_based ? 1 : $section->time_estimation * $section->sellprice_factor), 2),
     lastcost        => $part->lastcost * $section->sellprice_factor,
-    discount        => 0,
     project_id      => $self->requirement_spec->project_id,
+  );
+
+  my (undef, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($params{order}, $item, ignore_given => 1);
+  $item->assign_attributes(
+   discount               => $discount_src->discount,
+   active_discount_source => $discount_src->source,
   );
 
   return $item;
@@ -347,8 +353,13 @@ sub create_additional_part_order_item {
     unit            => $add_part->unit->name,
     sellprice       => $add_part->unit->convert_to($part->sellprice, $part->unit_obj),
     lastcost        => $part->lastcost,
-    discount        => 0,
     project_id      => $self->requirement_spec->project_id,
+  );
+
+  my (undef, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($params{order}, $item, ignore_given => 1);
+  $item->assign_attributes(
+   discount               => $discount_src->discount,
+   active_discount_source => $discount_src->source,
   );
 
   return $item;
@@ -364,8 +375,6 @@ sub create_order {
   $self->{parts} = { map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq @part_ids ] ]) } };
 
   my $customer   = SL::DB::Customer->new(id => $::form->{customer_id})->load;
-  my @orderitems = map { $self->create_order_item(                section => $_,         language_id => $customer->language_id) } @{ $params{sections} };
-  my @add_items  = map { $self->create_additional_part_order_item(additional_part => $_, language_id => $customer->language_id) } @{ $params{additional_parts} };
   my $employee   = SL::DB::Manager::Employee->current;
   my $reqdate    = !$::form->{quotation} ? undef
                  : $customer->payment_id ? $customer->payment->calc_date
@@ -376,7 +385,7 @@ sub create_order {
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
     reqdate                 => $reqdate,
-    orderitems              => [ @orderitems, @add_items ],
+    orderitems              => [],
     customer_id             => $customer->id,
     taxincluded             => $customer->taxincluded,
     intnotes                => $customer->notes,
@@ -388,6 +397,10 @@ sub create_order {
     transaction_description => $self->requirement_spec->displayable_name,
     currency_id             => $::instance_conf->get_currency_id,
   );
+
+  my @orderitems = map { $self->create_order_item(                order => $order, section => $_,         language_id => $customer->language_id) } @{ $params{sections} };
+  my @add_items  = map { $self->create_additional_part_order_item(order => $order, additional_part => $_, language_id => $customer->language_id) } @{ $params{additional_parts} };
+  $order->add_items(@orderitems, @add_items);
 
   $order->calculate_prices_and_taxes;
 
