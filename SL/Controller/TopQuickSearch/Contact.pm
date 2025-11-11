@@ -39,33 +39,32 @@ SQL
         cp_email     => { ilike => like($::form->{term}) },
       ],
       or => [
-        "customer.id" => [ \$cv_query ],
-        "vendor.id"   => [ \$cv_query ]
+        "customers.id" => [ \$cv_query ],
+        "vendors.id"   => [ \$cv_query ]
       ],
     ],
     limit => 10,
+    with_objects => ['customers', 'vendors'],
     sort_by => 'cp_name',
   );
 
   return [
     map {
-     value       => $_->full_name,
-     label       => $_->full_name,
-     id          => $_->cp_id,
-    }, @$result
+      my $contact = $_;
+      map {
+        value       => $contact->full_name,
+        label       => $contact->full_name . ' (' . $_->displayable_name . ')',
+        id          => $contact->cp_id . ';' . $_->meta->table . ';' . $_->id,
+      }, $contact->customers, $contact->vendors;
+    } @$result
   ];
 }
 
 sub select_autocomplete {
   my ($self) = @_;
+  my ($contact_id, $db, $cv_id) = split /;/, $::form->{id};
 
-  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{id});
-
-  my @customers = $contact->customers;
-  my @vendors   = $contact->vendors;
-  my @cv = (@customers, @vendors);
-
-  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $cv[0]->id, contact_id => $contact->cp_id, db => $cv[0]->meta->table, fragment => 'contacts');
+  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $cv_id, contact_id => $contact_id, db => $db, fragment => 'contacts');
 }
 
 sub do_search {
