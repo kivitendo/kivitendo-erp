@@ -146,7 +146,6 @@ sub link_contact {
     $existing->main($params{main});
   }
 
-  $::lxdebug->dump(0,  "saving", $existing);
   $existing->save;
 }
 
