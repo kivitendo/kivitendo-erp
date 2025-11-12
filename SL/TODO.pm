@@ -37,11 +37,17 @@ sub get_user_config {
   if (!$cfg) {
     # Standard configuration: enable all
 
-    $cfg = { map { $_ => 1 } qw(show_after_login show_follow_ups show_follow_ups_login show_overdue_sales_quotations show_overdue_sales_quotations_login) };
+    $cfg = { map { $_ => 1 } qw(show_after_login show_follow_ups show_follow_ups_login
+                                show_overdue_sales_quotations show_overdue_sales_quotations_login
+                                show_overdue_request_quotations show_overdue_request_quotations_login) };
   }
 
-  if (! $main::auth->check_right($params{login}, 'sales_quotation_edit | sales_quotation_view | request_quotation_edit | request_quotation_view')) {
+  if (! $main::auth->check_right($params{login}, 'sales_quotation_edit | sales_quotation_view')) {
     map { delete $cfg->{$_} } qw(show_overdue_sales_quotations show_overdue_sales_quotations_login);
+  }
+
+  if (! $main::auth->check_right($params{login}, 'request_quotation_edit | request_quotation_view')) {
+    map { delete $cfg->{$_} } qw(show_overdue_request_quotations show_overdue_request_quotations_login);
   }
 
   $main::lxdebug->leave_sub();
@@ -87,11 +93,15 @@ sub save_user_config {
            show_follow_ups = ?,
            show_follow_ups_login = ?,
            show_overdue_sales_quotations = ?,
-           show_overdue_sales_quotations_login = ?
+           show_overdue_sales_quotations_login = ?,
+           show_overdue_request_quotations = ?,
+           show_overdue_request_quotations_login = ?
 
          WHERE employee_id = ?|;
 
-    my @values = map { $params{$_} ? 't' : 'f' } qw(show_after_login show_follow_ups show_follow_ups_login show_overdue_sales_quotations show_overdue_sales_quotations_login);
+    my @values = map { $params{$_} ? 't' : 'f' } qw(show_after_login show_follow_ups show_follow_ups_login
+                                                    show_overdue_sales_quotations show_overdue_sales_quotations_login
+                                                    show_overdue_request_quotations show_overdue_request_quotations_login);
     push @values, $id;
 
     do_query($form, $dbh, $query, @values);

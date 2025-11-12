@@ -320,12 +320,23 @@
       </tr>
       [% IF AUTH.assert('sales_quotation_edit', 'may_fail') %]
       <tr>
-        <th>[% 'Show overdue sales quotations and requests for quotations...' | $T8 %]</th>
+        <th>[% 'Show overdue sales quotations...' | $T8 %]</th>
         <td>
           <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations" id="todo_cfg_show_overdue_sales_quotations" value="1"[% IF todo_cfg.show_overdue_sales_quotations %] checked[% END %]>
           <label for="todo_cfg_show_overdue_sales_quotations">[% '...on the TODO list' | $T8 %]</label> <br>
           <input type="checkbox" name="todo_cfg.show_overdue_sales_quotations_login" id="todo_cfg_show_overdue_sales_quotations_login" value="1"[% IF todo_cfg.show_overdue_sales_quotations_login %] checked[% END %]>
           <label for="todo_cfg_show_overdue_sales_quotations_login">[% '...after logging in' | $T8 %]</label>
+        </td>
+      </tr>
+      [% END %]
+      [% IF AUTH.assert('request_quotation_edit', 'may_fail') %]
+      <tr>
+        <th>[% 'Show overdue requests for quotations...' | $T8 %]</th>
+        <td>
+          <input type="checkbox" name="todo_cfg.show_overdue_request_quotations" id="todo_cfg_show_overdue_request_quotations" value="1"[% IF todo_cfg.show_overdue_request_quotations %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_request_quotations">[% '...on the TODO list' | $T8 %]</label> <br>
+          <input type="checkbox" name="todo_cfg.show_overdue_request_quotations_login" id="todo_cfg_show_overdue_request_quotations_login" value="1"[% IF todo_cfg.show_overdue_request_quotations_login %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_request_quotations_login">[% '...after logging in' | $T8 %]</label>
         </td>
       </tr>
       [% END %]

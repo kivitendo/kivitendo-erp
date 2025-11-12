@@ -958,10 +958,11 @@ sub oe_invoice_from_order {
 sub report_for_todo_list {
   $main::lxdebug->enter_sub();
 
+  my (%params) = @_;
   my $form     = $main::form;
 
-  my $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_quotation'},   'may fail');
-  my $is_for_purchase = $::auth->assert($oe_view_access_map->{'request_quotation'}, 'may fail');
+  my $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_quotation'},   'may fail') && $params{sales};
+  my $is_for_purchase = $::auth->assert($oe_view_access_map->{'request_quotation'}, 'may fail') && $params{purchase};
   my $quotations      = OE->transactions_for_todo_list(sales => $is_for_sales, purchase => $is_for_purchase);
   my $content;
 
@@ -969,9 +970,11 @@ sub report_for_todo_list {
     my $callback = build_std_url('action');
     my $edit_url = build_std_url('script=controller.pl', 'action=Order/edit', 'callback=' . E($callback));
 
-    $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS' => $quotations,
-                                                                           'edit_url'   => $edit_url,
-                                                                           'callback'   => $callback });
+    $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS'      => $quotations,
+                                                                           'edit_url'        => $edit_url,
+                                                                           'callback'        => $callback,
+                                                                           'is_for_sales'    => $is_for_sales,
+                                                                           'is_for_purchase' => $is_for_purchase});
   }
 
   $main::lxdebug->leave_sub();
