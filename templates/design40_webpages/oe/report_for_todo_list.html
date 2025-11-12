@@ -10,7 +10,15 @@
 [% P.hidden_tag('callback', HTML.escape(callback)) %]
 
 <table class="tbl-list wi-moderate">
-  <caption>[% 'Overdue sales quotations and requests for quotations' | $T8 %]</caption>
+  <caption>
+    [% IF is_for_sales && is_for_purchase %]
+      [% 'Overdue sales quotations and requests for quotations' | $T8 %]
+    [% ELSIF is_for_sales %]
+      [% 'Overdue sales quotations' | $T8 %]
+    [% ELSE %]
+      [% 'Overdue requests for quotations' | $T8 %]
+    [% END %]
+  </caption>
   <thead>
     <tr>
      <th>&nbsp;</th>

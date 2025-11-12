@@ -51,8 +51,12 @@ sub create_todo_list {
 
   my (@todo_items, $todo_list);
 
-  push @todo_items, todo_list_follow_ups()               if ($todo_cfg{"show_follow_ups${postfix}"});
-  push @todo_items, todo_list_overdue_sales_quotations() if ($todo_cfg{"show_overdue_sales_quotations${postfix}"});
+  push @todo_items, todo_list_follow_ups() if ($todo_cfg{"show_follow_ups${postfix}"});
+
+  if ($todo_cfg{"show_overdue_sales_quotations${postfix}"} || $todo_cfg{"show_overdue_request_quotations${postfix}"}) {
+    push @todo_items, todo_list_overdue_quotations(sales    => $todo_cfg{"show_overdue_sales_quotations${postfix}"},
+                                                   purchase => $todo_cfg{"show_overdue_request_quotations${postfix}"});
+  }
 
   @todo_items = grep { $_ } @todo_items;
   $todo_list  = join("", @todo_items);
@@ -93,14 +97,16 @@ sub todo_list_follow_ups {
   return $content;
 }
 
-sub todo_list_overdue_sales_quotations {
+sub todo_list_overdue_quotations {
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('productivity');
 
+  my %params   = @_;
+
   require "bin/mozilla/oe.pl";
 
-  my $content = report_for_todo_list();
+  my $content = report_for_todo_list(%params);
 
   $main::lxdebug->leave_sub();
 
