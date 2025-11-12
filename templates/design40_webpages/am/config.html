@@ -340,6 +340,28 @@
         </td>
       </tr>
       [% END %]
+      [% IF AUTH.assert('sales_order_edit', 'may_fail') %]
+      <tr>
+        <th>[% 'Show overdue sales orders...' | $T8 %]</th>
+        <td>
+          <input type="checkbox" name="todo_cfg.show_overdue_sales_orders" id="todo_cfg_show_overdue_sales_orders" value="1"[% IF todo_cfg.show_overdue_sales_orders %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_sales_orders">[% '...on the TODO list' | $T8 %]</label> <br>
+          <input type="checkbox" name="todo_cfg.show_overdue_sales_orders_login" id="todo_cfg_show_overdue_sales_orders_login" value="1"[% IF todo_cfg.show_overdue_sales_orders_login %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_sales_orders_login">[% '...after logging in' | $T8 %]</label>
+        </td>
+      </tr>
+      [% END %]
+      [% IF AUTH.assert('purchase_order_edit', 'may_fail') %]
+      <tr>
+        <th>[% 'Show overdue purchase orders...' | $T8 %]</th>
+        <td>
+          <input type="checkbox" name="todo_cfg.show_overdue_purchase_orders" id="todo_cfg_show_overdue_purchase_orders" value="1"[% IF todo_cfg.show_overdue_purchase_orders %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_purchase_orders">[% '...on the TODO list' | $T8 %]</label> <br>
+          <input type="checkbox" name="todo_cfg.show_overdue_purchase_orders_login" id="todo_cfg_show_overdue_purchase_orders_login" value="1"[% IF todo_cfg.show_overdue_purchase_orders_login %] checked[% END %]>
+          <label for="todo_cfg_show_overdue_purchase_orders_login">[% '...after logging in' | $T8 %]</label>
+        </td>
+      </tr>
+      [% END %]
     </tbody>
     </table>
   </div><!-- /.wrapper -->
