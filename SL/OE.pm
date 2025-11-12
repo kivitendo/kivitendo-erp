@@ -1345,10 +1345,4 @@ OE.pm - Order entry module
 
 OE.pm is part of the OE module. OE is responsible for sales and purchase orders, as well as sales quotations and purchase requests. This file abstracts the database tables C<oe> and C<orderitems>.
 
-=head1 FUNCTIONS
-
-=over 4
-
-=back
-
 =cut
