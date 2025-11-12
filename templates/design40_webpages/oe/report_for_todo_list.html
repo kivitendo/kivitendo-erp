@@ -5,26 +5,48 @@
 
 <div class="wrapper center">
 
-<form method="post" action="controller.pl" id="todo_quotations_form">
+<form method="post" action="controller.pl" id="todo_quotations_orders_form">
 [% P.hidden_tag('action', 'Order/dispatch') %]
 [% P.hidden_tag('callback', HTML.escape(callback)) %]
 
 <table class="tbl-list wi-moderate">
   <caption>
-    [% IF is_for_sales && is_for_purchase %]
-      [% 'Overdue sales quotations and requests for quotations' | $T8 %]
-    [% ELSIF is_for_sales %]
-      [% 'Overdue sales quotations' | $T8 %]
+    [% IF orders_mode %]
+      [% IF is_for_sales && is_for_purchase %]
+        [% 'Overdue sales orders and purchase orders' | $T8 %]
+      [% ELSIF is_for_sales %]
+        [% 'Overdue sales orders' | $T8 %]
+      [% ELSE %]
+        [% 'Overdue purchase orders' | $T8 %]
+      [% END %]
     [% ELSE %]
-      [% 'Overdue requests for quotations' | $T8 %]
+      [% IF is_for_sales && is_for_purchase %]
+        [% 'Overdue sales quotations and requests for quotations' | $T8 %]
+      [% ELSIF is_for_sales %]
+        [% 'Overdue sales quotations' | $T8 %]
+      [% ELSE %]
+        [% 'Overdue requests for quotations' | $T8 %]
+      [% END %]
     [% END %]
   </caption>
   <thead>
     <tr>
      <th>&nbsp;</th>
      <th>[% 'Date' | $T8 %]</th>
-     <th>[% 'Valid until' | $T8 %]</th>
-     <th>[% 'Sales quotation' | $T8 %] / [% 'Request quotation' | $T8 %]</th>
+     <th>
+       [%- IF orders_mode %]
+         [% 'Reqdate' | $T8 %]
+       [%- ELSE %]
+         [% 'Valid until' | $T8 %]
+       [%- END %]
+     </th>
+     <th>
+       [%- IF orders_mode %]
+         [% 'Sales order' | $T8 %] / [% 'Purchase order' | $T8 %]
+       [%- ELSE %]
+         [% 'Sales quotation' | $T8 %] / [% 'Request quotation' | $T8 %]
+       [%- END %]
+     </th>
      <th>[% 'Customer' | $T8 %] / [% 'Vendor' | $T8 %]</th>
      <th>[% 'Transaction description' | $T8 %]</th>
      <th>[% 'Amount' | $T8 %]</th>
@@ -32,8 +54,12 @@
     </tr>
   </thead>
   <tbody>
-    [% FOREACH row = QUOTATIONS %]
-    [% SET RIGHT_TO_EDIT = ((row.vc == 'customer' && AUTH.assert('sales_quotation_edit', 1)) || (row.vc == 'vendor' && AUTH.assert('request_quotation_edit', 1))) %]
+    [% FOREACH row = ENTRIES %]
+    [%- IF orders_mode %]
+      [% SET RIGHT_TO_EDIT = ((row.vc == 'customer' && AUTH.assert('sales_order_edit', 1)) || (row.vc == 'vendor' && AUTH.assert('purchase_order_edit', 1))) %]
+    [%- ELSE %]
+      [% SET RIGHT_TO_EDIT = ((row.vc == 'customer' && AUTH.assert('sales_quotation_edit', 1)) || (row.vc == 'vendor' && AUTH.assert('request_quotation_edit', 1))) %]
+    [%- END %]
     <tr>
      <td>
       [% IF RIGHT_TO_EDIT %]
@@ -43,13 +69,22 @@
      <td>[% HTML.escape(row.transdate) %]</td>
      <td>[% HTML.escape(row.reqdate) %]</td>
      <td>
-      <a href="[% edit_url | html %]&amp;vc=[% row.vc | html %]&amp;type=[% IF row.vc == 'customer' %]sales_quotation[% ELSE %]request_quotation[% END %]&amp;id=[% row.id | html %]">
-       [% IF row.vc == 'customer' %]
-         [% 'Sales quotation' | $T8 %]
-       [% ELSE %]
-         [% 'Request quotation' | $T8 %]
+      <a href="[% edit_url | html %]&amp;vc=[% row.vc | html %]&amp;id=[% row.id | html %]">
+       [%- IF orders_mode %]
+         [%- IF row.vc == 'customer' %]
+           [% 'Sales Order' | $T8 %]
+         [%- ELSE %]
+           [% 'Purchase Order' | $T8 %]
+         [%- END %]
+         [% HTML.escape(row.ordnumber) %]
+       [%- ELSE %]
+         [%- IF row.vc == 'customer' %]
+           [% 'Sales quotation' | $T8 %]
+         [%- ELSE %]
+           [% 'Request quotation' | $T8 %]
+         [%- END %]
+         [% HTML.escape(row.quonumber) %]
        [% END %]
-       [% HTML.escape(row.quonumber) %]
       </a>
      </td>
      <td>
@@ -67,7 +102,12 @@
   </tbody>
 </table>
 
-<div>[% P.submit_tag('action_close_quotations', LxERP.t8('Close Quotations')) %]</div>
+<div>
+  [%- IF orders_mode %]
+    [% P.submit_tag('action_close_orders', LxERP.t8('Close Orders')) %]</div>
+  [%- ELSE %]
+    [% P.submit_tag('action_close_quotations', LxERP.t8('Close Quotations')) %]</div>
+  [%- END %]
 </form>
 
 </div><!-- /.wrapper -->

@@ -572,13 +572,18 @@ sub transactions_for_todo_list {
   my $query                  = qq|SELECT id FROM employee WHERE login = ?|;
   my ($e_id)                 = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
+  my @record_types           = $params{orders_mode}
+                             ? qw(sales_order purchase_order)
+                             : qw(sales_quotation request_quotation);
+  my $record_types_filter    = '(' . join(' OR ', map { "record_type = '$_'" } @record_types) . ') ';
+
   my $sales_purchase_filter  = 'AND (1 = 0';
   $sales_purchase_filter    .= $params{sales}    ? qq| OR customer_id IS NOT NULL| : '';
   $sales_purchase_filter    .= $params{purchase} ? qq| OR vendor_id   IS NOT NULL| : '';
   $sales_purchase_filter    .= ')';
 
   $query                     =
-    qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
+    qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.ordnumber, oe.quonumber, oe.transaction_description, oe.amount,
          CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
          c.name AS customer,
          v.name AS vendor,
@@ -587,7 +592,7 @@ sub transactions_for_todo_list {
        LEFT JOIN customer c ON (oe.customer_id = c.id)
        LEFT JOIN vendor v   ON (oe.vendor_id   = v.id)
        LEFT JOIN employee e ON (oe.employee_id = e.id)
-       WHERE ((oe.record_type = 'sales_quotation') OR (oe.record_type = 'request_quotation'))
+       WHERE $record_types_filter
          AND (COALESCE(closed,    FALSE) = FALSE)
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
