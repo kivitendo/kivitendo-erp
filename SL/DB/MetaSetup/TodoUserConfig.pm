@@ -14,8 +14,12 @@ __PACKAGE__->meta->columns(
   show_after_login                      => { type => 'boolean', default => 'true' },
   show_follow_ups                       => { type => 'boolean', default => 'true' },
   show_follow_ups_login                 => { type => 'boolean', default => 'true' },
+  show_overdue_purchase_orders          => { type => 'boolean', default => 'true' },
+  show_overdue_purchase_orders_login    => { type => 'boolean', default => 'true' },
   show_overdue_request_quotations       => { type => 'boolean', default => 'true' },
   show_overdue_request_quotations_login => { type => 'boolean', default => 'true' },
+  show_overdue_sales_orders             => { type => 'boolean', default => 'true' },
+  show_overdue_sales_orders_login       => { type => 'boolean', default => 'true' },
   show_overdue_sales_quotations         => { type => 'boolean', default => 'true' },
   show_overdue_sales_quotations_login   => { type => 'boolean', default => 'true' },
 );
