@@ -961,20 +961,34 @@ sub report_for_todo_list {
   my (%params) = @_;
   my $form     = $main::form;
 
-  my $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_quotation'},   'may fail') && $params{sales};
-  my $is_for_purchase = $::auth->assert($oe_view_access_map->{'request_quotation'}, 'may fail') && $params{purchase};
-  my $quotations      = OE->transactions_for_todo_list(sales => $is_for_sales, purchase => $is_for_purchase);
+  my $orders_mode     = $params{orders_mode};
+
+  my $is_for_sales;
+  my $is_for_purchase;
+
+  if ($orders_mode) {
+    $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_order'},    'may fail') && $params{sales};
+    $is_for_purchase = $::auth->assert($oe_view_access_map->{'purchase_order'}, 'may fail') && $params{purchase};
+  } else {
+    $is_for_sales    = $::auth->assert($oe_view_access_map->{'sales_quotation'},   'may fail') && $params{sales};
+    $is_for_purchase = $::auth->assert($oe_view_access_map->{'request_quotation'}, 'may fail') && $params{purchase};
+  }
+
+  my $entries         = OE->transactions_for_todo_list(orders_mode  => $orders_mode,
+                                                       sales        => $is_for_sales,
+                                                       purchase     => $is_for_purchase);
   my $content;
 
-  if (@{ $quotations }) {
+  if (@{ $entries }) {
     my $callback = build_std_url('action');
     my $edit_url = build_std_url('script=controller.pl', 'action=Order/edit', 'callback=' . E($callback));
 
-    $content     = $form->parse_html_template('oe/report_for_todo_list', { 'QUOTATIONS'      => $quotations,
+    $content     = $form->parse_html_template('oe/report_for_todo_list', { 'ENTRIES'         => $entries,
                                                                            'edit_url'        => $edit_url,
                                                                            'callback'        => $callback,
                                                                            'is_for_sales'    => $is_for_sales,
-                                                                           'is_for_purchase' => $is_for_purchase});
+                                                                           'is_for_purchase' => $is_for_purchase,
+                                                                           'orders_mode'     => $orders_mode});
   }
 
   $main::lxdebug->leave_sub();

@@ -54,8 +54,14 @@ sub create_todo_list {
   push @todo_items, todo_list_follow_ups() if ($todo_cfg{"show_follow_ups${postfix}"});
 
   if ($todo_cfg{"show_overdue_sales_quotations${postfix}"} || $todo_cfg{"show_overdue_request_quotations${postfix}"}) {
-    push @todo_items, todo_list_overdue_quotations(sales    => $todo_cfg{"show_overdue_sales_quotations${postfix}"},
-                                                   purchase => $todo_cfg{"show_overdue_request_quotations${postfix}"});
+    push @todo_items, todo_list_overdue_oe(sales    => $todo_cfg{"show_overdue_sales_quotations${postfix}"},
+                                           purchase => $todo_cfg{"show_overdue_request_quotations${postfix}"});
+  }
+
+  if ($todo_cfg{"show_overdue_sales_orders${postfix}"} || $todo_cfg{"show_overdue_purchase_orders${postfix}"}) {
+    push @todo_items, todo_list_overdue_oe(orders_mode => 1,
+                                           sales       => $todo_cfg{"show_overdue_sales_orders${postfix}"},
+                                           purchase    => $todo_cfg{"show_overdue_purchase_orders${postfix}"});
   }
 
   @todo_items = grep { $_ } @todo_items;
@@ -97,7 +103,7 @@ sub todo_list_follow_ups {
   return $content;
 }
 
-sub todo_list_overdue_quotations {
+sub todo_list_overdue_oe {
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('productivity');
