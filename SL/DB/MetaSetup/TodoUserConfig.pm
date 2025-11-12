@@ -9,13 +9,15 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('todo_user_config');
 
 __PACKAGE__->meta->columns(
-  employee_id                         => { type => 'integer', not_null => 1 },
-  id                                  => { type => 'serial', not_null => 1 },
-  show_after_login                    => { type => 'boolean', default => 'true' },
-  show_follow_ups                     => { type => 'boolean', default => 'true' },
-  show_follow_ups_login               => { type => 'boolean', default => 'true' },
-  show_overdue_sales_quotations       => { type => 'boolean', default => 'true' },
-  show_overdue_sales_quotations_login => { type => 'boolean', default => 'true' },
+  employee_id                           => { type => 'integer', not_null => 1 },
+  id                                    => { type => 'serial', not_null => 1 },
+  show_after_login                      => { type => 'boolean', default => 'true' },
+  show_follow_ups                       => { type => 'boolean', default => 'true' },
+  show_follow_ups_login                 => { type => 'boolean', default => 'true' },
+  show_overdue_request_quotations       => { type => 'boolean', default => 'true' },
+  show_overdue_request_quotations_login => { type => 'boolean', default => 'true' },
+  show_overdue_sales_quotations         => { type => 'boolean', default => 'true' },
+  show_overdue_sales_quotations_login   => { type => 'boolean', default => 'true' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
