@@ -45,6 +45,7 @@ use SL::DB::CustomVariableConfig;
 use SL::DB::CustomVariableConfigPartsgroup;
 use SL::DB::CustomVariableValidity;
 use SL::DB::Customer;
+use SL::DB::CustomerContact;
 use SL::DB::Datev;
 use SL::DB::Default;
 use SL::DB::DeliveryOrder;
@@ -162,6 +163,7 @@ use SL::DB::UserPreference;
 use SL::DB::VC;
 use SL::DB::ValidityToken;
 use SL::DB::Vendor;
+use SL::DB::VendorContact;
 use SL::DB::Warehouse;
 
 1;

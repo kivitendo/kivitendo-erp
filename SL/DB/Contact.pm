@@ -9,6 +9,19 @@ use SL::DB::Helper::CustomVariables (
   cvars_alias => 1,
 );
 
+__PACKAGE__->meta->add_relationship(
+  customers => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::CustomerContact',
+    manager_args => { sort_by => 'customer.customernumber' },
+  },
+  vendors => {
+    type         => 'many to many',
+    map_class    => 'SL::DB::VendorContact',
+    manager_args => { sort_by => 'vendor.vendornumber' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 sub used {
@@ -25,11 +38,6 @@ sub used {
        + SL::DB::Manager::Invoice->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::PurchaseInvoice->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ]);
-}
-
-sub detach {
-  $_[0]->cp_cv_id(undef);
-  $_[0];
 }
 
 sub full_name {
