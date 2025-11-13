@@ -37,6 +37,7 @@ package OE;
 
 use List::Util qw(max first);
 
+use DateTime;
 use SL::AM;
 use SL::Common;
 use SL::CVar;
@@ -583,6 +584,9 @@ sub transactions_for_todo_list {
 
   my $record_types_filter    = '(' . join(' OR ', map { "oe.record_type = '$_'" } @record_types) . ') ';
 
+  my $config_days            = $::instance_conf->get_todo_oe_overdue_days;
+  my $reference_date         = DateTime->today_local->subtract(days => $config_days)->to_kivitendo;
+
   $query                     =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.ordnumber, oe.quonumber, oe.transaction_description, oe.amount,
          CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
@@ -597,10 +601,10 @@ sub transactions_for_todo_list {
          AND (COALESCE(closed,    FALSE) = FALSE)
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
-         AND (oe.reqdate < current_date)
+         AND (oe.reqdate < ?)
        ORDER BY transdate|;
 
-  my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id);
+  my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id, conv_date($reference_date));
 
   $main::lxdebug->leave_sub();
 
