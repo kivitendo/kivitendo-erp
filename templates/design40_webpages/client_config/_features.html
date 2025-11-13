@@ -452,6 +452,11 @@
         <td>[% LxERP.t8("Controls whether the default item input is above (default) or below the positions list in orders and quotations. Can be overridden by user preferences.") %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8("Overdue interval in days for TODO list") %]</th>
+        <td>[% L.input_tag("defaults.todo_oe_overdue_days_as_number", SELF.defaults.todo_oe_overdue_days_as_number, class="numeric wi-small") %]</td>
+        <td>[% LxERP.t8("Quotations and orders are considered overdue for the TODO list if they are not closed and the valid until or the reqdate exceeded the specified number of days.") %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% 'Show certain sales and purchase documents' | $T8 %]</th>
       </tr>
       <tr>
