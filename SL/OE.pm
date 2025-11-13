@@ -572,15 +572,16 @@ sub transactions_for_todo_list {
   my $query                  = qq|SELECT id FROM employee WHERE login = ?|;
   my ($e_id)                 = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
-  my @record_types           = $params{orders_mode}
-                             ? qw(sales_order purchase_order)
-                             : qw(sales_quotation request_quotation);
-  my $record_types_filter    = '(' . join(' OR ', map { "record_type = '$_'" } @record_types) . ') ';
+  my @record_types;
+  if ($params{orders_mode}) {
+    push @record_types, 'sales_order'       if $params{sales};
+    push @record_types, 'purchase_order'    if $params{purchase};
+  } else {
+    push @record_types, 'sales_quotation'   if $params{sales};
+    push @record_types, 'request_quotation' if $params{purchase};
+  }
 
-  my $sales_purchase_filter  = 'AND (1 = 0';
-  $sales_purchase_filter    .= $params{sales}    ? qq| OR customer_id IS NOT NULL| : '';
-  $sales_purchase_filter    .= $params{purchase} ? qq| OR vendor_id   IS NOT NULL| : '';
-  $sales_purchase_filter    .= ')';
+  my $record_types_filter    = '(' . join(' OR ', map { "oe.record_type = '$_'" } @record_types) . ') ';
 
   $query                     =
     qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.ordnumber, oe.quonumber, oe.transaction_description, oe.amount,
@@ -597,7 +598,6 @@ sub transactions_for_todo_list {
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
          AND (oe.reqdate < current_date)
-         $sales_purchase_filter
        ORDER BY transdate|;
 
   my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id);
