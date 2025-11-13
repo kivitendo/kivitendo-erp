@@ -741,7 +741,7 @@ sub action_ajaj_get_contact {
   $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
 
   # avoid two or more main_cp
-  my ($has_main_cp) = $self->{cv}->main_contact;
+  my $has_main_cp = $self->{cv}->main_contact;
   $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}{cp_main});
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });

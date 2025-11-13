@@ -49,12 +49,12 @@ __PACKAGE__->meta->add_relationship(
     class => 'SL::DB::CustomerContact',
     column_map => { id => 'customer_id' },
   },
-  contacts => {
+  contacts_rel => {
     type         => 'many to many',
     map_class    => 'SL::DB::CustomerContact',
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
-  main_contact => {
+  main_contact_rel => {
     type         => 'many to many',
     map_class    => 'SL::DB::CustomerContact',
     query_args   => [ 'customer_contacts.main' => 1 ],
@@ -130,6 +130,20 @@ sub default_billing_address {
 
   die 'not an accessor' if @_ > 1;
   return first { $_->default_address } @{ $self->additional_billing_addresses };
+}
+
+sub contacts {
+  my ($self) = @_;
+
+  die 'not an accessor' if @_ > 1;
+  $self->contacts_rel;
+}
+
+sub main_contact {
+  my ($self) = @_;
+
+  die 'not an accessor' if @_ > 1;
+  $self->main_contact_rel->[0];
 }
 
 sub link_contact {

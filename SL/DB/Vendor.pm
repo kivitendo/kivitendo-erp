@@ -36,12 +36,12 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ module  => 'CT' ],
   },
-  contacts => {
+  contacts_rel => {
     type         => 'many to many',
     map_class    => 'SL::DB::VendorContact',
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
-  main_contact => {
+  main_contact_rel => {
     type         => 'many to many',
     map_class    => 'SL::DB::VendorContact',
     query_args   => [ 'vendor_contacts.main' => 1 ],
@@ -95,6 +95,20 @@ EOSQL
 
   return if !$chart_id;
   return SL::DB::Chart->load_cached($chart_id);
+}
+
+sub contacts {
+  my ($self) = @_;
+
+  die 'not an accessor' if @_ > 1;
+  $self->contacts_rel;
+}
+
+sub main_contact {
+  my ($self) = @_;
+
+  die 'not an accessor' if @_ > 1;
+  $self->main_contact_rel->[0];
 }
 
 sub link_contact {
