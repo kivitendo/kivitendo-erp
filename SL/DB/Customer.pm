@@ -27,6 +27,10 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'phone',          title => t8('Phone')  },
                {name => 'country',        title => t8('Country') }, ]
 );
+use SL::DB::Helper::CustomerVendorContacts (
+  join_package  => 'SL::DB::CustomerContact',
+  join_accessor => 'customer_id',
+);
 
 use SL::DB::VC;
 
@@ -48,16 +52,6 @@ __PACKAGE__->meta->add_relationship(
     type => 'one to many',
     class => 'SL::DB::CustomerContact',
     column_map => { id => 'customer_id' },
-  },
-  contacts_rel => {
-    type         => 'many to many',
-    map_class    => 'SL::DB::CustomerContact',
-    manager_args => { sort_by => 'lower(contacts.cp_name)' },
-  },
-  main_contact_rel => {
-    type         => 'many to many',
-    map_class    => 'SL::DB::CustomerContact',
-    query_args   => [ 'customer_contacts.main' => 1 ],
   },
 );
 
@@ -130,37 +124,6 @@ sub default_billing_address {
 
   die 'not an accessor' if @_ > 1;
   return first { $_->default_address } @{ $self->additional_billing_addresses };
-}
-
-sub contacts {
-  my ($self) = @_;
-
-  die 'not an accessor' if @_ > 1;
-  $self->contacts_rel;
-}
-
-sub main_contact {
-  my ($self) = @_;
-
-  die 'not an accessor' if @_ > 1;
-  $self->main_contact_rel->[0];
-}
-
-sub link_contact {
-  my ($self, $contact, %params) = @_;
-  my $existing = SL::DB::Manager::CustomerContact->get_first(query => [ customer_id => $self->id, contact_id => $contact->cp_id ]);
-  $existing //= SL::DB::CustomerContact->new(customer_id => $self->id, contact_id => $contact->cp_id);
-
-  if (exists $params{main}) {
-    $existing->main($params{main});
-  }
-
-  $existing->save;
-}
-
-sub detach_contact {
-  my ($self, $contact) = @_;
-  SL::DB::Manager::CustomerContact->delete_all(where => [ customer_id => $self->id, contact_id => $contact->cp_id ]);
 }
 
 1;

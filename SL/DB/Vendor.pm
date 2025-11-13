@@ -25,6 +25,10 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'email',          title => t8('E-Mail') },
                {name => 'phone',          title => t8('Phone')  }, ]
 );
+use SL::DB::Helper::CustomerVendorContacts (
+  join_package  => 'SL::DB::VendorContact',
+  join_accessor => 'vendor_id',
+);
 
 use SL::DB::VC;
 
@@ -35,16 +39,6 @@ __PACKAGE__->meta->add_relationship(
     column_map   => { id      => 'trans_id' },
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ module  => 'CT' ],
-  },
-  contacts_rel => {
-    type         => 'many to many',
-    map_class    => 'SL::DB::VendorContact',
-    manager_args => { sort_by => 'lower(contacts.cp_name)' },
-  },
-  main_contact_rel => {
-    type         => 'many to many',
-    map_class    => 'SL::DB::VendorContact',
-    query_args   => [ 'vendor_contacts.main' => 1 ],
   },
 );
 
@@ -95,37 +89,6 @@ EOSQL
 
   return if !$chart_id;
   return SL::DB::Chart->load_cached($chart_id);
-}
-
-sub contacts {
-  my ($self) = @_;
-
-  die 'not an accessor' if @_ > 1;
-  $self->contacts_rel;
-}
-
-sub main_contact {
-  my ($self) = @_;
-
-  die 'not an accessor' if @_ > 1;
-  $self->main_contact_rel->[0];
-}
-
-sub link_contact {
-  my ($self, $contact, %params) = @_;
-  my $existing = SL::DB::Manager::VendorContact->get_first(query => [ vendor_id => $self->id, contact_id => $contact->cp_id ]);
-  $existing //= SL::DB::VendorContact->new(vendor_id => $self->id, contact_id => $contact->cp_id);
-
-  if (exists $params{main}) {
-    $existing->main($params{main});
-  }
-
-  $existing->save;
-}
-
-sub detach_contact {
-  my ($self, $contact) = @_;
-  SL::DB::Manager::VendorContact->delete_all(where => [ vendor_id => $self->id, contact_id => $contact->cp_id ]);
 }
 
 1;

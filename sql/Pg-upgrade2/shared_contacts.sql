@@ -19,8 +19,8 @@
 
 create table customer_contacts (
   id serial primary key,
-  customer_id integer references customer(id)    not null,
-  contact_id  integer references contacts(cp_id) not null,
+  customer_id integer not null references customer(id)    on delete cascade,
+  contact_id  integer not null references contacts(cp_id) on delete cascade,
   main boolean not null default false,
 
   unique(customer_id, contact_id)
@@ -28,8 +28,8 @@ create table customer_contacts (
 
 create table vendor_contacts (
   id serial primary key,
-  vendor_id  integer references vendor(id)      not null,
-  contact_id integer references contacts(cp_id) not null,
+  vendor_id  integer not null references vendor(id)      on delete cascade,
+  contact_id integer not null references contacts(cp_id) on delete cascade,
   main boolean not null default false,
 
   unique(vendor_id, contact_id)
