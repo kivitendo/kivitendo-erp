@@ -49,6 +49,16 @@ Kleinere neue Features und Detailverbesserungen:
 - PDF-Anhänge von Mahnungen werden in ein PDF zusammengeführt
   betrifft Mahnungen bei welchen die Ursprungsrechnung mitgeschickt wird.
 
+- In der Aufgabenliste lassen sich nun auch Aufträge (VK/EK) anzeigen.
+  Zudem lässt sich in der Benutzereinstellung getrennt nach Belegtypen wählen,
+  ob und wann (Login und/oder Menüpunkt bei Produktivität) diese angezeigt
+  werden sollen.
+
+- In der Mandantenkonfiguration lässt sich ein Intervall in Tagen angeben,
+  ab welchen die Angebote/Aufträge für die Aufgabenliste als überfällig
+  gelten.
+
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
