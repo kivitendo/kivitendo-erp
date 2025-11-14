@@ -103,11 +103,8 @@
 </table>
 
 <div>
-  [%- IF orders_mode %]
-    [% P.submit_tag('action_close_orders', LxERP.t8('Close Orders')) %]</div>
-  [%- ELSE %]
-    [% P.submit_tag('action_close_quotations', LxERP.t8('Close Quotations')) %]</div>
-  [%- END %]
+  [% P.submit_tag('action_close_quotations_orders', orders_mode ? LxERP.t8('Close Orders') : LxERP.t8('Close Quotations')) %]
+</div>
 </form>
 
 </div><!-- /.wrapper -->
