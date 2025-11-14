@@ -73,12 +73,12 @@ use Rose::Object::MakeMethods::Generic
 
 # safety
 __PACKAGE__->run_before('check_auth',
-                        except => [ qw(close_quotations) ]);
+                        except => [ qw(close_quotations_orders) ]);
 
 __PACKAGE__->run_before('check_auth_for_edit',
-                        except => [ qw(edit price_popup load_second_rows close_quotations) ]);
+                        except => [ qw(edit price_popup load_second_rows close_quotations_orders) ]);
 __PACKAGE__->run_before('get_basket_info_from_from',
-                        except => [ qw(close_quotations) ]);
+                        except => [ qw(close_quotations_orders) ]);
 
 #
 # actions
@@ -1412,7 +1412,7 @@ sub action_delete_phone_note {
     ->render;
 }
 
-sub action_close_quotations {
+sub action_close_quotations_orders {
   my ($self) = @_;
 
   my @redirect_params = $::form->{callback} ? ($::form->{callback})
@@ -1432,30 +1432,43 @@ sub action_close_quotations {
                                                                      or             => [closed => 0, closed => undef],
                                                                      record_type    => REQUEST_QUOTATION_TYPE()]);
 
+  my $sales_orders        = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
+                                                                      or             => [closed => 0, closed => undef],
+                                                                      record_type    => SALES_ORDER_TYPE()]);
+
+  my $purchase_orders     = SL::DB::Manager::Order->get_all(where => [id            => $::form->{ids},
+                                                                      or             => [closed => 0, closed => undef],
+                                                                      record_type    => PURCHASE_ORDER_TYPE()]);
+
   $::auth->assert('sales_quotation_edit')   if scalar @$sales_quotations;
   $::auth->assert('request_quotation_edit') if scalar @$request_quotations;
+  $::auth->assert('sales_order_edit')       if scalar @$sales_orders;
+  $::auth->assert('purchase_order_edit')    if scalar @$purchase_orders;
 
   my $employee_id = SL::DB::Manager::Employee->current->id;
   SL::DB->client->with_transaction(sub {
     SL::DB::Manager::Order->update_all(set   => {closed => 1},
                                        where => [id => $::form->{ids}]);
 
-    foreach my $quotation (@$sales_quotations, @$request_quotations) {
-      SL::DB::History->new(
-        trans_id    => $quotation->id,
+    foreach my $entry (@$sales_quotations, @$request_quotations, @$sales_orders, @$purchase_orders) {
+      my $snumbers_prefix = (any { $entry->record_type eq $_ } (SALES_QUOTATION_TYPE(), REQUEST_QUOTATION_TYPE()))
+                          ? 'quonumber_'
+                          : 'ordnumber_';
+        SL::DB::History->new(
+        trans_id    => $entry->id,
         employee_id => $employee_id,
-        what_done   => $quotation->type,
-        snumbers    => 'quonumber_' . $quotation->number,
+        what_done   => $entry->type,
+        snumbers    => $snumbers_prefix . $entry->number,
         addition    => 'SAVED',
       )->save;
     }
 
     1;
   }) || do {
-    $::form->error(t8('Closing the selected quotations failed: #1', SL::DB->client->error));
+    $::form->error(t8('Closing the selected documents failed: #1', SL::DB->client->error));
   };
 
-  flash_later('info', t8('The selected quotations where closed.'));
+  flash_later('info', t8('The selected documents where closed.'));
   $self->redirect_to(@redirect_params);
 }
 
