@@ -37,6 +37,7 @@ package OE;
 
 use List::Util qw(max first);
 
+use DateTime;
 use SL::AM;
 use SL::Common;
 use SL::CVar;
@@ -572,13 +573,22 @@ sub transactions_for_todo_list {
   my $query                  = qq|SELECT id FROM employee WHERE login = ?|;
   my ($e_id)                 = selectrow_query($form, $dbh, $query, $::myconfig{login});
 
-  my $sales_purchase_filter  = 'AND (1 = 0';
-  $sales_purchase_filter    .= $params{sales}    ? qq| OR customer_id IS NOT NULL| : '';
-  $sales_purchase_filter    .= $params{purchase} ? qq| OR vendor_id   IS NOT NULL| : '';
-  $sales_purchase_filter    .= ')';
+  my @record_types;
+  if ($params{orders_mode}) {
+    push @record_types, 'sales_order'       if $params{sales};
+    push @record_types, 'purchase_order'    if $params{purchase};
+  } else {
+    push @record_types, 'sales_quotation'   if $params{sales};
+    push @record_types, 'request_quotation' if $params{purchase};
+  }
+
+  my $record_types_filter    = '(' . join(' OR ', map { "record_type = '$_'" } @record_types) . ') ';
+
+  my $config_days            = $::instance_conf->get_todo_oe_overdue_days;
+  my $reference_date         = DateTime->today_local->subtract(days => $config_days)->to_kivitendo;
 
   $query                     =
-    qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.quonumber, oe.transaction_description, oe.amount,
+    qq|SELECT oe.id, oe.transdate, oe.reqdate, oe.ordnumber, oe.quonumber, oe.transaction_description, oe.amount,
          CASE WHEN (COALESCE(oe.customer_id, 0) = 0) THEN 'vendor' ELSE 'customer' END AS vc,
          c.name AS customer,
          v.name AS vendor,
@@ -587,15 +597,14 @@ sub transactions_for_todo_list {
        LEFT JOIN customer c ON (oe.customer_id = c.id)
        LEFT JOIN vendor v   ON (oe.vendor_id   = v.id)
        LEFT JOIN employee e ON (oe.employee_id = e.id)
-       WHERE ((oe.record_type = 'sales_quotation') OR (oe.record_type = 'request_quotation'))
+       WHERE $record_types_filter
          AND (COALESCE(closed,    FALSE) = FALSE)
          AND ((oe.employee_id = ?) OR (oe.salesman_id = ?))
          AND NOT (oe.reqdate ISNULL)
-         AND (oe.reqdate < current_date)
-         $sales_purchase_filter
+         AND (oe.reqdate < ?)
        ORDER BY transdate|;
 
-  my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id);
+  my $quotations = selectall_hashref_query($form, $dbh, $query, $e_id, $e_id, conv_date($reference_date));
 
   $main::lxdebug->leave_sub();
 
@@ -1344,11 +1353,5 @@ OE.pm - Order entry module
 =head1 DESCRIPTION
 
 OE.pm is part of the OE module. OE is responsible for sales and purchase orders, as well as sales quotations and purchase requests. This file abstracts the database tables C<oe> and C<orderitems>.
-
-=head1 FUNCTIONS
-
-=over 4
-
-=back
 
 =cut
