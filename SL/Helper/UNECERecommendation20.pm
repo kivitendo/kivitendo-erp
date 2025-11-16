@@ -50,6 +50,9 @@ my @mappings = (
   [ 'E35', qr{^(?:tb|terabyte)$}i ],
   [ 'E36', qr{^(?:pb|petabyte)$}i ],
 
+  # service unit
+  [ 'E48', qr{^(?:arbeits-?einheit|arbeits-?wert|ae|aw)$}i ],
+
   # miscellaneous
   [ 'C62', qr{^(?:stck|stück|pieces?|pc|psch|pauschal|licenses?|lizenz(?:en)?)$}i ],
 );
