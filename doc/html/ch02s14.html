@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.14. Drucken mit kivitendo</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 3.9.2: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s13.html" title="2.13. E-Mail"><link rel="next" href="ch02s15.html" title="2.15. OpenDocument-Vorlagen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.14. Drucken mit kivitendo</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s13.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s15.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.14. Drucken mit kivitendo"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Drucken-mit-kivitendo"></a>2.14. Drucken mit kivitendo</h2></div></div></div><p>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX-Vorlagen.
+   <title>2.14. Drucken mit kivitendo</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 4.0.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s13.html" title="2.13. E-Mail"><link rel="next" href="ch02s15.html" title="2.15. OpenDocument-Vorlagen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.14. Drucken mit kivitendo</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s13.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s15.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.14. Drucken mit kivitendo"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Drucken-mit-kivitendo"></a>2.14. Drucken mit kivitendo</h2></div></div></div><p>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX-Vorlagen.
       Um drucken zu können, braucht der Server ein geeignetes LaTeX System. Am
       einfachsten ist dazu eine <code class="literal">texlive</code> Installation. Unter
       debianoiden Betriebssystemen installiert man die Pakete mit:</p><p>
@@ -148,12 +148,203 @@
     Da man heutzutage nur noch moderne Schriftformate Verwenden sollte, wird hier lediglich die Variante für |lualatex| aufgelistet.</p><p>Die Konfiguration läuft hierbei über das \pck{fontspec} Paket (Doku siehe \cite{fontspec}).
     Dann hängt es davon ab, ob die Basisschriftart eine Serifenschriftart ist oder nicht.
     In jedem Fall wird die Änderung entweder in der <code class="filename">insettings.tex</code>, sofern sie für alle
-    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3065"></a>2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
-        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</p></div><div class="sect5" title="2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3070"></a>2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
-      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3075"></a>2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
+    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3129"></a>2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
+        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</p></div><div class="sect5" title="2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3134"></a>2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
+      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3139"></a>2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
       \setsansfont{|\meta{Name der Schriftart, z.B. SourceSansPro}|}
       \renewcommand*{\familydefault}{\sfdefault}    </pre></div></div><div class="sect4" title="2.14.2.10.2. Unterscheidungen durch String-Vergleich"><div class="titlepage"><div><div><h5 class="title"><a name="Unterscheidungen durch String-Vergleich"></a>2.14.2.10.2. Unterscheidungen durch String-Vergleich</h5></div></div></div><pre class="programlisting">
-    \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}    </pre></div></div></div><div class="sect2" title="2.14.3. Der Druckvorlagensatz RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.14.3. Der Druckvorlagensatz RB</h3></div></div></div><p>Hierbei handelt es sich um einen vollständigen LaTeX
+    \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}    </pre></div></div></div><div class="sect2" title="2.14.3. Der Druckvorlagensatz mersiha"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-mersiha"></a>2.14.3. Der Druckvorlagensatz mersiha</h3></div></div></div><p>Hierbei handelt es sich um einen auf Industriekunden zugeschnitten LaTeX
+        Druckvorlagensatz auf Basis des Druckvorlagensatzes marei.</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Die Felder in der Infobox oben rechts auf den Belegen lassen sich
+            flexibel anpassen</p></li><li class="listitem"><p>Belegtitel (Überschriften) sind linksbündig und kleiner als im
+            LaTeX KOMA-script Standard</p></li><li class="listitem"><p>Als optional markierten Positionen sind auf den Belegen als solche
+            gekennzeichnet</p></li></ul></div><p>Die Dokumentenklasse kiviletter.sty wird nicht modifiziert, um die
+        Wartung zu erleichtern.</p><div class="simplesect" title="2.14.3.1. Struktur der Belegtypen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3166"></a>2.14.3.1. Struktur der Belegtypen</h4></div></div></div><p>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
+          Grundsätzlich werden Doppelungen im LaTeX-Code vermieden, um die Wartung zu vereinfachen.
+          Belegtypen, die sich nur minimal voneinander unterscheiden, verweisen auf dieselbe LaTeX-Quelltextdatei, welche dann Fallunterscheidungen, z.B. für die Überschrift, enthält.
+          Eine Übersicht aller Belegtypen und zugehöriger LaTeX-Quelltextdateien liefert folgende Tabelle.
+          Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</p><table id="d0e3171">Dateinamen der Belegtypen<thead><tr>
+    
+                        <th colspan="2"> Einkauf </th>
+                        <th colspan="2"> Verkauf </th>
+  
+                     </tr><tr>
+    
+                        <th> Belegtyp </th>
+                        <th> LaTeX Vorlage </th>
+                        <th> Belegtyp </th>
+                        <th> LaTeX Vorlage </th>
+  
+                     </tr></thead><tbody><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Pflichtenheft </td>
+                        <td> requirement_spec.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> Preisanfrage </td>
+                        <td> request_quotation.tex </td>
+                        <td> Angebot </td>
+                        <td> sales_quotation.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> Angebotseingang </td>
+                        <td> purchase_quotation_intake.tex </td>
+                        <td> Auftragseingang </td>
+                        <td rowspan="2"> sales_order_intake.tex
+sales_order.tex* </td>
+  
+                     </tr><tr>
+    
+                        <td> Lieferantenauftrag </td>
+                        <td> purchase_order.tex </td>
+                        <td> Auftragsbestätigung </td>
+  
+                     </tr><tr>
+    
+                        <td> 
+                           <div class="literallayout"><p>Beistelllieferschein<br>
+Retourenlieferschein<br>
+Einkaufslieferschein</p></div> 
+                        </td>
+                        <td> 
+                           <div class="literallayout"><p>supplier_delivery_order.tex<br>
+rma_delivery_order.tex*<br>
+purchase_delivery_order.tex*</p></div> 
+                        </td>
+                        <td> Lieferschein </td>
+                        <td> sales_delivery_order.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> Einkaufsreklamation </td>
+                        <td> purchase_reclamation.tex </td>
+                        <td> Verkaufsreklamation </td>
+                        <td> sales_reclamation.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> 
+                           <div class="literallayout"><p>Rechnung<br>
+Anzahlungsrechnung<br>
+Schlussrechnung<br>
+Rechnungskopie<br>
+Stornorechnung</p></div> 
+                        </td>
+                        <td> 
+                           <div class="literallayout"><p>invoice.tex<br>
+invoice_for_advance_payment.tex*<br>
+final_invoice.tex*<br>
+invoice_copy.tex*<br>
+storno_invoice.tex*</p></div> 
+                        </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Proformarechnung </td>
+                        <td> proforma.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Gutschrift </td>
+                        <td> credit_note.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Mahnung </td>
+                        <td> zahlungserinnerung.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Rechnung über Mahngebühren </td>
+                        <td> zahlungserinnerung_invoice.tex </td>
+  
+                     </tr><tr>
+    
+                        <td> </td>
+                        <td> </td>
+                        <td> Sammelrechnung (FiBu) </td>
+                        <td> statement.tex </td>
+  
+                     </tr></tbody></table><p>*: symbolischer Link
+          </p><p>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
+          </p><pre class="programlisting">deutsch.tex
+englisch.tex
+firma/chf_account.tex
+firma/euro_account.tex
+firma/usd_account.tex
+firma/ident.tex
+insettings.tex</pre><p>
+          
+               </p></div><div class="simplesect" title="2.14.3.2. Infobox"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3382"></a>2.14.3.2. Infobox</h4></div></div></div><p>
+            Die Infobox oben rechts auf den Belegen (auch genannt Absenderergänzung) wird über LaTeX KOMA-script Variablen befüllt.
+            Dies ist flexibler als im Druckvorlagensatz marei gestaltet.
+            In der Datei <code class="literal">insettings.tex</code> sind die KOMA-script Variablen <code class="literal">info0</code> bis <code class="literal">info9</code> definiert.
+            Diese erscheinen jedoch nur dann in der Infobox, wenn sie auf einen Wert ungleich eines leeren Strings gesetzt werden.
+            Das erlaubt es, in den Belegen ohne weitere Fallunterscheidungen die Variablen zu setzen.
+            Zum Verständnis hier ein Beispiel aus dem Belegtyp Rechnung, also <code class="literal">invoice.tex</code>:
+            </p><pre class="programlisting">% \setkomavar{info0}[\vorgangsbez]       {&lt;%transaction_description%&gt;}
+\setkomavar{info1}[\rechnungsdatum]    {&lt;%invdate%&gt;}
+\setkomavar{info2}[\kundennummer]      {&lt;%customernumber%&gt;}
+\setkomavar{info3}[\ihreBestellnummer] {&lt;%cusordnumber%&gt;}
+\setkomavar{info4}[\auftragsnummer]    {&lt;%ordnumber%&gt;}
+\setkomavar{info5}[\angebot{}~\nr]     {&lt;%quonumber%&gt;}
+\setkomavar{info6}[\lieferschein{}~\nr]{&lt;%donumber%&gt;}
+\setkomavar{info7}[\leistungsdatum]    {&lt;%tax_point%&gt;}
+\setkomavar{info8}[\ansprechpartner]   {&lt;%salesman_name%&gt;}
+\setkomavar{info9}[\textTelefon]       {&lt;%salesman_tel%&gt;}
+\setkomavar{info10}[\textEmail]        {&lt;%salesman_email%&gt;}
+</pre><p>
+            Dieser Kunde möchte die Vorgangsbezeichnung nicht mit ausgeben, weshalb die erste Zeile auskommentiert ist. Weiterhin ist exemplarisch der Verkäufer anstelle des Bearbeiters der Ansprechpartner. Daher wird mit <code class="literal">&lt;%salesman_name%&gt;</code> anstelle von <code class="literal">&lt;%employee_name%&gt;</code> gearbeitet. Telefon und E-Mail verhalten sich analog dazu.
+          </p><p>Weil <code class="literal">info0</code> bis <code class="literal">info11</code> in aufsteigender Reihenfolge ausgegeben werden, lässt sich über die Ziffern 0 bis 11 die Reihenfolge der Felder in der Infobox steuern.
+          Bei vielen Industriekunden benötigen bestimmte Belegtypen abweichende Informationen oder andere Übersetzungstexte in der Infobox; all dies lässt sich durch Anpassung obigen LaTeX-Codes erreichen.
+          </p></div><div class="simplesect" title="2.14.3.3. Tipps für Kundenanpassungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3416"></a>2.14.3.3. Tipps für Kundenanpassungen</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+              Logo mit absoluter Positionierung als Briefbogen einfügen: In <code class="literal">insettings.tex</code> einfügen:
+              </p><pre class="programlisting">\DeclareNewLayer[page,background,hoffset=125mm,voffset=12mm,
+  contents={\includegraphics[width=75mm]{logo-mit-text}}
+]{background.first}
+\DeclareNewLayer[page,background,hoffset=20mm,voffset=4mm,
+  contents={\includegraphics[scale=0.2]{logo-klein}}
+]{background}
+\AddLayersToPageStyle{kivitendo.letter.first}{background.first}
+\AddLayersToPageStyle{kivitendo.letter}{background}</pre><p>
+              Das Logo muss in einem für LaTeX geeigneten Format vorliegen, bspw. PDF, PNG oder JPEG: <code class="literal">logo-mit-text.pdf</code> o.Ä.
+              </p></li><li class="listitem"><p>
+              Die alternierenden Farben der Zeilen in der Positionstabelle abschalten: In <code class="literal">insettings.tex</code> einfügen:
+              </p><pre class="programlisting">\SetupPricingTabular{
+  rowcolor-odd = white,
+}</pre><p>
+              
+                     </p></li><li class="listitem"><p>
+              Im Druckvorlagensatz mersiha bereits enthalten ist: Die standardmäßig aktive Ausgabe des Währungszeichens in der letzten Spalte der Positionstabelle abschalten: In <code class="literal">insettings.tex</code> einfügen:
+              </p><pre class="programlisting">\SetupPricingTabular{
+  pricetotal/colspec = K,
+}</pre><p>
+              Dies ist bspw. nötig, um optionale Positionen richtig auszugeben und das Währungszeichen nur alle nicht-optionalen Positionen durch eine Fallunterscheidung in Template Toolkit einzufügen.
+              </p></li><li class="listitem"><p>
+              In Lieferantenaufträgen zu jeder Position die Artikelnummer des Lieferanten ausgeben: In <code class="literal">purchase_order.tex</code> folgendes diff (mit + markierte Zeilen) einfügen:
+              </p><pre class="programlisting">     &lt;%foreach number%&gt;%
+       &lt;%runningnumber%&gt; &amp;%
+       &lt;%number%&gt; &amp;%
+       \textbf{&lt;%description%&gt;}%
++      &lt;%foreach make%&gt;&lt;%if make == name%&gt;\ExtraDescription{&lt;%model%&gt;}&lt;%end%&gt;&lt;%end%&gt;%
+       &lt;%if longdescription%&gt;\ExtraDescription{&lt;%longdescription%&gt;}&lt;%end longdescription%&gt;%
+       &lt;%if reqdate%&gt;\ExtraDescription{\lieferdatum: &lt;%reqdate%&gt;}&lt;%end reqdate%&gt;%
+    </pre><p>
+              Hier wird durch eine Schleife in Template Toolkit der richtige Wert extrahiert.
+              </p></li></ul></div></div></div><div class="sect2" title="2.14.4. Der Druckvorlagensatz RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.14.4. Der Druckvorlagensatz RB</h3></div></div></div><p>Hierbei handelt es sich um einen vollständigen LaTeX
         Dokumentensatz mit alternativem Design. Die odt oder html-Varianten
         sind nicht gepflegt.</p><p>Die konzeptionelle Idee der Vorlagen wird <a class="ulink" href="http://www.kivitendo-support.de/vortraege/Lx-Office%20Anwendertreffen%20LaTeX-Druckvorlagen-Teil3-finale.pdf" target="_top">hier</a>
         auf Folie 5 bis 10 vorgestellt. Informationen zur Anpassung an die
@@ -163,7 +354,7 @@
             werden, z.B. für Kopf- und Fußzeilen, und Infos wie
             Bankdaten</p></li><li class="listitem"><p>mehrere vordefinierte Varianten für
             Logos/Hintergrundbilder</p></li><li class="listitem"><p>Berücksichtigung für Steuerzonen "EU mit USt-ID Nummer" oder
-            "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.14.4. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.14.4. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit
+            "Außerhalb EU"</p></li></ul></div></div><div class="sect2" title="2.14.5. Der Druckvorlagensatz rev-odt"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-rev-odt"></a>2.14.5. Der Druckvorlagensatz rev-odt</h3></div></div></div><p>Hierbei handelt es sich um einen Dokumentensatz der mit
         odt-Vorlagen erstellt wurde. Es gibt in dem Verzeichnis eine
         Readme-Datei, die eventuell aktueller als die Dokumentation hier ist.
         Die odt-Vorlagen in diesem Verzeichnis "rev-odt" wurden von revamp-it,
@@ -190,7 +381,7 @@
         die verrechneten Mahngebühren und Verzugszinsen.</p><p>Zur Zeit gibt es in kivitendo noch keine Möglichkeit,
         odt-Vorlagen bei Briefen und Pflichtenheften einzusetzen.
         Entsprechende Vorlagen sind deshalb nicht vorhanden.</p><p>Fehlermeldungen, Anregungen und Wünsche bitte senden an:
-        empfang@revamp-it.ch</p></div><div class="sect2" title="2.14.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.14.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
+        empfang@revamp-it.ch</p></div><div class="sect2" title="2.14.6. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.14.6. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte das Drucken jetzt
         schon funktionieren. Sollte ein Fehler auftreten, wirft TeX sehr lange
         Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste
         Zeile, die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler
