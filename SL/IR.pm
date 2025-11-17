@@ -815,7 +815,7 @@ SQL
                 $form->{"currency"},
          conv_i($form->{globalproject_id}),
                 $form->{direct_debit} ? 't' : 'f',
-         conv_i($form->{employee_id}),
+         conv_i($form->{buyer_id}),
          conv_i($form->{id})
   );
   do_query($form, $dbh, $query, @values);
