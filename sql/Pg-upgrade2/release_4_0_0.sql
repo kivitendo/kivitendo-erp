@@ -1,0 +1,3 @@
+-- @tag: release_4_0_0
+-- @description: Leeres Script, das alle Upgradescripte bis zum Release 4.0.0 voraussetzt, um ein fest definiertes Schema zu definieren.
+-- @depends: release_3_9_2 defaults_drop_feature_vertreter defaults_project_email_attachment zugferd_ap_transaction_use_totals secrets payment_terms_add_mtime_trigger defaults_add_mail_new_record defaults_gln allow_assemlby_empty_items
