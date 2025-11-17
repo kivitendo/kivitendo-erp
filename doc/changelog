@@ -44,8 +44,21 @@ Kleinere neue Features und Detailverbesserungen:
   Menge 0 verbauen. Konfigurierbar in der Mandantenkonfiguration, standardmäßig
   deaktiviert.
 
-Bugfixes (Tracker: https://www.kivitendo.de/redmine) / Github-Issues /
-Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/):
+Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
+755 CSV-Import für Auftrage: Fehler, wenn record_type fehlt
+710 Bericht Lagerbuchungen zeigt nur Ein- und auslagerte Bucheungen und nicht die Umlagerungen
+577 locales-Lauf meldet unbenutztes Template "common/toggle-buttons-for-wrapper.html"
+575 Artikelbeschreibung wird von der Artikeleingabe nicht übernommen (Angebot, Auftrag, Reklamation)
+554 Artikelbeschreibung ändern beim Hinzufügen zum Beleg
+552 design4.0 Drehendes Rad bei Tasks (bspw. Task ausführen) verschiebt die Schnellsuchen
+
+Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
+#591 Gesamt- und Zwischensumme im Mahnungsbericht anzeigen
+#521 Sortierung im Bericht Lager->Berichte->Lagerbuchungen teilweise kaputt
+#514 <%mandator_id%> wird nicht bei wiederkehrenden Rechnungen ersetzt. Normale Rechnungen geht es.
+#500 Design 4.0 kein Padding beim Suchergebniss der Artikelsuche
+#493 ZUGfERD X-Rechnung PDF-Rechnung kann nicht imortiert werden xml geht
+#471 Bericht Beistelllieferscheine ohne Lieferanteninfo
 
 
 2025-04-29 - Release 3.9.2
