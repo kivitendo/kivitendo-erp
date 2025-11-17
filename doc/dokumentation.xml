@@ -199,6 +199,10 @@
           </listitem>
 
           <listitem>
+            <para><literal>CryptX</literal></para>
+          </listitem>
+
+          <listitem>
             <para><literal>Daemon::Generic</literal></para>
           </listitem>
 
@@ -419,6 +423,12 @@
           </listitem>
         </itemizedlist>
 
+        <para>In der Version v4.0.0 ist folgendes Paket hinzugekommen:
+          <literal>CryptX</literal>
+        </para>
+
+        <para>In der Version v3.9.2 sind keine neuen Pakete hinzugekommen.</para>
+
         <para>In der Version v3.9.1 sind keine neuen Pakete hinzugekommen.</para>
 
         <para>In der Version v3.9.0 sind die folgenden Pakete hinzugekommen:
@@ -507,7 +517,8 @@
   libdatetime-event-cron-perl libexception-class-perl \
   libxml-libxml-perl libtry-tiny-perl libmath-round-perl \
   libimager-perl libimager-qrcode-perl librest-client-perl libipc-run-perl \
-  libencode-imaputf7-perl libmail-imapclient-perl libuuid-tiny-perl
+  libencode-imaputf7-perl libmail-imapclient-perl libuuid-tiny-perl \
+  libcryptx-perl
           </programlisting>
 
           <para>Sollten Pakete nicht zu Verfügung stehen, so können diese auch mittels CPAN installiert werden. Ferner muss für Ubuntu das Repository "Universe" aktiv sein (s.a. Anmerkungen).</para>
@@ -534,7 +545,7 @@
   perl-Params-Validate perl-Regexp-IPv6 perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer \
-  perl-YAML perl-libwww-perl</programlisting>
+  perl-YAML perl-libwww-perl perl-CryptX</programlisting>
         </sect3>
 
         <sect3>
