@@ -810,7 +810,14 @@ sub save_single_bank_transaction {
           $seis->[0]->set_executed if $invoice->id == $seis->[0]->arap_id;
         }
       }
-
+      # and add a log entry in history_erp
+      SL::DB::History->new(
+        trans_id    => $invoice->id,
+        snumbers    => 'invnumber_' . $invoice->invnumber,
+        employee_id => SL::DB::Manager::Employee->current->id,
+        what_done   => 'bank_transaction: ' . $bank_transaction->purpose,
+        addition    => 'LINKED',
+      )->save();
     }
     $bank_transaction->save;
 
