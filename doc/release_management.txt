@@ -224,7 +224,7 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
 * Tarball erstellen
 
   Commits mit Tags können von github als Archiv heruntergeladen werden:
-  https://github.com/kivitendo/kivitendo-erp/releases
+  https://github.com/kivitendo/kivitendo-erp/tags
 
 * Releasemessages schreiben für folgende Ziele:
 
