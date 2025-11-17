@@ -3,7 +3,7 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Upgrade auf vx.x.x
+Upgrade auf v4.0.0
 
 Ein neues Perl-Modul ist hinzugekommen, Hilfe zum Installieren bietet wie
 immer das Skript 'scripts/installation_check.pl -v'.
