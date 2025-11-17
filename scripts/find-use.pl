@@ -73,6 +73,11 @@ my (%uselines, %modules, %supplied, %requires);
   'File::MimeInfo' => {
     'File::MimeInfo::Magic'              => 1,
   },
+  'CryptX' => {
+    'Crypt::KeyDerivation'               => 1,
+    'Crypt::Mode::CTR'                   => 1,
+    'Crypt::PRNG'                        => 1,
+  },
 );
 
 GetOptions(
