@@ -551,6 +551,19 @@ sub ap_transactions {
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
 
+  my @values;
+
+  my $items_project_amount_select = '';
+  if ($form->{project_id}) {
+    $items_project_amount_select =
+      qq|, | .
+      qq|(SELECT -1*SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AP_amount%' OR chart_link LIKE '%tax%')) AS items_project_amount, | .
+      qq|(SELECT -1*SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AP_amount%')                           ) AS items_project_netamount, | .
+      qq|(SELECT projectnumber FROM project WHERE id = ? ) AS items_project_number |;
+
+    push @values, (conv_i($form->{project_id})) x 3;
+  }
+
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
@@ -577,6 +590,7 @@ sub ap_transactions {
             AND at.trans_id = a.id
             LIMIT 1
           ) AS debit_chart } .
+    $items_project_amount_select .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
@@ -587,8 +601,6 @@ sub ap_transactions {
     qq|LEFT JOIN department ON (department.id = a.department_id)|;
 
   my $where = '';
-
-  my @values;
 
   # Permissions:
   # - Always return invoices & AP transactions for projects the employee has "view invoices" permissions for, no matter what the other rules say.
