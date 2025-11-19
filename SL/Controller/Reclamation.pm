@@ -250,6 +250,11 @@ sub action_save_as_new {
     $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_RECLAMATION_SAVE())->token;
   }
 
+  # item_ids_to_delete contains item ids from the saved order
+  # if items where removed before the save_as_new-action was called.
+  # So clear it before saving the new order object.
+  $self->item_ids_to_delete([]);
+
   # save
   $self->action_save();
 }
