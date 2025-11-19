@@ -1137,6 +1137,8 @@ sub ar_transactions {
     dunning_description department attachments items customer_dunning_lock
     shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
     shiptozipcode shiptocity shiptocountry
+    items_project_netamount items_project_amount
+    items_project_number
   );
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
@@ -1208,6 +1210,9 @@ sub ar_transactions {
     shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
     shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
     shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
+    items_project_amount      => { 'text' => $locale->text('Items Project Total' ), },
+    items_project_netamount   => { 'text' => $locale->text('Items Project Amount'), },
+    items_project_number      => { 'text' => $locale->text('Items Project Number'), },
     %column_defs_cvars,
   );
 
@@ -1216,9 +1221,13 @@ sub ar_transactions {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due items_project_amount items_project_netamount);
 
   $form->{"l_type"} = "Y";
+  if ($form->{project_id}) {
+    $form->{l_items_project_number} = $form->{l_items_project_amount} = $form->{l_items_project_netamount} = "Y";
+  }
+
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $column_defs{ids}->{visible} = 'HTML';
@@ -1247,6 +1256,10 @@ sub ar_transactions {
   if ($form->{department_id}) {
     my $department = SL::DB::Manager::Department->find_by( id => $form->{department_id} );
     push @options, $locale->text('Department') . " : " . $department->description;
+  }
+  if ($form->{project_id}) {
+    my $project = SL::DB::Manager::Project->find_by( id => $form->{project_id} );
+    push @options, $locale->text('Project') . " : " . $project->displayable_name;
   }
   if ($form->{invnumber}) {
     push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
@@ -1357,7 +1370,7 @@ sub ar_transactions {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount paid due marge_total marge_percent);
+  my @subtotal_columns = qw(netamount amount paid due marge_total marge_percent items_project_amount items_project_netamount);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1399,7 +1412,7 @@ sub ar_transactions {
                             $locale->text("AR Transaction (abbreviation)");
     }
 
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent items_project_amount items_project_netamount);
 
     $ar->{direct_debit} = $ar->{direct_debit} ? $::locale->text('yes') : $::locale->text('no');
 

@@ -511,6 +511,17 @@ sub ar_transactions {
 
   my @values;
 
+  my $items_project_amount_select = '';
+  if ($form->{project_id}) {
+    $items_project_amount_select =
+      qq|, | .
+      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) AS items_project_amount, | .
+      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%')                           ) AS items_project_netamount, | .
+      qq|(SELECT projectnumber FROM project WHERE id = ? ) AS items_project_number |;
+
+    push @values, (conv_i($form->{project_id})) x 3;
+  }
+
   my $query =
     qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .
     qq|  a.donumber, a.deliverydate, | .
@@ -539,6 +550,7 @@ sub ar_transactions {
             AND at.trans_id = a.id
             LIMIT 1
           ) AS charts } .
+    $items_project_amount_select .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
