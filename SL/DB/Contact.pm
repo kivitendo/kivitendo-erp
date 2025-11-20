@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::Contact;
 use SL::DB::Manager::Contact;
+use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::CustomVariables (
   module      => 'Contacts',
   cvars_alias => 1,
@@ -23,6 +24,17 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->before_save('_before_save_set_contactnumber');
+
+
+sub _before_save_set_contactnumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if !defined $self->cp_number || $self->cp_number eq '';
+  return 1;
+}
+
 
 sub used {
   my ($self) = @_;
