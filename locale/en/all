@@ -1189,6 +1189,7 @@ $self->{texts} = {
   'Delete shoporder'            => '',
   'Delete template'             => '',
   'Delete text block'           => '',
+  'Delete the contact? This will also remove the contact from all other customers and vendors.' => '',
   'Delete transaction'          => '',
   'Deleted'                     => '',
   'Deleted email import(s): '   => '',

@@ -177,7 +177,7 @@
 </table>
 
 <div class="buttons">
-  [% L.button_tag('submitInputButton("delete_contact");', LxERP.t8('Delete Contact'), id = 'action_delete_contact', class = 'submit') %]
+  [% L.button_tag('submitInputButton("delete_contact");', LxERP.t8('Delete Contact'), id = 'action_delete_contact', class = 'submit', confirm=LxERP.t8('Delete the contact? This will also remove the contact from all other customers and vendors.')) %]
   [% IF ( !SELF.contact.cp_id ) %]
   <script type="text/javascript">
     $('#action_delete_contact').hide();
