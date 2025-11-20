@@ -28,6 +28,10 @@
   <caption>[% 'Personal details' | $T8 %]</caption>
   <tbody>
     <tr>
+      <th>[% 'Contact Number' | $T8 %]</th>
+      <td>[% L.input_tag_trim('contact.cp_number', SELF.contact.cp_number, class="wi-wide") %]</td>
+    </tr>
+    <tr>
       <th>[% 'Given Name' | $T8 %]</th>
       <td>[% L.input_tag_trim('contact.cp_givenname', SELF.contact.cp_givenname, class="wi-wide") %]</td>
     </tr>

@@ -22,6 +22,7 @@ __PACKAGE__->meta->columns(
   cp_mobile1     => { type => 'text' },
   cp_mobile2     => { type => 'text' },
   cp_name        => { type => 'text' },
+  cp_number      => { type => 'text' },
   cp_phone1      => { type => 'text' },
   cp_phone2      => { type => 'text' },
   cp_position    => { type => 'text' },

@@ -814,6 +814,7 @@ $self->{texts} = {
   'Contact'                     => 'Kontakt',
   'Contact Departments'         => 'Abteilungen von Ansprechpersonen',
   'Contact Name'                => 'Kontakt Name',
+  'Contact Number'              => 'Ansprechpartnernummer',
   'Contact Person'              => 'Ansprechperson',
   'Contact Person (database ID)' => 'Ansprechperson (Datenbank-ID)',
   'Contact Person (name)'       => 'Ansprechperson (Name)',
