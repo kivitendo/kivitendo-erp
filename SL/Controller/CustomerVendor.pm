@@ -1046,7 +1046,7 @@ sub _instantiate_args {
     $self->{contact} = $self->_new_contact_object;
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
-  $self->{linked_contacts} = $::form->{linked_contacts};
+  $self->{linked_contacts} = $::form->{linked_contacts} // [];
   $self->{contacts} = @{ $self->{linked_contacts} } ? SL::DB::Manager::Contact->get_all(query => [ cp_id => $self->{linked_contacts} ]) : [];
 
   $self->_copy_form_to_cvars(target => $self->{cv},      source => $::form->{cv_cvars});
@@ -1462,7 +1462,6 @@ sub _new_customer_vendor_object {
 
   my $class  = 'SL::DB::' . ($self->is_vendor ? 'Vendor' : 'Customer');
   my $object = $class->new(
-    contacts         => [],
     shipto           => [],
     custom_variables => [],
   );
