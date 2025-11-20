@@ -34,6 +34,7 @@ SQL
   my $result = SL::DB::Manager::Contact->get_all(
     query => [
       or => [
+        cp_number    => { ilike => like($::form->{term}) },
         cp_name      => { ilike => like($::form->{term}) },
         cp_givenname => { ilike => like($::form->{term}) },
         cp_email     => { ilike => like($::form->{term}) },
