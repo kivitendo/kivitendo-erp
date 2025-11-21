@@ -33,7 +33,8 @@ namespace('kivi.AP', function(ns){
       url: 'controller.pl',
       data: { action: 'SalesPurchase/check_duplicate_invnumber',
               vendor_id    : $('#vendor_id').val(),
-              invnumber    : $('#invnumber').val()
+              invnumber    : $('#invnumber').val(),
+              id           : $('#id').val()
       },
       method: "GET",
       async: false,
