@@ -17,7 +17,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 my @SUPPORTED_TYPES = (
-  qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order_intake sales_order purchase_order purchase_order_confirmation sales_quotation request_quotation purchase_quotation_intake part service assembly assortment letter),
+  qw(invoice invoice_for_advance_payment final_invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order_intake sales_order purchase_order purchase_order_confirmation sales_quotation request_quotation purchase_quotation_intake part service assembly assortment letter contact),
   @{ SL::DB::DeliveryOrder::TypeData::valid_types() },
 );
 
@@ -50,6 +50,12 @@ sub _get_filters {
     $filters{trans_number}  = "${type}number";
     $filters{numberfield}   = "${type}number";
     $filters{table}         = $type;
+
+  } elsif ($_ eq 'contact') {
+    $filters{trans_number}  = "cp_number";
+    $filters{numberfield}   = "contactnumber";
+    $filters{table}         = "contacts";
+
 
   } elsif ($type =~ /_delivery_order$/ && SL::DB::DeliveryOrder::TypeData::is_valid_type($type)) {
     $filters{trans_number}  = SL::DB::DeliveryOrder::TypeData::get3($type, 'properties', 'nr_key');

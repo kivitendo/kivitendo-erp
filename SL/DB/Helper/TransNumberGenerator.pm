@@ -47,6 +47,7 @@ my %specs = ( ar                          => { number_column => 'invnumber',    
               service                     => { number_column => 'partnumber',     number_range_column => 'servicenumber',                              },
               assembly                    => { number_column => 'partnumber',     number_range_column => 'assemblynumber',                             },
               assortment                  => { number_column => 'partnumber',     number_range_column => 'assortmentnumber',                           },
+              contacts                    => { number_column => 'cp_number',      number_range_column => 'contactnumber',  id_column => 'cp_id'        },
             );
 
 sub get_next_trans_number {
@@ -61,7 +62,9 @@ sub get_next_trans_number {
   my $scoping_conditions  = $spec->{scoping};
   my $fill_holes_in_range = !$spec->{keep_holes_in_range};
 
-  return $number if $self->id && $number;
+  my $id_column           = $spec->{id_column} // 'id';
+
+  return $number if $self->$id_column && $number;
 
   require SL::DB::Default;
   require SL::DB::Business;
