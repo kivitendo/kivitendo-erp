@@ -2593,7 +2593,7 @@ sub create_links {
     $query =
       qq|SELECT
            c.accno, c.description,
-           a.acc_trans_id, a.source, a.amount, a.memo, a.transdate, a.gldate, a.cleared, a.project_id, a.taxkey, a.chart_id,
+           a.acc_trans_id, a.source, a.amount, a.memo, a.transdate, a.gldate, a.cleared, a.project_id, a.department_id, a.taxkey, a.chart_id,
            p.projectnumber,
            t.rate, t.id,
            a.fx_transaction
