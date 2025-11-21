@@ -212,17 +212,18 @@ sub _post_transaction {
     # add individual transactions
     for my $i (1 .. $form->{rowcount}) {
       if ($form->{"amount_$i"} != 0) {
-        my $project_id;
-        $project_id = conv_i($form->{"project_id_$i"});
+        my $project_id    = conv_i($form->{"project_id_$i"});
+        my $department_id = conv_i($form->{"department_id_$i"});
 
         # insert detail records in acc_trans
         $query =
           qq|INSERT INTO acc_trans | .
-          qq|  (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)| .
-          qq|VALUES (?, ?,   ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
+          qq|  (trans_id, chart_id, amount, transdate, project_id, department_id, taxkey, tax_id, chart_link)| .
+          qq|VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
         @values = ($form->{id}, $form->{"AP_amount_chart_id_$i"},
                    $form->{"amount_$i"}, conv_date($form->{transdate}),
-                   $project_id, $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
+                   $project_id, $department_id,
+                   $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
                    $form->{"AP_amount_chart_id_$i"});
         do_query($form, $dbh, $query, @values);
 
@@ -230,13 +231,14 @@ sub _post_transaction {
           # insert detail records in acc_trans
           $query =
             qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
-            qq|  project_id, taxkey, tax_id, chart_link) | .
+            qq|  project_id, department_id, taxkey, tax_id, chart_link) | .
             qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-            qq|  ?, ?, ?, ?, ?,| .
+            qq|  ?, ?, ?, ?, ?, ?,| .
             qq| (SELECT c.link FROM chart c WHERE c.accno = ?))|;
           @values = ($form->{id}, $form->{AP_amounts}{"tax_$i"},
                      $form->{"tax_$i"}, conv_date($form->{transdate}),
-                     $project_id, $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
+                     $project_id, $department_id,
+                     $form->{"taxkey_$i"}, conv_i($form->{"tax_id_$i"}),
                      $form->{AP_amounts}{"tax_$i"});
           do_query($form, $dbh, $query, @values);
         }
@@ -1052,6 +1054,7 @@ sub setup_form {
             $form->{"projectnumber_$k"}    = "$form->{acc_trans}{$key}->[$i-1]->{projectnumber}";
             $form->{"oldprojectnumber_$k"} = $form->{"projectnumber_$k"};
             $form->{"project_id_$k"}       = "$form->{acc_trans}{$key}->[$i-1]->{project_id}";
+            $form->{"department_id_$k"}    = "$form->{acc_trans}{$key}->[$i-1]->{department_id}";
             $form->{"${key}_chart_id_$k"}  = $form->{acc_trans}{$key}->[$i-1]->{chart_id};
             $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id}    . "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};
           }

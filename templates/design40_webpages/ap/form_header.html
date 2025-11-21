@@ -246,6 +246,9 @@
       <th class="right">[% 'Tax' | $T8 %]</th>
       <th>[% 'Taxkey' | $T8 %]</th>
       <th>[% 'Project' | $T8 %]</th>
+      [% IF ALL_DEPARTMENTS %]
+        <th>[% 'Department' | $T8 %]</th>
+      [% END %]
     </tr>
   </thead>
   <tbody>
@@ -278,6 +281,12 @@
         [% temp = "project_id_"_ i %]
         [% P.project.picker(temp, loop.last ? globalproject_id : $temp) %]
       </td>
+      [%- IF ALL_DEPARTMENTS %]
+      <td>
+        [% temp = "department_id_"_ i %]
+        [% L.select_tag('department_id_'_ i, ALL_DEPARTMENTS, default = $temp, title_key = 'description', with_empty = 1, class='wi-lightwide') %]
+      </td>
+      [%- END %]
     </tr>
     [% END %]
   </tbody>
@@ -285,7 +294,7 @@
     <tr>
       <td>[% P.chart.picker('AP_chart_id', AP_chart_id, type="AP", class="wi-wider") %] </td>
       <td class="numeric">[% invtotal | html %]</td>
-      <td colspan="3"></td>
+      <td colspan=[% IF ALL_DEPARTMENTS %]"4">[% ELSE %]"3"[% END %]</td>
     </tr>
   </tfoot>
 </table>
