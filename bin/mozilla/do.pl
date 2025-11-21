@@ -160,7 +160,7 @@ sub orders {
     customernumber          vendor_confirmation_number
     cusordnumber
     name                    employee  salesman
-    shipvia                 globalprojectnumber
+    shippingpoint shipvia   globalprojectnumber
     transaction_description department
     open                    delivered
     insertdate              items
@@ -196,6 +196,7 @@ sub orders {
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
+    'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
@@ -208,7 +209,7 @@ sub orders {
     'order_confirmation_number'  => { 'text' => $locale->text('Order Confirmation Number'), },
   );
 
-  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate vendor_confirmation_number)) {
+  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shippingpoint shipvia transaction_description department insertdate vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

@@ -309,6 +309,7 @@ SQL
     "name"                    => "ct.name",
     "employee"                => "e.name",
     "salesman"                => "sm.name",
+    "shippingpoint"           => "dord.shippingpoint",
     "shipvia"                 => "dord.shipvia",
     "transaction_description" => "dord.transaction_description",
     "department"              => "lower(dep.description)",
