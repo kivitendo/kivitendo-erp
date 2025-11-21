@@ -136,7 +136,7 @@ sub load_zugferd {
       $::form->{form_defaults}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
       $::form->{form_defaults}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
       $::form->{form_defaults}->{"project_id_$pos"} = $template_item->project_id;
-
+      $::form->{form_defaults}->{"department_id_$pos"} = $template_item->department_id;
     }
     $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
     return load_record_template();
@@ -217,6 +217,7 @@ sub load_record_template {
     $::form->{"amount_${row}"}                      = $::form->format_amount(\%::myconfig, $item->amount1, 2);
     $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
     $::form->{"project_id_${row}"}                  = $item->project_id;
+    $::form->{"department_id_${row}"}               = $item->department_id;
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -253,6 +254,7 @@ sub save_record_template {
        amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
        tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
        project_id => $::form->{"project_id_${_}"} || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
 
