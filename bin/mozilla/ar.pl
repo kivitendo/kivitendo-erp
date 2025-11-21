@@ -464,6 +464,7 @@ sub form_header {
       amount     => $form->{"amount_$i"},
       tax        => $form->{"tax_$i"},
       project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
+      department_id => $form->{"department_id_$i"},
     };
 
     my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
@@ -676,7 +677,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  my @flds  = qw(amount AR_amount_chart_id projectnumber oldprojectnumber project_id taxchart tax);
+  my @flds  = qw(amount AR_amount_chart_id projectnumber oldprojectnumber project_id department_id taxchart tax);
   my $count = 0;
   my @a     = ();
 
