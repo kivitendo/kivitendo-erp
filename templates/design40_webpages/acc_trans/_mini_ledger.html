@@ -19,8 +19,8 @@
     [% FOREACH transaction = TRANSACTIONS %]
     <tr>
       <td class="date">[% transaction.transdate.to_kivitendo %]</td>
-      <td class="center">[% transaction.chart.accno %]</td>
-      <td>[% transaction.chart.description %]</td>
+      <td class="center">[% transaction.chart.accno | html %]</td>
+      <td>[% transaction.chart.description | html %]</td>
       <td class="numeric">[% IF transaction.amount < 0 %] [% LxERP.format_amount(transaction.amount * -1, 2) %] [% END %]</td>
       <td class="numeric">[% IF transaction.amount > 0 %] [% LxERP.format_amount(transaction.amount , 2) %] [% END %]</td>
     </tr>
