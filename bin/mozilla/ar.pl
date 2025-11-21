@@ -170,6 +170,7 @@ sub load_record_template {
     $::form->{"amount_${row}"}                      = $::form->format_amount(\%::myconfig, $item->amount1, 2);
     $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
     $::form->{"project_id_${row}"}                  = $item->project_id;
+    $::form->{"department_id_${row}"}               = $item->department_id;
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -200,6 +201,7 @@ sub save_record_template {
        amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
        tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
        project_id => $::form->{"project_id_${_}"} || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
 
