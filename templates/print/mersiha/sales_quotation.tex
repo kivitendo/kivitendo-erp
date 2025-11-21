@@ -98,9 +98,14 @@
       <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
       &%
       <%qty%> <%unit%> &%
-      <%sellprice%>&%
+      <%sellprice%>\,\currency&%
       <%if optional%>\optional<%else%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end optional%>
       \tabularnewline
+      <%if discount_sub%>
+        \rlap{\zwischensumme}& & & & &
+        <%discount_sub%>\,\currency
+        \tabularnewline
+      <%end%>
     <%end number%>%
     }
     \begin{PricingTotal}
