@@ -258,6 +258,9 @@
       <input name="l_shipvia" id="l_shipvia" type="checkbox" value="Y">
       <label for="l_shipvia">[% 'Ship via' | $T8 %]</label>
     </div>
+    <div>
+      [% L.checkbox_tag('l_shippingpoint', label => LxERP.t8('Shipping Point')) %]
+    </div>
   </div>
 </div><!-- /.form-addition /.wrapper -->
 
