@@ -125,6 +125,7 @@ sub load_zugferd {
     if $::form->{record_template_id};
   $template_ap ||= SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}])
     if $::form->{form_defaults}->{vendor_id};
+
   if ($template_ap) {
     $::form->{id} = $template_ap->id;
     # set default values for items
@@ -134,12 +135,13 @@ sub load_zugferd {
     foreach my $pos (1 .. $::form->{form_defaults}->{rowcount}) {
       $::form->{form_defaults}->{"AP_amount_chart_id_$pos"}          = $chart->id;
       $::form->{form_defaults}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
-      $::form->{form_defaults}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
-      $::form->{form_defaults}->{"project_id_$pos"} = $template_item->project_id;
+      $::form->{form_defaults}->{"taxchart_$pos"}      = $tax->id . '--' . $tax->rate;
+      $::form->{form_defaults}->{"project_id_$pos"}    = $template_item->project_id;
       $::form->{form_defaults}->{"department_id_$pos"} = $template_item->department_id;
     }
     $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
     return load_record_template();
+
   } else {
     flash('warning', $::locale->text(
         "No AP Record Template for vendor '#1' found.", $::form->{form_defaults}->{vendor}));
@@ -250,10 +252,10 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"AP_amount_chart_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
+    +{ chart_id      => $::form->{"AP_amount_chart_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"}    || undef,
        department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
