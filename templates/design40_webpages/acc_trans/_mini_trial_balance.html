@@ -17,8 +17,8 @@
   <tbody>
     [% FOREACH balance = BALANCES %]
     <tr>
-      <td class="numeric-centered">[% balance.accno %]</td>
-      <td>[% balance.description %]</td>
+      <td class="numeric-centered">[% balance.accno | html %]</td>
+      <td>[% balance.description | html %]</td>
       <td class="numeric">[% IF balance.balance < 0 %] [% LxERP.format_amount(balance.balance * -1, 2) %] [% END %]</td>
       <td class="numeric">[% IF balance.balance > 0 %] [% LxERP.format_amount(balance.balance, 2) %] [% END %]</td>
     </tr>
