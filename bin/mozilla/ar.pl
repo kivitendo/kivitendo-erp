@@ -197,10 +197,10 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"AR_amount_chart_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
+    +{ chart_id      => $::form->{"AR_amount_chart_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"}    || undef,
        department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
@@ -463,9 +463,9 @@ sub form_header {
 
   for my $i (1 .. $form->{rowcount}) {
     my $transaction = {
-      amount     => $form->{"amount_$i"},
-      tax        => $form->{"tax_$i"},
-      project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
+      amount        => $form->{"amount_$i"},
+      tax           => $form->{"tax_$i"},
+      project_id    => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
       department_id => $form->{"department_id_$i"},
     };
 
