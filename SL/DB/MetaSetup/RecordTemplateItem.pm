@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   amount1            => { type => 'numeric', not_null => 1, precision => 15, scale => 5 },
   amount2            => { type => 'numeric', precision => 15, scale => 5 },
   chart_id           => { type => 'integer', not_null => 1 },
+  department_id      => { type => 'integer' },
   id                 => { type => 'serial', not_null => 1 },
   memo               => { type => 'text' },
   project_id         => { type => 'integer' },
