@@ -431,7 +431,7 @@ sub list_contacts {
 
   my @options;
   push @options, $::locale->text('Search term') . ': ' . $::form->{search_term} if $::form->{search_term};
-  for (qw(cp_name cp_givenname cp_title cp_email cp_abteilung cp_project)) {
+  for (qw(cp_name cp_givenname cp_title cp_email vcname cp_abteilung cp_project)) {
     push @options, $column_defs{$_}{text} . ': ' . $::form->{filter}{$_} if $::form->{filter}{$_};
   }
   if ($::form->{filter}{status}) {
