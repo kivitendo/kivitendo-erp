@@ -10,7 +10,7 @@
       <th class="numeric"> [% LxERP.format_amount(totaldebit, 2) | html %]</th>
       <th class="numeric"> [% LxERP.format_amount(totalcredit, 2) | html %]</th>
       <td colspan="2"></td>
-      [% IF show_details %]<td colspan="3"></td>[% END %]
+      [% IF show_details %]<td colspan=[% IF ALL_DEPARTMENTS.size == 0 %]"3"[% ELSE %]"4"[% END %]></td>[% END %]
     </tr>
   </tfoot>
 </table>
