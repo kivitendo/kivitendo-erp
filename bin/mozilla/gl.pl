@@ -143,7 +143,7 @@ sub load_record_template {
     $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount1), 2) if $item->amount1 * 1;
     $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount2), 2) if $item->amount2 * 1;
     $::form->{"taxchart_${row}"}          = $item->tax_id . '--' . $tax->rate;
-    $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id);
+    $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id department_id);
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -181,6 +181,7 @@ sub save_record_template {
        amount2    => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
        tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
        project_id => $::form->{"project_id_${_}"} || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
        source     => $::form->{"source_${_}"},
        memo       => $::form->{"memo_${_}"},
      }
