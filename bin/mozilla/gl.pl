@@ -302,7 +302,8 @@ sub prepare_transaction {
           $form->{"credit_$j"} += $form->{"tax_$j"};
         }
       }
-      $form->{"project_id_$j"} = $ref->{project_id};
+      $form->{"project_id_$j"}    = $ref->{project_id};
+      $form->{"department_id_$j"} = $ref->{department_id};
 
     } else {
       $form->{"accno_id_$i"} = $ref->{chart_id};
@@ -314,8 +315,9 @@ sub prepare_transaction {
         $form->{totalcredit} += $ref->{amount};
         $form->{"credit_$i"} = $ref->{amount};
       }
-      $form->{"taxchart_$i"} = $ref->{id}."--0.00000";
-      $form->{"project_id_$i"} = $ref->{project_id};
+      $form->{"taxchart_$i"}      = $ref->{id}."--0.00000";
+      $form->{"project_id_$i"}    = $ref->{project_id};
+      $form->{"department_id_$i"} = $ref->{department_id};
       $i++;
     }
     if ($ref->{taxaccno} && !$tax) {
@@ -958,6 +960,20 @@ sub display_rows {
     my $projectnumber = SL::Presenter::Project::picker("project_id_$i", $form->{"project_id_$i"});
     my $projectnumber_hidden = SL::Presenter::Tag::hidden_tag("project_id_$i", $form->{"project_id_$i"});
 
+    my $department = '';
+    my $department_hidden = '';
+    my $all_departments = SL::DB::Manager::Department->get_all_sorted;
+    if ($all_departments) {
+      $department = SL::Presenter::Tag::select_tag("department_id_$i",
+                                                   SL::DB::Manager::Department->get_all_sorted,
+                                                   default => $form->{"department_id_$i"},
+                                                   title_key => 'description',
+                                                   with_empty => 1,
+                                                   class => 'wi-wide');
+      $department = SL::Presenter::Tag::html_tag('td', $department);
+      $department_hidden = SL::Presenter::Tag::hidden_tag("department_id_$i", $form->{"department_id_$i"});
+    }
+
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
     my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
@@ -981,12 +997,14 @@ sub display_rows {
     $source
     $memo
     <td>$projectnumber</td>
+    $department
 |;
     } else {
     print qq|
     $source_hidden
     $memo_hidden
     $projectnumber_hidden
+    $department_hidden
     |;
     }
     print qq|
@@ -1295,7 +1313,7 @@ sub post_transaction {
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
 
-  my @flds = qw(accno_id debit credit projectnumber fx_transaction source memo tax taxchart);
+  my @flds = qw(accno_id debit credit projectnumber department_id fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
     next if $form->{"debit_$i"} eq "" && $form->{"credit_$i"} eq "";
