@@ -2937,6 +2937,7 @@ $self->{texts} = {
   'Position #1: #2'             => '',
   'Position type in quotation/order' => '',
   'Positions'                   => '',
+  'Positions already billed for in invoice #1 were removed automatically.' => '',
   'Post'                        => '',
   'Post Payment'                => '',
   'Post and Close'              => '',
