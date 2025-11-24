@@ -176,14 +176,14 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"accno_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
-       amount2    => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
+    +{ chart_id      => $::form->{"accno_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
+       amount2       => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"} || undef,
        department_id => $::form->{"department_id_${_}"} || undef,
-       source     => $::form->{"source_${_}"},
-       memo       => $::form->{"memo_${_}"},
+       source        => $::form->{"source_${_}"},
+       memo          => $::form->{"memo_${_}"},
      }
   } (1..($::form->{rowcount} || 1));
 
