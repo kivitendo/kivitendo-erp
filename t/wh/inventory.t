@@ -19,7 +19,7 @@ use_ok 'SL::Helper::Inventory';
 
 Support::TestSetup::login();
 
-my ($wh, $bin1, $bin2, $assembly1, $assembly_service, $part1, $part2, $wh_moon, $bin_moon, $service1);
+my ($wh, $bin1, $bin2, $assembly1, $assembly2, $assembly_service, $part1, $part2, $wh_moon, $bin_moon, $service1);
 my @contents;
 
 reset_db();
@@ -610,6 +610,40 @@ is(SL::Helper::Inventory::get_stock(
 }
 
 
+# produce assembly with fractional qtys
+# test rounding error handling due to format/parse amounts
+
+reset_db();
+create_standard_stock();
+
+set_stock(
+  part => $part1,
+  qty => 5,
+  bin => $bin1,
+);
+
+@allocations = SL::Helper::Inventory::allocate_for_assembly(
+  part      => $assembly2,
+  qty       => 1.1,
+  warehouse => $bin1->warehouse,
+);
+
+# format and parse qty amounts
+foreach (@allocations) {
+  $_->{qty} = $::form->format_amount(\%::myconfig, $_->{qty}, -2);
+  $_->{qty} = $::form->parse_amount(\%::myconfig, $_->{qty});
+}
+
+my $allocation_check_result = SL::Helper::Inventory::check_allocations_for_assembly(
+  part                 => $assembly2,
+  qty                  => 1.1,
+  allocations          => \@allocations,
+  check_overfulfilment => 1,
+);
+
+ok($allocation_check_result, 'allocations with fractional qtys after format/parse amounts are ok');
+
+
 # test DB backend function bins, bins_sorted and bins_sorted_naturally
 
 reset_db();
@@ -673,7 +707,17 @@ sub create_standard_stock {
   $service1 = new_service(partnumber  => "service number 1",
                           description => "We really need this service",
                          )->save;
+
   my $assembly_items;
+  push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part1->id,
+                                                  qty      => 2.22,
+                                                  position => 1,
+                                                  ));
+  $assembly2 = new_assembly(description    => 'Ein Erzeugnis mit Bruchteilen',
+                            assembly_items => $assembly_items
+                           )->save;
+
+  $assembly_items = [];
   push( @{$assembly_items}, SL::DB::Assembly->new(parts_id => $part1->id,
                                                   qty      => 12,
                                                   position => 1,
