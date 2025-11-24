@@ -485,6 +485,10 @@ sub generate_report {
   push @date_options, $locale->text('Bis'),  $locale->date(\%myconfig, $form->{dateto},   1)          if ($form->{dateto});
   push @options,      join(' ', @date_options)                                                        if (scalar @date_options);
 
+  if ($form->{project_id}) {
+    my $project = SL::DB::Manager::Project->find_by( id => $form->{project_id} );
+    push @options, $locale->text('Project') . " : " . $project->displayable_name;
+  }
   if ($form->{department_id}) {
     my $department = SL::DB::Manager::Department->find_by( id => $form->{department_id} );
     push @options, $locale->text('Department') . " : " . $department->description;
