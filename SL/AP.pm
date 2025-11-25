@@ -650,8 +650,13 @@ sub ap_transactions {
     push(@values, (like($form->{"cp_name"}))x2);
   }
   if ($form->{department_id}) {
-    $where .= " AND a.department_id = ?";
-    push(@values, $form->{department_id});
+    $where .=
+      qq| AND ((a.department_id = ?) | .
+      qq|      OR EXISTS | .
+      qq|      (SELECT * FROM acc_trans at | .
+      qq|       WHERE at.department_id = ? AND at.trans_id = a.id)| .
+      qq| )|;
+    push(@values, $form->{department_id}, $form->{department_id});
   }
   if ($form->{invnumber}) {
     $where .= " AND a.invnumber ILIKE ?";
