@@ -631,8 +631,13 @@ sub ar_transactions {
     push(@values, $form->{taxzone_id});
   }
   if ($form->{department_id}) {
-    $where .= " AND a.department_id = ?";
-    push(@values, $form->{department_id});
+    $where .=
+      qq| AND ((a.department_id = ?) | .
+      qq|      OR EXISTS | .
+      qq|      (SELECT * FROM acc_trans at | .
+      qq|       WHERE at.department_id = ? AND at.trans_id = a.id)| .
+      qq| )|;
+    push(@values, $form->{department_id}, $form->{department_id});
   }
   if ($form->{payment_id}) {
     $where .= " AND a.payment_id = ?";
