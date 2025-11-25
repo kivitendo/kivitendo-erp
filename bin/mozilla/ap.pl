@@ -1197,7 +1197,8 @@ sub ap_transactions {
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate transaction_description notes intnotes employee globalprojectdescription globalprojectnumber department
        vendornumber country ustid taxzone payment_terms charts debit_chart direct_debit
-       insertdate items items_project_netamount items_project_amount items_project_number);
+       insertdate items items_project_netamount items_project_amount items_project_number
+       items_department_netamount items_department_amount items_department);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes intnotes project_id
@@ -1242,6 +1243,9 @@ sub ap_transactions {
     'items_project_amount'    => { 'text' => $locale->text('Items Project Total' ), },
     'items_project_netamount' => { 'text' => $locale->text('Items Project Amount'), },
     'items_project_number'    => { 'text' => $locale->text('Items Project Number'), },
+    'items_department_amount' => { 'text' => $locale->text('Items Department Total' ), },
+    'items_department_netamount' => { 'text' => $locale->text('Items Department Amount'), },
+    'items_department'        => { 'text' => $locale->text('Items Department'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate intnotes globalprojectdescription globalprojectnumber)) {
@@ -1249,11 +1253,15 @@ sub ap_transactions {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due items_project_amount items_project_netamount);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due items_project_amount items_project_netamount
+                                                  items_department_amount items_department_netamount);
 
   $form->{"l_type"} = "Y";
   if ($form->{project_id}) {
     $form->{l_items_project_number} = $form->{l_items_project_amount} = $form->{l_items_project_netamount} = "Y";
+  }
+  if ($form->{department_id}) {
+    $form->{l_items_department} = $form->{l_items_department_amount} = $form->{l_items_department_netamount} = "Y";
   }
 
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
@@ -1313,7 +1321,8 @@ sub ap_transactions {
   # escape callback for href
   my $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount paid due items_project_amount items_project_netamount);
+  my @subtotal_columns = qw(netamount amount paid due items_project_amount items_project_netamount
+                            items_department_amount items_department_netamount);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1327,7 +1336,8 @@ sub ap_transactions {
     map { $subtotals{$_} += $ap->{$_};
           $totals{$_}    += $ap->{$_} } @subtotal_columns;
 
-    map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due items_project_amount items_project_netamount);
+    map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due items_project_amount items_project_netamount
+                                                                          items_department_amount items_department_netamount);
 
     my $is_storno  = $ap->{storno} &&  $ap->{storno_id};
     my $has_storno = $ap->{storno} && !$ap->{storno_id};

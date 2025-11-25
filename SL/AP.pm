@@ -566,6 +566,17 @@ sub ap_transactions {
     push @values, (conv_i($form->{project_id})) x 3;
   }
 
+  my $items_department_amount_select = '';
+  if ($form->{department_id}) {
+    $items_department_amount_select =
+      qq|, | .
+      qq|(SELECT -1*SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AP_amount%' OR chart_link LIKE '%tax%')) AS items_department_amount, | .
+      qq|(SELECT -1*SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AP_amount%')                           ) AS items_department_netamount, | .
+      qq|(SELECT description FROM department WHERE id = ? ) AS items_department |;
+
+    push @values, (conv_i($form->{department_id})) x 3;
+  }
+
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
     qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
@@ -593,6 +604,7 @@ sub ap_transactions {
             LIMIT 1
           ) AS debit_chart } .
     $items_project_amount_select .
+    $items_department_amount_select .
     qq|FROM ap a | .
     qq|JOIN vendor v ON (a.vendor_id = v.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
