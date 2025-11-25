@@ -330,11 +330,11 @@
     </div>
     <div>
     [% IF INSTANCE_CONF.get_doc_storage -%]
-      <input name="l_attachments" id="l_attachments" class=checkbox type=checkbox value=Y>[% 'Attachments' | $T8 %]
+      <input name="l_attachments" id="l_attachments" type="checkbox" value="Y"><label for="l_attachments">[% 'Attachments' | $T8 %]</label>
     [% END-%]
     </div>
     <div>
-      <input name="l_items" id="l_items" class=checkbox type=checkbox value=Y> [% 'Positions' | $T8 %]
+      <input name="l_items" id="l_items" type="checkbox" value="Y"><label for="l_items">[% 'Positions' | $T8 %]</label>
     </div>
   </div>
   <div class="list col">
