@@ -28,6 +28,9 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
+- Erzeugnissbestandteile können nun auch rekursiv exportiert werden.
+- Erzeugnissbestandteile lassen sich grafisch als Baum darstellen,
+  inkl. Zoom, Pan und einklappbaren Teilbäumen.
 
 Kleinere neue Features und Detailverbesserungen:
 
