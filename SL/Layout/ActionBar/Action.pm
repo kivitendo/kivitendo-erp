@@ -28,6 +28,11 @@ sub from_params {
   my ($text, %params) = @$data;
   return if exists($params{only_if}) && !$params{only_if};
   return if exists($params{not_if})  &&  $params{not_if};
+
+  if (my $key = $params{accesskey}) {
+    $text .= " (<u>$key</u>)" unless ($text =~ s/($key)/<u>$1<\/u>/i);
+  }
+
   return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
 }
 
