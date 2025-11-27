@@ -2,6 +2,7 @@ package SL::Layout::ActionBar::Action;
 
 use strict;
 use parent qw(Rose::Object);
+use utf8;
 
 use SL::Presenter::Tag qw(name_to_id);
 
@@ -30,7 +31,11 @@ sub from_params {
   return if exists($params{not_if})  &&  $params{not_if};
 
   if (my $key = $params{accesskey}) {
-    $text .= " (<u>$key</u>)" unless ($text =~ s/($key)/<u>$1<\/u>/i);
+    #$key =~ s/alt\+/⎇+/;
+    $key =~ s/alt\+//;
+    $key =~ s/ctrl\+/⎈+/;
+    $key =~ s/shift\+/⇧+/;
+    $text .= " <u>$key</u>" unless ($text =~ s/($key)/<u>$1<\/u>/i);
   }
 
   return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
