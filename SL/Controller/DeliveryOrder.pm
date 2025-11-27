@@ -2064,6 +2064,7 @@ sub setup_edit_action_bar {
       combobox => [
         action => [
           t8('Save'),
+          accesskey => 'alt+S',
           id       => 'save_action',
           call     => [ 'kivi.DeliveryOrder.save', {
               action             => 'save',
@@ -2101,6 +2102,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save as new'),
+          accesskey => 'alt+shift+S',
           call     => [ 'kivi.DeliveryOrder.save', {
               action             => 'save_as_new',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
@@ -2119,6 +2121,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Create Invoice'),
+          accesskey => 'alt+R',
           call     => [ 'kivi.DeliveryOrder.save', {
               action             => 'workflow_invoice',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
@@ -2155,6 +2158,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and preview PDF'),
+          accesskey => 'alt+shift+P',
            call    => [ 'kivi.DeliveryOrder.save', {
                action             => 'preview_pdf',
                warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
@@ -2164,6 +2168,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and print'),
+          accesskey => 'alt+P',
           call     => [ 'kivi.DeliveryOrder.show_print_options', {
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
@@ -2172,6 +2177,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Save and E-mail'),
+          accesskey => 'alt+E',
           id       => 'save_and_email_action',
           call     => [ 'kivi.DeliveryOrder.save', {
               action             => 'save_and_show_email_dialog',
@@ -2277,6 +2283,7 @@ sub setup_edit_action_bar {
         ],
         action => [
           t8('Follow-Up'),
+          accesskey => 'alt+W',
           call     => [ 'kivi.DeliveryOrder.follow_up_window' ],
           disabled => !$self->order->id ? t8('This object has not been saved yet.') : undef,
           only_if  => $::auth->assert('productivity', 1),
