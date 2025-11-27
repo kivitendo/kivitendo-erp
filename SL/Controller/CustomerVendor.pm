@@ -731,7 +731,7 @@ sub action_ajaj_get_contact {
         }
       }
       qw(
-        id gender abteilung title position givenname name email phone1 phone2 fax mobile1 mobile2
+        id gender abteilung title position givenname name number email phone1 phone2 fax mobile1 mobile2
         satphone satfax project street zipcode city privatphone privatemail birthday
       )
     )
