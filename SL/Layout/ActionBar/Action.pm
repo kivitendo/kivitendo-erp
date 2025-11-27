@@ -2,9 +2,9 @@ package SL::Layout::ActionBar::Action;
 
 use strict;
 use parent qw(Rose::Object);
-use utf8;
+use SL::Locale::String qw(t8);
 
-use SL::Presenter::Tag qw(name_to_id);
+use SL::Presenter::Tag qw(div_tag name_to_id);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(id params text) ],
@@ -31,11 +31,17 @@ sub from_params {
   return if exists($params{not_if})  &&  $params{not_if};
 
   if (my $key = $params{accesskey}) {
-    #$key =~ s/alt\+/⎇+/;
-    $key =~ s/alt\+//;
-    $key =~ s/ctrl\+/⎈+/;
-    $key =~ s/shift\+/⇧+/;
-    $text .= " <u>$key</u>" unless ($text =~ s/($key)/<u>$1<\/u>/i);
+    my $help = '';
+    $help .= t8('kbd Alt')   . '+' if $key =~ s/alt\+//;
+    $help .= t8('kbd Ctrl')  . '+' if $key =~ s/ctrl\+//;
+    $help .= t8('kbd Shift') . '+' if $key =~ s/shift\+//;
+    $help .= $key;
+    $text =~ s/($key)/<u>$1<\/u>/i;
+    $text = div_tag(
+      div_tag($text).
+      div_tag('', class => 'actionbar-accesskey-spacer').
+      div_tag($help, class => 'actionbar-accesskey-help'),
+    class => 'actionbar-accesskey-container');
   }
 
   return SL::Layout::ActionBar::Submit->new(text => $text, params => \%params);
