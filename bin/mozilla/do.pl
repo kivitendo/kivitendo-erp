@@ -635,18 +635,12 @@ sub type_data {
 sub _do_remove_billed_rows {
   my (%params) = @_;
 
-  my $ord_quot = SL::DB::DeliveryOrder->new(id => $params{id})->load;
-
-  my %args    = (
-    direction => 'to',
-    to        => 'Invoice',
-    via       => [ qw(Order DeliveryOrder) ],
-  );
+  my $do = SL::DB::DeliveryOrder->new(id => $params{id})->load;
 
   my @existing_record_numbers = ();
   my %handled_base_qtys;
-  foreach my $record (@{ $ord_quot->linked_records(%args) }) {
-    next if $ord_quot->is_sales != $record->is_sales;
+  foreach my $record (@{ $do->linked_records(direction => 'to', to => 'Invoice') }) {
+    next if $do->is_sales != $record->is_sales;
     next if $record->type eq 'invoice' && $record->storno;
 
     foreach my $item (@{ $record->items }) {
