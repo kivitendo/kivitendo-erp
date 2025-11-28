@@ -227,16 +227,16 @@ li.sub {
 // Layout Web Page (LEFT & RIGHT AREA)
 // --------------------
 
+body > div.FB1 {
+  display:            flex;
+  flex:               1;
+  overflow:           auto;
+}
+
 // LEFT (Menu) area/column
-body > div.layout-split-left {
-  display: block;
-  position:         fixed !important;
-  top:               0 ;
-  left:             0 ;
+body > div.FB1 > div.layout-split-left {
   width:             200px;
-  height:           100%;
   z-index:           1;
-  overflow:         hidden   ;
   border-right:     1px @gray-standard solid;
   background-color: @gray-dark;
 
@@ -244,20 +244,17 @@ body > div.layout-split-left {
 }
 
 // RIGHT (Content) area/column
-body > div.layout-split-right {
-  margin-left:   200px;
+body > div.FB1 > div.layout-split-right {
   //margin-top:   70px;
-  padding-top: 28px;
-  display:       block;
   z-index:       1;
   height:       auto;
+  flex:               1;
+  overflow:           auto;
 
-  .layout-actionbar { top: 36px; }
+  display:            flex;
+  flex-direction:     column;
 
   & > #content {
-    top: 68px;
-    padding-top: 40px;
-
     h1 { top: 28px !important; }
 
     & > .wrapper{
@@ -282,8 +279,6 @@ body > div.layout-split-right {
           .tabwidget ul.ui-tabs-nav{ position: relative; }
         }
         & > ul.ui-tabs-nav{
-          top: 69px;
-          width: ~"calc(100% - 200px)";
         }
 
       } // / > .tabwidget
@@ -317,11 +312,9 @@ div.layout-split-left #html-menu {
   overflow-x:         hidden;
   width:              100%;
   height:             100%;
-  margin:             27px 0 0 0;
   padding:            0 0 150px 0;
   background-color:   @menu_left_bg ;
   font-size:          @font-size-small;
-  border-bottom:      20px @menu_border_color solid ; // PENDENT: Rand unten sollte vorhanden sein
 
   // menu item icons (mii) ausblenden
   .mii {
