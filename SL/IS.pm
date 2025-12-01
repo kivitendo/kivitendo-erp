@@ -1013,7 +1013,8 @@ sub _post_invoice {
                            unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
                            base_qty = ?, subtotal = ?,
                            marge_percent = ?, marge_total = ?, lastcost = ?, active_price_source = ?, active_discount_source = ?,
-                           price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
+                           price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
+                           tax_id = ?
         WHERE id = ?
 SQL
 
@@ -1029,6 +1030,7 @@ SQL
                  $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}),
+                 conv_i($form->{"income_accno_tax_id_$i"}),
                  conv_i($form->{"invoice_id_$i"}));
       do_query($form, $dbh, $query, @values);
       push @processed_invoice_ids, $form->{"invoice_id_$i"};

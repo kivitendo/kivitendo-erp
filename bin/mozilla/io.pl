@@ -421,7 +421,7 @@ sub display_row {
     }
 
     # tax_chart and tax
-    if ($is_purchase && $is_invoice) { #only calc if used
+    if ($is_invoice || $is_credit_note) { #only calc if used
       my ($tax_chart_id, $chart_title, $chart_picker);
       if ($record_item && $record_item->part && ($record_item->part->type eq 'part')) {
         my $tax_chart_type = $form->{"tax_chart_type_$i"};
@@ -488,15 +488,18 @@ sub display_row {
       };
 
       my @taxes = ();
-      if ($form->{"expense_chart_id_$i"}) {
-        @taxes = IO->get_active_taxes_for_chart($tax_chart_id,
-          $form->{"reqdate_$i"} // $form->{deliverydate} // $form->{transdate});
+      if ($is_purchase) {
+        if ($form->{"expense_chart_id_$i"}) {
+          @taxes = IO->get_active_taxes_for_chart($tax_chart_id,
+                                                  $form->{"reqdate_$i"} // $form->{deliverydate} // $form->{transdate});
+        }
+        # tax_id_ is used in io.js->update_tax_ids
+        $column_data{tax} = SL::Presenter::Tag::select_tag(
+          "tax_id_$i", \@taxes, default => $form->{"tax_id_$i"},
+          value_title_sub => $tax_value_title_sub,
+          style => "width: 100px");
+
       }
-      # tax_id_ is used in io.js->update_tax_ids
-      $column_data{tax} = SL::Presenter::Tag::select_tag(
-        "tax_id_$i", \@taxes, default => $form->{"tax_id_$i"},
-        value_title_sub => $tax_value_title_sub,
-        style => "width: 100px");
     }
 
     $column_data{serialnr}  = qq|<input name="serialnumber_$i" size="15" value="$form->{"serialnumber_$i"}" data-validate="trimmed_whitespaces">|;
