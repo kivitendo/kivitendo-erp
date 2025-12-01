@@ -518,22 +518,38 @@ sub ar_transactions {
   if ($form->{project_id}) {
     $items_project_amount_select =
       qq|, | .
-      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) AS items_project_amount, | .
-      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%')                           ) AS items_project_netamount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty * sellprice/COALESCE(price_factor, 1) * (1+(SELECT rate FROM tax WHERE tax.id = tax_id))) FROM invoice WHERE invoice.trans_id = a.id AND project_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) | .
+      qq| END AS items_project_amount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)) FROM invoice WHERE invoice.trans_id = a.id AND project_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%')) | .
+      qq| END AS items_project_netamount, | .
       qq|(SELECT projectnumber FROM project WHERE id = ? ) AS items_project_number |;
 
-    push @values, (conv_i($form->{project_id})) x 3;
+    push @values, (conv_i($form->{project_id})) x 5;
   }
 
   my $items_department_amount_select = '';
   if ($form->{department_id}) {
     $items_department_amount_select =
       qq|, | .
-      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) AS items_department_amount, | .
-      qq|(SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%')                           ) AS items_department_netamount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)*(1+(SELECT rate FROM tax WHERE tax.id = tax_id))) FROM invoice WHERE invoice.trans_id = a.id AND department_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) | .
+      qq| END AS items_department_amount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)) FROM invoice WHERE invoice.trans_id = a.id AND department_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%')) | .
+      qq| END AS items_department_netamount, | .
       qq|(SELECT description FROM department WHERE id = ? ) AS items_department |;
 
-    push @values, (conv_i($form->{department_id})) x 3;
+    push @values, (conv_i($form->{department_id})) x 5;
   }
 
   my $query =
