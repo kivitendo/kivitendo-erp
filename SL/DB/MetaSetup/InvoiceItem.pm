@@ -42,7 +42,7 @@ __PACKAGE__->meta->columns(
   serialnumber           => { type => 'text' },
   subtotal               => { type => 'boolean', default => 'false' },
   tax_chart_type         => { type => 'varchar', length => 20 },
-  tax_id                 => { type => 'integer' },
+  tax_id                 => { type => 'integer', not_null => 1 },
   trans_id               => { type => 'integer' },
   transdate              => { type => 'text' },
   unit                   => { type => 'varchar', length => 20 },
