@@ -256,6 +256,7 @@ init_db();
 
     local *STDOUT = $out_fh;
     local *STDERR = $err_fh;
+    local $LXDebug::global_level = LXDebug::NONE();
     my $bt_controller = SL::Controller::BankTransaction->new;
     @result = $bt_controller->action_save_invoices;
   };
