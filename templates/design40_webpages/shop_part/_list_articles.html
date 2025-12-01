@@ -3,8 +3,6 @@
 [% USE L %]
 [% USE T8 %]
 
-<h1>[% title %]</h1>
-
 [% PROCESS 'shop_part/_filter.html' filter=SELF.models.filtered.laundered %]
 
 <form method="post" action="controller.pl" name="shop_parts" id="shopparts">

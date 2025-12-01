@@ -2,8 +2,6 @@
 [% USE HTML %]
 [% USE LxERP %]
 
-<h1>[% title %]</h1>
-
 <p>[% 'The following transaction contains wrong taxes:' | $T8 %] <a href="[% problem.link %]">
 [% IF problem.data.module == 'ar'    %][% 'AR Transaction'             | $T8 %]
 [% ELSIF problem.data.module == 'ap' %][% 'AP Transaction'             | $T8 %]
