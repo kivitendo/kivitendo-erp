@@ -4,8 +4,6 @@
 [% USE L %]
 [% USE P %]
 
-<h1>[% HTML.escape(title) %]</h1>
-
 [% SET vclabel = vc == 'customer' ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]
 [% SET vcnumberlabel = vc == 'customer' ? LxERP.t8('Customer Number') : LxERP.t8('Vendor Number') %]
 [% SET vctypelabel = vc == 'customer' ? LxERP.t8('Customer type') : LxERP.t8('Vendor type') %]
