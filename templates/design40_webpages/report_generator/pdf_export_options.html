@@ -4,9 +4,6 @@
 
 [% SET default_ymargin = LxERP.format_amount(1.5) %]
 [% SET default_xmargin = LxERP.format_amount(0.8) %]
-
-<h1>[% HTML.escape(title) %]</h1>
-
 <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
 
 [% FOREACH var = HIDDEN %]
