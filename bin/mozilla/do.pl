@@ -441,7 +441,7 @@ sub invoice {
     $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
-  _do_remove_billed_rows(id => $form->{convert_from_do_ids});
+  _do_sales_remove_billed_rows(id => $form->{convert_from_do_ids});
 
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice lastcost basefactor discount);
@@ -632,10 +632,11 @@ sub type_data {
   SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $::form->{type});
 }
 
-sub _do_remove_billed_rows {
+sub _do_sales_remove_billed_rows {
   my (%params) = @_;
 
   my $do = SL::DB::DeliveryOrder->new(id => $params{id})->load;
+  return unless $do->is_sales; # Do not remove a purchase delivery orders' items from a sales invoice
 
   my @existing_record_numbers = ();
   my %handled_base_qtys;
