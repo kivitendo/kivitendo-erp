@@ -1,8 +1,6 @@
 [% USE T8 %]
 [% USE HTML %]
 
-<h1>[% HTML.escape(title) %]</h1>
-
 <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
 
 [% FOREACH var = HIDDEN %]

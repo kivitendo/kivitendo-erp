@@ -1,7 +1,5 @@
 [%- USE LxERP -%][%- USE HTML -%][%- USE P -%]
 
-<h1>[% HTML.escape(title) %]</h1>
-
 [% IF !ORDERS.size %]
   <p>[% LxERP.t8("There are no orders for the selected time period.") %]</p>
 
