@@ -185,7 +185,7 @@ sub action_edit {
   $self->pre_render();
   $self->render(
     'order/form',
-    title => is_escaped($self->type_data->text('edit') . " " . $self->build_article_number_title()),
+    title => is_escaped($self->type_data->text('edit') . " " . $self->build_record_number_title()),
     %{$self->{template_args}}
   );
 }
@@ -1752,10 +1752,10 @@ sub build_shipto_inputs {
   div_tag($content, id => 'shipto_inputs');
 }
 
-# build the span tag for article number in title
+# build the span tag for record number in title
 #
 # Needed, for edit.
-sub build_article_number_title {
+sub build_record_number_title {
   my ($self) = @_;
 
   span_tag(escape($self->order->number), id => 'nr_in_title');
