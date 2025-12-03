@@ -46,4 +46,8 @@ is $supplier_delivery_order->type, SUPPLIER_DELIVERY_ORDER_TYPE, "new_from purch
 is scalar @{ $supplier_delivery_order->items }, 0, "supplier delivery order ignores items";
 is $supplier_delivery_order->vendor_id, $order1->vendor_id, "supplier delivery order keeps vendor";
 
+# clean up
+$order1->delete;
+SL::DB::Manager::Part->delete_all(all => 1);
+
 done_testing();
