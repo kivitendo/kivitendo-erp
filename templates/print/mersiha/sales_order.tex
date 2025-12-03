@@ -46,11 +46,12 @@
     \par
     \normalsize
     <%shiptoname%>\par
-    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
     <%shiptodepartment_1%>\par
     <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
     <%shiptostreet%>\par
-    <%shiptozipcode%> <%shiptocity%>%
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
   }
 \end{lrbox}
 \makeatother
