@@ -2,6 +2,8 @@
 [% USE L %]
 [% USE LxERP %]
 
+<h1>[% HTML.escape(title) %]</h1>
+
 <form method="post" action="controller.pl" id="form">
 [% L.hidden_tag("client.id", SELF.client.id) %]
 [% L.hidden_tag("action", "") %]
