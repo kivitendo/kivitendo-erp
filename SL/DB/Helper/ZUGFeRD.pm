@@ -33,7 +33,7 @@ my @line_names = qw(LineOne LineTwo LineThree);
 
 my %standards_ids = (
   PROFILE_FACTURX_EXTENDED() => 'urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended',
-  PROFILE_XRECHNUNG()        => 'urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.0',
+  PROFILE_XRECHNUNG()        => 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0',
 );
 
 sub _is_profile {
@@ -769,7 +769,7 @@ sub _validate_data {
 
   if (_is_profile($self, PROFILE_XRECHNUNG())) {
     if (!$self->customer->c_vendor_routing_id) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 2.0'));
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 3.0'));
     }
   }
 
