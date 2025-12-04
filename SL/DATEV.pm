@@ -1108,7 +1108,7 @@ sub check_document_export {
 
 }
 
-sub all_bookings_without_documents {
+sub first_bookings_without_documents {
   my $self   = shift;
   my %params = @_;
 
@@ -1128,11 +1128,17 @@ sub all_bookings_without_documents {
   and trans_id not in (select id from gl)
   LIMIT 100|;
 
-  my $booking_has_no_document  = selectall_hashref_query($::form, SL::DB->client->dbh, $query, ());
-  return [] unless scalar @$booking_has_no_document;
+  my $first_bookings_without_documents = selectall_hashref_query($::form, SL::DB->client->dbh, $query, ());
+  return [] unless scalar @$first_bookings_without_documents;
 
-  my @trans_ids = map { $_->{trans_id} } @{$booking_has_no_document};
-  my $acc_trans_objs = SL::DB::Manager::AccTransaction->get_all(where => [trans_id => \@trans_ids], distinct => 1, select => ['trans_id'], sort_by => 'trans_id');
+  my @trans_ids = map { $_->{trans_id} } @{$first_bookings_without_documents};
+  my $acc_trans_objs = SL::DB::Manager::AccTransaction->get_all(
+    distinct => 1,
+    select   => [ qw(trans_id) ],
+    sort_by  => 'trans_id',
+    where    => [ trans_id => \@trans_ids ],
+  );
+
   return [ map {
       $_->get_type eq 'ap' ? $_->ap->presenter->show() :
       $_->get_type eq 'ar' ? $_->ar->presenter->show() :
