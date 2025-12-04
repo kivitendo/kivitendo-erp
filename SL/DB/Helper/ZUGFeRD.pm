@@ -456,6 +456,15 @@ sub _exchanged_document_context {
     $params{xml}->endTag;
   }
 
+  # According to XRechnung 3.0.x the customer can optionally request a
+  # different business process identifier. The default should be fine
+  # for most customers. If any of ours requests to make this
+  # configurable, we'll move the configuration into the customer base
+  # data, just like the ZUGFeRD/XRechnung version selector itself.
+  $params{xml}->startTag("ram:BusinessProcessSpecifiedDocumentContextParameter");
+  $params{xml}->dataElement("ram:ID", 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0');
+  $params{xml}->endTag;
+
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
   $params{xml}->dataElement("ram:ID", $standards_ids{ $self->{_zugferd}->{profile} });
   $params{xml}->endTag;
