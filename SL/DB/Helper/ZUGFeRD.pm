@@ -584,6 +584,14 @@ sub _seller_trade_party {
     #         </ram:PostalTradeAddress>
   }
 
+  my $company_email = ($::lx_office_conf{factur_x} // {})->{company_email} || $sales_person_cfg{email};
+
+  if ($company_email) {
+    $params{xml}->startTag("ram:URIUniversalCommunication");
+    $params{xml}->dataElement("ram:URIID", _u8($company_email), schemeID => 'EM');
+    $params{xml}->endTag;
+  }
+
   _specified_tax_registration($::instance_conf->get_co_ustid, %params);
 
   $params{xml}->endTag;
