@@ -580,6 +580,11 @@ sub _seller_trade_party {
     #         </ram:PostalTradeAddress>
   }
 
+  # BT-34
+  $params{xml}->startTag("ram:URIUniversalCommunication");
+  $params{xml}->dataElement("ram:URIID", _u8($::instance_conf->get_invoice_mail), schemeID => 'EM');
+  $params{xml}->endTag;
+
   _specified_tax_registration($::instance_conf->get_co_ustid, %params);
 
   $params{xml}->endTag;
@@ -722,6 +727,10 @@ sub _validate_data {
 
   if ($::instance_conf->get_address_country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country)) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
+  }
+
+  if (!$::instance_conf->get_invoice_mail) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The company\'s invoice mail address is missing in the client configuration.'));
   }
 
   if ($self->customer->country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($self->customer->country)) {

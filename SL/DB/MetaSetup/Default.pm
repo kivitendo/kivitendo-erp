@@ -126,6 +126,7 @@ __PACKAGE__->meta->columns(
   inventory_accno_id                        => { type => 'integer' },
   inventory_system                          => { type => 'text' },
   invnumber                                 => { type => 'text' },
+  invoice_mail                              => { type => 'text' },
   invoice_mail_settings                     => { type => 'enum', check_in => [ 'cp', 'invoice_mail', 'invoice_mail_cc_cp' ], db_type => 'invoice_mail_settings', default => 'cp' },
   ir_add_doc                                => { type => 'boolean', default => 'false', not_null => 1 },
   ir_changeable                             => { type => 'integer', default => 2, not_null => 1 },
