@@ -802,6 +802,11 @@ sub _validate_data {
     }
   }
 
+  my $have_buyer_electronic_address = first { $self->customer->$_ } qw(invoice_mail email gln);
+  if (!$have_buyer_electronic_address) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('At least one of the following fields has to be set in the customer data: Email of the invoice recipient; Email; GLN'));
+  }
+
   return %result;
 }
 
