@@ -460,6 +460,10 @@ sub _exchanged_document_context {
     $params{xml}->endTag;
   }
 
+  $params{xml}->startTag("ram:BusinessProcessSpecifiedDocumentContextParameter");
+  $params{xml}->dataElement("ram:ID", 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0');
+  $params{xml}->endTag;
+
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
   $params{xml}->dataElement("ram:ID", $standards_ids{ $self->{_zugferd}->{profile} });
   $params{xml}->endTag;
