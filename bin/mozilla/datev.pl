@@ -106,7 +106,7 @@ sub export3 {
   $data{documents} = $::form->{documents};
 
   if ($data{documents} &&
-      (my @err=@{SL::DATEV->new->all_bookings_without_documents(from => $data{from}, to => $data{to})})) {
+      (my @err=@{SL::DATEV->new->first_bookings_without_documents(from => $data{from}, to => $data{to})})) {
     $::form->error(t8("Cannot export with documents because some transactions don't have a PDF document attached.").
       "\n". join("\n", @err)
     );
