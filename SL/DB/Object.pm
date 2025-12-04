@@ -222,6 +222,18 @@ sub delete {
   return $result;
 }
 
+sub cache {
+  my $self  = shift;
+  my $class = ref($self);
+  my $cache = $::request->cache("::SL::DB::Object::object_cache::${class}");
+
+  croak "Caching can only be used with classes with exactly one primary key column" if 1 != scalar(@{ $class->meta->primary_key_columns });
+
+  my $primary_key = $class->meta->primary_key_columns->[0]->name;
+
+  $cache->{$self->$primary_key} = $self;
+}
+
 sub load_cached {
   my $class_or_self = shift;
   my @ids           = @_;
