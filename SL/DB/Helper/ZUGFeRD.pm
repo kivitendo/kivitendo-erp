@@ -51,14 +51,6 @@ sub _r2 {
   return $::form->round_amount($value, 2);
 }
 
-sub _type_name {
-  my ($self) = @_;
-  my $type   = $self->invoice_type;
-
-  no warnings 'once';
-  return $type eq 'ar_transaction' ? $::locale->text('Invoice') : $self->displayable_type;
-}
-
 sub _type_code {
   my ($self) = @_;
   my $type   = $self->invoice_type;
@@ -483,7 +475,6 @@ sub _exchanged_document {
   $params{xml}->startTag("rsm:ExchangedDocument");
 
   $params{xml}->dataElement("ram:ID",       _u8($self->invnumber));
-  $params{xml}->dataElement("ram:Name",     _u8(_type_name($self))) if _is_profile($self, PROFILE_FACTURX_EXTENDED());
   $params{xml}->dataElement("ram:TypeCode", _u8(_type_code($self)));
 
   #     <ram:IssueDateTime>
