@@ -1094,7 +1094,7 @@ sub add_tax {
 
   $main::auth->assert('config');
 
-  $form->{title} =  $locale->text('Add');
+  $form->{title} =  $locale->text('Add Tax');
 
   $form->{callback} ||= "am.pl?action=add_tax";
 
@@ -1129,7 +1129,7 @@ sub edit_tax {
 
   $main::auth->assert('config');
 
-  $form->{title} =  $locale->text('Edit');
+  $form->{title} =  $locale->text('Edit Tax');
 
   AM->get_tax(\%myconfig, \%$form);
 
