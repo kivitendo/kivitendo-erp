@@ -541,7 +541,7 @@ sub recalculate_amounts {
 sub _post_create_assemblyitem_entries {
   my ($self, $assembly_entries) = @_;
 
-  my $items = $self->invoiceitems;
+  my $items = $self->items_sorted;
   my @new_items;
 
   my $item_idx = 0;
