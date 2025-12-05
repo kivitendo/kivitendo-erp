@@ -551,7 +551,7 @@ sub _post_create_assemblyitem_entries {
     push @new_items, $item;
     $item_idx++;
 
-    foreach my $assembly_item (@{ $assembly_entries->[$item_idx] || [ ] }) {
+    foreach my $assembly_item (@{ $assembly_entries->[$item_idx - 1] || [ ] }) {
       push @new_items, SL::DB::InvoiceItem->new(parts_id     => $assembly_item->{part}->id,
                                                 description  => $assembly_item->{part}->description,
                                                 unit         => $assembly_item->{part}->unit,
