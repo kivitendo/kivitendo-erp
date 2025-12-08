@@ -113,10 +113,13 @@ sub action_add {
 sub action_edit {
   my ($self) = @_;
 
+  my $title = $self->is_vendor() ? $::locale->text('Edit Vendor') : $::locale->text('Edit Customer');
+  $title .= ' - ' . $self->{cv}->displayable_name;
+
   $self->_pre_render();
   $self->render(
     'customer_vendor/form',
-    title => ($self->is_vendor() ? $::locale->text('Edit Vendor') : $::locale->text('Edit Customer')),
+    title => $title,
     %{$self->{template_args}}
   );
 }
