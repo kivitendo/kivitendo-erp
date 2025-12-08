@@ -73,6 +73,7 @@ sub export_bewegungsdaten {
 
   setup_datev_export2_action_bar();
 
+  $::form->{title} = t8('DATEV - Export Assistent');
   $::form->header;
   $::form->{ALL_DEPARTMENTS}        = SL::DB::Manager::Department->get_all_sorted;
   $::form->{show_pk_option}         = SL::DATEV->new->check_vcnumbers_are_valid_pk_numbers;
