@@ -993,7 +993,7 @@ sub show_history_search {
 
   setup_am_show_history_search_action_bar();
 
-  $form->{title} = $locale->text("History Search");
+  $form->{title} = $locale->text("history search engine");
   $form->header();
 
   print $form->parse_html_template("common/search_history");
