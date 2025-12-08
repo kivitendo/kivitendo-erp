@@ -7,7 +7,7 @@ use SL::Presenter::EscapedText qw(escape);
 sub pre_content {
   my $title = escape($::locale->text($::form->{title} || ""));
 
-  "<h1>${title}</h1>";
+  "<h1>${title}</h1>\n";
 }
 
 1;
