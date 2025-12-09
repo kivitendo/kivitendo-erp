@@ -179,9 +179,8 @@ sub login {
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
 
-  $form->{"title"} = $main::locale->text("Dataset upgrade");
+  $form->{"title"} = $main::locale->text("Dataset upgrade") . " (" . $::auth->client->{dbname} . ")";
   $form->header(no_layout => $form->{no_layout});
-  print $form->parse_html_template("dbupgrade/header");
 
   $form->{dbupdate} = "db" . $::auth->client->{dbname};
 
