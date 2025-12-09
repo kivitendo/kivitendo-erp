@@ -2,9 +2,9 @@
 [% USE L %]
 [% USE LxERP %]
 
-<h1>[% LxERP.t8('Conversion of "birthday" contact person attribute') %]</h1>
-
 <div class="wrapper">
+
+<h2>[% LxERP.t8('Conversion of "birthday" contact person attribute') %]</h2>
 
 <p>
   [% LxERP.t8('The contact person attribute "birthday" is converted from a free-form text field into a date field.') %]
@@ -38,10 +38,10 @@
 [% END %]
 
 <form action="[% script %]" method="POST">
-  <h2>[% LxERP.t8('Entries for which automatic conversion failed:') %]</h2>
+  <h3>[% LxERP.t8('Entries for which automatic conversion failed:') %]</h3>
   [% PROCESS birthday_table data = data %]
 
-  <h2>[% LxERP.t8('Entries for which automatic conversion succeeded:') %]</h2>
+  <h3>[% LxERP.t8('Entries for which automatic conversion succeeded:') %]</h3>
   [% PROCESS birthday_table data = auto_data %]
 
   <input type="hidden" name="row_length" value="[% row_length %]">
