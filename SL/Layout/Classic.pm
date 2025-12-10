@@ -10,6 +10,7 @@ use SL::Layout::Split;
 use SL::Layout::ActionBar;
 use SL::Layout::Flash;
 use SL::Layout::Content;
+use SL::Layout::Title;
 
 sub init_sub_layouts {
   $_[0]->sub_layouts_by_name->{actionbar} = SL::Layout::ActionBar->new;
@@ -21,6 +22,7 @@ sub init_sub_layouts {
     SL::Layout::Split->new(
       left  => [ SL::Layout::MenuLeft->new ],
       right => [
+        SL::Layout::Title->new,
         $_[0]->sub_layouts_by_name->{actionbar},
         $_[0]->sub_layouts_by_name->{flash},
         SL::Layout::Content->new,
