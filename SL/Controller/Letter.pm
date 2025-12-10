@@ -455,7 +455,7 @@ sub load_letter_draft {
 
   $self->setup_load_letter_draft_action_bar;
   $self->render('letter/load_drafts',
-    title         => t8('Letter Draft'),
+    title         => t8('Load letter draft'),
     LETTER_DRAFTS => $letter_drafts,
   );
 
