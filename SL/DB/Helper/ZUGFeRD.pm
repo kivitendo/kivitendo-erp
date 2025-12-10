@@ -294,17 +294,17 @@ sub _specified_trade_settlement_payment_means {
 sub _taxes {
   my ($self, %params) = @_;
 
-  my $taxes = [];
+  my @taxes;
   my $pat   = $params{ptc_data};
   foreach my $tax_id (keys %{ $pat->{taxes_by_tax_id} }) {
     my $netamount = sum0 map { $pat->{amounts}->{$_}->{amount} } grep { $pat->{amounts}->{$_}->{tax_id} == $tax_id } keys %{ $pat->{amounts} };
 
-    push(@{ $taxes }, { amount    => $pat->{taxes_by_tax_id}->{$tax_id},
-                        netamount => $netamount,
-                        tax       => SL::DB::Tax->new(id => $tax_id)->load });
+    push(@taxes, { amount    => $pat->{taxes_by_tax_id}->{$tax_id},
+                   netamount => $netamount,
+                   tax       => SL::DB::Tax->new(id => $tax_id)->load });
   }
 
-  foreach my $taxinfo (@$taxes) {
+  foreach my $taxinfo (@taxes) {
     my %rate_and_code = _tax_rate_and_code($self->taxzone, $taxinfo->{tax});
 
     #     <ram:ApplicableTradeTax>
