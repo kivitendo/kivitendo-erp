@@ -16,9 +16,11 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.use_as_new = function() {
+  ns.use_as_new = function(params) {
+    const clear_cvars = params.clear_cvars;
+
     var oldid = $("#part_id").val();
-    $('#ic').attr('action', 'controller.pl?action=Part/use_as_new&old_id=' + oldid);
+    $('#ic').attr('action', 'controller.pl?action=Part/use_as_new&old_id=' + oldid + '&clear_cvars=' + clear_cvars);
     $('#ic').submit();
   };
 
