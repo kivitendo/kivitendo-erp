@@ -16,7 +16,6 @@
 ************************************************************************************************************/
 
 .DHTMLSuite_menuBar_top{	/* The bar that is parent of the menu strip */
-  position: fixed;
   height: 26px;
   width: 100%;
   z-index: 100;
