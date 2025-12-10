@@ -47,7 +47,7 @@
       var idDx     = originalID + "ms2side__dx";
       var nameSx   = originalID + "ms2side__sx";
       var hiddenId = originalID + "ms2side_hidden";
-      var size     = $(this).attr("size");
+      var size     = $(this).attr("size") || o.size;
       $(this).attr("name", originalID + "ms2side__orig");
       // SIZE MIN
       if (size < 6) {

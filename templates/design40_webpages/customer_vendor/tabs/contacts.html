@@ -192,7 +192,7 @@
       <td>
         [% IF SELF.all_contacts.size > 0 %]
           [% L.select_tag("linked_contacts[]", SELF.all_contacts, value_key="cp_id", title_key="full_name", id="linked_contacts", multiple=1, default=SELF.linked_contacts) %]
-          [% L.multiselect2side("linked_contacts", labelsx=LxERP.t8("All Contacts"), labeldx=LxERP.t8("Linked Contacts"), allButtons="false") %]
+          [% L.multiselect2side("linked_contacts", labelsx=LxERP.t8("All Contacts"), labeldx=LxERP.t8("Linked Contacts"), allButtons="false", size=12) %]
         [% ELSE %]
           [% 'No existing contacts' | $T8 %]
         [% END %]
