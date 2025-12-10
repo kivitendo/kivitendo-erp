@@ -299,7 +299,6 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{serialnumber} },      $form->{"serialnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{bin} },               $form->{"bin_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{partnotes} },         $form->{"partnotes_$i"};
-      push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },        $form->{"partsgroup_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{longdescription} },   $form->{"longdescription_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});

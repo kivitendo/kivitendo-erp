@@ -1098,7 +1098,6 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{bin} },               $form->{"bin_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{partnotes} },         $form->{"partnotes_$i"};
-      push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },          $form->{"partsgroup_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{serialnumber} },      $form->{"serialnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
