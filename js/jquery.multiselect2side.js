@@ -13,6 +13,7 @@
 (function($) {
   jQuery.fn.multiselect2side = function (o) {
     o = $.extend({
+      allButtons:       true,
       selectedPosition: 'right',
       moveOptions:      true,
       labelTop:         'Top',
@@ -64,6 +65,8 @@
         "<p class='MoveBottom' title='Move on bottom selected option'>" + o.labelBottom + "</p>" +
         "</div>";
 
+      var all_buttons = html => o.allButtons ? html : "";
+
       // CREATE NEW ELEMENT (AND HIDE IT) AFTER THE HIDDED ORGINAL SELECT
       var htmlToAdd =
         "<div class='ms2side__div'>" +
@@ -76,14 +79,14 @@
         ((o.selectedPosition == 'right')
          ?
          ("<p class='AddOne' title='Add Selected'>&rsaquo;</p>" +
-          "<p class='AddAll' title='Add All'>&raquo;</p>" +
+          all_buttons("<p class='AddAll' title='Add All'>&raquo;</p>") +
           "<p class='RemoveOne' title='Remove Selected'>&lsaquo;</p>" +
-          "<p class='RemoveAll' title='Remove All'>&laquo;</p>")
+          all_buttons("<p class='RemoveAll' title='Remove All'>&laquo;</p>"))
          :
          ("<p class='AddOne' title='Add Selected'>&lsaquo;</p>" +
-          "<p class='AddAll' title='Add All'>&laquo;</p>" +
+          all_buttons("<p class='AddAll' title='Add All'>&laquo;</p>") +
           "<p class='RemoveOne' title='Remove Selected'>&rsaquo;</p>" +
-          "<p class='RemoveAll' title='Remove All'>&raquo;</p>")
+          all_buttons("<p class='RemoveAll' title='Remove All'>&raquo;</p>"))
         ) +
         "</div>" +
         "<div class='ms2side__select'>" +
