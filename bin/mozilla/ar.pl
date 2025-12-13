@@ -1211,7 +1211,7 @@ sub ar_transactions {
     %column_defs_cvars,
   );
 
-  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone globalprojectdescription globalprojectnumber)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber cusordnumber donumber deliverydate name netamount amount datepaid employee shippingpoint shipvia transaction_description direct_debit department taxzone globalprojectdescription globalprojectnumber)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
