@@ -10728,7 +10728,7 @@ $some_hash{42}    = 54;</programlisting>
       <sect2 id="devel.design40.einführung">
         <title>Einführung</title>
         <para>
-          Das Design 4.0 ist mit Less aufgebaut. Less Erweitert CSS um
+          Das Design 4.0 ist mit Less aufgebaut. Less erweitert CSS um
           einige nützliche Funktionen. Mehr dazu siehe:
           <ulink url="https://lesscss.org/">Getting started |
           Less.js</ulink> (Englisch)
@@ -10750,14 +10750,14 @@ $some_hash{42}    = 54;</programlisting>
     sudo apt install node-less
     </programlisting>
         <para>
-          Zum kompilieren der Dateien aus dem Verzeichnis der Less Dateien
+          Zum Kompilieren der Dateien aus dem Verzeichnis der Less Dateien
           den folgenden Befehl ausführen:
         </para>
         <programlisting>
     lessc -x style.less ../style.css
     </programlisting>
         <para>
-          Dies produziert das neue style sheet oder gibt einen Fehler aus.
+          Dies produziert das neue Stylesheet oder gibt einen Fehler aus.
         </para>
       </sect2>
       <sect2 id="devel.design40.lokale-anpassungen-nicht-entwicklung">
