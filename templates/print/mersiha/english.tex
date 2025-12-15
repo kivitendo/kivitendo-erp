@@ -44,7 +44,7 @@
 \newcommand{\lieferung} {Delivery terms:}
 \newcommand{\textTelefon} {Tel.:}
 \newcommand{\textEmail} {Email:}
-\newcommand{\textFax} {Fax:}
+\providecommand{\textFax} {Fax:}
 
 % angebot (sales_quotion)
 \newcommand{\angebot} {Quotation}
@@ -55,7 +55,7 @@
 \newcommand{\angebotagb} {Our general terms and conditions (AGB) apply. We will send them to you on request.}
 \newcommand{\auftragerteilt}{Order confirmed:}
 \newcommand{\angebotortdatum}{We hereby accept this offer.}
-\newcommand{\abweichendeLieferadresse}{alternate delivery address}
+\newcommand{\abweichendeLieferadresse}{alternative delivery address}
 
 % angebotseingang (purchase_quotation_intake)
 \newcommand{\angebotseingang} {Quotation Intake}
@@ -95,6 +95,7 @@
 
 % rechnung (invoice)
 \newcommand{\rechnung} {Invoice}
+\newcommand{\rechnungs} {Invoice}
 \newcommand{\rechnungskopie} {Invoice copy}
 \newcommand{\rechnungsdatum} {Invoice date}
 \newcommand{\ihrebestellung} {Your order}
@@ -116,6 +117,7 @@
 
 \newcommand{\textUstid} {VAT number:}
 \newcommand{\stornorechnung} {Reversal Invoice}
+\newcommand{\stornoErstatten}[1] {hereby we refund you the following positions in respect to invoice #1.}
 
 % anzahlungsrechnung (invoice_for_advance_payment)
 \newcommand{\anzahlungsrechnung} {Invoice for advance payment}
@@ -139,10 +141,17 @@
 \newcommand{\asNeunzig} {90+}
 
 % zahlungserinnerung (Mahnung)
-\newcommand{\mahnung} {Payment reminder}
+\newcommand{\mahnung} {Dun}
+\newcommand{\zahlungserinnerung} {Payment reminder}
 \newcommand{\mahnungsformel} {our records show that the following invoices are still outstanding:}
 \newcommand{\beruecksichtigtBis} {We have taken into account payments received up until}
 \newcommand{\schonGezahlt} {If you have already paid in the meantime, please ignore this payment reminder.}
+\newcommand{\zahlungserinnerungIgnoriert}[1] {sadly, you have ignored our previous payment reminder. Regrettably, this caused us burdens, which we have to pass on to you. Ta avoid further charges, please settle the following open positions as fast as possible, at the latest until #1.}
+\newcommand{\triftigeGruende} {If there are compelling reasons for the delay in payment, please contant us, so that we can work out a solution together.}
+\newcommand{\faelligAm} {fällig am}
+\newcommand{\gebuehr} {fee}
+\newcommand{\zinsen} {interest}
+\newcommand{\zuZahlen} {outstanding}
 
 % zahlungserinnerung_invoice (Rechnung zur Mahnung)
 \newcommand{\mahnungsrechnungsformel} {for the above-mentioned payment reminder we charge you the following fees:}

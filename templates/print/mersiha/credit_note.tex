@@ -18,10 +18,11 @@
 \setkomavar{info0}[\vorgangsbez]    {<%transaction_description%>}
 \setkomavar{info1}[\datum]          {<%invdate%>}
 \setkomavar{info2}[\fuerRechnung]   {<%invnumber_for_credit_note%>}
-\setkomavar{info3}[\kundennummer]   {<%customernumber%>}
-\setkomavar{info4}[\ansprechpartner]{<%employee_name%>}
-\setkomavar{info5}[\textTelefon]    {<%employee_tel%>}
-\setkomavar{info6}[\textEmail]      {<%employee_email%>}
+\setkomavar{info3}[\auftrag{}~\nr]  {<%ordnumber%>}
+\setkomavar{info4}[\kundennummer]   {<%customernumber%>}
+\setkomavar{info5}[\ansprechpartner]{<%employee_name%>}
+\setkomavar{info6}[\textTelefon]    {<%employee_tel%>}
+\setkomavar{info7}[\textEmail]      {<%employee_email%>}
 \setkomavar{fromname}               {<%employee_name%>}
 
 \setkomavar{title}{\gutschrift~\nr~<%invnumber%>}
@@ -38,11 +39,12 @@
     \par
     \normalsize
     <%shiptoname%>\par
-    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
     <%shiptodepartment_1%>\par
     <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
     <%shiptostreet%>\par
-    <%shiptozipcode%> <%shiptocity%>%
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
   }
 \end{lrbox}
 \makeatother

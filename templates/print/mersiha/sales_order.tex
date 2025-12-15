@@ -46,11 +46,12 @@
     \par
     \normalsize
     <%shiptoname%>\par
-    <%if shiptocontact%> <%shiptocontact%><%end if%>\par
     <%shiptodepartment_1%>\par
     <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
     <%shiptostreet%>\par
-    <%shiptozipcode%> <%shiptocity%>%
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
   }
 \end{lrbox}
 \makeatother
@@ -84,7 +85,7 @@
 
   \auftragsformel
 
-  \begin{PricingTabular*}[pricetotal/colspec = K]
+  \begin{PricingTabular*}[price/colspec = K, pricetotal/colspec = K]
     % eigentliche Tabelle
     \FakeTable{
     <%foreach number%>%
@@ -98,9 +99,14 @@
       <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
       &%
       <%qty%> <%unit%> &%
-      <%sellprice%>&%
+      <%sellprice%>\,\currency&%
       <%if optional%>\optional<%else%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end optional%>
       \tabularnewline
+      <%if discount_sub%>
+        \rlap{\zwischensumme}& & & & &
+        <%discount_sub%>\,\currency
+        \tabularnewline
+      <%end%>
     <%end number%>%
     }%
     \begin{PricingTotal}%
