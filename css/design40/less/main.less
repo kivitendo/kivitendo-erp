@@ -175,7 +175,7 @@ h2.record-title {
 // -----------------------
 // see also mixin .mx-h3-caption and caption in table.less
 h3 {
-  .mx-h3-caption ; // Mixin
+  .mx-h3-caption() ; // Mixin
   &.caption{
     margin: 0.6em 0 0.4em 0 !important;
   }
@@ -363,7 +363,7 @@ div.instructions {
   border:           @instructionbox-border;
   border-radius:    @contentbox-radius ;
   max-width: 70% ;
-  .mx-contentbox-properties ;
+  .mx-contentbox-properties() ;
   color: #4C4C4C;
   font-size: 80%;
 

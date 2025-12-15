@@ -42,7 +42,7 @@
   input[type="reset"],
   button {
 
-    .mx-button ; // Mixin
+    .mx-button() ; // Mixin
 
     &.clear { clear: left; }
 
@@ -170,21 +170,21 @@
 a {
   &.button {
 
-    .mx-button ;
+    .mx-button() ;
 
     &.below { clear: both !important; }
 
     // STANDARD colors
-    .mx-button-standard ;
-    .mx-button-standard-hover-focus ;
+    .mx-button-standard() ;
+    .mx-button-standard-hover-focus() ;
 
     // NEUTRAL (no Submission)
     &.neutral {
       &:link,
       &:visited{
-        .mx-button-neutral ; // Mixin
+        .mx-button-neutral() ; // Mixin
       }
-      .mx-button-neutral-hover-focus ; // Mixin
+      .mx-button-neutral-hover-focus() ; // Mixin
     } // /.neutral
 
     &.wi-smallest     { width:     @input-wi-smallest    ; }
@@ -247,17 +247,17 @@ a {
 // --------------------------------------
 #content label.button {
 
-  .mx-button ; // Mixin
+  .mx-button() ; // Mixin
 
   // STANDARD colors
-  .mx-button-standard ; // Mixin
+  .mx-button-standard() ; // Mixin
 
-  .mx-button-standard-hover-focus ; // Mixin
+  .mx-button-standard-hover-focus() ; // Mixin
 
   // NEUTRAL (no Submission)
   &.neutral {
-    .mx-button-neutral ; // Mixin
-    .mx-button-neutral-hover-focus ; // Mixin
+    .mx-button-neutral() ; // Mixin
+    .mx-button-neutral-hover-focus() ; // Mixin
   } // /.neutral
 
 } // /.button
