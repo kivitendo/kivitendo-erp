@@ -7,10 +7,14 @@ LESS contains mainly CSS/LESS statements, and yes!, also pure and
 valid CSS-Code is also accepted and compiled. The compiler (lessc) creates
 pure and valid css code with your LESS and CSS code.
 
+For minifying the output CSS you should also install the plugin less-plugin-clean-css.
+See: https://github.com/less/less-plugin-clean-css
+
 ## How to create a style.css for kivitendo
 First set the cursor of your terminal to <code>/css/less/</code> (<code>cd /css/less</code>)<br>
 Use following command: <code>lessc style.less ../style.css</code><br>
-For minifiying the output css:  <code>lessc -x style.less ../style.css</code><br>
+For minifiying the output css (using less-plugin-clean-css):
+<code>lessc --clean-css style.less ../style.css</code><br>
 Then a new <code>/css/style.css</code> is created except if errors occur.
 
 ## Developing kivitendo CSS (not customizing)
