@@ -8951,6 +8951,110 @@ document_path = /var/local/kivi_documents
       </sect2>
     </sect1>
 
+    <sect1 id="features.ticketsystem">
+      <title>Ticketsystem-Schnittstelle</title>
+      <para>
+        kivitendo kann in den Kunden- und Lieferanten-Stammdaten
+        zugehörige Tickets aus einem Ticketsystem (Issue Tracker)
+        abrufen und diese in einem Tab anzeigen.  Dazu ist in der
+        Mandantenkonfiguration -> Features -> Experimentelle Features
+        -> Ticket System Anbieter zunächst ein Anbieter auszuwählen.
+        Ferner ist anbieterabhängig weitere Konfiguration erforderlich.
+      </para>
+
+      <sect2>
+        <title>Atlassian Jira</title>
+
+        <para>
+          Diese Implementierung funktioiert mit Atlassian Jira Cloud.
+          (Die on-premises Variante von Jira hat eine andere API.)
+        </para>
+
+        <para>
+          Zu den Tickets werden folgende sortierbare Spalten angezeigt:
+          Schlüssel, Zusammenfassung, Priorität, Status, Ersteller,
+          Zugewiesen, Erstellt am, Erneuert am.  Über den Link in der
+          Spalte Schlüssel kann zu Jira gesprungen werden.
+        </para>
+
+        <para>
+          Implementiert ist Authentifizierung via OAuth2 Tokens.  In Jira
+          muss kivitendo zunächst als App angelegt werden.  Dabei werden
+          <literal>client_id</literal>, <literal>client_secret</literal>
+          und <literal>redirect_uri</literal> vergeben.  Zu beachten
+          ist, dass <literal>redirect_uri</literal> diejenige
+          URL sein muss, unter welcher kivitendo zum Anlegen der
+          OAuth-Tokens vom Benutzer aufgerufen wird, gefolgt vom
+          Endpunkt <literal>/oauth.pl</literal>.  Alle drei Parameter
+          sind in der <literal>kivitendo.conf</literal> im Abschnitt
+          <literal>[oauth2_atlassian_jira]</literal> einzustellen,
+          wie unten exemplarisch gezeigt ist.
+        </para>
+
+        <para>
+          Die App muss in Jira mit einem Benutzer oder mit mehreren
+          Benutzern verknüpft werden:
+
+          <itemizedlist>
+            <listitem>
+              ein einziger Jira-Benutzer, dessen Token mandantenweit
+              alle kivitendo Benutzer zum Abruf von Tickets nutzen; oder
+            </listitem>
+
+            <listitem>
+              jeder kivitendo Benutzer bezieht sein eigenes Token
+              für Jira, welches nur er selbst nutzen darf, um Tickets
+              abzurufen
+            </listitem>
+          </itemizedlist>
+
+          Die OAuth Tokens werden in kivitendo unter Programm -> OAuth
+          Tokens angelegt.  Ist in kivitendo ein mandantenweites Token
+          und ein nutzerbezogenes Token für einen bestimmten Nutzer
+          vorhanden, so wird das nutzerbezogene Token bevorzugt.
+        </para>
+
+        <para>
+          Nicht notwendig, aber für die Geschwindigkeit der Abfragen
+          vorteilhaft, ist es, die <literal>cloud_id</literal>
+          und <literal>cloud_url</literal> der gewünschten Jira
+          Instanz ebenfalls in der <literal>kivitendo.conf</literal>
+          einzustellen.  (Zum Finden dieser Parameter nutzen Entwickler
+          die Konsole und rufen <literal>accessible_resources</literal>
+          aus <literal>SL/AtlassianJira.pm</literal> auf.)  Fehlt diese
+          Angabe, so wird die von Jira als erstes zurückgegebene Cloud
+          verwendet, wozu für jede Abfrage ein zweiter HTTP-Request
+          nötig ist.
+        </para>
+
+        <para>
+          Exemplarischer Konfigurationsabschnitt in
+          <literal>kivitendo.conf</literal>:
+          <programlisting>[oauth2_atlassian_jira]
+
+client_id     = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+client_secret = xxxxxxx-xxxxx-xxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx
+redirect_uri  = http://kiviserver.lan/oauth.pl
+
+# optional:
+[atlassian_jira]
+
+cloud_id  = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+cloud_url = https://firma.atlassian.net
+          </programlisting>
+        </para>
+
+        <para>
+          Beim Kopieren einer Produktivdatenbank für
+          Testzwecke sollten die OAuth Tokens ausgelassen
+          werden, da beim Refresh im Testsystem die Tokens im
+          Produktivsystem ungültig würden.  Siehe hierzu die Option
+          <literal>--exclude-table-data=oauth_token</literal> in
+          <literal>man pg_dump(1)</literal>.
+        </para>
+      </sect2>
+    </sect1>
+
   </chapter>
 
   <chapter>

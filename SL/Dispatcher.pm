@@ -249,6 +249,18 @@ sub handle_request {
 
   $::request->read_cgi_input($::form);
 
+  if ($ENV{SCRIPT_NAME} =~ m/oauth\.pl/) {
+    # OAuth providers redirect the browser to 'oauth.pl' and the SameSite=strict policy prevents
+    # the browser to include our session cookie. It is safe to redirect the browser to ourselfes,
+    # avoiding the policy violation, provided that only known-safe query parameters are included.
+    my $redirect_url = 'controller.pl'
+                     . '?action=' . uri_encode('OAuthAuthorization/authcode')
+                     . '&code='   . uri_encode($::form->{code})
+                     . '&state='  . uri_encode($::form->{state});
+    print $::request->cgi->redirect($redirect_url);
+    return $self->end_request;
+  }
+
   my %routing;
   eval { %routing = $self->_route_request($ENV{SCRIPT_NAME}); 1; } or return;
   ($routing_type, $script_name, $action) = @routing{qw(type controller action)};

@@ -1545,6 +1545,12 @@
   params:
     action: CTI/list_internal_extensions
 - parent: program
+  id: program_oauth
+  name: OAuth Tokens
+  order: 150
+  params:
+    action: OAuth/list
+- parent: program
   id: program_version
   name: Version
   icon: version
