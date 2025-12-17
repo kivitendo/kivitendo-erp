@@ -25,6 +25,8 @@ sub import {
 sub make_relationships {
   my ($caller_package, %params) = @_;
 
+  my $cv = $params{join_package} eq 'SL::DB::CustomerContact' ? 'customer' : 'vendor';
+
   $caller_package->meta->add_relationships(
      CONTACTS_RELATIONSHIP() => {
       type         => 'many to many',
@@ -34,7 +36,7 @@ sub make_relationships {
     MAIN_CONTACT_RELATIONSHIP() => {
       type         => 'many to many',
       map_class    => $params{join_package},
-      query_args   => [ 'customer_contacts.main' => 1 ],
+      query_args   => [ "${cv}_contacts.main" => 1 ],
     }
   );
 
