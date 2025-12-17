@@ -110,7 +110,7 @@ my $rp_access_map = {
   'payments'           => 'cash',
   'trial_balance'      => 'report',
   'income_statement'   => 'report',
-  'erfolgsrechnung'    => 'report',
+  'erfolgsrechnung'    => 'report', # DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
   'bwa'                => 'report',
   'balance_sheet'      => 'report',
 };
@@ -132,7 +132,7 @@ sub report {
   my %title = (
     balance_sheet        => $::locale->text('Balance Sheet'),
     income_statement     => $::locale->text('Income Statement'),
-    erfolgsrechnung      => $::locale->text('Erfolgsrechnung'),
+    erfolgsrechnung      => $::locale->text('Erfolgsrechnung'), # DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
     trial_balance        => $::locale->text('Trial Balance'),
     ar_aging             => $::locale->text('Search AR Aging'),
     ap_aging             => $::locale->text('Search AP Aging'),
@@ -161,7 +161,7 @@ sub report {
 
   my $is_projects            = $::form->{report} eq "projects";
   my $is_income_statement    = $::form->{report} eq "income_statement";
-  my $is_erfolgsrechnung     = $::form->{report} eq "erfolgsrechnung";
+  my $is_erfolgsrechnung     = $::form->{report} eq "erfolgsrechnung"; # DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
   my $is_bwa                 = $::form->{report} eq "bwa";
   my $is_balance_sheet       = $::form->{report} eq "balance_sheet";
   my $is_trial_balance       = $::form->{report} eq "trial_balance";
@@ -212,7 +212,7 @@ sub report {
     is_balance_sheet       => $is_balance_sheet,
     is_bwa                 => $is_bwa,
     is_income_statement    => $is_income_statement,
-    is_erfolgsrechnung     => $is_erfolgsrechnung,
+    is_erfolgsrechnung     => $is_erfolgsrechnung, # DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
     is_projects            => $is_projects,
     format                 => $format,
   });
@@ -405,6 +405,7 @@ sub generate_income_statement {
   $main::lxdebug->leave_sub();
 }
 
+# DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
 sub generate_erfolgsrechnung {
   $::lxdebug->enter_sub;
   $::auth->assert('report');

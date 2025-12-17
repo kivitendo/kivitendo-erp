@@ -1888,6 +1888,7 @@ sub income_statement {
   $main::lxdebug->leave_sub();
 }
 
+# DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
 sub erfolgsrechnung {
   $main::lxdebug->enter_sub();
 
@@ -1925,6 +1926,7 @@ sub erfolgsrechnung {
   return {};
 }
 
+# DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
 sub get_accounts_ch {
   $main::lxdebug->enter_sub();
 
@@ -1951,6 +1953,7 @@ sub get_accounts_ch {
   return $accounts;
 }
 
+# DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
 sub get_total_ch {
   $main::lxdebug->enter_sub();
 
@@ -1978,6 +1981,7 @@ sub get_total_ch {
   return $total;
 }
 
+# DEPRECATED: replaced by SL::Controller::IncomeStatementChSimple
 sub _query {return selectall_hashref_query($::form, $::form->get_standard_dbh, @_);}
 
 1;
