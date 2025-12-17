@@ -113,6 +113,9 @@ namespace('kivi.ActionBar', function(k){
         // if the form contains submit buttons the default action will click them instead.
         // prevent that
         if (accesskey == 13) return false;
+
+        // prevent the web browser's default action
+        return false;
       }
       return true;
     }
