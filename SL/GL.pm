@@ -91,6 +91,7 @@ sub _post_transaction {
 
   my ($debit, $credit) = (0, 0);
   my $project_id;
+  my $department_id;
 
   my $i;
 
@@ -170,16 +171,17 @@ sub _post_transaction {
       $posted = 0;
     }
 
-    $project_id = conv_i($form->{"project_id_$i"});
+    $project_id    = conv_i($form->{"project_id_$i"});
+    $department_id = conv_i($form->{"department_id_$i"});
 
     # if there is an amount, add the record
     if ($amount != 0) {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction, tax_id, chart_link)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE id = ?))|;
+                                  source, memo, project_id, department_id, taxkey, ob_transaction, cb_transaction, tax_id, chart_link)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE id = ?))|;
       @values = (conv_i($form->{id}), $form->{"accno_id_$i"}, $amount, conv_date($form->{transdate}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}), $form->{"accno_id_$i"});
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $department_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}), $form->{"accno_id_$i"});
       do_query($form, $dbh, $query, @values);
     }
 
@@ -187,16 +189,16 @@ sub _post_transaction {
       # add taxentry
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey, tax_id, chart_link)
+                                  source, memo, project_id, department_id, taxkey, tax_id, chart_link)
            VALUES (?, (SELECT chart_id FROM tax WHERE id = ?),
-                   ?, ?, ?, ?, ?, ?, ?, (SELECT link
+                   ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link
                                          FROM chart
                                          WHERE id = (SELECT chart_id
                                                      FROM tax
                                                      WHERE id = ?)))|;
       @values = (conv_i($form->{id}), conv_i($form->{"tax_id_$i"}),
                  $tax, conv_date($form->{transdate}), $form->{"source_$i"},
-                 $form->{"memo_$i"}, $project_id, $taxkey, conv_i($form->{"tax_id_$i"}), conv_i($form->{"tax_id_$i"}));
+                 $form->{"memo_$i"}, $project_id, $department_id, $taxkey, conv_i($form->{"tax_id_$i"}), conv_i($form->{"tax_id_$i"}));
       do_query($form, $dbh, $query, @values);
     }
   }
@@ -697,7 +699,7 @@ sub transaction {
     # retrieve individual rows
     $query =
       qq|SELECT c.accno, t.taxkey AS accnotaxkey, a.amount, a.memo, a.source,
-           a.transdate, a.cleared, a.project_id, p.projectnumber,
+           a.transdate, a.cleared, a.project_id, p.projectnumber, a.department_id,
            a.taxkey, t.rate AS taxrate, t.id, a.chart_id,
            (SELECT c1.accno
             FROM chart c1, tax t1

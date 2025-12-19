@@ -40,6 +40,22 @@ __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('longdescription');
 
+__PACKAGE__->before_save('_before_save_set_tax_id');
+
+sub _before_save_set_tax_id {
+  my ($self) = @_;
+
+  return 1 if defined $self->tax_id && $self->tax_id >= 0;
+
+  my $record = $self->record;
+  my $taxkey = $self->part->get_taxkey(date       => $record->effective_tax_point,
+                                       is_sales   => $record->is_sales,
+                                       taxzone_id => $record->taxzone_id);
+  $self->tax_id($taxkey->tax_id);
+
+  return 1;
+}
+
 sub record {
   my ($self) = @_;
 
@@ -49,3 +65,31 @@ sub record {
 };
 
 1;
+
+__END__
+
+=pod
+
+=encoding UTF-8
+
+=head1 NAME
+
+SL::DB::InvoiceItem: Rose model for invoices items (table "invoice")
+
+=head1 HOOKS
+
+=over 4
+
+=item C<_before_save_set_tax_id>
+
+This before-save-hook sets the tax_id for the itemif it is not already set.
+
+=back
+
+=head1 AUTHOR
+
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+...
+
+=cut

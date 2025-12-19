@@ -761,7 +761,8 @@ sub retrieve_accounts {
     $transdate = $dbh->quote($transdate);
   }
   #/transdate
-  my $inc_exp = $form->{"vc"} eq "customer" ? "income_accno_id" : "expense_accno_id";
+  my $inc_exp     = $form->{"vc"} eq "customer" ? "income_accno_id"     : "expense_accno_id";
+  my $inc_exp_tax = $form->{"vc"} eq "customer" ? "income_accno_tax_id" : "expense_accno_tax_id";
 
   my @part_ids = grep { $_ } values %args;
   my $in       = join ',', ('?') x @part_ids;
@@ -814,13 +815,13 @@ SQL
     }
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
-    $form->{"${_}_accno_id_$index"} = $accounts{"${_}_accno_id"} for qw(inventory expense); # only for purchase_invoice
+    $form->{"${_}_accno_id_$index"} = $accounts{"${_}_accno_id"} for qw(inventory income expense);
 
     $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate)) || $::form->dberror($query_tax);
     my $tax_ref;
     $tax_ref = $sth_tax->fetchrow_hashref or next;
 
-    $form->{"expense_accno_tax_id_$index"} = $tax_ref->{tax_id}; # only for purchase_invoice
+    $form->{"${inc_exp_tax}_$index"} = $tax_ref->{tax_id};
 
     $form->{"taxaccounts_$index"} = $tax_ref->{"accno"};
     $form->{"taxaccounts"} .= "$tax_ref->{accno} "if $form->{"taxaccounts"} !~ /$tax_ref->{accno}/;

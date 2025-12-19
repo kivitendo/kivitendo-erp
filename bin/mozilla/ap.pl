@@ -125,6 +125,7 @@ sub load_zugferd {
     if $::form->{record_template_id};
   $template_ap ||= SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $::form->{form_defaults}->{vendor_id}])
     if $::form->{form_defaults}->{vendor_id};
+
   if ($template_ap) {
     $::form->{id} = $template_ap->id;
     # set default values for items
@@ -134,12 +135,13 @@ sub load_zugferd {
     foreach my $pos (1 .. $::form->{form_defaults}->{rowcount}) {
       $::form->{form_defaults}->{"AP_amount_chart_id_$pos"}          = $chart->id;
       $::form->{form_defaults}->{"previous_AP_amount_chart_id_$pos"} = $chart->id;
-      $::form->{form_defaults}->{"taxchart_$pos"}   = $tax->id . '--' . $tax->rate;
-      $::form->{form_defaults}->{"project_id_$pos"} = $template_item->project_id;
-
+      $::form->{form_defaults}->{"taxchart_$pos"}      = $tax->id . '--' . $tax->rate;
+      $::form->{form_defaults}->{"project_id_$pos"}    = $template_item->project_id;
+      $::form->{form_defaults}->{"department_id_$pos"} = $template_item->department_id;
     }
     $::form->{form_defaults}->{FLASH} = $::form->{FLASH}; # store flash, form gets cleared
     return load_record_template();
+
   } else {
     flash('warning', $::locale->text(
         "No AP Record Template for vendor '#1' found.", $::form->{form_defaults}->{vendor}));
@@ -217,6 +219,7 @@ sub load_record_template {
     $::form->{"amount_${row}"}                      = $::form->format_amount(\%::myconfig, $item->amount1, 2);
     $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
     $::form->{"project_id_${row}"}                  = $item->project_id;
+    $::form->{"department_id_${row}"}               = $item->department_id;
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -249,10 +252,11 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"AP_amount_chart_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
+    +{ chart_id      => $::form->{"AP_amount_chart_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"}    || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
 
@@ -742,7 +746,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  my @flds  = qw(amount AP_amount_chart_id projectnumber oldprojectnumber project_id taxchart tax);
+  my @flds  = qw(amount AP_amount_chart_id projectnumber oldprojectnumber project_id department_id taxchart tax);
   my $count = 0;
   my (@a, $j, $totaltax);
   for my $i (1 .. $form->{rowcount}) {
@@ -1193,7 +1197,8 @@ sub ap_transactions {
     qw(transdate id type invnumber ordnumber name netamount tax amount paid datepaid
        due duedate transaction_description notes intnotes employee globalprojectdescription globalprojectnumber department
        vendornumber country ustid taxzone payment_terms charts debit_chart direct_debit
-       insertdate items);
+       insertdate items items_project_netamount items_project_amount items_project_number
+       items_department_netamount items_department_amount items_department);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed vendor invnumber ordnumber transaction_description notes intnotes project_id
@@ -1205,46 +1210,60 @@ sub ap_transactions {
   my $href = build_std_url('action=ap_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
-    'transdate'               => { 'text' => $locale->text('Date'), },
-    'id'                      => { 'text' => $locale->text('ID'), },
-    'type'                    => { 'text' => $locale->text('Type'), },
-    'invnumber'               => { 'text' => $locale->text('Invoice'), },
-    'ordnumber'               => { 'text' => $locale->text('Order'), },
-    'name'                    => { 'text' => $locale->text('Vendor'), },
-    'netamount'               => { 'text' => $locale->text('Amount'), },
-    'tax'                     => { 'text' => $locale->text('Tax'), },
-    'amount'                  => { 'text' => $locale->text('Total'), },
-    'paid'                    => { 'text' => $locale->text('Paid'), },
-    'datepaid'                => { 'text' => $locale->text('Date Paid'), },
-    'due'                     => { 'text' => $locale->text('Amount Due'), },
-    'duedate'                 => { 'text' => $locale->text('Due Date'), },
-    'transaction_description' => { 'text' => $locale->text('Transaction description'), },
-    'notes'                   => { 'text' => $locale->text('Notes'), },
-    'intnotes'                => { 'text' => $locale->text('Internal Notes'), },
-    'employee'                => { 'text' => $locale->text('Employee'), },
-    'globalprojectdescription' => { 'text' => $locale->text('Document Project Description'), },
-    'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
-    'department'              => { 'text' => $locale->text('Department'), },
-    'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
-    'country'                 => { 'text' => $locale->text('Country'), },
-    'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
-    'taxzone'                 => { 'text' => $locale->text('Tax rate'), },
-    'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
-    'charts'                  => { 'text' => $locale->text('Chart'), },
-    'debit_chart'             => { 'text' => $locale->text('Debit Account'), },
-    'direct_debit'            => { 'text' => $locale->text('direct debit'), },
-    'insertdate'              => { 'text' => $locale->text('Insert Date'), },
-    'items'                   => { 'text' => $locale->text('Positions'), },
+    'transdate'                  => { 'text' => $locale->text('Date'), },
+    'id'                         => { 'text' => $locale->text('ID'), },
+    'type'                       => { 'text' => $locale->text('Type'), },
+    'invnumber'                  => { 'text' => $locale->text('Invoice'), },
+    'ordnumber'                  => { 'text' => $locale->text('Order'), },
+    'name'                       => { 'text' => $locale->text('Vendor'), },
+    'netamount'                  => { 'text' => $locale->text('Amount'), },
+    'tax'                        => { 'text' => $locale->text('Tax'), },
+    'amount'                     => { 'text' => $locale->text('Total'), },
+    'paid'                       => { 'text' => $locale->text('Paid'), },
+    'datepaid'                   => { 'text' => $locale->text('Date Paid'), },
+    'due'                        => { 'text' => $locale->text('Amount Due'), },
+    'duedate'                    => { 'text' => $locale->text('Due Date'), },
+    'transaction_description'    => { 'text' => $locale->text('Transaction description'), },
+    'notes'                      => { 'text' => $locale->text('Notes'), },
+    'intnotes'                   => { 'text' => $locale->text('Internal Notes'), },
+    'employee'                   => { 'text' => $locale->text('Employee'), },
+    'globalprojectdescription'   => { 'text' => $locale->text('Document Project Description'), },
+    'globalprojectnumber'        => { 'text' => $locale->text('Document Project Number'), },
+    'department'                 => { 'text' => $locale->text('Department'), },
+    'vendornumber'               => { 'text' => $locale->text('Vendor Number'), },
+    'country'                    => { 'text' => $locale->text('Country'), },
+    'ustid'                      => { 'text' => $locale->text('USt-IdNr.'), },
+    'taxzone'                    => { 'text' => $locale->text('Tax rate'), },
+    'payment_terms'              => { 'text' => $locale->text('Payment Terms'), },
+    'charts'                     => { 'text' => $locale->text('Chart'), },
+    'debit_chart'                => { 'text' => $locale->text('Debit Account'), },
+    'direct_debit'               => { 'text' => $locale->text('direct debit'), },
+    'insertdate'                 => { 'text' => $locale->text('Insert Date'), },
+    'items'                      => { 'text' => $locale->text('Positions'), },
+    'items_project_amount'       => { 'text' => $locale->text('Items Project Total' ), },
+    'items_project_netamount'    => { 'text' => $locale->text('Items Project Amount'), },
+    'items_project_number'       => { 'text' => $locale->text('Items Project Number'), },
+    'items_department_amount'    => { 'text' => $locale->text('Items Department Total' ), },
+    'items_department_netamount' => { 'text' => $locale->text('Items Department Amount'), },
+    'items_department'           => { 'text' => $locale->text('Items Department'), },
   );
 
-foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate intnotes globalprojectdescription globalprojectnumber)) {
+  foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shipvia transaction_description direct_debit department taxzone insertdate intnotes globalprojectdescription globalprojectnumber)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due items_project_amount items_project_netamount
+                                                  items_department_amount items_department_netamount);
 
   $form->{"l_type"} = "Y";
+  if ($form->{project_id}) {
+    $form->{l_items_project_number} = $form->{l_items_project_amount} = $form->{l_items_project_netamount} = "Y";
+  }
+  if ($form->{department_id}) {
+    $form->{l_items_department} = $form->{l_items_department_amount} = $form->{l_items_department_netamount} = "Y";
+  }
+
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $report->set_columns(%column_defs);
@@ -1257,7 +1276,7 @@ foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid empl
   my $department_description;
   $department_description = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
   my $project_description;
-  $project_description = SL::DB::Manager::Project->find_by(id => $form->{project_id})->description if $form->{project_id};
+  $project_description = SL::DB::Manager::Project->find_by(id => $form->{project_id})->displayable_name if $form->{project_id};
 
   my @options;
   push @options, $locale->text('Vendor')                  . " : $form->{vendor}"                         if ($form->{vendor});
@@ -1302,7 +1321,8 @@ foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid empl
   # escape callback for href
   my $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount paid due);
+  my @subtotal_columns = qw(netamount amount paid due items_project_amount items_project_netamount
+                            items_department_amount items_department_netamount);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1316,7 +1336,8 @@ foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid empl
     map { $subtotals{$_} += $ap->{$_};
           $totals{$_}    += $ap->{$_} } @subtotal_columns;
 
-    map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due);
+    map { $ap->{$_} = $form->format_amount(\%myconfig, $ap->{$_}, 2) } qw(netamount tax amount paid due items_project_amount items_project_netamount
+                                                                          items_department_amount items_department_netamount);
 
     my $is_storno  = $ap->{storno} &&  $ap->{storno_id};
     my $has_storno = $ap->{storno} && !$ap->{storno_id};

@@ -180,20 +180,23 @@ sub _post_transaction {
     # add individual transactions for AR, amount and taxes
     for $i (1 .. $form->{rowcount}) {
       if ($form->{"amount_$i"} != 0) {
-        my $project_id = conv_i($form->{"project_id_$i"});
+        my $project_id    = conv_i($form->{"project_id_$i"});
+        my $department_id = conv_i($form->{"department_id_$i"});
 
         # insert detail records in acc_trans
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR_amounts}{"amount_$i"}, conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, department_id, taxkey, tax_id, chart_link)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.id = ?))|;
+        @values = (conv_i($form->{id}), $form->{AR_amounts}{"amount_$i"}, conv_i($form->{"amount_$i"}), conv_date($form->{transdate}),
+                   $project_id, $department_id,
                    conv_i($form->{"taxkey_$i"}), conv_i($form->{"tax_id_$i"}), $form->{AR_amounts}{"amount_$i"});
         do_query($form, $dbh, $query, @values);
 
         if ($form->{"tax_$i"} != 0) {
           # insert detail records in acc_trans
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)
-                       VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-          @values = (conv_i($form->{id}), $form->{AR_amounts}{"tax_$i"}, conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id,
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, department_id, taxkey, tax_id, chart_link)
+                       VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?, ?, (SELECT c.link FROM chart c WHERE c.accno = ?))|;
+          @values = (conv_i($form->{id}), $form->{AR_amounts}{"tax_$i"}, conv_i($form->{"tax_$i"}), conv_date($form->{transdate}),
+                     $project_id, $department_id,
                      conv_i($form->{"taxkey_$i"}), conv_i($form->{"tax_id_$i"}), $form->{AR_amounts}{"tax_$i"});
           do_query($form, $dbh, $query, @values);
         }
@@ -511,6 +514,44 @@ sub ar_transactions {
 
   my @values;
 
+  my $items_project_amount_select = '';
+  if ($form->{project_id}) {
+    $items_project_amount_select =
+      qq|, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty * sellprice/COALESCE(price_factor, 1) * (1+(SELECT rate FROM tax WHERE tax.id = tax_id))) FROM invoice WHERE invoice.trans_id = a.id AND project_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) | .
+      qq| END AS items_project_amount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)) FROM invoice WHERE invoice.trans_id = a.id AND project_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND project_id = ? AND (chart_link LIKE '%AR_amount%')) | .
+      qq| END AS items_project_netamount, | .
+      qq|(SELECT projectnumber FROM project WHERE id = ? ) AS items_project_number |;
+
+    push @values, (conv_i($form->{project_id})) x 5;
+  }
+
+  my $items_department_amount_select = '';
+  if ($form->{department_id}) {
+    $items_department_amount_select =
+      qq|, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)*(1+(SELECT rate FROM tax WHERE tax.id = tax_id))) FROM invoice WHERE invoice.trans_id = a.id AND department_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%' OR chart_link LIKE '%tax%')) | .
+      qq| END AS items_department_amount, | .
+      qq| CASE WHEN a.invoice THEN | .
+      qq|  (SELECT SUM(qty*sellprice/COALESCE(price_factor, 1)) FROM invoice WHERE invoice.trans_id = a.id AND department_id = ?) | .
+      qq| ELSE | .
+      qq|  (SELECT SUM(amount) FROM acc_trans WHERE acc_trans.trans_id = a.id AND department_id = ? AND (chart_link LIKE '%AR_amount%')) | .
+      qq| END AS items_department_netamount, | .
+      qq|(SELECT description FROM department WHERE id = ? ) AS items_department |;
+
+    push @values, (conv_i($form->{department_id})) x 5;
+  }
+
   my $query =
     qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .
     qq|  a.donumber, a.deliverydate, | .
@@ -539,6 +580,8 @@ sub ar_transactions {
             AND at.trans_id = a.id
             LIMIT 1
           ) AS charts } .
+    $items_project_amount_select .
+    $items_department_amount_select .
     qq|FROM ar a | .
     qq|JOIN customer c ON (a.customer_id = c.id) | .
     qq|LEFT JOIN contacts cp ON (a.cp_id = cp.cp_id) | .
@@ -616,8 +659,13 @@ sub ar_transactions {
     push(@values, $form->{taxzone_id});
   }
   if ($form->{department_id}) {
-    $where .= " AND a.department_id = ?";
-    push(@values, $form->{department_id});
+    $where .=
+      qq| AND ((a.department_id = ?) | .
+      qq|      OR EXISTS | .
+      qq|      (SELECT * FROM acc_trans at | .
+      qq|       WHERE at.department_id = ? AND at.trans_id = a.id)| .
+      qq| )|;
+    push(@values, $form->{department_id}, $form->{department_id});
   }
   if ($form->{payment_id}) {
     $where .= " AND a.payment_id = ?";
@@ -937,6 +985,7 @@ sub setup_form {
             $form->{"projectnumber_$k"}    = $form->{acc_trans}{$key}->[$i-1]->{projectnumber};
             $form->{taxrate}               = $form->{acc_trans}{$key}->[$i - 1]->{rate};
             $form->{"project_id_$k"}       = $form->{acc_trans}{$key}->[$i-1]->{project_id};
+            $form->{"department_id_$k"}    = $form->{acc_trans}{$key}->[$i-1]->{department_id};
 
             $form->{"${key}_chart_id_$k"} = $form->{acc_trans}{$key}->[$i-1]->{chart_id};
             $form->{"taxchart_$k"} = $form->{acc_trans}{$key}->[$i-1]->{id}    . "--" . $form->{acc_trans}{$key}->[$i-1]->{rate};

@@ -15,6 +15,7 @@ __PACKAGE__->meta->columns(
   chart_id       => { type => 'integer', not_null => 1 },
   chart_link     => { type => 'text', not_null => 1 },
   cleared        => { type => 'boolean', default => 'false', not_null => 1 },
+  department_id  => { type => 'integer' },
   fx_transaction => { type => 'boolean', default => 'false', not_null => 1 },
   gldate         => { type => 'date', default => 'now' },
   itime          => { type => 'timestamp', default => 'now()' },

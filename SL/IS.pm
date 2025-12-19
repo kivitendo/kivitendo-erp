@@ -974,7 +974,7 @@ sub _post_invoice {
 
         if ($form->{"part_type_$i"} eq 'assembly') {
           # record assembly item as allocated
-          &process_assembly($dbh, $myconfig, $form, $position, $form->{"id_$i"}, $baseqty);
+          &process_assembly($dbh, $myconfig, $form, $position, $form->{"id_$i"}, $baseqty, $form->{"income_accno_tax_id_$i"});
 
         } else {
           $allocated = &cogs($dbh, $myconfig, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
@@ -1001,9 +1001,9 @@ sub _post_invoice {
         my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
         do_statement($form, $h_invoice_id, $q_invoice_id);
         $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
-        my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id) values (?, ?, ?, ?)|;
+        my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id, tax_id) values (?, ?, ?, ?, ?)|;
         do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}),
-                 conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}));
+                 conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}), conv_i($form->{"income_accno_tax_id_$i"}));
         $h_invoice_id->finish();
       }
 
@@ -1014,7 +1014,8 @@ sub _post_invoice {
                            unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
                            base_qty = ?, subtotal = ?,
                            marge_percent = ?, marge_total = ?, lastcost = ?, active_price_source = ?, active_discount_source = ?,
-                           price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
+                           price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?,
+                           tax_id = ?
         WHERE id = ?
 SQL
 
@@ -1030,6 +1031,7 @@ SQL
                  $form->{"active_price_source_$i"}, $form->{"active_discount_source_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}),
+                 conv_i($form->{"income_accno_tax_id_$i"}),
                  conv_i($form->{"invoice_id_$i"}));
       do_query($form, $dbh, $query, @values);
       push @processed_invoice_ids, $form->{"invoice_id_$i"};
@@ -2036,7 +2038,7 @@ SQL
 sub process_assembly {
   $main::lxdebug->enter_sub();
 
-  my ($dbh, $myconfig, $form, $position, $id, $totalqty) = @_;
+  my ($dbh, $myconfig, $form, $position, $id, $totalqty, $tax_id) = @_;
 
   my $query =
     qq|SELECT a.parts_id, a.qty, p.part_type, p.partnumber, p.description, p.unit
@@ -2056,7 +2058,7 @@ sub process_assembly {
     $ref->{qty} *= $totalqty;
 
     if ($ref->{assembly}) {
-      &process_assembly($dbh, $myconfig, $form, $position, $ref->{parts_id}, $ref->{qty});
+      &process_assembly($dbh, $myconfig, $form, $position, $ref->{parts_id}, $ref->{qty}, $tax_id);
       next;
     } else {
       if ($ref->{inventory_accno_id}) {
@@ -2066,10 +2068,10 @@ sub process_assembly {
 
     # save detail record for individual assembly item in invoice table
     $query =
-      qq|INSERT INTO invoice (trans_id, position, description, parts_id, qty, sellprice, fxsellprice, allocated, assemblyitem, unit)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+      qq|INSERT INTO invoice (trans_id, position, description, parts_id, qty, sellprice, fxsellprice, allocated, assemblyitem, unit, tax_id)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
     my @values = (conv_i($form->{id}), conv_i($position), $ref->{description},
-                  conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit});
+                  conv_i($ref->{parts_id}), $ref->{qty}, 0, 0, $allocated, 't', $ref->{unit}, conv_i($tax_id));
     do_query($form, $dbh, $query, @values);
 
   }

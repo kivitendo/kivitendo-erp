@@ -251,6 +251,9 @@
       <th class="right">[% 'Tax' | $T8 %]</th>
       <th>[% 'Taxkey' | $T8 %]</th>
       <th>[% 'Project' | $T8 %]</th>
+      [%- IF ALL_DEPARTMENTS %]
+        <th>[% 'Department' | $T8 %]</th>
+      [%- END %]
     </tr>
   </thead>
   <tbody>
@@ -261,6 +264,9 @@
       <td class="numeric">[% L.hidden_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_amount(row.tax, 2) | html %]</td>
       <td>[% row.taxchart %]</td>
       <td>[% P.project.picker("project_id_"_ loop.count, row.project_id) %]</td>
+      [%- IF ALL_DEPARTMENTS %]
+        <td>[% L.select_tag("department_id_"_ loop.count, ALL_DEPARTMENTS, default = row.department_id, title_key = 'description', with_empty = 1, class='wi-lightwide') %]</td>
+      [%- END %]
     </tr>
     [% END %]
   </tbody>
@@ -271,7 +277,7 @@
         <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
         <input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid %]">
         <input type="hidden" name="taxaccounts" value="[% taxaccounts | html %]">
-      <td colspan="3"></td>
+      <td colspan=[% IF ALL_DEPARTMENTS %]"4">[% ELSE %]"3"[% END %]</td>
     </tr>
   </tfoot>
 </table>

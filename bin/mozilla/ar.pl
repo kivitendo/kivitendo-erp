@@ -170,6 +170,7 @@ sub load_record_template {
     $::form->{"amount_${row}"}                      = $::form->format_amount(\%::myconfig, $item->amount1, 2);
     $::form->{"taxchart_${row}"}                    = $item->tax_id . '--' . $tax->rate;
     $::form->{"project_id_${row}"}                  = $item->project_id;
+    $::form->{"department_id_${row}"}               = $item->department_id;
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -196,10 +197,11 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"AR_amount_chart_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
+    +{ chart_id      => $::form->{"AR_amount_chart_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"amount_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"}    || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
      }
   } (1..($::form->{rowcount} || 1));
 
@@ -461,9 +463,10 @@ sub form_header {
 
   for my $i (1 .. $form->{rowcount}) {
     my $transaction = {
-      amount     => $form->{"amount_$i"},
-      tax        => $form->{"tax_$i"},
-      project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
+      amount        => $form->{"amount_$i"},
+      tax           => $form->{"tax_$i"},
+      project_id    => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
+      department_id => $form->{"department_id_$i"},
     };
 
     my (%taxchart_labels, @taxchart_values, $default_taxchart, $taxchart_to_use);
@@ -676,7 +679,7 @@ sub update {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(exchangerate creditlimit creditremaining);
 
-  my @flds  = qw(amount AR_amount_chart_id projectnumber oldprojectnumber project_id taxchart tax);
+  my @flds  = qw(amount AR_amount_chart_id projectnumber oldprojectnumber project_id department_id taxchart tax);
   my $count = 0;
   my @a     = ();
 
@@ -1137,6 +1140,10 @@ sub ar_transactions {
     dunning_description department attachments items customer_dunning_lock
     shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
     shiptozipcode shiptocity shiptocountry
+    items_project_netamount items_project_amount
+    items_project_number
+    items_department_netamount items_department_amount
+    items_department
   );
 
   my $ct_cvar_configs                 = CVar->get_configs('module' => 'CT');
@@ -1161,53 +1168,59 @@ sub ar_transactions {
   $href =  $params{want_binary_pdf} ? '' : build_std_url('action=ar_transactions', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
-    'ids'                     => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
-    'transdate'               => { 'text' => $locale->text('Date'), },
-    'id'                      => { 'text' => $locale->text('ID'), },
-    'type'                    => { 'text' => $locale->text('Type'), },
-    'invnumber'               => { 'text' => $locale->text('Invoice'), },
-    'ordnumber'               => { 'text' => $locale->text('Order'), },
-    'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
-    'donumber'                => { 'text' => $locale->text('Delivery Order'), },
-    'deliverydate'            => { 'text' => $locale->text('Delivery Date'), },
-    'name'                    => { 'text' => $locale->text('Customer'), },
-    'netamount'               => { 'text' => $locale->text('Amount'), },
-    'tax'                     => { 'text' => $locale->text('Tax'), },
-    'amount'                  => { 'text' => $locale->text('Total'), },
-    'paid'                    => { 'text' => $locale->text('Paid'), },
-    'datepaid'                => { 'text' => $locale->text('Date Paid'), },
-    'due'                     => { 'text' => $locale->text('Amount Due'), },
-    'duedate'                 => { 'text' => $locale->text('Due Date'), },
-    'transaction_description' => { 'text' => $locale->text('Transaction description'), },
-    'notes'                   => { 'text' => $locale->text('Notes'), },
-    'salesman'                => { 'text' => $locale->text('Salesperson'), },
-    'employee'                => { 'text' => $locale->text('Employee'), },
-    'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
-    'shipvia'                 => { 'text' => $locale->text('Ship via'), },
+    'ids'                      => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "check_all", checkall => "[data-checkall=1]"), align => 'center' },
+    'transdate'                => { 'text' => $locale->text('Date'), },
+    'id'                       => { 'text' => $locale->text('ID'), },
+    'type'                     => { 'text' => $locale->text('Type'), },
+    'invnumber'                => { 'text' => $locale->text('Invoice'), },
+    'ordnumber'                => { 'text' => $locale->text('Order'), },
+    'cusordnumber'             => { 'text' => $locale->text('Customer Order Number'), },
+    'donumber'                 => { 'text' => $locale->text('Delivery Order'), },
+    'deliverydate'             => { 'text' => $locale->text('Delivery Date'), },
+    'name'                     => { 'text' => $locale->text('Customer'), },
+    'netamount'                => { 'text' => $locale->text('Amount'), },
+    'tax'                      => { 'text' => $locale->text('Tax'), },
+    'amount'                   => { 'text' => $locale->text('Total'), },
+    'paid'                     => { 'text' => $locale->text('Paid'), },
+    'datepaid'                 => { 'text' => $locale->text('Date Paid'), },
+    'due'                      => { 'text' => $locale->text('Amount Due'), },
+    'duedate'                  => { 'text' => $locale->text('Due Date'), },
+    'transaction_description'  => { 'text' => $locale->text('Transaction description'), },
+    'notes'                    => { 'text' => $locale->text('Notes'), },
+    'salesman'                 => { 'text' => $locale->text('Salesperson'), },
+    'employee'                 => { 'text' => $locale->text('Employee'), },
+    'shippingpoint'            => { 'text' => $locale->text('Shipping Point'), },
+    'shipvia'                  => { 'text' => $locale->text('Ship via'), },
     'globalprojectdescription' => { 'text' => $locale->text('Document Project Description'), },
-    'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
-    'marge_total'             => { 'text' => $locale->text('Ertrag'), },
-    'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
-    'customernumber'          => { 'text' => $locale->text('Customer Number'), },
-    'country'                 => { 'text' => $locale->text('Country'), },
-    'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
-    'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
-    'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
-    'charts'                  => { 'text' => $locale->text('Chart'), },
-    'customertype'            => { 'text' => $locale->text('Customer type'), },
-    'direct_debit'            => { 'text' => $locale->text('direct debit'), },
-    'department'              => { 'text' => $locale->text('Department'), },
-    dunning_description       => { 'text' => $locale->text('Dunning level'), },
-    attachments               => { 'text' => $locale->text('Attachments'), },
-    items                     => { 'text' => $locale->text('Positions'), },
-    customer_dunning_lock     => { 'text' => $locale->text('Dunning lock'), },
-    shiptoname                => { 'text' => $locale->text('Name (Shipping)'), },
-    shiptodepartment_1        => { 'text' => $locale->text('Department 1 (Shipping)'), },
-    shiptodepartment_2        => { 'text' => $locale->text('Department 2 (Shipping)'), },
-    shiptostreet              => { 'text' => $locale->text('Street (Shipping)'), },
-    shiptozipcode             => { 'text' => $locale->text('Zipcode (Shipping)'), },
-    shiptocity                => { 'text' => $locale->text('City (Shipping)'), },
-    shiptocountry             => { 'text' => $locale->text('Country (Shipping)'), },
+    'globalprojectnumber'      => { 'text' => $locale->text('Document Project Number'), },
+    'marge_total'              => { 'text' => $locale->text('Ertrag'), },
+    'marge_percent'            => { 'text' => $locale->text('Ertrag prozentual'), },
+    'customernumber'           => { 'text' => $locale->text('Customer Number'), },
+    'country'                  => { 'text' => $locale->text('Country'), },
+    'ustid'                    => { 'text' => $locale->text('USt-IdNr.'), },
+    'taxzone'                  => { 'text' => $locale->text('Steuersatz'), },
+    'payment_terms'            => { 'text' => $locale->text('Payment Terms'), },
+    'charts'                   => { 'text' => $locale->text('Chart'), },
+    'customertype'             => { 'text' => $locale->text('Customer type'), },
+    'direct_debit'             => { 'text' => $locale->text('direct debit'), },
+    'department'               => { 'text' => $locale->text('Department'), },
+    dunning_description        => { 'text' => $locale->text('Dunning level'), },
+    attachments                => { 'text' => $locale->text('Attachments'), },
+    items                      => { 'text' => $locale->text('Positions'), },
+    customer_dunning_lock      => { 'text' => $locale->text('Dunning lock'), },
+    shiptoname                 => { 'text' => $locale->text('Name (Shipping)'), },
+    shiptodepartment_1         => { 'text' => $locale->text('Department 1 (Shipping)'), },
+    shiptodepartment_2         => { 'text' => $locale->text('Department 2 (Shipping)'), },
+    shiptostreet               => { 'text' => $locale->text('Street (Shipping)'), },
+    shiptozipcode              => { 'text' => $locale->text('Zipcode (Shipping)'), },
+    shiptocity                 => { 'text' => $locale->text('City (Shipping)'), },
+    shiptocountry              => { 'text' => $locale->text('Country (Shipping)'), },
+    items_project_amount       => { 'text' => $locale->text('Items Project Total' ), },
+    items_project_netamount    => { 'text' => $locale->text('Items Project Amount'), },
+    items_project_number       => { 'text' => $locale->text('Items Project Number'), },
+    items_department_amount    => { 'text' => $locale->text('Items Department Total' ), },
+    items_department_netamount => { 'text' => $locale->text('Items Department Amount'), },
+    items_department           => { 'text' => $locale->text('Items Department'), },
     %column_defs_cvars,
   );
 
@@ -1216,9 +1229,17 @@ sub ar_transactions {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due);
+  my %column_alignment = map { $_ => 'right' } qw(netamount tax amount paid due items_project_amount items_project_netamount
+                                                  items_department_amount items_department_netamount);
 
   $form->{"l_type"} = "Y";
+  if ($form->{project_id}) {
+    $form->{l_items_project_number} = $form->{l_items_project_amount} = $form->{l_items_project_netamount} = "Y";
+  }
+  if ($form->{department_id}) {
+    $form->{l_items_department} = $form->{l_items_department_amount} = $form->{l_items_department_netamount} = "Y";
+  }
+
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   $column_defs{ids}->{visible} = 'HTML';
@@ -1247,6 +1268,10 @@ sub ar_transactions {
   if ($form->{department_id}) {
     my $department = SL::DB::Manager::Department->find_by( id => $form->{department_id} );
     push @options, $locale->text('Department') . " : " . $department->description;
+  }
+  if ($form->{project_id}) {
+    my $project = SL::DB::Manager::Project->find_by( id => $form->{project_id} );
+    push @options, $locale->text('Project') . " : " . $project->displayable_name;
   }
   if ($form->{invnumber}) {
     push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
@@ -1357,7 +1382,8 @@ sub ar_transactions {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(netamount amount paid due marge_total marge_percent);
+  my @subtotal_columns = qw(netamount amount paid due marge_total marge_percent items_project_amount items_project_netamount
+                            items_department_amount items_department_netamount);
 
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
@@ -1399,7 +1425,8 @@ sub ar_transactions {
                             $locale->text("AR Transaction (abbreviation)");
     }
 
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(netamount tax amount paid due marge_total marge_percent items_project_amount items_project_netamount
+                                                                          items_department_amount items_department_netamount);
 
     $ar->{direct_debit} = $ar->{direct_debit} ? $::locale->text('yes') : $::locale->text('no');
 
