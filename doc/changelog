@@ -19,7 +19,8 @@ Kleinere neue Features und Detailverbesserungen:
   EK-Rechnungen/Kreditorenbuchungen wird neben der Projektnummer des Belegs
   auch die Projektbeschreibung angezeigt und es kann nach Nummer und
   Beschreibung des Projekt sortiert werden.
-
+- Einfache Schweizer Erfolgsrechnung überarbeitet. Konten müssen neu zwingend
+  in der Kontenkonfiguration ausgewählt werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
