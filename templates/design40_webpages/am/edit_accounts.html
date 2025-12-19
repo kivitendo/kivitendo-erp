@@ -159,8 +159,8 @@ $(function() {
   <tbody>
   [% IF feature_erfolgsrechnung %]
     <tr>
-      <th>[% 'Erfolgsrechnung' | $T8 %]</th>
-      <td><select name="pos_er" class="wi-wider">[% select_er %]</select></td>
+      <th>[% 'Simple Swiss Income Statement' | $T8 %]</th>
+      <td>[% L.select_tag('pos_er', er_simple_data, class => "wi-wider") %]</td>
     </tr>
   [% END %]
   [% IF feature_erfolgsrechnung_detailed %]

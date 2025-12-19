@@ -240,19 +240,12 @@ sub account_header {
 
   }
 
-  my $select_er = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  my %er = (
-       1  => "Ertrag",
-       6  => "Aufwand");
-  foreach my $item (sort({ $a <=> $b } keys(%er))) {
-    my $text = H($::locale->{iconv_utf8}->convert($er{$item}));
-    if ($item == $form->{pos_er}) {
-      $select_er .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
-    } else {
-      $select_er .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
-    }
-
-  }
+  # simple swiss income statement (Erfolgsrechnung) categories
+  my @er_simple_data = (
+    [ '', $locale->text('None'), ($form->{pos_er} eq '') ? 1 : 0 ],
+    [ 1,  $locale->text('Revenue'), ($form->{pos_er} == 1) ? 1 : 0 ],
+    [ 6,  $locale->text('Expense'), ($form->{pos_er} == 6) ? 1 : 0 ],
+  );
 
   # detailed swiss income statement (Erfolgsrechnung) categories
   my $er_categories = SL::DB::Manager::IncomeStatementChDetailedCategories->get_all;
@@ -351,7 +344,7 @@ sub account_header {
     select_bwa                 => $select_bwa,
     select_bilanz              => $select_bilanz,
     select_eur                 => $select_eur,
-    select_er                  => $select_er,
+    er_simple_data             => \@er_simple_data,
     er_detailed_data           => \@er_detailed_data,
   };
 
