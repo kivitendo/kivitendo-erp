@@ -57,7 +57,8 @@ namespace('kivi.ActionBar', function(k){
       var normalized = $.map(String.prototype.split.call(keystring, '+'), function(val, i) {
         switch (val) {
           case 'ctrl':
-          case 'alt':  return val;
+          case 'alt':
+          case 'shift': return val;
           case 'enter': return 13;
           default:
             if (val.length == 1) {
@@ -78,7 +79,7 @@ namespace('kivi.ActionBar', function(k){
     bind_targets: function(){
       for (var target in this.actions) {
         if (target in this.bound_targets) continue;
-        $(target).on('keypress', null, { 'target': target }, this.handle_accesskey);
+        $(target).on('keydown', null, { 'target': target }, this.handle_accesskey);
         this.bound_targets[target] = 1;
       }
     },
@@ -87,8 +88,9 @@ namespace('kivi.ActionBar', function(k){
       var target = e.data.target;
       var key = e.which;
       var accesskey = '';
-      if (e.ctrlKey) accesskey += 'crtl+'
-      if (e.altKey)  accesskey += 'alt+'
+      if (e.ctrlKey)  accesskey += 'crtl+';
+      if (e.altKey)   accesskey += 'alt+';
+      if (e.shiftKey) accesskey += 'shift+';
       accesskey += e.which;
 
       // special case. HTML elements that make legitimate use of enter will also trigger the enter accesskey.
@@ -111,6 +113,9 @@ namespace('kivi.ActionBar', function(k){
         // if the form contains submit buttons the default action will click them instead.
         // prevent that
         if (accesskey == 13) return false;
+
+        // prevent the web browser's default action
+        return false;
       }
       return true;
     }
