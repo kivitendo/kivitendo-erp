@@ -474,3 +474,6 @@ external_prefix = 0
 international_dialing_prefix = 00
 # Our own country code
 our_country_code = 49
+
+[factur_x]
+company_email = info@….de
