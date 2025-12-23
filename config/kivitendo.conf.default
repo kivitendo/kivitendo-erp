@@ -171,6 +171,10 @@ security = none
 # that with 'tls' or 'ssl' encryption.
 login =
 password =
+# The hostname sent in the SMTP extended Hello (EHLO) command can be set with 'ehlo' and defaults to 'localhost'.
+#ehlo =
+# SMTP debugging (includes sensitive authentication data) to stderr of the FastCGI process can be turned on by setting 'debug' to 1.
+#debug = 0
 
 [imap_client]
 enabled = 0
