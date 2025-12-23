@@ -35,7 +35,11 @@ sub init {
     die $self->extended_status;
   };
 
-  $self->{smtp} = $sec_cfg->{package}->new($cfg->{host} || 'localhost', Port => $cfg->{port} || $sec_cfg->{port});
+  $self->{smtp} = $sec_cfg->{package}->new($cfg->{host} || 'localhost',
+    Port  => $cfg->{port} || $sec_cfg->{port},
+    Hello => $cfg->{ehlo} || 'localhost',
+    Debug => !!$cfg->{debug},
+  );
   if (!$self->{smtp}) {
     $self->extended_status('SMTP connection could not be initialized');
     die $self->extended_status;
