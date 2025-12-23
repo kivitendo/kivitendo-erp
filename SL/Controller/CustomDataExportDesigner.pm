@@ -34,6 +34,7 @@ sub action_edit {
   my ($self) = @_;
 
   my $title = $self->query->id ? t8('Edit custom report query') : t8('Add custom report query');
+  $title .= " — " . t8("Step #1/#2", "1", "2") . " — " . t8("Basic Data");
 
   $self->setup_edit_action_bar;
   $self->render('custom_data_export_designer/edit', title => $title);
@@ -43,6 +44,8 @@ sub action_edit_parameters {
   my ($self) = @_;
 
   my $title     = $self->query->id ? t8('Edit custom report query') : t8('Add custom report query');
+  $title .= " — " . t8("Step #1/#2", "2", "2") . " — " . t8("Query parameters");
+
   my @parameters = $self->gather_query_data;
 
   $self->setup_edit_parameters_action_bar;

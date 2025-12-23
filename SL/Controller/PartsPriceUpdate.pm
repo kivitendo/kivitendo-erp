@@ -67,6 +67,7 @@ sub action_confirm_price_update {
 
     $self->setup_confirm_price_update_action_bar;
     $self->render('ic/confirm_price_update',
+      title       => t8('Update Prices'),
       num_matches => $num_matches,
       filter_key  => $key,
     );

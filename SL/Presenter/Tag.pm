@@ -12,7 +12,7 @@ our @EXPORT_OK = qw(
   html_tag input_tag hidden_tag javascript man_days_tag name_to_id select_tag
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
-  div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim
+  div_tag span_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim
   input_email_tag context_help_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
@@ -608,6 +608,11 @@ sub date_tag {
 sub div_tag {
   my ($content, %params) = @_;
   return html_tag('div', $content, %params);
+}
+
+sub span_tag {
+  my ($content, %params) = @_;
+  return html_tag('span', $content, %params);
 }
 
 sub img_tag {
