@@ -28,6 +28,10 @@
   <caption>[% 'Personal details' | $T8 %]</caption>
   <tbody>
     <tr>
+      <th>[% 'Contact Number' | $T8 %]</th>
+      <td>[% L.input_tag_trim('contact.cp_number', SELF.contact.cp_number, class="wi-wide") %]</td>
+    </tr>
+    <tr>
       <th>[% 'Given Name' | $T8 %]</th>
       <td>[% L.input_tag_trim('contact.cp_givenname', SELF.contact.cp_givenname, class="wi-wide") %]</td>
     </tr>
@@ -173,13 +177,30 @@
 </table>
 
 <div class="buttons">
-  [% L.button_tag('submitInputButton("delete_contact");', LxERP.t8('Delete Contact'), id = 'action_delete_contact', class = 'submit') %]
+  [% L.button_tag('submitInputButton("delete_contact");', LxERP.t8('Delete Contact'), id = 'action_delete_contact', class = 'submit', confirm=LxERP.t8('Delete the contact? This will also remove the contact from all other customers and vendors.')) %]
   [% IF ( !SELF.contact.cp_id ) %]
   <script type="text/javascript">
     $('#action_delete_contact').hide();
   </script>
   [% END %]
 </div>
+
+<table class="tbl-horizontal">
+  <caption>[% 'Linked Contacts' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <td>
+        [% IF SELF.all_contacts.size > 0 %]
+          [% L.select_tag("linked_contacts[]", SELF.all_contacts, value_key="cp_id", title_key="full_name", id="linked_contacts", multiple=1, default=SELF.linked_contacts) %]
+          [% L.multiselect2side("linked_contacts", labelsx=LxERP.t8("All Contacts"), labeldx=LxERP.t8("Linked Contacts"), allButtons="false", size=12) %]
+        [% ELSE %]
+          [% 'No existing contacts' | $T8 %]
+        [% END %]
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 
 </div><!-- /.cols -->
 

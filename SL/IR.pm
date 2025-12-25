@@ -1516,7 +1516,8 @@ sub vendor_details {
     qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
          cu.name AS currency
        FROM vendor ct
-       LEFT JOIN contacts cp ON (ct.id = cp.cp_cv_id)
+       LEFT JOIN vendor_contacts vc on ct.id = vc.vendor_id
+       LEFT JOIN contacts cp ON (vc.contact_id = cp.cp_id)
        LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
        WHERE (ct.id = ?) $contact
        ORDER BY cp.cp_id
