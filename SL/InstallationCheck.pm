@@ -19,6 +19,7 @@ BEGIN {
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Algorithm::CheckDigits",              url => "http://search.cpan.org/~mamawe/",    debian => 'libalgorithm-checkdigits-perl' },
   { name => "Archive::Zip",    version => '1.40',  url => "http://search.cpan.org/~phred/",     debian => 'libarchive-zip-perl' },
+  { name => "Authen::SASL",                        url => "https://metacpan.org/dist/Authen-SASL/view/lib/Authen/SASL.pod",     debian => 'libauthen-sasl-perl' },
   { name => "CGI",             version => '3.43',  url => "http://search.cpan.org/~leejo/",     debian => 'libcgi-pm-perl' }, # 4.09 is not core anymore (perl 5.20)
   { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
