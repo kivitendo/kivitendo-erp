@@ -55,6 +55,8 @@ BEGIN {
   { name => "LWP::UserAgent",                      url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Math::Round",                         url => "https://metacpan.org/pod/Math::Round", debian => 'libmath-round-perl' },
   { name => "Mail::IMAPClient",                    url => "https://metacpan.org/pod/Mail::IMAPClient", debian => 'libmail-imapclient-perl' },
+  { name => "Net::SMTP::SSL",                      url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
+  { name => "Net::SSLGlue",                        url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
   { name => "Params::Validate",                    url => "http://search.cpan.org/~drolsky/",   debian => 'libparams-validate-perl' },
   { name => "PBKDF2::Tiny",    version => '0.005', url => "http://search.cpan.org/~dagolden/",  debian => 'libpbkdf2-tiny-perl' },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
@@ -82,9 +84,6 @@ BEGIN {
   { name => 'HTTP::DAV', version => 0.46,          url => 'http://search.cpan.org/~cosimo/',    debian => 'libhttp-dav-perl' },
   { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
   { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
-  # Net::SMTP is core since 5.7.3
-  { name => "Net::SMTP::SSL",                      url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
-  { name => "Net::SSLGlue",                        url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
   { name => "YAML::XS",                            url => "https://metacpan.org/pod/distribution/YAML-LibYAML/lib/YAML/LibYAML.pod", debian => 'libyaml-libyaml-perl' },
 );
 
