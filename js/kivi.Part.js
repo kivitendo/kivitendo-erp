@@ -846,6 +846,13 @@ namespace('kivi.Part', function(ns) {
     }
   };
 
+  ns.open_plot_tab = function(params) {
+    const id_selector = params.id_selector;
+    window.open("controller.pl?action=AssemblyPlot/show&id=" +
+                encodeURIComponent($(id_selector).val()),
+                '_blank');
+  };
+
   ns.reinit_widgets = function() {
     kivi.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
       if (!$(elt).data('part_picker'))
