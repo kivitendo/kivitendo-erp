@@ -101,8 +101,8 @@ my %TYPE_TO_PARAMS = (
       title   => $::locale->text('Request Quotations'),
       type    => 'request_quotation',
       columns => [
-        [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
-        [ $::locale->text('Quotation Number'),        sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
+        [ $::locale->text('RFQ Date'),                'transdate'                                                                ],
+        [ $::locale->text('RFQ Number'),              sub { $_[0]->presenter->request_quotation(display => 'table-cell') }       ],
         [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -150,11 +150,12 @@ my %TYPE_TO_PARAMS = (
   sales_order => sub {
     my (%params) = @_;
     {
-      title   => $::locale->text('Sales Orders'),
+      title   => $::locale->text('Sales Order Confirmations'),
       type    => 'sales_order',
       columns => [
-        [ $::locale->text('Order Date'),              'transdate'                                                                ],
-        [ $::locale->text('Order Number'),            sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
+        [ $::locale->text('Confirmation Date'),       'transdate'                                                                ],
+        [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->sales_order(display => 'table-cell') }             ],
+        [ $::locale->text('Order Number'),            sub { my $order = $_[0]; join ', ', map { $_->ordnumber } @{$order->preceding_sales_order_intakes()} } ],
         [ $::locale->text('Quotation'),               'quonumber' ],
         [ $::locale->text('Customer'),                'customer'                                                                 ],
         [ $::locale->text('Net amount'),              'netamount'                                                                ],
@@ -171,14 +172,15 @@ my %TYPE_TO_PARAMS = (
       title   => $::locale->text('Purchase Orders'),
       type    => 'purchase_order',
       columns => [
-        [ $::locale->text('Order Date'),              'transdate'                                                                ],
-        [ $::locale->text('Order Number'),            sub { $_[0]->presenter->purchase_order(display => 'table-cell') }          ],
-        [ $::locale->text('Request for Quotation'),   'quonumber' ],
-        [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
-        [ $::locale->text('Net amount'),              'netamount'                                                                ],
-        [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
-        [ $::locale->text('Project'),                 'globalproject', ],
-        [ $::locale->text('Closed'),                  'closed'                                                                   ],
+        [ $::locale->text('Order Date'),                'transdate'                                                                                                   ],
+        [ $::locale->text('Order Number'),              sub { $_[0]->presenter->purchase_order(display => 'table-cell') }                                             ],
+        [ $::locale->text('Purchase Quotation Intake'), 'quonumber'                                                                                                   ],
+        [ $::locale->text('Request for Quotation'),     sub { my $order = $_[0]; join ', ', map { $_->quonumber } @{$order->preceding_request_quotations()} }         ],
+        [ $::locale->text('Vendor'),                    'vendor'                                                                                                      ],
+        [ $::locale->text('Net amount'),                'netamount'                                                                                                   ],
+        [ $::locale->text('Transaction description'),   'transaction_description'                                                                                     ],
+        [ $::locale->text('Project'),                   'globalproject',                                                                                              ],
+        [ $::locale->text('Closed'),                    'closed'                                                                                                      ],
       ],
       %params,
     }
@@ -191,7 +193,8 @@ my %TYPE_TO_PARAMS = (
       columns => [
         [ $::locale->text('Confirmation Date'),       'transdate'                                                                    ],
         [ $::locale->text('Confirmation Number'),     sub { $_[0]->presenter->purchase_order_confirmation(display => 'table-cell') } ],
-        [ $::locale->text('Request for Quotation'),   'quonumber'                                                                    ],
+        [ $::locale->text('Purchase Order'),          sub { my $order = $_[0]; join ', ', map { $_->ordnumber } @{$order->preceding_purchase_orders()} } ],
+        [ $::locale->text('Purchase Quotation Intake'), 'quonumber'                                                                  ],
         [ $::locale->text('Vendor'),                  'vendor'                                                                       ],
         [ $::locale->text('Net amount'),              'netamount'                                                                    ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                      ],
@@ -209,7 +212,7 @@ my %TYPE_TO_PARAMS = (
       columns => [
         [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
         [ $::locale->text('Delivery Order Number'),   sub { $_[0]->presenter->sales_delivery_order(display => 'table-cell') }    ],
-        [ $::locale->text('Order Number'),            'ordnumber' ],
+        [ $::locale->text('Confirmation Number'),     'ordnumber' ],
         [ $::locale->text('Customer'),                'customer'                                                                 ],
         [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
         [ $::locale->text('Project'),                 'globalproject', ],
