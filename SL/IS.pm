@@ -175,7 +175,7 @@ sub invoice_details {
        discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
        linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
        price_factor price_factor_name partsgroup weight weight_nofmt lineweight lineweight_nofmt
-       partsgroup);
+       );
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
   push @arrays, map { "project_cvar_$_->{name}" } @{ $project_cvar_configs };
