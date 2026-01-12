@@ -462,7 +462,7 @@ sub store_pdf_to_webdav_and_filemanagement {
 
   # copy file to webdav folder
   #$form->{$record->type_data->properties('nr_key')}  = $record->number;
-  if ($record->number && $::instance_conf->get_webdav_documents) {
+  if ($record->type_data->properties('nr_key') && $::instance_conf->get_webdav_documents) {
     my $webdav = SL::Webdav->new(
       type     => $record->type,
       number   => $record->number,
