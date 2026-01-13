@@ -756,8 +756,8 @@ sub update {
       my $tmpnetamount;
       ($tmpnetamount,$form->{"tax_$i"}) = $form->calculate_tax($form->{"amount_$i"},$rate,$form->{taxincluded},2);
 
-      my $tax = SL::DB::Manager::Tax->find_by(id => $taxkey);
-      $totaltax += ($tax->reverse_charge_chart_id) ? 0 : $form->{"tax_$i"};
+      my $tax = $taxkey ? SL::DB::Manager::Tax->find_by(id => $taxkey) : undef;
+      $totaltax += ($tax && $tax->reverse_charge_chart_id) ? 0 : $form->{"tax_$i"};
 
       map { $a[$j]->{$_} = $form->{"${_}_$i"} } @flds;
       $count++;
