@@ -27,7 +27,6 @@ function follow_up_window() {
     url += "&trans_rowcount=" + encodeURIComponent(trans_rowcount[0].value);
   }
 
-  //alert(url);
   window.open(url, "_new_generic", parm);
 }
 
