@@ -1,5 +1,6 @@
 [% USE T8 %]
 [% USE L %]
+[% USE P %]
 [% USE HTML %]
 [% USE LxERP %]
 <h1>[% title %]</h1>
@@ -29,7 +30,25 @@
 [% END %]
 
 <div class="wrapper">
-  <table class="tbl-list">
+
+  <table class="tbl-horizontal col">
+    <tbody>
+      <tr>
+        <th>[% 'Follow-Up Date' | $T8 %]</th>
+        <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Subject' | $T8 %]</th>
+        <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Body' | $T8 %]</th>
+        <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal tbl-list col wi-lightwide">
     <caption>[% 'Follow-Up for user' | $T8 %]</caption>
     <thead>
       <tr>
@@ -51,16 +70,20 @@
       [% END %]
     </tbody>
   </table>
-  <table class="tbl-list">
+  <table class="tbl-list tbl-horizontal wi-lightwide">
+    <caption>
+      [% LxERP.t8('Users that are a member in this group') %]
+      [% P.context_help_tag(LxERP.t8('click on a group to add the group\'s users')) %]
+    </caption>
     <thead>
       <tr>
-        <th>[% LxERP.t8('Users that are a member in this group') %]<br />([% LxERP.t8('click on a group to add the group\'s users') %])</th>
+        <th><label>←</th>
       </tr>
     </thead>
     <tbody>
       [% FOREACH auth_group = all_auth_groups %]
         <tr onclick="follow_up_do_select(this)" data-ids='[% FOREACH employee = auth_group.get_employees %][% employee.id %][% IF !loop.last %],[% END%][% END%]' class="interactive cursor-pointer">
-          <td><b>←&nbsp;[% auth_group.name %]</b>: [% auth_group.description %]
+          <td><b>[% auth_group.name %]</b>: [% auth_group.description %]
           <br />
           <ul>
             [% FOREACH employee = auth_group.get_employees %]
@@ -72,26 +95,9 @@
       [% END %]
     </tbody>
   </table>
+
 </div>
 
-<div class="wrapper">
-  <table class="tbl-horizontal">
-    <tbody>
-      <tr>
-        <th>[% 'Follow-Up Date' | $T8 %]</th>
-        <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
-      </tr>
-      <tr>
-        <th>[% 'Subject' | $T8 %]</th>
-        <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
-      </tr>
-      <tr>
-        <th>[% 'Body' | $T8 %]</th>
-        <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
 
 [% IF POPUP_MODE %]
 <div class="buttons">
