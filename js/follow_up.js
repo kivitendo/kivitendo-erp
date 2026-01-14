@@ -1,6 +1,6 @@
 function follow_up_window() {
-  var width = 900;
-  var height = 700;
+  var width = 1100;
+  var height = 900;
   var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
 
   url = "fu.pl?" +
