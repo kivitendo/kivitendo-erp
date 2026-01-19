@@ -541,7 +541,7 @@ sub recalculate_amounts {
 sub _post_create_assemblyitem_entries {
   my ($self, $assembly_entries) = @_;
 
-  my $items = $self->invoiceitems;
+  my $items = $self->items_sorted;
   my @new_items;
 
   my $item_idx = 0;
@@ -551,8 +551,8 @@ sub _post_create_assemblyitem_entries {
     push @new_items, $item;
     $item_idx++;
 
-    foreach my $assembly_item (@{ $assembly_entries->[$item_idx] || [ ] }) {
-      push @new_items, SL::DB::InvoiceItem->new(parts_id     => $assembly_item->{part},
+    foreach my $assembly_item (@{ $assembly_entries->[$item_idx - 1] || [ ] }) {
+      push @new_items, SL::DB::InvoiceItem->new(parts_id     => $assembly_item->{part}->id,
                                                 description  => $assembly_item->{part}->description,
                                                 unit         => $assembly_item->{part}->unit,
                                                 qty          => $assembly_item->{qty},
