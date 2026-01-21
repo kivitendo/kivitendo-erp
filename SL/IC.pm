@@ -181,6 +181,7 @@ sub all_parts {
   my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand notes);
   my @project_filters      = qw(projectnumber projectdescription);
   my @makemodel_filters    = qw(make model);
+  my @customer_filters     = qw(customername customerpartnumber);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
@@ -229,8 +230,9 @@ sub all_parts {
     project      => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
     warehouse    => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
     bin          => 'LEFT JOIN bin ON bin.id = p.bin_id',
+    customerpart => 'LEFT JOIN part_customer_prices ON part_customer_prices.parts_id = p.id',
   );
-  my @join_order = qw(bookinggroup partsgroup makemodel invoice_oi apoe cv pfac project warehouse bin);
+  my @join_order = qw(bookinggroup partsgroup makemodel customerpart invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -249,6 +251,8 @@ sub all_parts {
      cv           => 'cv.',
      "ioi.id"     => ' ',
      "ioi.ioi"    => ' ',
+     customername => 'part_customer_prices.',
+     customerpartnumber => 'part_customer_prices.',
   );
 
   # if the join condition in these blocks are met, the column
@@ -422,6 +426,15 @@ sub all_parts {
     push @where_tokens, 'mm.model ILIKE ?';
     push @bind_vars, like($form->{model});
   }
+  if ($form->{customername}) {
+    push @where_tokens, 'part_customer_prices.customer_id = (SELECT id FROM customer WHERE name ILIKE ?)';
+    push @bind_vars, like($form->{customername});
+  }
+  if ($form->{customerpartnumber}) {
+    push @where_tokens, 'part_customer_prices.customer_partnumber ILIKE ?';
+    push @bind_vars, like($form->{customerpartnumber});
+  }
+
 
   # special case: sorting by partnumber
   # since partnumbers are expected to be prefixed integers, a special sorting is implemented sorting first lexically by prefix and then by suffix.
@@ -459,6 +472,7 @@ sub all_parts {
   $joins_needed{pfac}         = 1;
   $joins_needed{project}      = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
   $joins_needed{makemodel}    = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
+  $joins_needed{customerpart} = 1 if grep { $form->{$_} || $form->{"l_$_"} } @customer_filters;
   $joins_needed{cv}           = 1 if $bsooqr;
   $joins_needed{apoe}         = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}   = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;

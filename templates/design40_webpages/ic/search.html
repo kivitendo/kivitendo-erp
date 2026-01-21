@@ -71,6 +71,14 @@
         <td>[% L.input_tag("model", "", class='wi-mediumsmall') %]</td>
       </tr>
       <tr>
+        <th>[% 'Customer' | $T8 %]</th>
+        <td>[% L.input_tag("customername", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Customer Part Number' | $T8 %]</th>
+        <td>[% L.input_tag("customerpartnumber", "", class='wi-mediumsmall') %]</td>
+      </tr>
+      <tr>
         <th>[% 'Shop article' | $T8 %]</th>
         <td>[% L.yes_no_tag('shop', shop, default='', with_empty=1, empty_title='', class='wi-mediumsmall') %]</td>
       </tr>
