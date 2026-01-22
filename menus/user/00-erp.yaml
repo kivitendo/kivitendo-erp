@@ -1533,6 +1533,14 @@
   access: admin
   params:
     action: Employee/list
+- parent: system
+  id: system_countries
+  name: Country Names
+  order: 3100
+  access: admin
+  params:
+    action: SimpleSystemSetting/list
+    type: country
 - id: program
   name: Program
   icon: program

@@ -81,7 +81,7 @@ sub search {
       "quonumber"          => "ct.quonumber",
       "zipcode"            => "ct.zipcode",
       "city"               => "ct.city",
-      "country"            => "ct.country",
+      "country"            => "country",
       "gln"                => "ct.gln",
       "discount"           => "ct.discount",
       "insertdate"         => "ct.itime",
@@ -165,17 +165,17 @@ sub search {
     push @values, (like($form->{addr_city})) x 2;
   }
 
-  if ($form->{addr_country}) {
-    $where .= " AND ((lower(ct.country) LIKE lower(?))
+  if ($form->{addr_country_id}) {
+    $where .= " AND ((ct.country_id = ?)
                      OR
                      (ct.id IN (
                         SELECT so.trans_id
                         FROM shipto so
                         WHERE (so.module = 'CT')
-                          AND (lower(so.shiptocountry) LIKE lower(?))
+                          AND (so.shiptocountry_id = ?)
                       ))
                      )";
-    push @values, (like($form->{addr_country})) x 2;
+    push @values, (conv_i($form->{addr_country_id})) x 2;
   }
 
   if ($form->{addr_gln}) {
@@ -305,9 +305,10 @@ sub search {
                               FROM contacts cp WHERE ct.id=cp.cp_cv_id AND cp.cp_main LIMIT 1)
                               AS main_contact_person /;
   }
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-    qq|  pt.description as payment, tz.description as taxzone, vc.name as linked_customer_vendor, vc.id as linked_customer_vendor_id | .
+    qq|  pt.description as payment, tz.description as taxzone, countries.$country_description_key as country, vc.name as linked_customer_vendor, vc.id as linked_customer_vendor_id | .
     $pg_select .
     $main_cp_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
@@ -316,6 +317,7 @@ sub search {
     qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
     qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+    qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
     qq|LEFT JOIN customer_vendor_links cvl ON (ct.id = cvl.${cv}_id) | .
     qq|LEFT JOIN $vc vc ON (vc.id = cvl.${vc}_id) | .
     $pg_join .
@@ -333,7 +335,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, tz.description as taxzone | .
+        qq|  pt.description as payment, tz.description as taxzone, countries.$country_description_key as country | .
         $pg_select .
         $main_cp_select .
         qq|, a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
@@ -345,6 +347,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
         $pg_join .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
@@ -354,7 +357,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, tz.description as taxzone | .
+        qq|  pt.description as payment, tz.description as taxzone, countries.$country_description_key as country | .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -365,6 +368,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_order') OR (o.record_type = 'purchase_order'))|;
     }
@@ -374,7 +378,7 @@ sub search {
       $query .=
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-        qq|  pt.description as payment, tz.description as taxzone | .
+        qq|  pt.description as payment, tz.description as taxzone, countries.$country_description_key as country | .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -385,6 +389,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_quotation') OR (o.record_type = 'request_quotation'))|;
     }

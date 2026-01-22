@@ -1746,7 +1746,7 @@ sub add_shipto {
   my $shipto;
   my @values;
 
-  foreach my $item (qw(name department_1 department_2 street zipcode city country gln
+  foreach my $item (qw(name department_1 department_2 street zipcode city country_id gln
                        contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
@@ -1772,7 +1772,7 @@ sub add_shipto {
                      shiptostreet = ?,
                      shiptozipcode = ?,
                      shiptocity = ?,
-                     shiptocountry = ?,
+                     shiptocountry_id = ?,
                      shiptogln = ?,
                      shiptocontact = ?,
                      shiptophone = ?,
@@ -1789,7 +1789,7 @@ sub add_shipto {
                      shiptostreet = ? AND
                      shiptozipcode = ? AND
                      shiptocity = ? AND
-                     shiptocountry = ? AND
+                     shiptocountry_id = ? AND
                      shiptogln = ? AND
                      shiptocontact = ? AND
                      shiptophone = ? AND
@@ -1802,7 +1802,7 @@ sub add_shipto {
     if(!$insert_check){
       my $insert_query =
         qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
-                               shiptostreet, shiptozipcode, shiptocity, shiptocountry, shiptogln,
+                               shiptostreet, shiptozipcode, shiptocity, shiptocountry_id, shiptogln,
                                shiptocontact, shiptophone, shiptofax, shiptoemail, shiptocp_gender, module)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       do_query($self, $dbh, $insert_query, $id, @values, $module);

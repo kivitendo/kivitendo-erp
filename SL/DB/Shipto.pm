@@ -14,7 +14,7 @@ use SL::DB::Helper::CustomVariables (
   cvars_alias => 1,
 );
 
-our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry shiptogln shiptocontact
+our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry_id shiptogln shiptocontact
                            shiptophone shiptofax shiptoemail shiptodepartment_1 shiptodepartment_2);
 
 __PACKAGE__->meta->initialize;
