@@ -80,6 +80,7 @@ sub check_objects {
     $self->check_payment($entry);
     $self->check_delivery_term($entry);
     $self->check_taxzone($entry,  take_default => 1);
+    $self->check_country($entry);
     $self->check_currency($entry, take_default => 1);
     $self->check_salesman($entry);
     $self->check_pricegroup($entry) if 'customer' eq $self->table;
@@ -204,6 +205,28 @@ sub check_business {
     $self->clone_methods->{business_id} = 1;
   }
 
+  return 1;
+}
+
+sub check_country {
+  my ($self, $entry) = @_;
+
+  my $country_id;
+  my $object = $entry->{object};
+
+  if ($entry->{raw_data}{country}) {
+    my $country = SL::DB::Manager::Country->find_by_name($entry->{raw_data}{country});
+    $country_id = $country->id if $country;
+  } else {
+    $country_id = $self->controller->profile->get('default_country_id');
+  }
+
+  if (!$country_id) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Country not found: #1', $entry->{raw_data}{country});
+    return 0;
+  }
+  $object->country_id($country_id);
+  $self->clone_methods->{country_id} = 1;
   return 1;
 }
 

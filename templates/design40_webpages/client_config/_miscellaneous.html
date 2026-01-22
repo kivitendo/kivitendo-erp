@@ -33,7 +33,7 @@
     </tr>
     <tr>
      <td>[% LxERP.t8("Country") %]</td>
-     <td>[% L.input_tag('defaults.address_country', SELF.defaults.address_country, style=style) %]</td>
+     <td>[% P.country.picker('defaults.address_country_id', SELF.defaults.address_country_id, class='wi-normal') %]</td>
     </tr>
     <tr>
       <th class="caption" colspan="2">[% LxERP.t8("Company settings") %]</th>

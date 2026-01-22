@@ -56,7 +56,7 @@
       </tr>
       <tr>
         <th>[% 'Country' | $T8 %]</th>
-        <td>[% L.input_tag_trim('shipto.shiptocountry', SELF.shipto.shiptocountry, class="wi-wide") %]</td>
+        <td>[% P.country.picker('shipto.shiptocountry_id', SELF.shipto.shiptocountry_id, with_empty=1, class="wi-wide") %]</td>
       </tr>
       <tr>
         <th>[% 'GLN' | $T8 %]</th>

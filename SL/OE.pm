@@ -142,6 +142,7 @@ SQL
                      ? ''
                      : qq| , o.amount, o.netamount, o.marge_total, o.marge_percent, (o.netamount * o.order_probability / 100) AS expected_netamount |;
 
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate | .
     $amount_columns .
@@ -157,10 +158,10 @@ SQL
     qq|  pt.description AS payment_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
+    qq|  ct.${vc}number AS vcnumber, countries.$country_description_key AS country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone, | .
     qq|  shipto.shiptoname, shipto.shiptodepartment_1, shipto.shiptodepartment_2, | .
-    qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, shipto.shiptocountry, | .
+    qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, sc.$country_description_key AS shiptocountry, | .
     qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
@@ -176,12 +177,14 @@ SQL
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
     qq|LEFT JOIN payment_terms pt ON (pt.id = o.payment_id)| .
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
+    qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
     qq|LEFT JOIN order_statuses ON (o.order_status_id = order_statuses.id) | .
     qq|LEFT JOIN shipto ON (
         (o.shipto_id = shipto.shipto_id) or
         (o.id = shipto.trans_id and shipto.module = 'OE')
        )| .
+    qq|LEFT JOIN countries sc ON (shipto.shiptocountry_id = sc.id)| .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.record_type = ?) |;
@@ -454,9 +457,9 @@ SQL
     $query .= " AND shipto.shiptocity ILIKE ?";
     push(@values, like($form->{shiptocity}));
   }
-  if ($form->{shiptocountry}) {
-    $query .= " AND shipto.shiptocountry ILIKE ?";
-    push(@values, like($form->{shiptocountry}));
+  if ($form->{shiptocountry_id}) {
+    $query .= " AND shipto.shiptocountry_id = ?";
+    push(@values, conv_i($form->{shiptocountry_id}));
   }
 
   if ($form->{all}) {

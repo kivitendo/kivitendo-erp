@@ -19,6 +19,10 @@ sub flatten_to_form {
                                     vendor_confirmation_number));
   $form->{currency} = $form->{curr} = $self->currency_id ? $self->currency->name || '' : '';
 
+  my $country_description_key = 'description_' .
+    (($self->language && $self->language->template_code =~ m/^de$/i) ? 'de' :
+     ($self->language && $self->language->template_code =~ m/^en$/i) ? 'en' : 'de');
+
   if ( $vc eq 'customer' ) {
     $form->{customer_id} = $self->customer_id;
     $form->{customer}    = $self->customer->name if $self->customer;
@@ -26,6 +30,7 @@ sub flatten_to_form {
     $form->{vendor_id}   = $self->vendor_id;
     $form->{vendor}      = $self->vendor->name if $self->vendor;
   };
+  $form->{country}       = $self->$vc->country->$country_description_key if $self->$vc;
 
   if (_has($self, 'transdate')) {
     my $transdate_idx = ref($self) eq 'SL::DB::Order'         ? ($self->quotation ? 'quodate' : 'orddate')
@@ -37,7 +42,7 @@ sub flatten_to_form {
 
   $form->{vc} = $vc if ref($self) =~ m{^SL::DB::(?:.*Invoice|.*Order)};
 
-  my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit
+  my @vc_fields          = (qw(account_number bank bank_code bic business city contact creditlimit
                                department_1 department_2 discount email fax gln greeting homepage iban language name
                                natural_person phone street taxnumber ustid zipcode
                                mandator_id mandate_date_of_signature),
@@ -49,6 +54,7 @@ sub flatten_to_form {
   _copy($self->$vc,                     $form, '',              '', 0, @vc_fields);
   _copy($self->$vc,                     $form, $vc,             '', 0, @vc_prefixed_fields);
   _copy($self->contact,                 $form, '',              '', 0, grep { /^cp_/    } map { $_->name } SL::DB::Contact->meta->columns) if _has($self, 'cp_id');
+  $form->{cp_country} = $self->contact->cp_country->$country_description_key if _has($self, 'cp_id') && $self->contact->cp_country;
   _copy($self->globalproject,           $form, 'globalproject', '', 0, qw(number description))                                             if _has($self, 'globalproject_id');
   _copy($self->employee,                $form, 'employee_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'employee_id');
   _copy($self->salesman,                $form, 'salesman_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'salesman_id');
@@ -61,6 +67,7 @@ sub flatten_to_form {
   if ($shipto) {
     _copy($shipto,                  $form, '',            '', 0, grep { m{^shipto(?!_id$)} } map { $_->name } SL::DB::Shipto->meta->columns);
     _copy_custom_variables($shipto, $form, 'shiptocvar_', '');
+    $form->{shiptocountry}     = $shipto->shiptocountry->$country_description_key if $shipto->shiptocountry;
   }
 
   _handle_user_data($self, $form);
