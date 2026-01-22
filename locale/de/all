@@ -1586,6 +1586,7 @@ $self->{texts} = {
   'Error: A quantity or a target quantity must be given.' => 'Fehler: Menge oder Zielmenge muss angegeben werden.',
   'Error: Bin #1 is not from warehouse #2' => 'Lager \'#2\' hat keinen Lagerplatz \'#1\'',
   'Error: Bin not found'        => 'Fehler: Lagerplatz nicht gefunden',
+  'Error: Country not found: #1' => 'Fehler: Land nicht gefunden: #1',
   'Error: Customer/vendor is ambiguous' => 'Kunde/Lieferant ist mehrdeutig',
   'Error: Customer/vendor missing' => 'Fehler: Kunde/Lieferant fehlt',
   'Error: Customer/vendor not found' => 'Fehler: Kunde/Lieferant nicht gefunden',
