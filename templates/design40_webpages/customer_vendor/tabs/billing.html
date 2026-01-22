@@ -64,7 +64,7 @@
     </tr>
     <tr>
       <th>[% 'Country' | $T8 %]</th>
-      <td>[% L.input_tag_trim('cv.country', SELF.cv.country, class='wi-lightwide') %]</td>
+      <td>[% L.select_tag('cv.country_id', SELF.countries, value_key => 'id', title_key => 'description', default => SELF.cv.country_id, class => 'wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'GLN' | $T8 %]</th>
