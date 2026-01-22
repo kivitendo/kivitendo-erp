@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   cp_abteilung   => { type => 'text' },
   cp_birthday    => { type => 'date' },
   cp_city        => { type => 'text' },
+  cp_country_id  => { type => 'integer' },
   cp_cv_id       => { type => 'integer' },
   cp_email       => { type => 'text' },
   cp_fax         => { type => 'text' },
@@ -40,6 +41,13 @@ __PACKAGE__->meta->columns(
 __PACKAGE__->meta->primary_key_columns([ 'cp_id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
+
+__PACKAGE__->meta->foreign_keys(
+  cp_country => {
+    class       => 'SL::DB::Country',
+    key_columns => { cp_country_id => 'id' },
+  },
+);
 
 1;
 ;

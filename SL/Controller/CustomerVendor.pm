@@ -91,7 +91,7 @@ __PACKAGE__->run_before(
 
 __PACKAGE__->run_before('normalize_name');
 
-my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country gln email phone fax default_address);
+my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country_id gln email phone fax default_address);
 
 sub action_add {
   my ($self) = @_;
@@ -704,7 +704,7 @@ sub action_ajaj_get_shipto {
         my $name = 'shipto'. $_;
         $name => $self->{shipto}->$name;
       }
-      qw(_id name department_1 department_2 street zipcode city gln country contact phone fax email)
+      qw(_id name department_1 department_2 street zipcode city gln country_id contact phone fax email)
     )
   };
 
@@ -743,7 +743,7 @@ sub action_ajaj_get_contact {
       }
       qw(
         id gender abteilung title position givenname name email phone1 phone2 fax mobile1 mobile2
-        satphone satfax project street zipcode city privatphone privatemail birthday main
+        satphone satfax project country_id street zipcode city privatphone privatemail birthday main
       )
     )
   };
@@ -893,6 +893,8 @@ sub action_show_customer_vendor_details_dialog {
   $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
   $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  $details{country}             = $cv->country->$country_description_key;
 
   if ($is_customer) {
     foreach my $entry (@{ $cv->additional_billing_addresses }) {
@@ -1143,6 +1145,7 @@ sub _create_customer_vendor {
 
   $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
+  $self->{cv}->country_id($::instance_conf->get_address_country_id);
 
   $self->{note} = SL::DB::Note->new();
 

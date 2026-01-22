@@ -96,7 +96,7 @@ sub _parse_our_address {
   push @result, [ 'PostcodeCode', $::instance_conf->get_address_zipcode ] if $::instance_conf->get_address_zipcode;
   push @result, _parts_to_lines(@street);
   push @result, [ 'CityName', $::instance_conf->get_address_city ] if $::instance_conf->get_address_city;
-  push @result, [ 'CountryID', SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country) // 'DE' ];
+  push @result, [ 'CountryID', SL::DB::Country->new(id => $::instance_conf->get_address_country_id)->load->iso2 ];
 
   return @result;
 }
@@ -161,7 +161,7 @@ sub _customer_postal_trade_address {
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{customer}->zipcode));
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
   $params{xml}->dataElement("ram:CityName",     _u8($params{customer}->city));
-  $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{customer}->country) // 'DE'));
+  $params{xml}->dataElement("ram:CountryID",    _u8($params{customer}->country->iso2));
   $params{xml}->endTag;
   #       </ram:PostalTradeAddress>
 }

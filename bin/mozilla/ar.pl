@@ -1329,8 +1329,10 @@ sub ar_transactions {
   if ($form->{shiptocity}) {
     push @options, $locale->text('City (Shipping)') . " : $form->{shiptocity}";
   }
-  if ($form->{shiptocountry}) {
-    push @options, $locale->text('Country (Shipping)') . " : $form->{shiptocountry}";
+  if ($form->{shiptocountry_id}) {
+    my $country_description_key = 'description_'.$::myconfig{countrycode};
+    my $country = SL::DB::Country->new(id => $form->{shiptocountry_id})->load;
+    push @options, $locale->text('Country (Shipping)') . " : " . $country->$country_description_key;
   }
   if ($form->{fulltext}) {
     push @options, $locale->text('Full Text') . " : $form->{fulltext}";
