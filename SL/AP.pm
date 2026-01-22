@@ -559,8 +559,9 @@ sub ap_transactions {
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  pr.description   AS globalprojectdescription, | .
     qq|  e.name AS employee, | .
-    qq|  v.vendornumber, v.country, v.ustid, | .
+    qq|  v.vendornumber, v.ustid, | .
     qq|  tz.description AS taxzone, | .
+    qq|  countries.description as country, | .
     qq|  pt.description AS payment_terms, | .
     qq|  department.description AS department, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
@@ -583,6 +584,7 @@ sub ap_transactions {
     qq|LEFT JOIN employee e ON (a.employee_id = e.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id) | .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
+    qq|LEFT JOIN countries ON (v.country_id = countries.id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN department ON (department.id = a.department_id)|;
 

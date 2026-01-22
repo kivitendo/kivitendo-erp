@@ -680,10 +680,11 @@ sub customer_details {
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         cu.name AS currency
+         cu.name AS currency, countries.description AS country
        FROM customer ct
-       LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
        LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
+       LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
+       LEFT JOIN countries ON (ct.country_id = countries.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
@@ -695,7 +696,7 @@ sub customer_details {
       $ref->{name} = $customer->name;
       $ref->{street} = $customer->street;
       $ref->{zipcode} = $customer->zipcode;
-      $ref->{country} = $customer->country;
+      $ref->{country} = $customer->country_obj->description;
       $ref->{gln} = $customer->gln;
     }
     my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
@@ -2525,7 +2526,7 @@ sub get_customer {
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
-         c.street, c.zipcode, c.city, c.country,
+         c.street, c.zipcode, c.city, countries.description AS country,
          c.notes AS intnotes, c.pricegroup_id as customer_pricegroup_id, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
          (SELECT aba.id
@@ -2536,6 +2537,7 @@ sub get_customer {
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
        LEFT JOIN currencies cu ON (c.currency_id=cu.id)
+       LEFT JOIN countries ON (c.country_id = countries.id)
        WHERE 1 = 1 $where|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
   die t8("Cannot find a single customer. Maybe there is no customer yet?") unless $ref;

@@ -1291,7 +1291,7 @@ sub aging {
  my $q_details = qq|
 
     SELECT ${ct}.id AS ctid, ${ct}.name,
-      street, zipcode, city, country, contact, email,
+      street, zipcode, city, countries.description AS country, contact, email,
       phone as customerphone, fax as customerfax, ${ct}number,
       "invnumber", "transdate", "type",
       (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate <= (date $todate)),0)) as "open", "amount",
@@ -1301,6 +1301,7 @@ sub aging {
        WHERE (${arap}.currency_id = exchangerate.currency_id)
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
+    LEFT JOIN countries ON (${ct}.country_id = countries.id)
     WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
       AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
