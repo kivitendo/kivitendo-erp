@@ -427,7 +427,7 @@ sub all_parts {
     push @bind_vars, like($form->{model});
   }
   if ($form->{customername}) {
-    push @where_tokens, 'part_customer_prices.customer_id = (SELECT id FROM customer WHERE name ILIKE ?)';
+    push @where_tokens, 'part_customer_prices.customer_id IN (SELECT id FROM customer WHERE name ILIKE ?)';
     push @bind_vars, like($form->{customername});
   }
   if ($form->{customerpartnumber}) {
