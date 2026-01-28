@@ -7,7 +7,8 @@ use XML::LibXML;
 use DateTime;
 use SL::Helper::DateTime;
 
-my $namespace_re = qr/urn:iso:std:iso:20022:tech:xsd:camt\.053\.001\.(\d+)/;
+# ISO:camt.053.001.02:APC:STUZZA:payment:*** is Austrian variant, see https://zv.psa.at - Payment Services Austria, formerly STUZZA
+my $namespace_re = qr/urn:iso:std:iso:20022:tech:xsd:camt\.053\.001\.(\d+) | ISO:camt\.053\.001\.(\d+)/x;
 
 
 # XML XPath expressions for global metadata
