@@ -42,36 +42,42 @@ my %entry_xpaths = (
 );
 
 my %transaction_details_xpaths = (
-  name          => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Dbtr/ns:Nm | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Cdtr/ns:Nm',
-  reference     => [
+  reference         => [
     './ns:NtryDtls/ns:TxDtls/ns:RmtInf/ns:Strd/ns:CdtrRefInf/ns:Ref',
     './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:InstrId',
   ],
-  purpose       => [
+  purpose           => [
     './ns:NtryDtls/ns:TxDtls/ns:RmtInf/ns:Ustrd',
     './ns:NtryDtls/ns:TxDtls/ns:RmtInf/ns:Strd/ns:CdtrRefInf/ns:Ref',
     #    './ns:NtryDtls/ns:TxDtls',
   ],
-  payment_ref   => [
+  payment_ref       => [
     './ns:NtryDtls/ns:TxDtls/ns:RtrInf/ns:Ustrd',
     './ns:NtryDtls/ns:TxDtls/ns:RtrInf/ns:AddtlInf',
     './ns:NtryDtls/ns:TxDtls/ns:AddtlNtryInf',
     './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:InstrId',
   ],
-  end_to_end_id  => './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:EndToEndId',
-  account_number => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:DbtrAcct/ns:Id/ns:IBAN | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:CdtrAcct/ns:Id/ns:IBAN',
-  bank_code      => './ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BICFI | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BICFI',
+  end_to_end_id     => './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:EndToEndId',
+  name_cd           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Cdtr/ns:Nm',
+  account_number_cd => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:CdtrAcct/ns:Id/ns:IBAN',
+  bank_code_cd      => './ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BICFI',
+  name_db           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Dbtr/ns:Nm',
+  account_number_db => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:DbtrAcct/ns:Id/ns:IBAN',
+  bank_code_db      => './ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BICFI',
 );
 
 my %batch_details_xpaths = (
-  amount                 => "./ns:AmntDtls/ns:TxAmt",
-  currency               => './ns:AmntDtls/ns:TxAmt@Ccy',
-  reference              => "./ns:Refs/ns:InstrId",
-  end_to_end_id          => "./ns:Refs/ns:EndToEndId",
-  remote_name            => "./ns:RltdPties/ns:Cdtr/ns:Nm | ./ns:RltdPties/ns:Dbtr/ns:Nm",
-  remote_bank_code       => "./ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BIC | ./ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BIC | ./ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BICFI | ./ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BICFI",
-  remote_account_number  => "./ns:RltdPties/ns:CdtrAcct/ns:Id/ns:IBAN | ./ns:RltdPties/ns:DbtrAcct/ns:Id/ns:IBAN",
-  purpose                => "./ns:RmtInf/ns:Ustrd | ./ns:AddtlTxInf",
+  amount                   => "./ns:AmntDtls/ns:TxAmt",
+  currency                 => './ns:AmntDtls/ns:TxAmt@Ccy',
+  reference                => "./ns:Refs/ns:InstrId",
+  end_to_end_id            => "./ns:Refs/ns:EndToEndId",
+  remote_name_cd           => "./ns:RltdPties/ns:Cdtr/ns:Nm",
+  remote_bank_code_cd      => "./ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BIC | ./ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BICFI",
+  remote_account_number_cd => "./ns:RltdPties/ns:CdtrAcct/ns:Id/ns:IBAN",
+  remote_name_db           => "./ns:RltdPties/ns:Dbtr/ns:Nm",
+  remote_bank_code_db      => "./ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BIC | ./ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BICFI",
+  remote_account_number_cb => "./ns:RltdPties/ns:DbtrAcct/ns:Id/ns:IBAN",
+  purpose                  => "./ns:RmtInf/ns:Ustrd | ./ns:AddtlTxInf",
 );
 
 sub parse_file {
@@ -139,9 +145,9 @@ sub _parse {
     my $valutadate            = DateTime->from_ymd($xc->find($entry_xpaths{valutadate}, $entry)),
     my $local_account_number  = $xc->find($dom_xpaths{account_number}, $entry);
     my $local_bank_code       = $xc->find($dom_xpaths{bic}, $entry);
-    my $remote_name           = $xc->find($transaction_details_xpaths{name}, $entry);
-    my $remote_bank_code      = $xc->find($transaction_details_xpaths{bank_code}, $entry);
-    my $remote_account_number = $xc->find($transaction_details_xpaths{account_number}, $entry);
+    my $remote_name           = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{name_cd} : $transaction_details_xpaths{name_db}, $entry);
+    my $remote_bank_code      = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{bank_code_cd} : $transaction_details_xpaths{bank_code_db}, $entry);
+    my $remote_account_number = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{account_number_cd} : $transaction_details_xpaths{account_number_db}, $entry);
 
     my $purpose               = join "", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{purpose}}), $entry);
     my $reference             = join " ", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{reference}}), $entry);
