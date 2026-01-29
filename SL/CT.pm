@@ -552,12 +552,10 @@ sub search_contacts {
     add_token(\@where_tokens, \@values, col => "COALESCE(c.name, v.name)", val => $filter->{vcname}, method => 'ILIKE', esc => 'substr') if $filter->{vcname};
 
     push @where_tokens, '
-      (EXISTS(SELECT COUNT(*) FROM customer_contacts WHERE contact_id = cp_id) OR
-       EXISTS(SELECT COUNT(*) FROM vendor_contacts WHERE contact_id = cp_id))
+      (cc.id IS NOT NULL OR vc.id IS NOT NULL)
     ' if $filter->{status} eq 'active';
     push @where_tokens, '
-      (NOT EXISTS(SELECT COUNT(*) FROM customer_contacts WHERE contact_id = cp_id) AND
-       NOT EXISTS(SELECT COUNT(*) FROM vendor_contacts WHERE contact_id = cp_id))
+      (cc.id IS NULL AND vc.id IS NULL)
     ' if $filter->{status} eq 'orphaned';
   }
 
