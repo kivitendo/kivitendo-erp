@@ -92,7 +92,7 @@
     </tr>
     <tr>
       <th>[% 'Country' | $T8 %]</th>
-      <td>[% L.select_tag('contact_cp_country_id', SELF.countries, value_key => 'id', title_key => 'description', default => contact.cp_country_id, class => 'wi-lightwide') %]</td>
+      <td>[% L.select_tag('contact_cp_country_id', SELF.countries, value_key => 'id', title_key => 'description', default => SELF.contact.cp_country_id, class => 'wi-lightwide') %]</td>
     </tr>
     <tr>
       <th>[% 'Street' | $T8 %]</th>
