@@ -70,7 +70,8 @@ sub retrieve_open_invoices {
 
        LEFT JOIN payment_terms pt ON (${arap}.payment_id = pt.id)
 
-       WHERE (  (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
+       WHERE (  (${arap}.amount <> ${arap}.paid) AND
+                (${arap}.amount - (COALESCE(open_transfers.amount, 0) + ${arap}.paid)) >= 0.01
                 $p_credit_notes
              )
        $only_approved
