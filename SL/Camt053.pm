@@ -138,20 +138,20 @@ sub _parse {
     }
 
     my $amount                = $xc->findvalue($balance_xpaths{amount}, $entry);
-    my $debit_credit          = $xc->find($balance_xpaths{credit_debit}, $entry);
+    my $debit_credit          = $xc->findvalue($balance_xpaths{credit_debit}, $entry);
     my $sign                  = $debit_credit eq 'DBIT' ? -1 : 1;
-    my $currency              = $xc->find($balance_xpaths{currency}, $entry) || SL::DB::Currency->get_default_currency;
+    my $currency              = $xc->findvalue($balance_xpaths{currency}, $entry) || SL::DB::Currency->get_default_currency;
     my $transdate             = DateTime->from_ymd($xc->find($entry_xpaths{transdate},  $entry));
     my $valutadate            = DateTime->from_ymd($xc->find($entry_xpaths{valutadate}, $entry)),
-    my $local_account_number  = $xc->find($dom_xpaths{account_number}, $entry);
-    my $local_bank_code       = $xc->find($dom_xpaths{bic}, $entry);
-    my $remote_name           = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{name_cd} : $transaction_details_xpaths{name_db}, $entry);
-    my $remote_bank_code      = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{bank_code_cd} : $transaction_details_xpaths{bank_code_db}, $entry);
-    my $remote_account_number = $xc->find($debit_credit eq 'DBIT' ? $transaction_details_xpaths{account_number_cd} : $transaction_details_xpaths{account_number_db}, $entry);
+    my $local_account_number  = $xc->findvalue($dom_xpaths{account_number}, $entry);
+    my $local_bank_code       = $xc->findvalue($dom_xpaths{bic}, $entry);
+    my $remote_name           = $xc->findvalue($debit_credit eq 'DBIT' ? $transaction_details_xpaths{name_cd} : $transaction_details_xpaths{name_db}, $entry);
+    my $remote_bank_code      = $xc->findvalue($debit_credit eq 'DBIT' ? $transaction_details_xpaths{bank_code_cd} : $transaction_details_xpaths{bank_code_db}, $entry);
+    my $remote_account_number = $xc->findvalue($debit_credit eq 'DBIT' ? $transaction_details_xpaths{account_number_cd} : $transaction_details_xpaths{account_number_db}, $entry);
 
     my $purpose               = join "", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{purpose}}), $entry);
     my $reference             = join " ", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{reference}}), $entry);
-    my $end_to_end_id         = $xc->find($transaction_details_xpaths{end_to_end_id}, $entry);
+    my $end_to_end_id         = $xc->findvalue($transaction_details_xpaths{end_to_end_id}, $entry);
 
     my %transaction = (
       currency              => $currency,
