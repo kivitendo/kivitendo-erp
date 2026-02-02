@@ -108,8 +108,8 @@ sub display_form {
   $params{trans_id}   = $form->{LINKS}->[0]->{trans_id} if (@{ $form->{LINKS} });
 
   $form->{sort}               = 'follow_up_date';
-  $form->{FOLLOW_UPS_DONE}    = FU->follow_ups(%params,     done => 1);
-  $form->{FOLLOW_UPS_PENDING} = FU->follow_ups(%params, not_done => 1);
+  $form->{FOLLOW_UPS_DONE}    = FU->follow_ups(%params,     done => 1) if $::form->{POPUP_MODE};
+  $form->{FOLLOW_UPS_PENDING} = FU->follow_ups(%params, not_done => 1) if $::form->{POPUP_MODE};
 
   setup_fu_display_form_action_bar() unless $::form->{POPUP_MODE};
 
