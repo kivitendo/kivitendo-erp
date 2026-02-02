@@ -511,6 +511,9 @@ sub sync_all_images {
 
       while (my ($name, $id) = each %existing_img) {
         next if $existing_images{$name};
+
+        die "No media id for deleting image: $name" unless $id;
+
         $ret = $self->connector->DELETE("api/media/$id");
         $response_code = $ret->responseCode();
         die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 204;
