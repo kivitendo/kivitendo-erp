@@ -496,7 +496,13 @@ sub sync_all_images {
                           'value' => $product_id,
                           'type' => 'equals',
                           'field' => 'productId'
-                        }, ] };
+                        },
+                          ],
+              'associations' => {
+                                  'media' => []
+                                }
+            };
+
     $ret = $self->connector->POST('api/search/product-media', to_json($product_media_filter));
     $response_code = $ret->responseCode();
     die "Request failed, response code was: $response_code\n" . $ret->responseContent() unless $response_code == 200;
