@@ -181,11 +181,11 @@ sub all_parts {
   my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand notes);
   my @project_filters      = qw(projectnumber projectdescription);
   my @makemodel_filters    = qw(make model);
-  my @customer_filters     = qw(customername customerpartnumber);
+  my @customer_filters     = qw(customername customer_partnumber);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
-  my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
+  my @all_columns          = (@simple_filters, @makemodel_filters, @customer_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image shop insertdate));
   my %no_simple_l_switches = (warehouse => 'wh.description as warehouse', bin => 'bin.description as bin',  price_factor_description => 'pfac.description as price_factor_description', bookinggroup => 'bg.description as bookinggroup');
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
@@ -231,8 +231,9 @@ sub all_parts {
     warehouse    => 'LEFT JOIN warehouse AS wh ON wh.id = p.warehouse_id',
     bin          => 'LEFT JOIN bin ON bin.id = p.bin_id',
     customerpart => 'LEFT JOIN part_customer_prices ON part_customer_prices.parts_id = p.id',
+    customername => 'LEFT JOIN customer pc ON part_customer_prices.customer_id = pc.id',
   );
-  my @join_order = qw(bookinggroup partsgroup makemodel customerpart invoice_oi apoe cv pfac project warehouse bin);
+  my @join_order = qw(bookinggroup partsgroup makemodel customerpart customername invoice_oi apoe cv pfac project warehouse bin);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -251,8 +252,8 @@ sub all_parts {
      cv           => 'cv.',
      "ioi.id"     => ' ',
      "ioi.ioi"    => ' ',
-     customername => 'part_customer_prices.',
-     customerpartnumber => 'part_customer_prices.',
+     customername => 'pc.',
+     customer_partnumber => 'part_customer_prices.',
   );
 
   # if the join condition in these blocks are met, the column
@@ -265,6 +266,7 @@ sub all_parts {
     [ 'transdate',    'apoe.', 'apoe'        ],
     [ 'unit',         'ioi.',  'invoice_oi'  ],
     [ 'sellprice',    'ioi.',  'invoice_oi'  ],
+#[ 'customername', 'pc.', 'customername' ],
   );
 
   # careful with renames. these are HARD, and any filters done on the original column will break
@@ -275,6 +277,8 @@ sub all_parts {
     'ioi.ioi'      => 'ioi',
     'projectdescription' => 'projectdescription',
     'insertdate'   => 'insertdate',
+    #'customername' => 'name',
+    'pc.name' => 'customername',
   );
 
   my %real_column = (
@@ -430,9 +434,9 @@ sub all_parts {
     push @where_tokens, 'part_customer_prices.customer_id IN (SELECT id FROM customer WHERE name ILIKE ?)';
     push @bind_vars, like($form->{customername});
   }
-  if ($form->{customerpartnumber}) {
+  if ($form->{customer_partnumber}) {
     push @where_tokens, 'part_customer_prices.customer_partnumber ILIKE ?';
-    push @bind_vars, like($form->{customerpartnumber});
+    push @bind_vars, like($form->{customer_partnumber});
   }
 
 
@@ -473,6 +477,7 @@ sub all_parts {
   $joins_needed{project}      = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
   $joins_needed{makemodel}    = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
   $joins_needed{customerpart} = 1 if grep { $form->{$_} || $form->{"l_$_"} } @customer_filters;
+  $joins_needed{customername} = 1 if grep { $form->{$_} || $form->{"l_$_"} } @customer_filters;
   $joins_needed{cv}           = 1 if $bsooqr;
   $joins_needed{apoe}         = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}   = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;

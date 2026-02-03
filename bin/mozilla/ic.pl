@@ -207,6 +207,8 @@ sub generate_report {
     'bin'                => { 'text' => $locale->text('Default Bin'), },
     'make'               => { 'text' => $locale->text('Make'), },
     'model'              => { 'text' => $locale->text('Model'), },
+    'customer'           => { 'text' => $locale->text('Customer'), },
+    'customer_partnumber' => { 'text' => $locale->text('Customer Part Number'), },
     'price_factor_description' => { 'text' => $locale->text('Price Factor'), },
     'bookinggroup'       => { 'text' => $locale->text('Booking group'), },
   );
@@ -290,7 +292,7 @@ sub generate_report {
     make          => $locale->text('Make')             . ": '$form->{make}'",
     model         => $locale->text('Model')            . ": '$form->{model}'",
     customername  => $locale->text('Customer')         . ": '$form->{customername}'",
-    customerpartnumber=> $locale->text('Customer Part Number').": '$form->{customerpartnumber}'",
+    customer_partnumber=> $locale->text('Customer Part Number').": '$form->{customerpartnumber}'",
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('Qty in Selected Records'),
@@ -303,7 +305,7 @@ sub generate_report {
   );
 
   my @itemstatus_keys = qw(active order_locked obsolete orphaned onhand short);
-  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model customername customerpartnumber
+  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model customername customer_partnumber
                            drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all
                            l_service l_assembly l_part);
 
@@ -394,7 +396,7 @@ sub generate_report {
 
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
-    make model assembly_qty onhand rop soldtotal unit price_factor_description listprice
+    make model customer customer_partnumber assembly_qty onhand rop soldtotal unit price_factor_description listprice
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription

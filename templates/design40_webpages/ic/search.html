@@ -76,7 +76,7 @@
       </tr>
       <tr>
         <th>[% 'Customer Part Number' | $T8 %]</th>
-        <td>[% L.input_tag("customerpartnumber", "", class='wi-mediumsmall') %]</td>
+        <td>[% L.input_tag("customer_partnumber", "", class='wi-mediumsmall') %]</td>
       </tr>
       <tr>
         <th>[% 'Shop article' | $T8 %]</th>
@@ -203,6 +203,11 @@
     <p>[% L.checkbox_tag('l_insertdate', label=LxERP.t8('Insert Date'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_deliverydate', label=LxERP.t8('Delivery Date'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_transdate', label=LxERP.t8('Transdate Record'), value='Y') %]</p>
+    <p>&nbsp;</p>
+    <h4>[% 'Customer' | $T8 %]</h4>
+    <p>[% L.checkbox_tag('l_customer', label=LxERP.t8('Customer'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_customer_partnumber', label=LxERP.t8('Customer Part Number'), value='Y') %]</p>
+
     <p>&nbsp;</p>
     <h4>[% 'Vendor' | $T8 %]</h4>
     <p>[% L.checkbox_tag('l_make', label=LxERP.t8('Make'), value='Y') %]</p>
