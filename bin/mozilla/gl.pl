@@ -935,7 +935,6 @@ sub display_rows {
       <td><input type=hidden name="fx_transaction_$i" value="$checked">$x</td>
     |;
         }
-        $form->hide_form("accno_$i");
 
       } else {
         if ($form->{transfer}) {
@@ -976,6 +975,14 @@ sub display_rows {
     <td><input type="hidden" name="tax_$i" value="$form->{"tax_$i"}">$form->{"tax_$i"}</td>
     $tax_ddbox|;
 
+    if ($i < $form->{rowcount}) {
+      print qq|
+  <td class="hidden">
+|;
+      $form->hide_form("accno_$i");
+      print qq|  </td>|;
+    }
+
     if ($form->{show_details}) {
       print qq|
     $source
@@ -984,9 +991,11 @@ sub display_rows {
 |;
     } else {
     print qq|
+    <td class="hidden">
     $source_hidden
     $memo_hidden
     $projectnumber_hidden
+    </td>
     |;
     }
     print qq|
