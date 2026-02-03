@@ -137,11 +137,11 @@
           [%- ELSE %]
             [% L.select_tag("currency", currencies, default=currency, value_key="name", title_key="name", class="wi-lightwide") %]
           [%- END %]
+          [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
+          [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
+          [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
+          [% L.hidden_tag('forex', forex) %]
         </td>
-        [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
-        [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
-        [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
-        [% L.hidden_tag('forex', forex) %]
       </tr>
       [% IF show_exch %]
       <tr>
@@ -157,7 +157,6 @@
         </td>
       </tr>
       [% END %]
-      </tr>
       [% IF ALL_DEPARTMENTS %]
         <tr>
           <th>[% 'Department' | $T8 %]</th>
