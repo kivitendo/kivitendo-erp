@@ -240,8 +240,6 @@ sub add {
   $form->{credit} = 0;
   $form->{tax}    = 0;
 
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
-
   $form->{show_details} = $myconfig{show_form_details} unless defined $form->{show_details};
 
   if (!$form->{form_validity_token}) {
@@ -284,8 +282,6 @@ sub prepare_transaction {
   GL->transaction(\%myconfig, \%$form);
 
   $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
-
-  $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
   my $i        = 1;
   my $tax      = 0;
@@ -1195,10 +1191,6 @@ sub form_header {
   my ($init) = @_;
 
   $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
-
-  my @old_project_ids     = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
-  my @conditions          = @old_project_ids ? (id => \@old_project_ids) : ();
-  $::form->{ALL_PROJECTS} = SL::DB::Manager::Project->get_all_sorted(query => [ or => [ active => 1, @conditions ]]);
 
   $::form->get_lists(
     "charts"    => { "key" => "ALL_CHARTS", "transdate" => $::form->{transdate} },
