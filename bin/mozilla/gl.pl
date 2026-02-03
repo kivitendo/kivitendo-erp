@@ -994,7 +994,13 @@ sub display_rows {
 |;
   }
 
+  print qq|  <tr class="hidden">
+   <td>
+  |;
   $form->hide_form(qw(rowcount selectaccno));
+  print qq|   </td>
+  </tr>
+  |;
 
   $main::lxdebug->leave_sub();
 
