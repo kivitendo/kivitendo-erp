@@ -54,6 +54,7 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
+use SL::Presenter;
 use SL::Presenter::Tag;
 use SL::Presenter::Chart;
 require "bin/mozilla/common.pl";
@@ -844,20 +845,7 @@ sub display_rows {
   my $transdate     = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $deliverydate  = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
 
-  my ($source, $memo, $source_hidden, $memo_hidden);
   for my $i (1 .. $form->{rowcount}) {
-    if ($form->{show_details}) {
-      $source = qq|
-      <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
-      $memo = qq|
-      <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
-    } else {
-      $source_hidden = qq|
-      <input type="hidden" name="source_$i" value="$form->{"source_$i"}" size="16">|;
-      $memo_hidden = qq|
-      <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
-    }
-
     my %taxchart_labels = ();
     my @taxchart_values = ();
 
@@ -953,23 +941,6 @@ sub display_rows {
       }
     }
 
-    my $projectnumber = SL::Presenter::Project::picker("project_id_$i", $form->{"project_id_$i"});
-    my $projectnumber_hidden = SL::Presenter::Tag::hidden_tag("project_id_$i", $form->{"project_id_$i"});
-
-    my $department = '';
-    my $department_hidden = '';
-    my $all_departments = SL::DB::Manager::Department->get_all_sorted;
-    if ($all_departments) {
-      $department = SL::Presenter::Tag::select_tag("department_id_$i",
-                                                   SL::DB::Manager::Department->get_all_sorted,
-                                                   default => $form->{"department_id_$i"},
-                                                   title_key => 'description',
-                                                   with_empty => 1,
-                                                   class => 'wi-wide');
-      $department = SL::Presenter::Tag::html_tag('td', $department);
-      $department_hidden = SL::Presenter::Tag::hidden_tag("department_id_$i", $form->{"department_id_$i"});
-    }
-
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
     my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
@@ -996,26 +967,21 @@ sub display_rows {
       print qq|  </td>|;
     }
 
-    if ($form->{show_details}) {
-      print qq|
-    $source
-    $memo
-    <td>$projectnumber</td>
-    $department
-|;
-    } else {
     print qq|
-    <td class="hidden">
-    $source_hidden
-    $memo_hidden
-    $projectnumber_hidden
-    $department_hidden
-    </td>
-    |;
-    }
-    print qq|
-  </tr>
+    </tr>
 |;
+
+    my $html = SL::Presenter->get->render('gl/_second_row', {},
+                                          row             => $i,
+                                          row_classes     => $form->{show_details} ? '' : 'hidden',
+                                          all_departments => $form->{ALL_DEPARTMENTS},
+                                          source          => $form->{"source_$i"},
+                                          memo            => $form->{"memo_$i"},
+                                          project_id      => $form->{"project_id_$i"},
+                                          department_id   => $form->{"department_id_$i"},
+    );
+
+    print qq|$html|;
   }
 
   print qq|  <tr class="hidden">
