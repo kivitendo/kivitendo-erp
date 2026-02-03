@@ -290,7 +290,7 @@ sub generate_report {
     make          => $locale->text('Make')             . ": '$form->{make}'",
     model         => $locale->text('Model')            . ": '$form->{model}'",
     customername  => $locale->text('Customer')         . ": '$form->{customername}'",
-    customernumber=> $locale->text('Customer Part Number').": '$form->{customernumber}'",
+    customerpartnumber=> $locale->text('Customer Part Number').": '$form->{customerpartnumber}'",
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
     l_soldtotal   => $locale->text('Qty in Selected Records'),
@@ -303,7 +303,7 @@ sub generate_report {
   );
 
   my @itemstatus_keys = qw(active order_locked obsolete orphaned onhand short);
-  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
+  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model customername customerpartnumber
                            drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto insertdatefrom insertdateto ean shop all
                            l_service l_assembly l_part);
 
