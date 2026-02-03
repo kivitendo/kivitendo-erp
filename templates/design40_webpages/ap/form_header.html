@@ -377,9 +377,11 @@
       <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
       <td></td>
       [% IF ( !defaultcurrency || (currency != defaultcurrency) ) %]
-        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
-        <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
-        <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
+        <td class="numeric">
+          [% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]
+          <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
+          <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
+        </td>
       [% END %]
       <td></td>
       <td></td>
