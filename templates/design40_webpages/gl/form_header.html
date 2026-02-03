@@ -130,10 +130,10 @@
       <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
     </tr>
     [% SET departments_style = "";
-       SET departments_style = "style='visibility:hidden'" IF ALL_DEPARTMENTS.size == 0 %]
-    <tr>
-      <th [%- departments_style -%]>[% 'Department' | $T8 %]</th>
-      <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
+       SET departments_style = "style='display:none'" IF ALL_DEPARTMENTS.size == 0 %]
+    <tr [%- departments_style -%]>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
     </tr>
     <tr>
       <th>[% 'Transaction description' | $T8 %]</th>
