@@ -138,7 +138,7 @@ sub load_record_template {
   $::form->{duedate}                 = $today->to_kivitendo;
   $::form->{rowcount}                = @{ $template->items };
   $::form->{paidaccounts}            = 1;
-  $::form->{$_}                      = $template->$_ for qw(department_id ordnumber taxincluded employee_id notes);
+  $::form->{$_}                      = $template->$_ for qw(department_id ordnumber taxincluded employee_id notes show_details);
 
   if ($template->customer) {
     $::form->{customer_id} = $template->customer_id;
@@ -219,6 +219,7 @@ sub save_record_template {
     direct_debit            => $::form->{direct_debit} ? 1 : 0,
     ordnumber               => $::form->{ordnumber},
     notes                   => $::form->{notes},
+    show_details            => $::form->{show_details},
     transaction_description => $::form->{transaction_description},
 
     items                   => \@items,
@@ -269,6 +270,8 @@ sub add {
     $form->{"AR_amount_chart_id_1"} = $last_used_ar_chart->id if $last_used_ar_chart;
   }
 
+  $form->{show_details} = $::myconfig{show_form_details} unless defined $form->{show_details};
+
   if (!$form->{form_validity_token}) {
     $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
@@ -311,6 +314,8 @@ sub edit {
   #/show hhistory button
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{title} = "Edit";
+
+  $form->{show_details} = $::myconfig{show_form_details} unless defined $form->{show_details};
 
   create_links();
   &display_form;

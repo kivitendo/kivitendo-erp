@@ -187,7 +187,7 @@ sub load_record_template {
   $::form->{duedate}          = $today->to_kivitendo;
   $::form->{rowcount}         = @{ $template->items };
   $::form->{paidaccounts}     = 1;
-  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded notes transaction_description);
+  $::form->{$_}               = $template->$_ for qw(department_id ordnumber taxincluded notes show_details transaction_description);
 
   if ($template->vendor) {
     $::form->{vendor_id} = $template->vendor_id;
@@ -274,6 +274,7 @@ sub save_record_template {
     direct_debit            => $::form->{direct_debit} ? 1 : 0,
     ordnumber               => $::form->{ordnumber},
     notes                   => $::form->{notes},
+    show_details            => $::form->{show_details},
     transaction_description => $::form->{transaction_description},
 
     items                   => \@items,
@@ -322,6 +323,8 @@ sub add {
     $form->{"AP_amount_chart_id_1"} = $last_used_ap_chart->id if $last_used_ap_chart;
   }
 
+  $form->{show_details} = $::myconfig{show_form_details} unless defined $form->{show_details};
+
   if (!$form->{form_validity_token}) {
     $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_PURCHASE_INVOICE_POST())->token;
   }
@@ -341,6 +344,8 @@ sub edit {
   my $form     = $main::form;
 
   $form->{title} = "Edit";
+
+  $form->{show_details} = $::myconfig{show_form_details} unless defined $form->{show_details};
 
   create_links();
   &display_form;

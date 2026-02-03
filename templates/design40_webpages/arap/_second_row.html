@@ -1,0 +1,20 @@
+[% USE HTML -%]
+[% USE T8 -%]
+[% USE P -%]
+
+<tr [% IF row_classes %]class='[% row_classes %]'[% END %]>
+  <td colspan="4">
+    <span>
+      [% 'Project Number' | $T8 %]: [% P.project.picker('project_id_' _ row, project_id,  class = 'wi-lightwide') %]
+    </span>
+  [% SET departments_style = "";
+     SET departments_style = "style='display:none'" IF all_departments.size == 0 %]
+    <span [%- departments_style -%]>
+      [% 'Department' | $T8 %]: [% P.select_tag('department_id_' _ row, all_departments,
+                                                default    = department_id,
+                                                title_key  = 'description',
+                                                with_empty = 1,
+                                                class      = 'wi-lightwide') %]
+    </span>
+  </td>
+</tr>

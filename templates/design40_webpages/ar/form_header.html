@@ -9,6 +9,8 @@
   [% title %]
 </h1>
 
+<script type="text/javascript" src="js/show_form_details.js"></script>
+
 <form method="post" name="arledger" action="[% script %]" id="form">
 
 [% L.hidden_tag('id', id) %]
@@ -241,6 +243,10 @@
 
 <div class="wrapper">
 
+<div class="buttons positions">
+  <label class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
+  [% L.checkbox_tag('show_details', checked=show_details, onclick='show_form_details(!!show_details);', style='display:none') %]
+</div>
 <table class="tbl-list">
   <caption>[% 'Transactions' | $T8 %]</caption>
   <thead>
@@ -249,10 +255,6 @@
       <th class="right">[% 'Amount' | $T8 %]</th>
       <th class="right">[% 'Tax' | $T8 %]</th>
       <th>[% 'Taxkey' | $T8 %]</th>
-      <th>[% 'Project' | $T8 %]</th>
-      [%- IF ALL_DEPARTMENTS %]
-        <th>[% 'Department' | $T8 %]</th>
-      [%- END %]
     </tr>
   </thead>
   <tbody>
@@ -262,11 +264,14 @@
       <td class="numeric">[% L.input_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2), class='wi-small numeric') %]</td>
       <td class="numeric">[% L.hidden_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_amount(row.tax, 2) | html %]</td>
       <td>[% row.taxchart %]</td>
-      <td>[% P.project.picker("project_id_"_ loop.count, row.project_id) %]</td>
-      [%- IF ALL_DEPARTMENTS %]
-        <td>[% L.select_tag("department_id_"_ loop.count, ALL_DEPARTMENTS, default = row.department_id, title_key = 'description', with_empty = 1, class='wi-lightwide') %]</td>
-      [%- END %]
     </tr>
+    [% INCLUDE "arap/_second_row.html"
+               row             = loop.count
+               row_classes     = show_details ? '' : 'hidden'
+               all_departments = ALL_DEPARTMENTS
+               project_id      = row.project_id
+               department_id   = row.department_id
+    %]
     [% END %]
   </tbody>
   <tfoot>
@@ -278,7 +283,7 @@
         <input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid %]">
         <input type="hidden" name="taxaccounts" value="[% taxaccounts | html %]">
       </th>
-      <td colspan=[% IF ALL_DEPARTMENTS %]"4">[% ELSE %]"3"[% END %]</td>
+      <td colspan="2"></td>
     </tr>
   </tfoot>
 </table>

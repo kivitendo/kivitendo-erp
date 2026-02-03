@@ -9,6 +9,8 @@
   [% title %]
 </h1>
 
+<script type="text/javascript" src="js/show_form_details.js"></script>
+
 <form method="post" action="[% script | html %]" id="form">
 
 <input type="hidden" name="terms" value="[% terms | html %]">
@@ -237,6 +239,11 @@
 
 <div class="wrapper">
 
+<div class="buttons positions">
+  <label class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
+  [% L.checkbox_tag('show_details', checked=show_details, onclick='show_form_details(!!show_details);', style='display:none') %]
+</div>
+
 <table class="tbl-list">
   <caption>[% 'Transactions' | $T8 %]</caption>
   <thead>
@@ -245,10 +252,6 @@
       <th class="right">[% 'Amount' | $T8 %]</th>
       <th class="right">[% 'Tax' | $T8 %]</th>
       <th>[% 'Taxkey' | $T8 %]</th>
-      <th>[% 'Project' | $T8 %]</th>
-      [% IF ALL_DEPARTMENTS %]
-        <th>[% 'Department' | $T8 %]</th>
-      [% END %]
     </tr>
   </thead>
   <tbody>
@@ -277,24 +280,23 @@
         [% temp = 'selected_taxchart_'_ i %] [% taxcharts = 'taxcharts_' _ i %]
         [% L.select_tag('taxchart_'_ i, $taxcharts, value_title_sub = \taxchart_value_title_sub, default = $temp, class='wi-lightwide') %]
       </td>
-      <td>
-        [% temp = "project_id_"_ i %]
-        [% P.project.picker(temp, loop.last ? globalproject_id : $temp) %]
-      </td>
-      [%- IF ALL_DEPARTMENTS %]
-      <td>
-        [% temp = "department_id_"_ i %]
-        [% L.select_tag('department_id_'_ i, ALL_DEPARTMENTS, default = $temp, title_key = 'description', with_empty = 1, class='wi-lightwide') %]
-      </td>
-      [%- END %]
     </tr>
+    [% temp_project_id    = "project_id_"_ i %]
+    [% temp_department_id = "department_id_"_ i %]
+    [% INCLUDE "arap/_second_row.html"
+               row             = i
+               row_classes     = show_details ? '' : 'hidden'
+               all_departments = ALL_DEPARTMENTS
+               project_id      = loop.last ? globalproject_id : $temp_project_id
+               department_id   = $temp_department_id
+    %]
     [% END %]
   </tbody>
   <tfoot>
     <tr>
       <td>[% P.chart.picker('AP_chart_id', AP_chart_id, type="AP", class="wi-wider") %] </td>
       <td class="numeric">[% invtotal | html %]</td>
-      <td colspan=[% IF ALL_DEPARTMENTS %]"4">[% ELSE %]"3"[% END %]</td>
+      <td colspan="2"></td>
     </tr>
   </tfoot>
 </table>
