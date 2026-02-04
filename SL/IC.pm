@@ -252,8 +252,9 @@ sub all_parts {
      cv           => 'cv.',
      "ioi.id"     => ' ',
      "ioi.ioi"    => ' ',
-     customername => 'pc.',
+     name => 'pc.',
      customer_partnumber => 'part_customer_prices.',
+    customername => 'pc.',
   );
 
   # if the join condition in these blocks are met, the column
@@ -266,7 +267,9 @@ sub all_parts {
     [ 'transdate',    'apoe.', 'apoe'        ],
     [ 'unit',         'ioi.',  'invoice_oi'  ],
     [ 'sellprice',    'ioi.',  'invoice_oi'  ],
-#[ 'customername', 'pc.', 'customername' ],
+#[ 'customername', 'pc.', 'customername', 'name' ],
+#[ 'name', 'pc.', 'customername', 'customername' ],
+#[ 'name', 'pc.', 'customername' ],
   );
 
   # careful with renames. these are HARD, and any filters done on the original column will break
@@ -278,12 +281,14 @@ sub all_parts {
     'projectdescription' => 'projectdescription',
     'insertdate'   => 'insertdate',
     #'customername' => 'name',
-    'pc.name' => 'customername',
+    #'pc.name' => 'customername',
+    #'pc.customername' => 'pc.name',
   );
 
   my %real_column = (
     projectdescription => 'description',
     insertdate         => 'itime::DATE',
+customername => 'name',
   );
 
   my $make_token_builder = sub {
@@ -307,6 +312,7 @@ sub all_parts {
     }
   };
 
+#push @select_tokens, 'pc.name';
   #===== switches and simple filters ========#
 
   # special case transdate
@@ -504,6 +510,7 @@ sub all_parts {
      map { s/.*\sAS\s+//si } @group_tokens;
     push @select_tokens, 'SUM(ioi.qty)';
   }
+#push @select_tokens, 'customername';
 
   #============= build query ================#
 
@@ -515,6 +522,7 @@ sub all_parts {
   my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
 
   my $select_clause = join ', ',    map { $token_builder->($_, 1) } @select_tokens;
+$select_clause .= ', pc.name AS customername';
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
   my $group_clause  = @group_tokens ? ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens : '';

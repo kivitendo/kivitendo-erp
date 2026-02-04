@@ -207,7 +207,7 @@ sub generate_report {
     'bin'                => { 'text' => $locale->text('Default Bin'), },
     'make'               => { 'text' => $locale->text('Make'), },
     'model'              => { 'text' => $locale->text('Model'), },
-    'customer'           => { 'text' => $locale->text('Customer'), },
+    'customername'           => { 'text' => $locale->text('Customer'), },
     'customer_partnumber' => { 'text' => $locale->text('Customer Part Number'), },
     'price_factor_description' => { 'text' => $locale->text('Price Factor'), },
     'bookinggroup'       => { 'text' => $locale->text('Booking group'), },
@@ -396,7 +396,7 @@ sub generate_report {
 
   my @columns = qw(
     partnumber type_and_classific description notes partsgroup warehouse bin
-    make model customer customer_partnumber assembly_qty onhand rop soldtotal unit price_factor_description listprice
+    make model customername customer_partnumber assembly_qty onhand rop soldtotal unit price_factor_description listprice
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
