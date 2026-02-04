@@ -17,7 +17,6 @@
   };
   //-->
   </script>
-  <script type="text/javascript" src="js/show_form_details.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 <script type="text/javascript" src="js/kivi.Draft.js"></script>
 
@@ -166,8 +165,8 @@
 <div class="wrapper">
 
 <div class="buttons positions">
-  <label class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
-  [% L.checkbox_tag('show_details', checked=show_details, onclick='show_form_details();', style='display:none') %]
+  <label id="details_button" class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
+  [% L.checkbox_tag('show_details', checked=show_details, onclick='kivi.ARAP.toggle_form_details();', style='display:none') %]
 </div>
 
 <table class="tbl-list wi-moderate">

@@ -2,8 +2,17 @@
 [% USE T8 -%]
 [% USE P -%]
 
-<tr [% IF row_classes %]class='[% row_classes %]'[% END %]>
-  <td colspan="4">
+<tr class='hidden'>[%# to get the zebra effect right (second row has the same color as first row of each entry) %]</tr>
+<tr class='second_row[% IF row_classes %] [% row_classes %][% END %]'>
+  <td colspan="[% type == 'gl' ? 6 : 4%]">
+  [% IF type == 'gl' %]
+    <span>
+      [% 'Source' | $T8 %]: [% P.input_tag('source_' _ row, HTML.escape(source), class = 'wi-small') %]
+    </span>
+    <span>
+      [% 'Memo' | $T8 %]: [% P.input_tag('memo_'   _ row, HTML.escape(memo),   class = 'wi-small') %]
+    </span>
+  [% END %]
     <span>
       [% 'Project Number' | $T8 %]: [% P.project.picker('project_id_' _ row, project_id,  class = 'wi-lightwide') %]
     </span>

@@ -971,7 +971,8 @@ sub display_rows {
     </tr>
 |;
 
-    my $html = SL::Presenter->get->render('gl/_second_row', {},
+    my $html = SL::Presenter->get->render('arap/_second_row', {},
+                                          type            => 'gl',
                                           row             => $i,
                                           row_classes     => $form->{show_details} ? '' : 'hidden',
                                           all_departments => $form->{ALL_DEPARTMENTS},
@@ -1175,7 +1176,7 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.ARAP.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
 
   $::form->get_lists(
     "charts"    => { "key" => "ALL_CHARTS", "transdate" => $::form->{transdate} },
