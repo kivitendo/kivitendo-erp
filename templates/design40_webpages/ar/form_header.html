@@ -266,10 +266,12 @@
   <tfoot>
     <tr>
       <td>[% P.chart.picker("AR_chart_id", AR_chart_id, type="AR", class="wi-wider") %]</td>
-      <th class="numeric">[% LxERP.format_amount(invtotal, 2) | html %]</th>
+      <th class="numeric">
+        [% LxERP.format_amount(invtotal, 2) | html %]
         <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
         <input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid %]">
         <input type="hidden" name="taxaccounts" value="[% taxaccounts | html %]">
+      </th>
       <td colspan="3"></td>
     </tr>
   </tfoot>
@@ -368,9 +370,11 @@
       <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %]  [% currency %] </td>
       <td></td>
       [% IF show_exch %]
-        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
-        <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
-        <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
+        <td align="numeric">
+          [% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]
+          <input type="hidden" name="defaultcurrency_totalpaid" value="[% defaultcurrency_totalpaid %]">
+          <input type="hidden" name="is_linked_bank_transaction" value="[% is_linked_bank_transaction %]">
+        </td>
       [% END %]
       <td></td>
       <td></td>
