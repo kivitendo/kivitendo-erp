@@ -9,6 +9,7 @@ use SL::Layout::Top;
 use SL::Layout::ActionBar;
 use SL::Layout::Flash;
 use SL::Layout::Content;
+use SL::Layout::Title;
 
 use List::Util qw(max);
 use List::MoreUtils qw(uniq);
@@ -21,6 +22,7 @@ sub init_sub_layouts {
     SL::Layout::None->new,
     SL::Layout::Top->new,
     SL::Layout::DHTMLMenu->new,
+    SL::Layout::Title->new,
     $_[0]->sub_layouts_by_name->{actionbar},
     $_[0]->sub_layouts_by_name->{flash},
     SL::Layout::Content->new,
