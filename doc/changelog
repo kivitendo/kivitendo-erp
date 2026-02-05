@@ -52,6 +52,10 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- experimenteller CAMT.053 Bankimport
+  Zusätzlich zum bisherigen MT940 Format können jetzt Bankauszüge auch im
+  CAMT.053 Format importiert werden.
+
 - Alle PDFs die sich im Reiter Dokumente befinden können beim E-Mail-Versand
   zu einem PDF im Anhang zusammengefasst werden.
 
