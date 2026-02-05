@@ -19,6 +19,7 @@ __PACKAGE__->meta->columns(
   city             => { type => 'text' },
   contact          => { type => 'text' },
   country          => { type => 'text' },
+  country_id       => { type => 'integer' },
   creditlimit      => { type => 'numeric', precision => 15, scale => 5 },
   currency_id      => { type => 'integer', not_null => 1 },
   delivery_term_id => { type => 'integer' },
@@ -65,6 +66,11 @@ __PACKAGE__->meta->foreign_keys(
   business => {
     class       => 'SL::DB::Business',
     key_columns => { business_id => 'id' },
+  },
+
+  country_obj => {
+    class       => 'SL::DB::Country',
+    key_columns => { country_id => 'id' },
   },
 
   currency => {

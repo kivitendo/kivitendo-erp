@@ -1527,6 +1527,13 @@
   access: admin
   params:
     action: Employee/list
+- parent: system
+  id: system_countries
+  name: Country Names
+  order: 3100
+  access: admin
+  params:
+    action: Countries/list
 - id: program
   name: Program
   icon: program

@@ -56,7 +56,7 @@ sub invoice_transactions {
   # so we extract both versions in our query and later overwrite the description in article mode
 
   my $query =
-    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.shipvia,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight, ar.taxincluded | .
+    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,countries.description as country,ar.invnumber,ar.shipvia,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight, ar.taxincluded | .
     qq|, COALESCE(er.buy, 1) | .
     qq|FROM invoice i | .
     qq|RIGHT JOIN ar on (i.trans_id = ar.id) | .
@@ -64,6 +64,7 @@ sub invoice_transactions {
     qq|LEFT JOIN exchangerate er on (er.transdate = ar.transdate and ar.currency_id = er.currency_id) | .
     qq|LEFT JOIN partsgroup pg on (p.partsgroup_id = pg.id) | .
     qq|LEFT JOIN customer ct on (ct.id = ar.customer_id) | .
+    qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
     qq|LEFT JOIN business b on (ct.business_id = b.id) | .
     qq|LEFT JOIN employee e ON (ar.employee_id = e.id) | .
     qq|LEFT JOIN employee e2 ON (ar.salesman_id = e2.id) |;
@@ -129,7 +130,7 @@ sub invoice_transactions {
     push(@values, $form->{partsgroup_id});
   }
   if ($form->{country}) {
-    $where .= qq| AND (ct.country ILIKE ?)|;
+    $where .= qq| AND (countries.description ILIKE ?)|;
     push(@values, like($form->{country}));
   }
 

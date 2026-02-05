@@ -637,7 +637,7 @@ sub get_invoices {
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",
     "notes"     => "a.notes",
-    "country"   => "ct.country",
+    "country"   => "countries.description",
     );
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
@@ -696,6 +696,7 @@ sub get_invoices {
        LEFT JOIN customer ct ON (a.customer_id = ct.id)
        LEFT JOIN additional_billing_addresses aba ON (aba.id = a.billing_address_id)
        LEFT JOIN department dep ON (a.department_id = dep.id)
+       LEFT JOIN countries ON (ct.country_id = countries.id)
        LEFT JOIN payment_terms pt ON (a.payment_id = pt.id)
        LEFT JOIN dunning_config cfg ON (a.dunning_config_id = cfg.id)
        LEFT JOIN dunning_config nextcfg ON
@@ -982,7 +983,7 @@ sub print_dunning {
   $query =
     qq|SELECT
          c.id AS customer_id, c.name,         c.street,       c.zipcode,   c.city,
-         c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
+         countries.description as country, c.department_1, c.department_2, c.email,     c.customernumber,
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
          c.ustid,             c.currency_id,  curr.name as currency,
@@ -994,6 +995,7 @@ sub print_dunning {
        LEFT JOIN contacts co ON (ar.cp_id = co.cp_id)
        LEFT JOIN employee e  ON (ar.salesman_id = e.id)
        LEFT JOIN currencies curr ON (c.currency_id = curr.id)
+       LEFT JOIN countries ON (c.country_id = countries.id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);
@@ -1123,12 +1125,13 @@ sub print_invoice_for_fees {
          ar.invnumber, ar.transdate AS invdate, ar.amount, ar.netamount,
          ar.duedate,   ar.notes,     ar.notes AS invoicenotes, ar.customer_id,
 
-         c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, c.country,
+         c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, countries.description AS country,
          c.contact,   c.customernumber, c.phone,        c.fax,    c.email,
          c.taxnumber, c.greeting
 
        FROM ar
        LEFT JOIN customer c ON (ar.customer_id = c.id)
+       LEFT JOIN countries ON (c.country_id = countries.id)
        WHERE ar.id = ?|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $ar_id);
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };

@@ -156,7 +156,7 @@ SQL
     qq|  pt.description AS payment_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
+    qq|  ct.${vc}number AS vcnumber, countries.description AS country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone, | .
     qq|  shipto.shiptoname, shipto.shiptodepartment_1, shipto.shiptodepartment_2, | .
     qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, shipto.shiptocountry, | .
@@ -175,6 +175,7 @@ SQL
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
     qq|LEFT JOIN payment_terms pt ON (pt.id = o.payment_id)| .
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
+    qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
     qq|LEFT JOIN order_statuses ON (o.order_status_id = order_statuses.id) | .
     qq|LEFT JOIN shipto ON (

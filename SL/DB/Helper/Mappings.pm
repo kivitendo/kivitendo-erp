@@ -115,6 +115,7 @@ my %kivitendo_package_names = (
   contact_departments            => 'contact_department',
   contact_titles                 => 'contact_title',
   contacts                       => 'contact',
+  countries                      => 'country',
   customer                       => 'customer',
   csv_import_profiles            => 'csv_import_profile',
   csv_import_profile_settings    => 'csv_import_profile_setting',

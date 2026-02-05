@@ -80,6 +80,7 @@ sub check_objects {
     $self->check_payment($entry);
     $self->check_delivery_term($entry);
     $self->check_taxzone($entry,  take_default => 1);
+    $self->check_country($entry);
     $self->check_currency($entry, take_default => 1);
     $self->check_salesman($entry);
     $self->check_pricegroup($entry) if 'customer' eq $self->table;
@@ -205,6 +206,23 @@ sub check_business {
   }
 
   return 1;
+}
+
+sub check_country {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  my $country_code = $entry->{raw_data}{country} ? SL::Helper::ISO3166::map_name_to_alpha_2_code($entry->{raw_data}{country}) : 'DE';
+  if ($country_code) {
+    my $country_obj = SL::DB::Manager::Country->get_all(where => ['iso2' => $country_code])->[0];
+    $object->country_id($country_obj->id);
+    $self->clone_methods->{country_id} = 1;
+    return 1;
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Country not found: #1', $entry->{raw_data}{country});
+    return 0;
+  }
 }
 
 sub check_salesman {

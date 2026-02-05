@@ -522,12 +522,13 @@ sub ar_transactions {
     qq|  a.type, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  pr.description   AS globalprojectdescription, | .
-    qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
+    qq|  c.name, c.customernumber, c.ustid, b.description as customertype, | .
     qq|  c.id as customer_id, c.dunning_lock as customer_dunning_lock,| .
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
     qq|  dc.dunning_description, | .
     qq|  tz.description AS taxzone, | .
+    qq|  countries.description as country, | .
     qq|  pt.description AS payment_terms, | .
     qq|  d.description AS department, | .
     qq|  s.shiptoname, s.shiptodepartment_1, s.shiptodepartment_2, | .
@@ -547,6 +548,7 @@ sub ar_transactions {
     qq|LEFT JOIN dunning_config dc ON (a.dunning_config_id = dc.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
+    qq|LEFT JOIN countries ON (c.country_id = countries.id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN business b ON (b.id = c.business_id)| .
     qq|LEFT JOIN shipto s ON (

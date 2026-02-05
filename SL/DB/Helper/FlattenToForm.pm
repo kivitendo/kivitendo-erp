@@ -22,9 +22,11 @@ sub flatten_to_form {
   if ( $vc eq 'customer' ) {
     $form->{customer_id} = $self->customer_id;
     $form->{customer}    = $self->customer->name if $self->customer;
+    $form->{country}     = $self->customer->country_obj->description if $self->customer;
   } else {
     $form->{vendor_id}   = $self->vendor_id;
     $form->{vendor}      = $self->vendor->name if $self->vendor;
+    $form->{country}     = $self->vendor->country_obj->description if $self->vendor;
   };
 
   if (_has($self, 'transdate')) {
@@ -37,7 +39,7 @@ sub flatten_to_form {
 
   $form->{vc} = $vc if ref($self) =~ m{^SL::DB::(?:.*Invoice|.*Order)};
 
-  my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit
+  my @vc_fields          = (qw(account_number bank bank_code bic business city contact creditlimit
                                department_1 department_2 discount email fax gln greeting homepage iban language name
                                natural_person phone street taxnumber ustid zipcode
                                mandator_id mandate_date_of_signature),
