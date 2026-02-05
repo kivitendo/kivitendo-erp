@@ -1891,12 +1891,12 @@ sub _get_contacts {
   }
 
   my $query =
-    qq|SELECT cp_id, cp_cv_id, cp_name, cp_givenname, cp_abteilung | .
+    qq|SELECT cp_id, cp_name, cp_givenname, cp_abteilung | .
     qq|FROM contacts | .
-    qq|WHERE cp_cv_id = ? | .
+    qq|WHERE EXISTS(SELECT * FROM customer_contacts WHERE customer_id = ?) OR EXISTS(SELECT * FROM vendor_contacts WHERE vendor_id = ?) | .
     qq|ORDER BY lower(cp_name)|;
 
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $id);
+  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $id, $id);
 
   $main::lxdebug->leave_sub();
 }

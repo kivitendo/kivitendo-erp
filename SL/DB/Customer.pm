@@ -27,6 +27,10 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'phone',          title => t8('Phone')  },
                {name => 'country',        title => t8('Country') }, ]
 );
+use SL::DB::Helper::CustomerVendorContacts (
+  join_package  => 'SL::DB::CustomerContact',
+  join_accessor => 'customer_id',
+);
 
 use SL::DB::VC;
 
@@ -44,11 +48,10 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ module   => 'CT' ],
   },
-  contacts => {
-    type         => 'one to many',
-    class        => 'SL::DB::Contact',
-    column_map   => { id      => 'cp_cv_id' },
-    manager_args => { sort_by => 'lower(contacts.cp_name)' },
+  customer_contacts => {
+    type => 'one to many',
+    class => 'SL::DB::CustomerContact',
+    column_map => { id => 'customer_id' },
   },
 );
 

@@ -60,7 +60,8 @@ sub check_objects {
         # Update existing customer/vendor records.
         $entry->{object_to_save} = $existing_contact;
 
-        $object->cp_cv_id($existing_contact->cp_cv_id);
+        $object->customers($existing_contact->customers);
+        $object->vendors($existing_contact->vendors);
 
         foreach (qw(cp_name cp_gender)) {
           $object->$_($existing_contact->$_) if !$object->$_;
@@ -76,11 +77,11 @@ sub check_objects {
     }
 
     $self->check_name($entry);
-    $self->check_vc($entry, 'cp_cv_id');
+    $self->check_linked_customer_vendor($entry);
     $self->check_gender($entry);
     $self->handle_cvars($entry);
 
-    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax
+    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(cp_number cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax
                                                                      cp_privatphone cp_privatemail cp_abteilung cp_street cp_zipcode cp_city cp_position));
 
     push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
@@ -103,6 +104,84 @@ sub check_name {
   push @{ $entry->{errors} }, $::locale->text('Error: Name missing') unless $name;
 }
 
+sub check_linked_customer_vendor {
+  my ($self, $entry) = @_;
+
+  # unline Base::check_cv we don't work with a single cp_cv_id field in the contact. Insted we have to lookup from the raw [customer|vendor][|_id|nnumber|_gln] fields and find the
+  # linked entries.
+  #
+  # like check_vc, recognize customer_id, customernumber and customer_gln
+
+  my @customer_candidates = grep { defined }
+     $self->vc_by->{id}->{ $entry->{raw_data}->{customer_id} },
+     $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} },
+     $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} },
+     $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} };
+
+  # sanity check:
+  my %seen_customers;
+  $seen_customers{$_->id}++ for @customer_candidates;
+
+  if (
+    $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}->{customer} } > 1 ||
+    $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} } > 1 ||
+    $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} } > 1 ||
+    grep { $_ > 1 } values %seen_customers
+  ) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer is ambiguous');
+  }
+
+  if ( !@customer_candidates && (
+    $entry->{raw_data}->{customer_id}    ||
+    $entry->{raw_data}->{customer}       ||
+    $entry->{raw_data}->{customernumber} ||
+    $entry->{raw_data}->{customer_gln}
+  )) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer not found');
+  }
+
+  my @vendor_candidates = grep { defined }
+     $self->vc_by->{id}->{ $entry->{raw_data}->{vendor_id} },
+     $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} },
+     $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} },
+     $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} };
+
+  # sanity check:
+  my %seen_vendors;
+  $seen_vendors{$_->id}++ for @vendor_candidates;
+
+  if (
+    $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1 ||
+    $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1 ||
+    $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1 ||
+    grep { $_ > 1 } values %seen_vendors
+  ) {
+    push @{ $entry->{errors} }, $::locale->text('Error: vendor is ambiguous');
+  }
+
+  if ( !@vendor_candidates && (
+    $entry->{raw_data}->{vendor_id}    ||
+    $entry->{raw_data}->{vendor}       ||
+    $entry->{raw_data}->{vendornumber} ||
+    $entry->{raw_data}->{vendor_gln}
+  )) {
+    push @{ $entry->{errors} }, $::locale->text('Error: vendor not found');
+  }
+
+  # register these in the object to be save in save_additions
+  if ($customer_candidates[0]) {
+    $entry->{object}->{_link_customer} = $customer_candidates[0];
+  }
+
+  if ($vendor_candidates[0]) {
+    $entry->{object}->{_link_vendor} = $vendor_candidates[0];
+  }
+
+  if (exists $entry->{raw_data}->{main_contact}) {
+    $entry->{object}->{_main_contact} = !!$entry->{raw_data}->{main_contact};
+  }
+}
+
 sub check_gender {
   my ($self, $entry) = @_;
 
@@ -115,19 +194,36 @@ sub get_duplicate_check_fields {
       label     => $::locale->text('Name'),
       default   => 1,
       maker     => sub {
-        my $o = shift;
-        return join(
-                 '--',
-                 $o->cp_cv_id,
-                 map(
-                   { s/[\s,\.\-]//g; $_ }
-                   $o->cp_name
-                 )
-        );
+        my $name = shift->cp_name;
+        $name =~ s/[\s,\.\-]//g;
+        return $name;
       }
     },
   };
 }
+
+sub save_additions {
+  my ($self, $contact) = @_;
+
+  # linked customers
+  if (exists $contact->{_link_customer}) {
+    if (exists $contact->{_main_contact}) {
+      $contact->{_link_customer}->link_contact($contact, $contact->{_main_contact});
+    } else {
+      $contact->{_link_customer}->link_contact($contact);
+    }
+  }
+
+  # linked vendors
+  if (exists $contact->{_link_vendor}) {
+    if (exists $contact->{_main_contact}) {
+      $contact->{_link_vendor}->link_contact($contact, $contact->{_main_contact});
+    } else {
+      $contact->{_link_vendor}->link_contact($contact);
+    }
+  }
+}
+
 
 sub setup_displayable_columns {
   my ($self) = @_;
@@ -135,9 +231,9 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'cp_abteilung',   description => $::locale->text('Department')                    },
+  $self->add_displayable_columns({ name => 'cp_number',      description => $::locale->text('Contact Number')                },
+                                 { name => 'cp_abteilung',   description => $::locale->text('Department')                    },
                                  { name => 'cp_birthday',    description => $::locale->text('Birthday')                      },
-                                 { name => 'cp_cv_id',       description => $::locale->text('Customer/Vendor (database ID)') },
                                  { name => 'cp_email',       description => $::locale->text('E-mail')                        },
                                  { name => 'cp_fax',         description => $::locale->text('Fax')                           },
                                  { name => 'cp_gender',      description => $::locale->text('Gender')                        },
@@ -156,9 +252,12 @@ sub setup_displayable_columns {
                                  { name => 'cp_title',       description => $::locale->text('Title')                         },
                                  { name => 'cp_position',    description => $::locale->text('Function/position')             },
 
+                                 { name => 'main_contact',   description => $::locale->text('Main Contact Person')           },
+                                 { name => 'customer_id',    description => $::locale->text('Customer (ID)')                 },
                                  { name => 'customer',       description => $::locale->text('Customer (name)')               },
                                  { name => 'customernumber', description => $::locale->text('Customer Number')               },
                                  { name => 'customer_gln',   description => $::locale->text('Customer GLN')                  },
+                                 { name => 'vendor_id',      description => $::locale->text('Vendor (ID)')                   },
                                  { name => 'vendor',         description => $::locale->text('Vendor (name)')                 },
                                  { name => 'vendornumber',   description => $::locale->text('Vendor Number')                 },
                                  { name => 'vendor_gln',     description => $::locale->text('Vendor GLN')                    },

@@ -680,7 +680,8 @@ sub customer_details {
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
          cu.name AS currency
        FROM customer ct
-       LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
+       LEFT JOIN cusomter_contacts cc on ct.id = cc.customer_id
+       LEFT JOIN contacts cp on cc.contact_id = cp.cp_id
        LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id

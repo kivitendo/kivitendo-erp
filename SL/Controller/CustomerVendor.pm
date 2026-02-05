@@ -3,7 +3,7 @@ package SL::Controller::CustomerVendor;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 
 use SL::JSON;
 use SL::DBUtils;
@@ -253,13 +253,22 @@ sub _save {
 
     SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;
 
-    $self->{contact}->cp_cv_id($self->{cv}->id);
     if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
       SL::DB::ContactTitle     ->new(description => $self->{contact}->cp_title)    ->save if $save_contact_title;
       SL::DB::ContactDepartment->new(description => $self->{contact}->cp_abteilung)->save if $save_contact_department;
 
       $self->{contact}->save(cascade => 1);
+      $self->{cv}->link_contact($self->{contact}, main => !!$self->{contact}{cp_main});
+      $self->{cv}->load;
     }
+
+    # reconcile linked contacts
+    my $old_contacts = $self->{cv}->contacts;
+    my $new_contacts = $self->{contacts};
+    my %new_ids = map { $_->cp_id => 1 } @$new_contacts, $self->{contact};
+    my %old_ids = map { $_->cp_id => 1 } @$old_contacts;
+    $self->{cv}->link_contact($_)   for grep { !$old_ids{$_->cp_id} } @$new_contacts;
+    $self->{cv}->detach_contact($_) for grep { !$new_ids{$_->cp_id} } @$old_contacts;
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
 
@@ -496,7 +505,8 @@ sub action_delete_contact {
 
     $db->with_transaction(sub {
       if ( $self->{contact}->used ) {
-        $self->{contact}->detach();
+        $self->{contact}->customers([]);
+        $self->{contact}->vendors([]);
         $self->{contact}->save();
         SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
       } else {
@@ -721,17 +731,19 @@ sub action_ajaj_get_contact {
         }
       }
       qw(
-        id gender abteilung title position givenname name email phone1 phone2 fax mobile1 mobile2
-        satphone satfax project street zipcode city privatphone privatemail birthday main
+        id gender abteilung title position givenname name number email phone1 phone2 fax mobile1 mobile2
+        satphone satfax project street zipcode city privatphone privatemail birthday
       )
     )
   };
 
+  $data->{contact}{cp_main} = $self->{contact}{main};
+
   $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
 
   # avoid two or more main_cp
-  my $has_main_cp = grep { $_->cp_main == 1 } @{ $self->{cv}->contacts };
-  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}->{cp_main});
+  my $has_main_cp = $self->{cv}->main_contact;
+  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}{cp_main});
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -1035,6 +1047,8 @@ sub _instantiate_args {
     $self->{contact} = $self->_new_contact_object;
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
+  $self->{linked_contacts} = $::form->{linked_contacts} // [];
+  $self->{contacts} = @{ $self->{linked_contacts} } ? SL::DB::Manager::Contact->get_all(query => [ cp_id => $self->{linked_contacts} ]) : [];
 
   $self->_copy_form_to_cvars(target => $self->{cv},      source => $::form->{cv_cvars});
   $self->_copy_form_to_cvars(target => $self->{contact}, source => $::form->{contact_cvars});
@@ -1080,10 +1094,20 @@ sub _load_customer_vendor {
     }
   }
 
+  $self->{linked_contacts} = [ map { $_->cp_id } $self->{cv}->contacts ];
+  $self->{contacts}        = $self->{cv}->contacts;
+
   if ( $::form->{contact_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact_id})->load();
 
-    if ( $self->{contact}->cp_cv_id != $self->{cv}->id ) {
+    my $cv_contact = $self->is_vendor()
+      ? SL::DB::Manager::VendorContact->get_first(  query => [ contact_id => $::form->{contact_id}, vendor_id   => $::form->{id} ])
+      : SL::DB::Manager::CustomerContact->get_first(query => [ contact_id => $::form->{contact_id}, customer_id => $::form->{id} ]);
+    die "missing contact" unless $cv_contact;
+
+    $self->{contact}->{main} = $cv_contact->main;
+
+    if (none { $self->{contact}->cp_id == $_->cp_id } $self->{cv}->contacts) {
       die($::locale->text('Error'));
     }
   } else {
@@ -1150,15 +1174,16 @@ sub _pre_render {
     unshift @{$self->{all_greetings}}, (SL::DB::Greeting->new(description => $self->{cv}->greeting));
   }
 
+
   $self->{all_contact_titles} = SL::DB::Manager::ContactTitle->get_all_sorted();
-  foreach my $contact (@{ $self->{cv}->contacts }) {
+  foreach my $contact (@{ $self->{contacts} }) {
     if ($contact->cp_title && !grep {$contact->cp_title eq $_->description} @{$self->{all_contact_titles}}) {
       unshift @{$self->{all_contact_titles}}, (SL::DB::ContactTitle->new(description => $contact->cp_title));
     }
   }
 
   $self->{all_contact_departments} = SL::DB::Manager::ContactDepartment->get_all_sorted();
-  foreach my $contact (@{ $self->{cv}->contacts }) {
+  foreach my $contact (@{ $self->{contacts} }) {
     if ($contact->cp_abteilung && !grep {$contact->cp_abteilung eq $_->description} @{$self->{all_contact_departments}}) {
       unshift @{$self->{all_contact_departments}}, (SL::DB::ContactDepartment->new(description => $contact->cp_abteilung));
     }
@@ -1181,8 +1206,8 @@ sub _pre_render {
     $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all_sorted(query => [ or => [ id => $self->{cv}->pricegroup_id, obsolete => 0 ] ]);
   }
 
-  $self->{contacts} = $self->{cv}->contacts;
-  $self->{contacts} ||= [];
+
+  $self->{all_contacts} = SL::DB::Manager::Contact->get_all;
 
   $self->{shiptos} = $self->{cv}->shipto;
   $self->{shiptos} ||= [];
@@ -1248,7 +1273,7 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File chart kivi.CustomerVendorTurnover follow_up);
+  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File chart kivi.CustomerVendorTurnover follow_up jquery.selectboxes jquery.multiselect2side);
 
   $self->_setup_form_action_bar;
 }
@@ -1438,7 +1463,6 @@ sub _new_customer_vendor_object {
 
   my $class  = 'SL::DB::' . ($self->is_vendor ? 'Vendor' : 'Customer');
   my $object = $class->new(
-    contacts         => [],
     shipto           => [],
     custom_variables => [],
   );
