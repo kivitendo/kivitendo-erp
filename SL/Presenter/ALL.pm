@@ -5,6 +5,7 @@ use strict;
 use SL::Presenter::Chart;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
+use SL::Presenter::DatePeriodAdder;
 use SL::Presenter::DeliveryOrder;
 use SL::Presenter::Dunning;
 use SL::Presenter::EmailJournal;
@@ -33,6 +34,7 @@ our %presenters = (
   chart                       => 'SL::Presenter::Chart',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
+  date_period_adder           => 'SL::Presenter::DatePeriodAdder',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
   dunning                     => 'SL::Presenter::Dunning',
   email_journal               => 'SL::Presenter::EmailJournal',

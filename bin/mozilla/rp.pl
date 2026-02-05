@@ -110,7 +110,6 @@ my $rp_access_map = {
   'payments'           => 'cash',
   'trial_balance'      => 'report',
   'income_statement'   => 'report',
-  'erfolgsrechnung'    => 'report',
   'bwa'                => 'report',
   'balance_sheet'      => 'report',
 };
@@ -132,7 +131,6 @@ sub report {
   my %title = (
     balance_sheet        => $::locale->text('Balance Sheet'),
     income_statement     => $::locale->text('Income Statement'),
-    erfolgsrechnung      => $::locale->text('Erfolgsrechnung'),
     trial_balance        => $::locale->text('Trial Balance'),
     ar_aging             => $::locale->text('Search AR Aging'),
     ap_aging             => $::locale->text('Search AP Aging'),
@@ -161,7 +159,6 @@ sub report {
 
   my $is_projects            = $::form->{report} eq "projects";
   my $is_income_statement    = $::form->{report} eq "income_statement";
-  my $is_erfolgsrechnung     = $::form->{report} eq "erfolgsrechnung";
   my $is_bwa                 = $::form->{report} eq "bwa";
   my $is_balance_sheet       = $::form->{report} eq "balance_sheet";
   my $is_trial_balance       = $::form->{report} eq "trial_balance";
@@ -212,7 +209,6 @@ sub report {
     is_balance_sheet       => $is_balance_sheet,
     is_bwa                 => $is_bwa,
     is_income_statement    => $is_income_statement,
-    is_erfolgsrechnung     => $is_erfolgsrechnung,
     is_projects            => $is_projects,
     format                 => $format,
   });
@@ -404,25 +400,6 @@ sub generate_income_statement {
 
   $main::lxdebug->leave_sub();
 }
-
-sub generate_erfolgsrechnung {
-  $::lxdebug->enter_sub;
-  $::auth->assert('report');
-
-  $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
-  $::form->{padding}       = "&emsp;";
-  $::form->{bold}          = "<b>";
-  $::form->{endbold}       = "</b>";
-  $::form->{br}            = "<br>";
-
-  my $data = RP->erfolgsrechnung(\%::myconfig, $::form);
-
-  $::form->header();
-  print $::form->parse_html_template('rp/erfolgsrechnung', $data);
-
-  $::lxdebug->leave_sub;
-}
-
 
 sub generate_balance_sheet {
   $::lxdebug->enter_sub;

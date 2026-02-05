@@ -149,6 +149,11 @@
         <td class="long-desc">[% LxERP.t8('Use Erfolgsrechnung') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('Detailed Swiss Income Statement') %]</th>
+        <td>[% L.yes_no_tag('defaults.feature_erfolgsrechnung_detailed', SELF.defaults.feature_erfolgsrechnung_detailed) %]</td>
+        <td class="long-desc">[% LxERP.t8('Use Detailed Swiss Income Statement') %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3"> [% 'E-mail' | $T8 %] </th>
       </tr>
       <tr>

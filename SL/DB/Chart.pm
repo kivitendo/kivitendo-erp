@@ -48,14 +48,26 @@ sub get_balance {
   # return empty string if user doesn't have rights
   return "" unless ($main::auth->assert('general_ledger', 1));
 
-  my $query = qq|SELECT SUM(amount) AS sum FROM acc_trans WHERE chart_id = ? AND transdate >= ? and transdate <= ?|;
-
   my $fromdate = $params{fromdate} || $::locale->parse_date_to_object($self->get_balance_starting_date);
   my $todate   = $params{todate}   || DateTime->today_local;
 
   die "get_balance: fromdate and todate arguments must be DateTime Objects" unless ref($fromdate) eq 'DateTime' and ref($todate) eq 'DateTime';
 
-  my ($balance)  = selectfirst_array_query($::form, $self->db->dbh, $query, $self->id, $fromdate, $todate);
+  my $query = qq|SELECT SUM(amount) AS sum FROM acc_trans WHERE chart_id = ? AND transdate >= ? AND transdate <= ?|;
+  my @bind_values = ($self->id, $fromdate, $todate);
+
+  if ($params{department_id}) {
+    $query .= qq|
+      AND COALESCE(
+          (SELECT department_id FROM ar WHERE ar.id = trans_id),
+          (SELECT department_id FROM gl WHERE gl.id = trans_id),
+          (SELECT department_id FROM ap WHERE ap.id = trans_id)
+      ) = ?
+    |;
+    push @bind_values, $params{department_id};
+  }
+
+  my ($balance) = selectfirst_array_query($::form, $self->db->dbh, $query, @bind_values);
 
   return $balance;
 };
@@ -165,6 +177,9 @@ the asofdate as the current day, and the accounting_method "accrual".
 
 If DateTime objects are passed via the params fromdate and todate, the balance
 is calculated only for that period.
+
+Optionally pass a C<department_id> to limit the query to accounting lines whose
+transaction row in C<ar>, C<ap> or C<gl> carries that department.
 
 =item C<formatted_balance_dc %PARAMS>
 

@@ -1,0 +1,31 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<h1>[% title | html %]</h1>
+
+<form name="Form" method="post" action="controller.pl" id="report_settings">
+
+  <div class="wrapper">
+
+    <h3>[% "Period" | $T8 %]</h3>
+    <div class="flex-flow-column gap-10">
+      [% P.date_period_adder.adder('dateperiod', 'TITLE') %]
+    </div>
+
+    <h3>[% "Department" | $T8 %]</h3>
+    <div>
+      [% P.select_tag('department_id', SELF.departments) %]
+    </div>
+
+    <h3>[% "Options" | $T8 %]</h3>
+    <div class="wi-lightwide">
+      [% P.checkbox_tag('show_accounts', checked => '0', label => LxERP.t8("Show Individual Accounts")) %]
+      [% P.checkbox_tag('include_zero_amounts', checked => '0', label => LxERP.t8("Include Accounts w/ Zero Amount")) %]
+    </div>
+
+  </div>
+
+</form>

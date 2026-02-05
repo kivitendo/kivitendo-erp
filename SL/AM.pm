@@ -91,7 +91,7 @@ sub get_account {
     my $chart_obj = SL::DB::Manager::Chart->find_by(id => $form->{id}) || die "Can't open chart";
 
     my @chart_fields = qw(accno description charttype category link pos_bilanz
-                          pos_eur pos_er new_chart_id valid_from pos_bwa datevautomatik
+                          pos_eur pos_er pos_er_detailed new_chart_id valid_from pos_bwa datevautomatik
                           invalid);
     foreach my $cf ( @chart_fields ) {
       $form->{"$cf"} = $chart_obj->$cf;
@@ -234,6 +234,7 @@ sub _save_account {
                   pos_bilanz = ?,
                   pos_eur = ?,
                   pos_er = ?,
+                  pos_er_detailed = ?,
                   new_chart_id = ?,
                   valid_from = ?,
                   datevautomatik = ?,
@@ -250,6 +251,7 @@ sub _save_account {
                   conv_i($form->{pos_bilanz}),
                   conv_i($form->{pos_eur}),
                   conv_i($form->{pos_er}),
+                  conv_i($form->{pos_er_detailed}),
                   conv_i($form->{new_chart_id}),
                   conv_date($form->{valid_from}),
                   ($form->{datevautomatik} eq 'T') ? 'true':'false',

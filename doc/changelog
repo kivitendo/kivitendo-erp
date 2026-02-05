@@ -8,13 +8,19 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- Ausführliche Schweizer Erfolgsrechnung implementiert, gemäss:
+  "Mindestgliederung für den Schweizer Kontenrahmen für KMU,
+  Produktionserfolgsrechnung (Gesamtkostenverfahren)". Das Feature kann in der
+  Mandantenkonfiguration ein-/ausgeschaltet werden.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Im Bericht VK-Rechnungen/Debitorenbuchungen und
   EK-Rechnungen/Kreditorenbuchungen wird neben der Projektnummer des Belegs
   auch die Projektbeschreibung angezeigt und es kann nach Nummer und
   Beschreibung des Projekt sortiert werden.
-
+- Einfache Schweizer Erfolgsrechnung überarbeitet. Konten müssen neu zwingend
+  in der Kontenkonfiguration ausgewählt werden.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 

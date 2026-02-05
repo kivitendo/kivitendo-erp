@@ -1,0 +1,193 @@
+package SL::Controller::IncomeStatementChSimple;
+
+use strict;
+use parent qw(SL::Controller::IncomeStatementChBase);
+
+use POSIX qw(strftime);
+
+use SL::ReportGenerator;
+use SL::Controller::Helper::ReportGenerator; # for PDF and CSV export
+use SL::Locale::String; # for t8()
+use SL::Presenter::DatePeriodAdder qw(get_date_periods);
+
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(include_zero_amounts) ],
+);
+
+__PACKAGE__->run_before(sub { $::auth->assert('report'); });
+
+# actions
+
+sub action_report_settings {
+  my ($self) = @_;
+
+  $self->actionname('IncomeStatementChSimple/list');
+  $self->setup_report_settings_action_bar;
+
+  $self->render(
+    'income_statement_ch_simple/report_settings',
+    title => t8('Simple Swiss Income Statement',
+  ));
+}
+
+sub action_list {
+  my ($self) = @_;
+
+  $self->title(t8('Simple Swiss Income Statement'));
+
+  ### get and validate form parameters
+
+  # get date periods
+  $self->date_periods(get_date_periods($::form, 'dateperiod'));
+  $self->validate_date_periods;
+
+  $self->include_zero_amounts($::form->{include_zero_amounts} ? 1 : 0);
+
+  $self->department_id($::form->{department_id} || undef);
+
+  ### prepare report
+  $self->controller_class('IncomeStatementChSimple');
+  $self->attachment_basename_prefix(t8('income_statement_ch_simple'));
+  $self->additional_hidden_variables(qw(include_zero_amounts));
+  $self->prepare_report;
+
+  my $report_data = $self->get_report_data;
+  $self->report->add_data($report_data);
+
+  $self->report->generate_with_headers;
+}
+
+# report data calculation
+
+sub get_report_data {
+  my ($self) = @_;
+
+  ### this is the main function doing the calculations for the report
+  # and preparing the rows for display
+  #
+  # TODO: it would be good to have a unit test covering this function
+  #
+  # NOTE: the structure of the simple income statement (Erfolgsrechnung) is as follows
+  #   account rows
+  #   category subtotal
+  # total income
+  #   account rows
+  #   category subtotal
+  # total expenses
+  # Win/Loss total
+
+  my @categories = (
+    { pos_er => 1, description => t8('Total revenue') },
+    { pos_er => 6, description => t8('Total expenses') },
+  );
+
+  # row_set accumulates the rows of the report
+  my @row_set;
+  # totals accumulates the overall totals for all groups
+  my @totals = map { 0.0 } @{ $self->date_periods };
+
+  for my $category (@categories) {
+
+    # account_rows accumulates the rows for individual accounts within the category
+    my @account_rows;
+    # category_totals accumulates the totals for the category
+    my @category_totals = map { 0.0 } @{ $self->date_periods };
+
+    # get all accounts associated with the category
+    my $accounts = SL::DB::Manager::Chart->get_all_sorted(where => [ pos_er => $category->{pos_er} ]);
+
+    for my $account (@{$accounts}) {
+
+      my @account_totals = $self->get_account_totals($account);
+
+      # accumulate totals
+      for my $i (map { $_->{index} } @{ $self->date_periods }) {
+        $category_totals[$i] += $account_totals[$i];
+        $totals[$i]          += $account_totals[$i];
+      }
+
+      ### prepare individual accounts display
+      # only show accounts with non zero amounts, unless include_zero_amounts is set
+      if ($self->has_nonzero_amount(@account_totals) || $self->include_zero_amounts) {
+        my %data;
+        $self->insert_description_columns(\%data, $account->accno, $account->description);
+        $self->insert_date_period_columns_data(\%data, \@account_totals, 'numeric');
+        push @account_rows, \%data;
+      }
+    }
+    @row_set = (@row_set, @account_rows);
+
+    ### category subtotal display
+    my %data;
+    $self->insert_description_columns(\%data, "", $category->{description}, 'listsubtotal');
+    $self->insert_date_period_columns_data(\%data, \@category_totals, "listsubtotal numeric");
+    push @row_set, \%data;
+  }
+
+  ### total display
+  my %data;
+  $self->insert_description_columns(\%data, "", t8('Net income / loss'), 'listtotal');
+  $self->insert_date_period_columns_data(\%data, \@totals, "listtotal numeric");
+  push @row_set, \%data;
+
+  return \@row_set;
+}
+
+1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::IncomeStatementChSimple - Controller for the Simple Swiss Income Statement (Erfolgsrechnung) report
+
+=head1 SYNOPSIS
+
+Controller for Reports -> Simple Swiss Income Statement. Provides report generation and export (HTML/CSV, PDF via printing).
+
+=head1 DESCRIPTION
+
+This ports the existing Swiss Income Statement (Erfolgsrechnung), implemented in rp.pl, to a controller.
+
+The report uses the report generator and supports multiple comparison date periods, optional display of individual
+accounts and CSV export. Numeric aggregation is performed by L</get_report_data> and helper functions.
+
+=head1 FEATURES
+
+=over 4
+
+=item * Multiple date periods for side-by-side comparison
+
+=item * Optional display of individual account rows
+
+=item * CSV export and HTML rendering
+
+=item * PDF export is disabled by default, the pdf generated by the report generator does not look good,
+  however printing from the web page, via icon top left, does look good and should be used instead
+
+=back
+
+=head1 CAVEATS / TODO
+
+=over 4
+
+=item * Add unit test for C<get_report_data> to ensure calculation correctness,
+  it would be nice to have a unit test for this however currently we don't have
+  a database test setup for the swiss account charts, so this would require significant
+  additional work
+
+=item * Generating reports for selected projects is currently not implemented
+
+=back
+
+=head1 BUGS
+
+None known.
+
+=head1 AUTHOR
+
+Cem Aydin E<lt>cem.aydin@revamp-it.chE<gt>
+
+=cut

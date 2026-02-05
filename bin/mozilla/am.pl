@@ -53,6 +53,7 @@ use SL::DB::Tax;
 use SL::DB::Language;
 use SL::DB::Default;
 use SL::DBUtils qw(selectall_array_query conv_dateq);
+use SL::DB::IncomeStatementChDetailedCategories;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -102,6 +103,7 @@ sub edit_account {
   $form->{feature_balance} = $defaults->feature_balance;
   $form->{feature_datev} = $defaults->feature_datev;
   $form->{feature_erfolgsrechnung} = $defaults->feature_erfolgsrechnung;
+  $form->{feature_erfolgsrechnung_detailed} = $defaults->feature_erfolgsrechnung_detailed;
   $form->{feature_eurechnung} = $defaults->feature_eurechnung;
   $form->{feature_ustva} = $defaults->feature_ustva;
 
@@ -238,19 +240,27 @@ sub account_header {
 
   }
 
-  my $select_er = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
-  my %er = (
-       1  => "Ertrag",
-       6  => "Aufwand");
-  foreach my $item (sort({ $a <=> $b } keys(%er))) {
-    my $text = H($::locale->{iconv_utf8}->convert($er{$item}));
-    if ($item == $form->{pos_er}) {
-      $select_er .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
-    } else {
-      $select_er .= qq|<option value=$item>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
-    }
+  # simple swiss income statement (Erfolgsrechnung) categories
+  my @er_simple_data = (
+    [ '', $locale->text('None'), ($form->{pos_er} eq '') ? 1 : 0 ],
+    [ 1,  $locale->text('Revenue'), ($form->{pos_er} == 1) ? 1 : 0 ],
+    [ 6,  $locale->text('Expense'), ($form->{pos_er} == 6) ? 1 : 0 ],
+  );
 
-  }
+  # detailed swiss income statement (Erfolgsrechnung) categories
+  my $er_categories = SL::DB::Manager::IncomeStatementChDetailedCategories->get_all;
+  # prepare data for select tag
+  # NOTE: we do not translate description here, because they come from the database and are already
+  # translated there
+  my @er_detailed_data = map {
+    [
+      $_->{id},
+      "$_->{account_range} $_->{description}",
+      ($_->{id} == $form->{pos_er_detailed}) ? 1 : 0,
+    ]
+  } @{$er_categories};
+  # add "None" option at the beginning
+  unshift @er_detailed_data, [ '', $locale->text('None'), ($form->{pos_er_detailed} eq '') ? 1 : 0 ];
 
   my $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
@@ -334,7 +344,8 @@ sub account_header {
     select_bwa                 => $select_bwa,
     select_bilanz              => $select_bilanz,
     select_eur                 => $select_eur,
-    select_er                  => $select_er,
+    er_simple_data             => \@er_simple_data,
+    er_detailed_data           => \@er_detailed_data,
   };
 
   # Ausgabe des Templates

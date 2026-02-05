@@ -111,6 +111,7 @@ __PACKAGE__->meta->columns(
   feature_balance                           => { type => 'boolean', default => 'true', not_null => 1 },
   feature_datev                             => { type => 'boolean', default => 'true', not_null => 1 },
   feature_erfolgsrechnung                   => { type => 'boolean', default => 'false', not_null => 1 },
+  feature_erfolgsrechnung_detailed          => { type => 'boolean', default => 'false', not_null => 1 },
   feature_eurechnung                        => { type => 'boolean', default => 'true', not_null => 1 },
   feature_ustva                             => { type => 'boolean', default => 'true', not_null => 1 },
   fuzzy_skonto                              => { type => 'boolean', default => 'true' },
