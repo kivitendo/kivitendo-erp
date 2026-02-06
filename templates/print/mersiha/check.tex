@@ -30,18 +30,18 @@
 
 \begin{document}
 
-\begin{letter}{%
-  <%if billing_address_id%>%
-    <%billing_address_name%> \strut\\%
-    <%billing_address_street%>\strut\\%
-    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
-    <%billing_address_country%>\strut\\%
-  <%else%>%
-    <%name%>\strut\\%
-    <%street%>\strut\\%
-    <%zipcode%> <%city%>\strut\\%
-    <%country%>\strut%
-  <%end billing_address_id%>%
+\begin{letter}{
+  <%if billing_address_id%> %
+    <%billing_address_name%>    \ifhmode\\\fi
+    <%billing_address_street%>  \ifhmode\\\fi
+    <%billing_address_zipcode%> <%billing_address_city%> \ifhmode\\\fi
+    <%billing_address_country%> %
+  <%else%> %
+    <%name%>                    \ifhmode\\\fi
+    <%street%>                  \ifhmode\\\fi
+    <%zipcode%> <%city%>        \ifhmode\\\fi
+    <%country%>                 %
+  <%end%> %
   }
 
   \opening{<%company%>}
