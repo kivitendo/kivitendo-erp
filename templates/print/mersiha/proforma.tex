@@ -56,7 +56,7 @@
 
 \begin{letter}{
   <%if billing_address_id%> %
-    <%billing_address_name%>         \ifhmode\\\fi
+    <%billing_address_name%>         \strut\\
     <%billing_address_department_1%> \ifhmode\\\fi
     <%billing_address_department_2%> \ifhmode\\\fi
     <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
@@ -64,7 +64,7 @@
     <%billing_address_zipcode%> <%billing_address_city%> \ifhmode\\\fi
     <%billing_address_country%>      %
   <%else%> %
-    <%name%>                         \ifhmode\\\fi
+    <%name%>                         \strut\\
     <%department_1%>                 \ifhmode\\\fi
     <%department_2%>                 \ifhmode\\\fi
     <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
