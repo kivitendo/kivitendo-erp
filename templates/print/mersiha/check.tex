@@ -32,12 +32,12 @@
 
 \begin{letter}{
   <%if billing_address_id%> %
-    <%billing_address_name%>    \ifhmode\\\fi
+    <%billing_address_name%>    \strut\\
     <%billing_address_street%>  \ifhmode\\\fi
     <%billing_address_zipcode%> <%billing_address_city%> \ifhmode\\\fi
     <%billing_address_country%> %
   <%else%> %
-    <%name%>                    \ifhmode\\\fi
+    <%name%>                    \strut\\
     <%street%>                  \ifhmode\\\fi
     <%zipcode%> <%city%>        \ifhmode\\\fi
     <%country%>                 %

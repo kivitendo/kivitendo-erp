@@ -32,7 +32,7 @@
 
 \begin{letter}{
     <%if shiptoname%> % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
-      <%shiptoname%>          \ifhmode\\\fi
+      <%shiptoname%>          \strut\\
       <%shiptodepartment_1%>  \ifhmode\\\fi
       <%shiptodepartment_2%>  \ifhmode\\\fi
       <%if shiptocontact%> <%shiptocontact%> <%else%> <%cp_title%> <%cp_givenname%> <%cp_name%> <%end if%> \ifhmode\\\fi
@@ -40,7 +40,7 @@
       <%shiptozipcode%> <%shiptocity%> \ifhmode\\\fi
       <%shiptocountry%>       %
     <%else%> % KEINE ABWEICHENDE LIEFERADRESSE
-      <%name%>                \ifhmode\\\fi
+      <%name%>                \strut\\
       <%department_1%>        \ifhmode\\\fi
       <%department_2%>        \ifhmode\\\fi
       <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
