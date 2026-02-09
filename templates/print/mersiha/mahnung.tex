@@ -23,7 +23,7 @@
 \setkomavar{info6}[\textEmail]      {<%employee_email%>}
 \setkomavar{fromname}               {<%employee_name%>}
 
-\setkomavar{title}{\zahlungserinnerung<%if dunning_id%>~\nr~<%dunning_id%><%end if%>}
+\setkomavar{title}{\mahnung<%if dunning_id%>~\nr~<%dunning_id%><%end if%>}
 
 \begin{document}
 
@@ -61,23 +61,27 @@
   }
   \thispagestyle{kivitendo.letter.first}
 
-  \mahnungsformel
+  \zahlungserinnerungIgnoriert{<%dunning_date%>}
 
-  \begin{SimpleTabular}[headline=\bfseries\rechnung~\nr & \bfseries\rechnungsdatum & \bfseries\faelligAm & \bfseries\betrag, colspec=X l l r<{\tabcurrency}]
-    % eigentliche Tabelle
+  \begin{SimpleTabular}[
+    headline=\bfseries\rechnung~\nr & \bfseries\rechnungsdatum & \bfseries\faelligAm & \bfseries\betrag & \bfseries\gebuehr & \bfseries\zinsen & \bfseries\zuZahlen,
+    %colspec=rXr<{\tabcurrency}
+    colspec=X l l r<{\tabcurrency} r<{\tabcurrency} r<{\tabcurrency} r<{\tabcurrency}
+  ]
     <%foreach dn_invnumber%>%
-      <%dn_invnumber%> & <%dn_transdate%> & <%dn_duedate%> & <%dn_amount%> \\[0.1cm]
+      <%dn_invnumber%> & <%dn_transdate%> & <%dn_duedate%> & <%dn_amount%> & <%dn_fee%> & <%dn_interest%> & <%dn_linetotal%> \\[0.1cm]
     <%end dn_invnumber%>%
+    \\ \midrule
+    \textbf{\schlussbetrag} & & & <%total_open_amount%> & <%fee%> & <%total_interest%> & \textbf{<%total_amount%>}
   \end{SimpleTabular}
 
 
   \smallskip
 
-  \bitteZahlenBis~<%dunning_duedate%>.
-
-
   \beruecksichtigtBis~<%dunning_date%>.
   \schonGezahlt
+
+  \triftigeGruende
 
   \closing{\gruesse}
 

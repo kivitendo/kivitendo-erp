@@ -39,21 +39,22 @@
 <%if shiptoname%>%
 \makeatletter
 \begin{lrbox}\shippingAddressBox
-	\parbox{\useplength{toaddrwidth}}{
-		\backaddr@format{\scriptsize\usekomafont{backaddress}%
-			\strut\abweichendeLieferadresse
-		}
-		\par\smallskip
-		\setlength{\parskip}{\z@}
-		\par
-		\normalsize
-		<%shiptoname%>\par
-		<%if shiptocontact%> <%shiptocontact%><%end if%>\par
-		<%shiptodepartment_1%>\par
-		<%shiptodepartment_2%>\par
-		<%shiptostreet%>\par
-		<%shiptozipcode%> <%shiptocity%>%
-	}
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut\abweichendeLieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    <%shiptoname%>\par
+    <%shiptodepartment_1%>\par
+    <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
+    <%shiptostreet%>\par
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
+  }
 \end{lrbox}
 \makeatother
 <%end shiptoname%>%
@@ -63,13 +64,13 @@
 
 
 \begin{letter}{
-    <%name%>\strut\\
-    <%if department_1%><%department_1%>\\<%end if%>%
-    <%if department_2%><%department_2%>\\<%end if%>%
-    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\
-    <%street%>\strut\\
-    <%zipcode%> <%city%>\strut\\
-    <%country%> \strut
+    <%name%>              \strut\\
+    <%department_1%>      \ifhmode\\\fi
+    <%department_2%>      \ifhmode\\\fi
+    <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+    <%street%>            \ifhmode\\\fi
+    <%zipcode%> <%city%>  \ifhmode\\\fi
+    <%country%>           %
   }
 
 

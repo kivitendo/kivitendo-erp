@@ -45,7 +45,7 @@
 \newcommand{\lieferung} {Lieferbedingungen}
 \newcommand{\textTelefon} {Tel.}
 \newcommand{\textEmail} {E-Mail}
-\newcommand{\textFax} {Fax}
+\providecommand{\textFax} {Fax}
 
 % angebot (sales_quotion)
 \newcommand{\angebot} {Angebot}
@@ -96,6 +96,7 @@
 
 % rechnung (invoice)
 \newcommand{\rechnung} {Rechnung}
+\newcommand{\rechnungs} {Rechnungs}
 \newcommand{\rechnungskopie} {Rechnungskopie}
 \newcommand{\rechnungsdatum} {Rechnungsdatum}
 \newcommand{\ihrebestellung} {Ihre Bestellung}
@@ -117,6 +118,7 @@
 
 \newcommand{\textUstid} {USt-IdNr.:}
 \newcommand{\stornorechnung} {Stornorechnung}
+\newcommand{\stornoErstatten}[1] {hiermit stornieren wir Ihnen die nachfolgenden Positionen von Rechnung #1.}
 
 % anzahlungsrechnung (invoice_for_advance_payment)
 \newcommand{\anzahlungsrechnung} {Anzahlungsrechnung}
@@ -140,10 +142,17 @@
 \newcommand{\asNeunzig} {90+}
 
 % zahlungserinnerung (Mahnung)
-\newcommand{\mahnung} {Zahlungserinnerung}
+\newcommand{\mahnung} {Mahnung}
+\newcommand{\zahlungserinnerung} {Zahlungserinnerung}
 \newcommand{\mahnungsformel} {man kann seine Augen nicht überall haben - offensichtlich haben Sie übersehen, die folgenden Rechnungen zu begleichen:}
-\newcommand{\beruecksichtigtBis} {Zahlungseingänge sind nur berücksichtigt bis zum}
+\newcommand{\beruecksichtigtBis} {Zahlungseingänge wurden berücksichtigt bis zum}
 \newcommand{\schonGezahlt} {Sollten Sie zwischenzeitlich bezahlt haben, betrachten Sie diese Zahlungserinnerung bitte als gegenstandslos.}
+\newcommand{\zahlungserinnerungIgnoriert}[1] {leider haben Sie unsere vorangegangene Zahlungserinnerung ignoriert. Das ist bedauerlich, denn dadurch sind uns Kosten entstanden, die wir nun an Sie weitergeben müssen. Damit keine weiteren Kosten für Sie entstehen, begleichen Sie bitte die nachfolgend ausgewiesenen offenen Posten schnellstmöglich, spätestens jedoch bis zum #1.}
+\newcommand{\triftigeGruende} {Sollte es triftige Gründe für die Zahlungsverzögerung geben, setzen Sie sich bitte mit uns in Verbindung, damit wir gemeinsam eine Lösung finden.}
+\newcommand{\faelligAm} {fällig am}
+\newcommand{\gebuehr} {Gebühr}
+\newcommand{\zinsen} {Zinsen}
+\newcommand{\zuZahlen} {zu zahlen}
 
 % zahlungserinnerung_invoice (Rechnung zur Mahnung)
 \newcommand{\mahnungsrechnungsformel} {hiermit stellen wir Ihnen zu o.g. \mahnung \ folgende Posten in Rechnung:}
