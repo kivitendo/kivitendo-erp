@@ -24,6 +24,10 @@
 
 
 <table class="tbl-horizontal">
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-wider">
+  </colgroup>
   <tbody>
     <tr>
       <th>
@@ -75,7 +79,22 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Message") %] <sup> [% L.link("generictranslations.pl?action=edit_email_strings", "1)", title=LxERP.t8('Tired of copying always nice phrases for this message? Click here to use the new preset message option!'), target="_blank") %]</sup> </th>
-      <td>[% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+[% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]
+
+<table class="tbl-horizontal">
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-lightwide">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
     </tr>
     [% IF INSTANCE_CONF.get_doc_storage %]
       <tr>
