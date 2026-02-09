@@ -137,8 +137,8 @@ namespace('kivi.Order', function(ns) {
     var id            = 'send_email_dialog';
     var dialog_params = {
       id:     id,
-      width:  800,
-      height: 600,
+      width:  Math.max(800, Math.round(window.innerWidth  * 0.85)),
+      height: Math.max(600, Math.round(window.innerHeight * 0.85)),
       title:  kivi.t8('Send email'),
       modal:  true,
       beforeClose: kivi.Order.finish_send_email_dialog,
