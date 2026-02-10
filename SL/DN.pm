@@ -52,6 +52,7 @@ use SL::TransNumber;
 use SL::Util qw(trim);
 use SL::DB;
 use SL::Webdav;
+use SL::Helper::CreatePDF qw();
 
 use File::Copy;
 use File::Slurp qw(read_file);
@@ -511,7 +512,14 @@ sub send_email {
   $mail->{message} =~ s/\r\n/\n/g;
 
   if ($ref->{email_attachment} && @{ $form->{DUNNING_PDFS_EMAIL} }) {
-    $mail->{attachments} = $form->{DUNNING_PDFS_EMAIL};
+    my $pdf_content         =  SL::Helper::CreatePDF->merge_pdfs(file_names => [map {$_->{path}} @{$form->{DUNNING_PDFS_EMAIL}}]);
+
+    my $dunning_id          =  $form->{dunning_id};
+    $dunning_id             =~ s|[^\d]||g;
+    my $dunning_filename    =  $form->get_formname_translation('dunning');
+    my $attachment_filename =  "${dunning_filename}_${dunning_id}.pdf";
+
+    $mail->{attachments} = [{name => $attachment_filename, content => $pdf_content}];
   }
 
   $query  = qq|SELECT id FROM dunning WHERE dunning_id = ?|;
