@@ -33,7 +33,7 @@ my @line_names = qw(LineOne LineTwo LineThree);
 
 my %standards_ids = (
   PROFILE_FACTURX_EXTENDED() => 'urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended',
-  PROFILE_XRECHNUNG()        => 'urn:cen.eu:en16931:2017#compliant#urn:xoev-de:kosit:standard:xrechnung_2.0',
+  PROFILE_XRECHNUNG()        => 'urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0',
 );
 
 sub _is_profile {
@@ -49,14 +49,6 @@ sub _u8 {
 sub _r2 {
   my ($value) = @_;
   return $::form->round_amount($value, 2);
-}
-
-sub _type_name {
-  my ($self) = @_;
-  my $type   = $self->invoice_type;
-
-  no warnings 'once';
-  return $type eq 'ar_transaction' ? $::locale->text('Invoice') : $self->displayable_type;
 }
 
 sub _type_code {
@@ -108,7 +100,10 @@ sub _buyer_contact_information {
   $params{xml}->startTag("ram:DefinedTradeContact");
 
   $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
-  $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
+
+  if ($contact->cp_abteilung) {
+    $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
+  }
 
   my $phone_number = first {$_} (
     $contact->cp_phone1,
@@ -231,10 +226,10 @@ sub _line_item {
 
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
+  $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
   $params{xml}->endTag;
   $params{xml}->startTag("ram:NetPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", _r2($item_ptc->{sellprice}));
+  $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
   $params{xml}->endTag;
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeAgreement>
@@ -461,6 +456,10 @@ sub _exchanged_document_context {
     $params{xml}->endTag;
   }
 
+  $params{xml}->startTag("ram:BusinessProcessSpecifiedDocumentContextParameter");
+  $params{xml}->dataElement("ram:ID", 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0');
+  $params{xml}->endTag;
+
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
   $params{xml}->dataElement("ram:ID", $standards_ids{ $self->{_zugferd}->{profile} });
   $params{xml}->endTag;
@@ -483,7 +482,6 @@ sub _exchanged_document {
   $params{xml}->startTag("rsm:ExchangedDocument");
 
   $params{xml}->dataElement("ram:ID",       _u8($self->invnumber));
-  $params{xml}->dataElement("ram:Name",     _u8(_type_name($self))) if _is_profile($self, PROFILE_FACTURX_EXTENDED());
   $params{xml}->dataElement("ram:TypeCode", _u8(_type_code($self)));
 
   #     <ram:IssueDateTime>
@@ -587,6 +585,14 @@ sub _seller_trade_party {
     }
     $params{xml}->endTag;
     #         </ram:PostalTradeAddress>
+  }
+
+  my $company_email = ($::lx_office_conf{factur_x} // {})->{company_email} || $sales_person_cfg{email};
+
+  if ($company_email) {
+    $params{xml}->startTag("ram:URIUniversalCommunication");
+    $params{xml}->dataElement("ram:URIID", _u8($company_email), schemeID => 'EM');
+    $params{xml}->endTag;
   }
 
   _specified_tax_registration($::instance_conf->get_co_ustid, %params);
@@ -769,7 +775,7 @@ sub _validate_data {
 
   if (_is_profile($self, PROFILE_XRECHNUNG())) {
     if (!$self->customer->c_vendor_routing_id) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 2.0'));
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 3.0'));
     }
   }
 
@@ -788,6 +794,11 @@ sub _validate_data {
     if ($item->part->ean && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($item->part->ean)) {
         SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('EAN check digit mismatch for part #1. #2 does not seem to be a valid EAN.', $item->part->displayable_name, $item->part->ean));
     }
+  }
+
+  my $have_buyer_electronic_address = first { $self->customer->$_ } qw(invoice_mail email gln);
+  if (!$have_buyer_electronic_address) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('At least one of the following fields has to be set in the customer data: Email of the invoice recipient; Email; GLN'));
   }
 
   return %result;
