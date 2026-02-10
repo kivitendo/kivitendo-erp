@@ -112,9 +112,18 @@ sub _make_minutes {
       }
     }
 
+    return undef if !defined($self->$attribute);
+
+    my $sign = $self->$attribute < 0 ? '-' : '';
+    $self->$attribute($self->$attribute * -1) if $sign;
+
     my $as_hours   = "${attribute}_as_hours";
     my $as_minutes = "${attribute}_as_minutes";
-    return defined($self->$attribute) ? sprintf('%d:%02d', $self->$as_hours, $self->$as_minutes) : undef;
+    my $formatted  = sprintf('%s%d:%02d', $sign, $self->$as_hours, $self->$as_minutes);
+
+    $self->$attribute($self->$attribute * -1) if $sign;
+
+    return $formatted;
   };
 
   *{ $package . '::' . $attribute . '_in_hours' } = sub {
