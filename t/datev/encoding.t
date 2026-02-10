@@ -3,8 +3,7 @@ use Test::More;
 
 use lib 't';
 
-use_ok 'Support::TestSetup';
-use SL::DATEV::CSV qw(check_text);
+use_ok 'SL::DATEV::CSV';
 use Support::TestSetup;
 
 use utf8;
