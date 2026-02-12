@@ -359,12 +359,12 @@ my $result = {
 
   # create a form for generate_attachment_filename
   my $form   = Form->new;
-  $form->{$record->type_data->properties('nr_key')}  = $record->number;
+
+  $form->{$record->type_data->properties('nr_key')}  = $record->type_data->properties('nr_key');
   $form->{type}             = $record->type;
   $form->{format}           = $format;
   $form->{formname}         = $formname;
-  $form->{language}         =
-    '_' . $record->language->template_code if $record->language;
+  $form->{language}         = '_' . $record->language->template_code if $record->language;
   my $pdf_filename          = $form->generate_attachment_filename();
   my $pdf;
   my @errors = _generate_pdf($record, \$pdf, {
@@ -390,7 +390,6 @@ my $result = {
 }
 
 sub _generate_pdf {
-#  my ($class, $record, %params) = @_;
   my ($record, $pdf_ref, $params) = @_;
 
   my @errors = ();
@@ -402,7 +401,8 @@ sub _generate_pdf {
   $print_form->{media}       = $params->{media}    || 'file';
   $print_form->{groupitems}  = $params->{groupitems};
   $print_form->{printer_id}  = $params->{printer_id};
-  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
+  $print_form->{media}       = 'file' if $print_form->{media} eq 'screen';
+  $print_form->{record} = $record;
 
   $record->language($params->{language});
   $record->flatten_to_form($print_form, format_amounts => 1);
@@ -461,7 +461,6 @@ sub store_pdf_to_webdav_and_filemanagement {
   my @errors;
 
   # copy file to webdav folder
-  #$form->{$record->type_data->properties('nr_key')}  = $record->number;
   if ($record->type_data->properties('nr_key') && $::instance_conf->get_webdav_documents) {
     my $webdav = SL::Webdav->new(
       type     => $record->type,
