@@ -44,6 +44,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      template       =>  'invoice',
     },
     defaults => {
       # TODO
@@ -80,6 +81,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      template       =>  'invoice_for_advance_payment',
     },
     defaults => {
       # TODO
@@ -116,6 +118,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 1,
+      template       => 'invoice_for_advance_payment_storno',
     },
     defaults => {
       # TODO
@@ -152,6 +155,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 1,
+      template       => 'final_invoice',
     },
     defaults => {
       # TODO
@@ -188,6 +192,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 1,
+      template       => 'invoice_storno',
     },
     defaults => {
       # TODO
@@ -224,6 +229,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 0,
+      template       => 'credit_note',
     },
     defaults => {
       # TODO
@@ -260,6 +266,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "invnumber",
       worflow_needed => 1,
+      template       => 'credit_note_storno',
     },
     defaults => {
       # TODO

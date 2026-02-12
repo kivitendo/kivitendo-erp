@@ -58,6 +58,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      template       => 'sales_order',
     },
     defaults => {
       reqdate => sub {
@@ -116,6 +117,7 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      template       => 'purchase_order',
     },
     defaults => {
       reqdate => sub { return; },
@@ -167,6 +169,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "quonumber",
       worflow_needed => 0,
+      template       => 'sales_quotation',
     },
     defaults => {
       reqdate => sub {
@@ -276,6 +279,7 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "quonumber",
       worflow_needed => 0,
+      template       => 'purchase_quotation_intake',
     },
     defaults => {
       reqdate => sub { return; },
@@ -327,6 +331,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      template       => 'sales_order_intake',
     },
     defaults => {
       reqdate => sub {
@@ -385,6 +390,7 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "ordnumber",
       worflow_needed => 0,
+      template       => 'purchase_order_confirmation',
     },
     defaults => {
       reqdate => sub { return; },
