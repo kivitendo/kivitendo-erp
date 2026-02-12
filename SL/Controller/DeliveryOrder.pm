@@ -2277,70 +2277,6 @@ sub setup_edit_action_bar {
   }
 }
 
-#sub generate_pdf {
-#  my ($order, $pdf_ref, $params) = @_;
-#
-#  my @errors = ();
-#
-#  my $print_form = Form->new('');
-#  $print_form->{type}        = $order->type;
-#  $print_form->{formname}    = $params->{formname} || $order->type;
-#  $print_form->{format}      = $params->{format}   || 'pdf';
-#  $print_form->{media}       = $params->{media}    || 'file';
-#  $print_form->{groupitems}  = $params->{groupitems};
-#  $print_form->{printer_id}  = $params->{printer_id};
-#  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
-#
-#  $order->language($params->{language});
-#  $order->flatten_to_form($print_form, format_amounts => 1);
-#
-#  my $template_ext;
-#  my $template_type;
-#  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
-#    $template_ext  = 'odt';
-#    $template_type = 'OpenDocument';
-#  }
-#
-#  # search for the template
-#  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
-#    name        => $print_form->{formname},
-#    extension   => $template_ext,
-#    email       => $print_form->{media} eq 'email',
-#    language    => $params->{language},
-#    printer_id  => $print_form->{printer_id},
-#  );
-#
-#  if (!defined $template_file) {
-#    push @errors, $::locale->text(
-#      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
-#      join ', ', map { "'$_'"} @template_files
-#    );
-#  }
-#
-#  return @errors if scalar @errors;
-#
-#  $print_form->throw_on_error(sub {
-#    eval {
-#      $print_form->prepare_for_printing;
-#
-#      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
-#        format        => $print_form->{format},
-#        template_type => $template_type,
-#        template      => $template_file,
-#        variables     => $print_form,
-#        variable_content_types => {
-#          longdescription => 'html',
-#          partnotes       => 'html',
-#          notes           => 'html',
-#        },
-#      );
-#      1;
-#    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
-#  });
-#
-#  return @errors;
-#}
-
 sub get_files_for_email_dialog {
   my ($self) = @_;
 
@@ -2418,47 +2354,6 @@ sub save_history {
     addition    => $addition,
   )->save;
 }
-
-#sub store_pdf_to_webdav_and_filemanagement {
-#  my($order, $content, $filename, $variant) = @_;
-#
-#  my @errors;
-#
-#  # copy file to webdav folder
-#  if ($order->number && $::instance_conf->get_webdav_documents) {
-#    my $webdav = SL::Webdav->new(
-#      type     => $order->type,
-#      number   => $order->number,
-#    );
-#    my $webdav_file = SL::Webdav::File->new(
-#      webdav   => $webdav,
-#      filename => $filename,
-#    );
-#    eval {
-#      $webdav_file->store(data => \$content);
-#      1;
-#    } or do {
-#      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
-#    };
-#  }
-#  if ($order->id && $::instance_conf->get_doc_storage) {
-#    eval {
-#      SL::File->save(object_id     => $order->id,
-#                     object_type   => $order->type,
-#                     mime_type     => 'application/pdf',
-#                     source        => 'created',
-#                     file_type     => 'document',
-#                     file_name     => $filename,
-#                     file_contents => $content,
-#                     print_variant => $variant);
-#      1;
-#    } or do {
-#      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
-#    };
-#  }
-#
-#  return @errors;
-#}
 
 sub calculate_stock_in_out_from_stock_info {
   my ($self, $unit, $stock_info) = @_;

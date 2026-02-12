@@ -590,14 +590,6 @@ sub action_send_email {
     my $doc;
   my %params = ( 'print_options' => $::form->{print_options} );
   my $file_result = SL::Model::Record->print_record($self->order, %params);
-  #  my @errors = $self->generate_doc(\$doc, {
-  #      media      => $::form->{media},
-  #      format     => $::form->{print_options}->{format},
-  #      formname   => $::form->{print_options}->{formname},
-  #      language   => $self->order->language,
-  #      printer_id => $::form->{print_options}->{printer_id},
-  #      groupitems => $::form->{print_options}->{groupitems},
-  #    });
   my @errors = $file_result->{errors} || ();
     if (scalar @errors) {
       $::form->error(t8('Generating the document failed: #1', $errors[0]));
@@ -2640,72 +2632,6 @@ sub setup_edit_action_bar {
     );
   }
 }
-
-#sub generate_doc {
-#  my ($self, $doc_ref, $params) = @_;
-#
-#  my $order  = $self->order;
-#  my @errors = ();
-#
-#  my $print_form = Form->new('');
-#  $print_form->{type}        = $order->type;
-#  $print_form->{formname}    = $params->{formname} || $order->type;
-#  $print_form->{format}      = $params->{format}   || 'pdf';
-#  $print_form->{media}       = $params->{media}    || 'file';
-#  $print_form->{groupitems}  = $params->{groupitems};
-#  $print_form->{printer_id}  = $params->{printer_id};
-#  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
-#
-#  $order->language($params->{language});
-#  $order->flatten_to_form($print_form, format_amounts => 1);
-#
-#  my $template_ext;
-#  my $template_type;
-#  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
-#    $template_ext  = 'odt';
-#    $template_type = 'OpenDocument';
-#  } elsif ($print_form->{format} =~ m{html}i) {
-#    $template_ext  = 'html';
-#    $template_type = 'HTML';
-#  }
-#
-#  # search for the template
-#  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
-#    name        => $print_form->{formname},
-#    extension   => $template_ext,
-#    email       => $print_form->{media} eq 'email',
-#    language    => $params->{language},
-#    printer_id  => $print_form->{printer_id},
-#  );
-#
-#  if (!defined $template_file) {
-#    push @errors, $::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
-#  }
-#
-#  return @errors if scalar @errors;
-#
-#  $print_form->throw_on_error(sub {
-#    eval {
-#      $print_form->prepare_for_printing;
-#
-#      $$doc_ref = SL::Helper::CreatePDF->create_pdf(
-#        format        => $print_form->{format},
-#        template_type => $template_type,
-#        template      => $template_file,
-#        variables     => $print_form,
-#        variable_content_types => {
-#          longdescription => 'html',
-#          partnotes       => 'html',
-#          notes           => 'html',
-#          $::form->get_variable_content_types_for_cvars,
-#        },
-#      );
-#      1;
-#    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
-#  });
-#
-#  return @errors;
-#}
 
 sub get_files_for_email_dialog {
   my ($self) = @_;
