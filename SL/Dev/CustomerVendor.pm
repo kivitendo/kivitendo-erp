@@ -14,10 +14,12 @@ sub new_customer {
 
   my $taxzone    = _check_taxzone(delete $params{taxzone_id});
   my $currency   = _check_currency(delete $params{currency_id});
+  my $country    = _check_country(delete $params{country_id});
 
   my $customer = SL::DB::Customer->new( name        => delete $params{name} || 'Testkunde',
                                         currency_id => $currency->id,
                                         taxzone_id  => $taxzone->id,
+                                        country_id  => $country->id,
                                       );
   $customer->assign_attributes( %params );
   return $customer;
@@ -28,10 +30,12 @@ sub new_vendor {
 
   my $taxzone    = _check_taxzone(delete $params{taxzone_id});
   my $currency   = _check_currency(delete $params{currency_id});
+  my $country    = _check_country(delete $params{country_id});
 
   my $vendor = SL::DB::Vendor->new( name        => delete $params{name} || 'Testlieferant',
                                     currency_id => $currency->id,
                                     taxzone_id  => $taxzone->id,
+                                    country_id  => $country->id,
                                   );
   $vendor->assign_attributes( %params );
   return $vendor;
@@ -58,6 +62,17 @@ sub _check_currency {
     $currency = SL::DB::Manager::Currency->find_by( id => $::instance_conf->get_currency_id );
   }
   return $currency;
+}
+
+sub _check_country {
+  my ($country_id) = @_;
+  my $country;
+  if ( $country_id ) {
+    $country = SL::DB::Manager::Country->find_by( id => $country_id ) || die "Can't find country_id";
+  } else {
+    $country = SL::DB::Manager::Country->get_first();
+  }
+  return $country;
 }
 
 1;
