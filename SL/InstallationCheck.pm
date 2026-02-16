@@ -17,7 +17,7 @@ BEGIN {
 #   dist_name: name of the package in cpan if it differs from name (ex.: LWP != libwww-perl)
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
-  { name => "Algorithm::CheckDigits",              url => "http://search.cpan.org/~mamawe/",    debian => 'libalgorithm-checkdigits-perl' },
+  { name => "Algorithm::CheckDigits",  version => '1.3.4', url => "http://search.cpan.org/~mamawe/",    debian => 'libalgorithm-checkdigits-perl' },
   { name => "Archive::Zip",    version => '1.40',  url => "http://search.cpan.org/~phred/",     debian => 'libarchive-zip-perl' },
   { name => "Authen::SASL",                        url => "https://metacpan.org/dist/Authen-SASL/view/lib/Authen/SASL.pod",     debian => 'libauthen-sasl-perl' },
   { name => "CGI",             version => '3.43',  url => "http://search.cpan.org/~leejo/",     debian => 'libcgi-pm-perl' }, # 4.09 is not core anymore (perl 5.20)
