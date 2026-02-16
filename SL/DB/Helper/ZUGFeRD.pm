@@ -172,6 +172,33 @@ sub _shipto_postal_trade_address {
   #       </ram:PostalTradeAddress>
 }
 
+sub _shipto_trade_party {
+  my ($self, %params) = @_;
+
+  my $shipto = first { $_ } (
+    $self->custom_shipto,
+    $self->shipto
+  );
+
+  if ($shipto) {
+    #       <ram:ShipToTradeParty>
+    $params{xml}->startTag("ram:ShipToTradeParty");
+
+    if ($shipto->shiptogln) {
+      $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
+    }
+
+    if ($shipto->shiptoname) {
+      $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
+    }
+
+    _shipto_postal_trade_address(%params, shipto => $shipto);
+
+    $params{xml}->endTag;
+    #       </ram:ShipToTradeParty>
+  }
+}
+
 sub _buyer_communication {
   my (%params) = @_;
   my $customer = $params{customer};
@@ -685,29 +712,7 @@ sub _applicable_header_trade_delivery {
   #     <ram:ApplicableHeaderTradeDelivery>
   $params{xml}->startTag("ram:ApplicableHeaderTradeDelivery");
 
-
-  my $shipto = first { $_ } (
-    $self->custom_shipto,
-    $self->shipto
-  );
-
-  if ($shipto) {
-    #       <ram:ShipToTradeParty>
-    $params{xml}->startTag("ram:ShipToTradeParty");
-
-    if ($shipto->shiptogln) {
-      $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
-    }
-
-    if ($shipto->shiptoname) {
-      $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
-    }
-
-    _shipto_postal_trade_address(%params, shipto => $shipto);
-
-    $params{xml}->endTag;
-    #       </ram:ShipToTradeParty>
-  }
+  _shipto_trade_party($self, %params);
 
   #       <ram:ActualDeliverySupplyChainEvent>
   $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
