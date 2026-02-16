@@ -22,8 +22,7 @@ __PACKAGE__->meta->columns(
   commercial_court          => { type => 'text' },
   contact                   => { type => 'text' },
   contact_origin            => { type => 'text' },
-  country                   => { type => 'text' },
-  country_id                => { type => 'integer' },
+  country_id                => { type => 'integer', not_null => 1 },
   create_zugferd_invoices   => { type => 'integer', default => '-1', not_null => 1 },
   creditlimit               => { type => 'numeric', default => '0', precision => 15, scale => 5 },
   currency_id               => { type => 'integer', not_null => 1 },
@@ -83,7 +82,7 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { business_id => 'id' },
   },
 
-  country_obj => {
+  country => {
     class       => 'SL::DB::Country',
     key_columns => { country_id => 'id' },
   },
