@@ -192,23 +192,23 @@ sub _shipto_trade_party {
     $self->shipto
   );
 
-  if ($shipto) {
-    #       <ram:ShipToTradeParty>
-    $params{xml}->startTag("ram:ShipToTradeParty");
+  return if !$shipto;
 
-    if ($shipto->shiptogln) {
-      $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
-    }
+  #       <ram:ShipToTradeParty>
+  $params{xml}->startTag("ram:ShipToTradeParty");
 
-    if ($shipto->shiptoname) {
-      $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
-    }
-
-    _shipto_postal_trade_address(%params, shipto => $shipto);
-
-    $params{xml}->endTag;
-    #       </ram:ShipToTradeParty>
+  if ($shipto->shiptogln) {
+    $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
   }
+
+  if ($shipto->shiptoname) {
+    $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
+  }
+
+  _shipto_postal_trade_address(%params, shipto => $shipto);
+
+  $params{xml}->endTag;
+  #       </ram:ShipToTradeParty>
 }
 
 sub _buyer_communication {
