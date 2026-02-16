@@ -60,8 +60,8 @@ sub get_icon {
   my $simg = "image/icons/svg/$name.svg";
   my $pimg = "image/icons/16x16/$name.png";
 
-    SL::System::ResourceCache->get($simg) ? $simg
-  : SL::System::ResourceCache->get($pimg) ? $pimg
+    SL::System::ResourceCache->get("public/$simg") ? $simg
+  : SL::System::ResourceCache->get("public/$pimg") ? $pimg
   :                                         ();
 }
 

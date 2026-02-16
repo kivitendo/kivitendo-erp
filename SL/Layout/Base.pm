@@ -149,9 +149,9 @@ sub stylesheets {
 sub _find_stylesheet {
   my ($self, $stylesheet, $css_path) = @_;
 
-  return "$css_path/$stylesheet" if -f "$css_path/$stylesheet";
-  return "css/$stylesheet"       if -f "css/$stylesheet" && $self->allow_stylesheet_fallback;
-  return $stylesheet             if -f $stylesheet;
+  return "$css_path/$stylesheet" if -f "public/$css_path/$stylesheet";
+  return "css/$stylesheet"       if -f "public/css/$stylesheet" && $self->allow_stylesheet_fallback;
+  return $stylesheet             if -f "public/$stylesheet";
   return $stylesheet             if $stylesheet =~ /^http/; # external
 }
 
@@ -159,8 +159,8 @@ sub get_stylesheet_for_user {
   my $css_path = 'css';
   if (my $user_style = $::myconfig{stylesheet}) {
     $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnant of pre 2.7.0 stylesheet handling
-    if (-d "$css_path/$user_style" &&
-        -f "$css_path/$user_style/main.css") {
+    if (-d "public/$css_path/$user_style" &&
+        -f "public/$css_path/$user_style/main.css") {
       $css_path = "$css_path/$user_style";
     } else {
       $css_path = "$css_path/kivitendo";
@@ -199,8 +199,8 @@ sub javascripts {
 sub _find_javascript {
   my ($self, $javascript) = @_;
 
-  return "js/$javascript"        if -f "js/$javascript";
-  return $javascript             if -f $javascript;
+  return "js/$javascript"        if -f "public/js/$javascript";
+  return $javascript             if -f "public/$javascript";
   return $javascript             if $javascript =~ /^http/;
 }
 
