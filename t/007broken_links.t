@@ -37,7 +37,7 @@ find(sub {
 
   $finder->find(\$text);
 
-  }, "./templates", "./doc",
+  }, "./templates", "./public/doc",
   );
 
 if (@fails) {
