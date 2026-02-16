@@ -849,22 +849,23 @@ sub _validate_data {
   #
   # GS1 GTIN/EAN/GLN/ILN and ISBN-13 all use the same check digits
   #
-  if ($self->customer->gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->customer->gln)) {
+  my $v_ean = Algorithm::CheckDigits::CheckDigits('ean');
+  if ($self->customer->gln && !$v_ean->is_valid($self->customer->gln)) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Customer GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->customer->gln));
   }
 
-  if ($self->custom_shipto && $self->custom_shipto->shiptogln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->custom_shipto->shiptogln)) {
+  if ($self->custom_shipto && $self->custom_shipto->shiptogln && !$v_ean->is_valid($self->custom_shipto->shiptogln)) {
     SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Custom shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->custom_shipto->shiptogln));
-  } elsif ($self->shipto && $self->shipto->shiptogln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($self->shipto->shiptogln)) {
+  } elsif ($self->shipto && $self->shipto->shiptogln && !$v_ean->is_valid($self->shipto->shiptogln)) {
     SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->shipto->shiptogln));
   }
 
-  if ($::instance_conf->get_gln && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($::instance_conf->get_gln)) {
+  if ($::instance_conf->get_gln && !$v_ean->is_valid($::instance_conf->get_gln)) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Client config GLN check digit mismatch. #1 does not seem to be a valid GLN.', $::instance_conf->get_gln));
   }
 
   for my $item (@{ $self->items_sorted }) {
-    if ($item->part->ean && !Algorithm::CheckDigits::CheckDigits('ean')->is_valid($item->part->ean)) {
+    if ($item->part->ean && !$v_ean->is_valid($item->part->ean)) {
         SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('EAN check digit mismatch for part #1. #2 does not seem to be a valid EAN.', $item->part->displayable_name, $item->part->ean));
     }
   }
