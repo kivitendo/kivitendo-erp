@@ -11,6 +11,7 @@ use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Presenter::Tag qw(input_tag html_tag select_tag submit_tag);
+use SL::DBUtils;
 
 use parent qw(SL::DBUpgrade2::Base);
 
@@ -62,23 +63,32 @@ sub run {
   my %missing = %{$::form->{missing} // {}};
 
   SL::DB->client->with_transaction(sub {
-    my $customers = SL::DB::Manager::Customer->get_all(sort_by => 'customernumber');
-    my $vendors   = SL::DB::Manager::Vendor  ->get_all(sort_by => 'vendornumber');
-    my $countries = SL::DB::Manager::Country ->get_all(sort_by => 'id');
-    my %country_id_by_iso2 = map { $_->iso2 => $_->id } @$countries;
+    my ($query, $sth);
 
-    foreach my $cv (@$customers, @$vendors) {
-      my $country_id = $cv->country ? $country_id_by_iso2{ SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->country) } : undef;
+    $query = 'SELECT id, iso2 FROM countries;';
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+    my $countries = $sth->fetchall_arrayref();
+    my %country_id_by_iso2 = map { $_->[1] => $_->[0] } @$countries;
+
+    $query = 'SELECT distinct(country) FROM customer
+              UNION ALL
+              SELECT distinct(country) FROM vendor;';
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+    my %country_id_by_country_name = ();
+    while (my $cv = $sth->fetchrow_hashref()) {
+      my $country_id = $cv->{country} ? $country_id_by_iso2{ SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->{country}) } : undef;
       unless ($country_id) {
-        if (defined $missing{$cv->country}) {
-          $country_id = $missing{$cv->country};
+        if (defined $missing{$cv->{country}}) {
+          $country_id = $missing{$cv->{country}};
         } else {
-          $missing{$cv->country} = '';
+          $missing{$cv->{country}} = '';
+          next;
         }
       }
 
-      $cv->country_id($country_id);
-      $cv->save;
+      $country_id_by_country_name{$cv->{country}} = $country_id;
     }
 
     if (scalar (grep { !$missing{$_} } keys %missing)) {
@@ -87,12 +97,21 @@ sub run {
     }
     return 0 if scalar @errors;
 
+    $query = 'UPDATE customer SET country_id = ? WHERE country = ?;';
+    $sth = $self->dbh->prepare($query);
+    foreach my $name (keys %country_id_by_country_name) {
+      do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
+    }
+
+    $query = 'UPDATE vendor SET country_id = ? WHERE country = ?;';
+    $sth = $self->dbh->prepare($query);
+    foreach my $name (keys %country_id_by_country_name) {
+      do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
+    }
+
+
     my $query = qq|ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
                    ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;|;
-
-  #  $self->db_query($query);
-  #my $sth = $self->dbh->prepare($query);
-  #$sth->execute || $self->dberror($query);
 
     1;
   }) ;#or do { die SL::DB->client->error };
