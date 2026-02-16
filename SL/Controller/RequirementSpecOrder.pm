@@ -351,15 +351,16 @@ sub create_additional_part_order_item {
     longdescription => $longdescription,
     qty             => $add_part->qty,
     unit            => $add_part->unit->name,
-    sellprice       => $add_part->unit->convert_to($part->sellprice, $part->unit_obj),
     lastcost        => $part->lastcost,
     project_id      => $self->requirement_spec->project_id,
   );
 
-  my (undef, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($params{order}, $item, ignore_given => 1);
+  my ($price_src, $discount_src) = SL::Model::Record->get_best_price_and_discount_source($params{order}, $item, ignore_given => 1);
   $item->assign_attributes(
-   discount               => $discount_src->discount,
-   active_discount_source => $discount_src->source,
+    sellprice              => $add_part->unit->convert_to($price_src->price, $part->unit_obj),
+    active_price_source    => $price_src->source,
+    discount               => $discount_src->discount,
+    active_discount_source => $discount_src->source,
   );
 
   return $item;
