@@ -23,13 +23,11 @@ use SL::Locale::String qw(t8);
 use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
-use List::MoreUtils qw(any pairwise);
+use List::MoreUtils qw(any);
 use List::Util qw(first sum sum0);
 use Template;
 use XML::Writer;
 use Params::Validate qw(:all);
-
-my @line_names = qw(LineOne LineTwo LineThree);
 
 my %standards_ids = (
   PROFILE_FACTURX_EXTENDED() => 'urn:cen.eu:en16931:2017#conformant#urn:factur-x.eu:1p0:extended',
@@ -49,6 +47,19 @@ sub _u8 {
 sub _r2 {
   my ($value) = @_;
   return $::form->round_amount($value, 2);
+}
+
+sub _parts_to_lines {
+  my (@parts) = @_;
+
+  my @line_names = qw(LineOne LineTwo LineThree);
+
+  die "too much parts for lines" if scalar @parts > scalar @line_names;
+
+  my @lines;
+  push @lines, [$line_names[$_], $parts[$_]] for (0..$#parts);
+
+  return @lines;
 }
 
 sub _type_code {
@@ -84,7 +95,7 @@ sub _parse_our_address {
   my @street = grep { $_ } ($::instance_conf->get_address_street1, $::instance_conf->get_address_street2);
 
   push @result, [ 'PostcodeCode', $::instance_conf->get_address_zipcode ] if $::instance_conf->get_address_zipcode;
-  push @result, grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @street;
+  push @result, _parts_to_lines(@street);
   push @result, [ 'CityName', $::instance_conf->get_address_city ] if $::instance_conf->get_address_city;
   push @result, [ 'CountryID', SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country) // 'DE' ];
 
@@ -149,7 +160,7 @@ sub _customer_postal_trade_address {
   my @parts = grep { $_ } map { $params{customer}->$_ } qw(department_1 department_2 street);
 
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{customer}->zipcode));
-  $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @parts;
+  $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
   $params{xml}->dataElement("ram:CityName",     _u8($params{customer}->city));
   $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{customer}->country) // 'DE'));
   $params{xml}->endTag;
@@ -165,7 +176,8 @@ sub _shipto_postal_trade_address {
   my @parts = grep { $_ } map { $params{shipto}->$_ } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet);
 
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{shipto}->shiptozipcode));
-  $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @parts;
+  $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
+
   $params{xml}->dataElement("ram:CityName",     _u8($params{shipto}->shiptocity));
   $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{shipto}->shiptocountry) // 'DE'));
   $params{xml}->endTag;
