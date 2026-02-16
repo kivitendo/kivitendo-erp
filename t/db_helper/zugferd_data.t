@@ -45,7 +45,8 @@ $defaults->update_attributes(
   address_zipcode => '53225',
   address_city    => 'Bonn',
   address_country => 'Deutschland',
-  co_ustid        => 'DE259582878'
+  co_ustid        => 'DE259582878',
+  invoice_mail    => 'rechnung@localhost'
 );
 
 my $bank_account =  SL::DB::BankAccount->new(
@@ -66,6 +67,7 @@ my $customer = new_customer(
   taxzone_id              => $taxzone->id,
   c_vendor_routing_id     => '05911-12003-47',
   create_zugferd_invoices => 2,
+  invoice_mail            => 'customer@localhost',
 )->save;
 
 my @parts = ();
