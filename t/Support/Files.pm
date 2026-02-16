@@ -46,7 +46,7 @@ find(sub { push(@files, $File::Find::name) if $_ =~ /\.pl$/;}, qw(bin/mozilla sq
 find(sub { push(@files, $File::Find::name) if $_ =~ /\.html$/;}, qw(templates/design40_webpages));
 
 our @javascript_files;
-find(sub { push(@javascript_files, $File::Find::name) if $_ =~ /\.js$/;}, 'js');
+find(sub { push(@javascript_files, $File::Find::name) if $_ =~ /\.js$/;}, 'public/js');
 
 sub have_pkg {
     my ($pkg) = @_;

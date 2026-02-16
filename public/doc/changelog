@@ -6,6 +6,9 @@
 
 Größere neue Features:
 
+- Statische Dateien befinden sich nun im Unterverzeichnis public/.
+  Dies erfordert eine Änderung der Webserver-Konfiguration.
+
 Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
