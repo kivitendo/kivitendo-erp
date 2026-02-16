@@ -15,6 +15,15 @@ Kleinere neue Features und Detailverbesserungen:
   auch die Projektbeschreibung angezeigt und es kann nach Nummer und
   Beschreibung des Projekt sortiert werden.
 
+- Factur-X/ZUGFeRD/XRechnung: Anhebung der unterstützten Version von
+  XRechnung auf 3.0 inklusive der dafür nötigen Anpassungen an der
+  Menge der exportierten Daten. Damit einhergehend ist erforderlich,
+  dass einige Daten in der Mandantenkonfiguration bzw. den
+  Kundenstammdaten gesetzt sind:
+  - Mandantenkonfiguration: »E-Mail des Rechnungsempfängers« auf dem
+    »Features«-Tab
+  - Kundenstammdaten: »E-Mail des Rechnungsempfängers«, »E-Mail« oder
+    »GLN« auf dem Tab »Rechnungsadresse«
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
