@@ -7,6 +7,7 @@ namespace('kivi.PartsGroup', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
   ns.add_part = function() {
+    if ($('#add_part_id').val() === '' || $('#id').val() === '') return;
     var data = {
       action:        'PartsGroup/add_part',
       part_id:       $('#add_part_id').val(),
