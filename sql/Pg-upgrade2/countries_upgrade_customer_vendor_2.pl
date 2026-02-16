@@ -26,7 +26,6 @@ sub print_errors {
   );
   map { $column_defs{$_}{visible} = 1 } @columns;
 
-
   my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -65,22 +64,17 @@ sub run {
   SL::DB->client->with_transaction(sub {
     my $customers = SL::DB::Manager::Customer->get_all(sort_by => 'customernumber');
     my $vendors   = SL::DB::Manager::Vendor  ->get_all(sort_by => 'vendornumber');
-    my $countries = SL::DB::Manager::Country ->get_all(sort_by => 'country_id');
-    %country_id_by_iso2 = map { $_->iso2 => $_->id } @$countries;
+    my $countries = SL::DB::Manager::Country ->get_all(sort_by => 'id');
+    my %country_id_by_iso2 = map { $_->iso2 => $_->id } @$countries;
+
     foreach my $cv (@$customers, @$vendors) {
-      my $country_obj;
-      my $country_code = $cv->country ? SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->country) : 'DE';
-      if ($country_code) {
-        $country_id = $country_id_by_iso2{$country_code};
-        if (!defined $country_id) {
-          push @errors, $country_code;
-          next;
+      my $country_id = $cv->country ? $country_id_by_iso2{ SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->country) } : undef;
+      unless ($country_id) {
+        if (defined $missing{$cv->country}) {
+          $country_id = $missing{$cv->country};
+        } else {
+          $missing{$cv->country} = '';
         }
-      } elsif ($missing{$cv->country}) {
-        $country_obj = SL::DB::Country->new(id => $missing{$cv->country})->load;
-      } else {
-        $missing{$cv->country} //= "";
-        next;
       }
 
       $cv->country_id($country_id);
