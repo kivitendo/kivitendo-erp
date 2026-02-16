@@ -12,7 +12,7 @@ use Imager::QRCode ();
 our $VERSION = '0.02';
 
 my %Config = (
-  img_dir    => 'image',
+  img_dir    => 'public/image',
   cross_file => 'CH-Kreuz_7mm.png',
   out_file   => 'out.png',
 );
