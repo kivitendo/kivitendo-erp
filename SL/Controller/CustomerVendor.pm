@@ -872,6 +872,7 @@ sub action_show_customer_vendor_details_dialog {
   $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
   $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
+  $details{country}             = $cv->country_obj->description;
 
   if ($is_customer) {
     foreach my $entry (@{ $cv->additional_billing_addresses }) {
@@ -1049,6 +1050,7 @@ sub _load_customer_vendor {
   } else {
     $self->{cv} = SL::DB::Customer->new(id => $::form->{id})->load();
   }
+  $self->{countries} = SL::DB::Manager::Country->get_all(sort_by => 'description');
 
   if ( $::form->{note_id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note_id})->load();
@@ -1122,6 +1124,7 @@ sub _create_customer_vendor {
 
   $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
+  $self->{countries} = SL::DB::Manager::Country->get_all(sort_by => 'description');
 
   $self->{note} = SL::DB::Note->new();
 

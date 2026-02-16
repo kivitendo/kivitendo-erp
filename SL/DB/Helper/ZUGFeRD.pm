@@ -156,7 +156,7 @@ sub _customer_postal_trade_address {
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{customer}->zipcode));
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @parts;
   $params{xml}->dataElement("ram:CityName",     _u8($params{customer}->city));
-  $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{customer}->country) // 'DE'));
+  $params{xml}->dataElement("ram:CountryID",    _u8($params{customer}->country_id ? SL::DB::Country->new(id => $params{customer}->country_id)->load->iso2 : 'DE'));
   $params{xml}->endTag;
   #       </ram:PostalTradeAddress>
 }
@@ -733,7 +733,7 @@ sub _validate_data {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
   }
 
-  if ($self->customer->country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($self->customer->country)) {
+  if ($self->customer->country_id && !SL::DB::Country->new(id => $self->customer->country_id)->load->iso2) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the customer\'s address cannot be mapped to an ISO 3166-1 alpha 2 code.'));
   }
 
