@@ -124,11 +124,13 @@ sub _parse {
   $xc->registerNs(ns => $ns);
   # return ($dom, $xc, \%dom_xpaths);
 
-  my $id       = $xc->find($dom_xpaths{message_id}, $dom);
-
+  my $id      = $xc->find($dom_xpaths{message_id}, $dom);
   my @entries = $xc->findnodes($dom_xpaths{items}, $dom);
   my @transactions;
   my $line_number = 0;
+
+  my $purpose_filter   = join ' | ', @{$transaction_details_xpaths{purpose}};
+  my $reference_filter = join ' | ', @{$transaction_details_xpaths{reference}};
 
   for my $entry (@entries) {
     my $booking_type = $xc->find($entry_xpaths{type_code}, $entry);
@@ -149,8 +151,8 @@ sub _parse {
     my $remote_bank_code      = $xc->findvalue($debit_credit eq 'DBIT' ? $transaction_details_xpaths{bank_code_cd} : $transaction_details_xpaths{bank_code_db}, $entry);
     my $remote_account_number = $xc->findvalue($debit_credit eq 'DBIT' ? $transaction_details_xpaths{account_number_cd} : $transaction_details_xpaths{account_number_db}, $entry);
 
-    my $purpose               = join "", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{purpose}}), $entry);
-    my $reference             = join " ", map $_->to_literal, $xc->findnodes(join(' | ', @{$transaction_details_xpaths{reference}}), $entry);
+    my $purpose               = join "", map $_->to_literal, $xc->findnodes($purpose_filter, $entry);
+    my $reference             = join " ", map $_->to_literal, $xc->findnodes($reference_filter, $entry);
     my $end_to_end_id         = $xc->findvalue($transaction_details_xpaths{end_to_end_id}, $entry);
 
     my %transaction = (
