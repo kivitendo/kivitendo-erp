@@ -22,11 +22,11 @@ sub flatten_to_form {
   if ( $vc eq 'customer' ) {
     $form->{customer_id} = $self->customer_id;
     $form->{customer}    = $self->customer->name if $self->customer;
-    $form->{country}     = $self->customer->country_obj->description if $self->customer;
+    $form->{country}     = $self->customer->country->description if $self->customer;
   } else {
     $form->{vendor_id}   = $self->vendor_id;
     $form->{vendor}      = $self->vendor->name if $self->vendor;
-    $form->{country}     = $self->vendor->country_obj->description if $self->vendor;
+    $form->{country}     = $self->vendor->country->description if $self->vendor;
   };
 
   if (_has($self, 'transdate')) {
