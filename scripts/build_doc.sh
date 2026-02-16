@@ -6,18 +6,18 @@
 
 set -e
 
-if [[ ! -d doc ]]; then
+if [[ ! -d public/doc ]]; then
   echo "Please run this from the installation directory."
   exit 1
 fi
 
-doc=${PWD}/doc
+doc=${PWD}/public/doc
 
-if [[ ! -d doc/build/dobudish ]]; then
-  echo "  ERROR: looks like 'doc/build/dobudish' DIR is missing"
+if [[ ! -d public/doc/build/dobudish ]]; then
+  echo "  ERROR: looks like 'public/doc/build/dobudish' DIR is missing"
   echo "   - You need to get 'dobudish-nojre-1.1.4.zip' from https://code.google.com/archive/p/dobudish/downloads"
-  echo "   - Download and unpack ( unzip dobudish-nojre-1.1.4.zip -d doc/build )"
-  echo "   - create dobudish symlink ( ln -sf dobudish-1.1.4 doc/build/dobudish )"
+  echo "   - Download and unpack ( unzip dobudish-nojre-1.1.4.zip -d public/doc/build )"
+  echo "   - create dobudish symlink ( ln -sf dobudish-1.1.4 public/doc/build/dobudish )"
 fi
 
 html=1
@@ -43,7 +43,7 @@ if [[ ! -z $1 ]] ; then
   done
 fi
 
-cd doc/build/dobudish
+cd public/doc/build/dobudish
 
 base=documents/dokumentation
 if [[ ! -d $base ]]; then
