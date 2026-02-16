@@ -260,6 +260,7 @@ sub setup_list_action_bar {
       ],
     );
   }
+  $::request->layout->add_javascripts(qw(kivi.Validator.js kivi.PartsGroup.js));
 }
 
 sub setup_show_sort_action_bar {
@@ -273,6 +274,7 @@ sub setup_show_sort_action_bar {
       ],
     );
   }
+  $::request->layout->add_javascripts(qw(kivi.Validator.js kivi.PartsGroup.js));
 }
 #
 # helpers
