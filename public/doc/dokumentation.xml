@@ -1189,8 +1189,7 @@ FcgidIOTimeout     32000
 DocumentRoot                                  /path/to/kivitendo-erp/public
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /path/to/kivitendo-erp/dispatcher.fcgi
 
-&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
+&lt;Directory /path/to/kivitendo-erp/fastcgi&gt;
   Options ExecCGI Includes FollowSymlinks
 &lt;/Directory&gt;</programlisting>
 
