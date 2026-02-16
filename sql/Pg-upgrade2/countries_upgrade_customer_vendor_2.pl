@@ -110,8 +110,15 @@ sub run {
     }
 
 
-    my $query = qq|ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
-                   ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;|;
+    $query = 'ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
+              ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;';
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
+
+    $query = 'ALTER TABLE customer DROP COLUMN country;
+              ALTER TABLE vendor   DROP COLUMN country;';
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $self->dberror($query);
 
     1;
   }) ;#or do { die SL::DB->client->error };
