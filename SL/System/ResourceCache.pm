@@ -4,7 +4,7 @@ use strict;
 use File::stat;
 use File::Find;
 
-our @paths = qw(image css);
+our @paths = qw(public/image public/css);
 our $cache;
 
 sub generate_data {
