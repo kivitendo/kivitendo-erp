@@ -65,12 +65,14 @@ sub run {
   SL::DB->client->with_transaction(sub {
     my $customers = SL::DB::Manager::Customer->get_all(sort_by => 'customernumber');
     my $vendors   = SL::DB::Manager::Vendor  ->get_all(sort_by => 'vendornumber');
+    my $countries = SL::DB::Manager::Country ->get_all(sort_by => 'country_id');
+    %country_id_by_iso2 = map { $_->iso2 => $_->id } @$countries;
     foreach my $cv (@$customers, @$vendors) {
       my $country_obj;
       my $country_code = $cv->country ? SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->country) : 'DE';
       if ($country_code) {
-        $country_obj = SL::DB::Manager::Country->get_all(where => ['iso2' => $country_code])->[0];
-        if (!defined $country_obj) {
+        $country_id = $country_id_by_iso2{$country_code};
+        if (!defined $country_id) {
           push @errors, $country_code;
           next;
         }
@@ -81,7 +83,7 @@ sub run {
         next;
       }
 
-      $cv->country_id($country_obj->id);
+      $cv->country_id($country_id);
       $cv->save;
     }
 
