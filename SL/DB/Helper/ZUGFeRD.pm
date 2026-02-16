@@ -640,18 +640,11 @@ sub _applicable_header_trade_agreement {
   #     <ram:ApplicableHeaderTradeAgreement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
-  # BuyerReference must always be given in XRechnung v3.0.2 BT-10.
-  # Factur-X doesn't really say anything about it and only has it as optional in the schema.
-  # Technically this means that the Factur-X:conformant profile doesn't have to include it, but validators seem to be overzealous here.
-  # To be on the safe side put a fallback in there for conformant profiles, but be strict about it in XRechnung compliant profiles.
-  if ($standards_ids{ $self->{_zugferd}->{profile} } =~ /compliant/) {
-    if (!defined $self->customer->c_vendor_routing_id) {
-      die t8("Can not create an EN16931 compliant ZUGFeRD export without a routing id (Leitweg ID)");
-    } else {
-      $params{xml}->dataElement("ram:BuyerReference", _u8($self->customer->c_vendor_routing_id));
-    }
-  } else {
-    my $buyer_reference = $self->customer->c_vendor_routing_id || $self->cusordnumber || $self->customer->ustid || '';
+  # BT-10 BuyerReference must always be given in XRechnung
+  # v3.0.2. _validate_data already checks for it.  Optional in
+  # Factur-X.
+  my $buyer_reference = first { ($_ // '') ne '' } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid);
+  if ($buyer_reference) {
     $params{xml}->dataElement("ram:BuyerReference", _u8($buyer_reference));
   }
 
@@ -805,6 +798,10 @@ sub _validate_data {
   my $have_buyer_electronic_address = first { $self->customer->$_ } qw(invoice_mail email gln);
   if (!$have_buyer_electronic_address) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('At least one of the following fields has to be set in the customer data: Email of the invoice recipient; Email; GLN'));
+  }
+
+  if (_is_profile($self, PROFILE_XRECHNUNG()) && (($self->customer->c_vendor_routing_id // '') eq '')) {
+    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The routing ID has to be set in the customer data.'));
   }
 
   return %result;
