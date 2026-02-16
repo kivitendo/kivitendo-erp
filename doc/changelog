@@ -43,8 +43,11 @@ Größere neue Features:
 Mittelgroße neue Features:
 - Verbundene Kunden/Lieferanten
   Man kann jetzt Kunden und Lieferanten verbinden und so Geschäftspartner
-  abbilden, die in beiden Rollen auftreten. Dabei werden dann die Name,
-  Währung, Steuergruppe und Ungültig zwischen beiden synchronisiert.
+  abbilden, die in beiden Rollen auftreten. Dabei werden dann die Name, Straße
+  Stadt, Postleitzahl, Land, Währung, Steuerzone, Steuernummer, Steuergruppe,
+  UStID, Homepage, Sprache, Telefon, Fax, E-Mail und Ungültig zwischen beiden
+  synchronisiert. Benutzerdefinierte Variablen können einzeln für die
+  Synchronisation freigegeben werden.
 
 
 Kleinere neue Features und Detailverbesserungen:
