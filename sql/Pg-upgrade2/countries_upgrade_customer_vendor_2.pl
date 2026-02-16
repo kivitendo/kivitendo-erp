@@ -10,6 +10,7 @@ use SL::DB::Country;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Locale::String qw(t8);
 use SL::Presenter::Tag qw(input_tag html_tag select_tag submit_tag);
 use SL::DBUtils;
 
@@ -18,12 +19,12 @@ use parent qw(SL::DBUpgrade2::Base);
 sub print_errors {
   my ($self, $missing) = @_;
 
-  $::form->{title} = $::locale->text('Country Names');
+  $::form->{title} = t8('Country Names');
 
   my @columns = qw(old_name country_id);
   my %column_defs = (
-    old_name   => { text => $::locale->text('old') },
-    country_id => { text => $::locale->text('new') },
+    old_name   => { text => t8('old') },
+    country_id => { text => t8('new') },
   );
   map { $column_defs{$_}{visible} = 1 } @columns;
 
@@ -39,7 +40,7 @@ sub print_errors {
       '<div class="wrapper"><form name="Form" method="post" action="login.pl"><input type="hidden" name="action" value="login">' .
       html_tag('p', 'The following country names must be assigned to countries from the ISO 3166-1 alpha-2 code list, as automatic assignment failed for these.'),
     raw_bottom_info_text =>
-      submit_tag('rerun_countries_upgrade_customer_vendor_2', $::locale->text('Rerun update')) .
+      submit_tag('rerun_countries_upgrade_customer_vendor_2', t8('Rerun update')) .
       '</form></div>',
   );
 
