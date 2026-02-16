@@ -4,6 +4,7 @@
 [% USE P %]
 [% SET have_files = 0 %]
 
+<div style="display: flex; flex-direction: column; height: 100%">
 [% BLOCK attach_file_list %]
   [% IF files.as_list.size %]
     [% SET have_files = 1 ;
@@ -84,7 +85,9 @@
   </tbody>
 </table>
 
+<div class="horizontal-scroll-wrapper" style="flex: 1; min-height: 150px">
 [% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]
+</div>
 
 <table class="tbl-horizontal">
   <colgroup>
@@ -151,4 +154,7 @@
 <div class="buttons">
   [% L.button_tag(email_form.js_send_function, LxERP.t8("Send email")) %]
   [% L.button_tag("\$('#send_email_dialog').dialog('close');", LxERP.t8("Abort"), class="button neutral") %]
+</div>
+
+
 </div>
