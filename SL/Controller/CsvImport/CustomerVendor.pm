@@ -213,16 +213,19 @@ sub check_country {
 
   my $object = $entry->{object};
 
-  my $country_code = $entry->{raw_data}{country} ? SL::Helper::ISO3166::map_name_to_alpha_2_code($entry->{raw_data}{country}) : 'DE';
-  if ($country_code) {
-    my $country_obj = SL::DB::Manager::Country->get_all(where => ['iso2' => $country_code])->[0];
-    $object->country_id($country_obj->id);
-    $self->clone_methods->{country_id} = 1;
-    return 1;
-  } else {
+  if (!$entry->{raw_data}{country}) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Country missing');
+    return 0;
+  }
+
+  my $country = SL::DB::Manager::Country->find_by_name($entry->{raw_data}{country});
+  if (!$country) {
     push @{ $entry->{errors} }, $::locale->text('Error: Country not found: #1', $entry->{raw_data}{country});
     return 0;
   }
+  $object->country_id($country->id);
+  $self->clone_methods->{country_id} = 1;
+  return 1;
 }
 
 sub check_salesman {
