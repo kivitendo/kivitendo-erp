@@ -8,3 +8,5 @@ ALTER TABLE vendor   ADD column country_id INTEGER REFERENCES countries(id);
 
 ALTER TABLE shipto                       ADD column shiptocountry_id INTEGER REFERENCES countries(id);
 ALTER TABLE additional_billing_addresses ADD column country_id       INTEGER REFERENCES countries(id);
+
+ALTER TABLE defaults ADD column address_country_id INTEGER REFERENCES countries(id);

@@ -81,7 +81,9 @@ sub run {
             UNION ALL
             SELECT distinct(shiptocountry) AS country FROM shipto WHERE shiptocountry != ''
             UNION ALL
-            SELECT distinct(country) FROM additional_billing_addresses WHERE country != '';";
+            SELECT distinct(country) FROM additional_billing_addresses WHERE country != ''
+            UNION ALL
+            SELECT address_country AS country FROM defaults;";
   $sth = $self->dbh->prepare($query);
   $sth->execute || $self->db_error($query);
   my %country_id_by_country_name = ();
@@ -104,6 +106,12 @@ sub run {
     return 2;
   }
   return 0 if scalar @errors;
+
+  $query = "UPDATE defaults SET address_country_id = ? WHERE address_country = ?;";
+  $sth = $self->dbh->prepare($query);
+  foreach my $name (keys %country_id_by_country_name) {
+    do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
+  }
 
   $query = "UPDATE customer SET country_id = ? WHERE COALESCE(country, '') = ?;";
   $sth = $self->dbh->prepare($query);
@@ -130,7 +138,8 @@ sub run {
   }
 
   $query = 'ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
-            ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;';
+            ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;
+            ALTER TABLE defaults ALTER COLUMN address_country_id SET NOT NULL;';
   $sth = $self->dbh->prepare($query);
   $sth->execute || $self->db_error($query);
 

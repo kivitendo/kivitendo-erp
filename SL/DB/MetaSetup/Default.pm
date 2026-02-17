@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   accounting_method                         => { type => 'text' },
   address_city                              => { type => 'text' },
   address_country                           => { type => 'text' },
+  address_country_id                        => { type => 'integer', not_null => 1 },
   address_street1                           => { type => 'text' },
   address_street2                           => { type => 'text' },
   address_zipcode                           => { type => 'text' },
@@ -258,6 +259,11 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  address_country_obj => {
+    class       => 'SL::DB::Country',
+    key_columns => { address_country_id => 'id' },
+  },
+
   ap_chart => {
     class       => 'SL::DB::Chart',
     key_columns => { ap_chart_id => 'id' },

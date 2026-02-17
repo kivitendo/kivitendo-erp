@@ -94,7 +94,7 @@ sub _parse_our_address {
   push @result, [ 'PostcodeCode', $::instance_conf->get_address_zipcode ] if $::instance_conf->get_address_zipcode;
   push @result, grep { $_->[1] } pairwise { [ $a, $b] } @line_names, @street;
   push @result, [ 'CityName', $::instance_conf->get_address_city ] if $::instance_conf->get_address_city;
-  push @result, [ 'CountryID', SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country) // 'DE' ];
+  push @result, [ 'CountryID', SL::DB::Country->new(id => $::instance_conf->get_address_country_id)->load->iso2 ];
 
   return @result;
 }
@@ -727,10 +727,6 @@ sub _validate_data {
 
   if (!$::instance_conf->get_company || any { my $get = "get_address_$_"; !$::instance_conf->$get } qw(street1 zipcode city)) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The company\'s address information is incomplete in the client configuration.'));
-  }
-
-  if ($::instance_conf->get_address_country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
   }
 
   if (!SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name)) {
