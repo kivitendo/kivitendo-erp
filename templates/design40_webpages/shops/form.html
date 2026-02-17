@@ -38,6 +38,10 @@
           <td>[% L.select_tag('shop.taxzone_id', SELF.taxzone_id, value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.taxzone_id, default_value_key='id', class='wi-wide' ) %]</td>
         </tr>
         <tr>
+          <th>[% 'Default country' | $T8 %]</th>
+          <td>[% P.country.picker('shop.default_country_id', SELF.shop.default_country_id, class='wi-wide' ) %]</td>
+        </tr>
+        <tr>
           <th>[% 'Protocol' | $T8 %]</th>
           <td>[% L.select_tag('shop.protocol', SELF.protocols value_key = 'id', title_key = 'name', with_empty = 0, default = SELF.shop.protocol, default_value_key='id', class='wi-small' ) %]</td>
         </tr>
