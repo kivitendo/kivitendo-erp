@@ -12,6 +12,8 @@ use Test::Exception;
 use Test::Deep qw(cmp_bag);
 use List::Util qw(max);
 
+use SL::Dev::CustomerVendor qw(new_customer new_vendor);
+
 use SL::DB::Buchungsgruppe;
 use SL::DB::Currency;
 use SL::DB::Customer;
@@ -50,14 +52,14 @@ sub reset_state {
 
   $currency_id     = $::instance_conf->get_currency_id;
 
-  $customer     = SL::DB::Customer->new(
+  $customer     = new_customer(
     name        => 'Test Customer',
     currency_id => $currency_id,
     taxzone_id  => $taxzone->id,
     %{ $params{customer} }
   )->save;
 
-  $vendor     = SL::DB::Vendor->new(
+  $vendor     = new_vendor(
     name        => 'Test Vendor',
     currency_id => $currency_id,
     taxzone_id  => $taxzone->id,
