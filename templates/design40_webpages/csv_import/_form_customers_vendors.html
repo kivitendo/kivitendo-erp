@@ -24,11 +24,7 @@
 </tr>
 <tr>
   <th>[% LxERP.t8('Default country') %]:</th>
-  <td>
-    [% L.select_tag('settings.default_country_id', SELF.all_countries,
-                    default = SELF.profile.get('default_country_id'),
-                    title_key = 'description', class='wi-wide') %]
-  </td>
+  <td>[% P.country.picker('settings.default_country_id', SELF.profile.get('default_country_id'), class => 'wi-wide') %]</td>
 </tr>
 <tr>
   <th>[% LxERP.t8('Default taxzone') %]:</th>
