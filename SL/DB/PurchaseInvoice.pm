@@ -318,7 +318,8 @@ sub recalculate_amounts {
 
   return undef unless $self->has_loaded_related('transactions');
 
-  my ($netamount, $taxamount);
+  my $netamount = 0;
+  my $taxamount = 0;
 
   my @transactions = @{$self->transactions};
 
