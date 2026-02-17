@@ -2878,6 +2878,7 @@ $self->{texts} = {
   'Periodic inventory'          => '',
   'Periodic invoices active'    => '',
   'Periodic invoices config set to inactive.' => '',
+  'Periodic invoices created from this sales order cannot be converted to PDFs at the moment as Factur-X/ZUGFeRD/XRechnung validation failed: #1' => '',
   'Periodic invoices inactive'  => '',
   'Periods'                     => '',
   'Permissions for invoices'    => '',
