@@ -8,7 +8,7 @@ use utf8;
 
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
-use SL::Presenter::Tag qw(input_tag html_tag select_tag submit_tag);
+use SL::Presenter::Tag qw(input_tag hidden_tag html_tag select_tag submit_tag);
 use SL::DBUtils;
 
 use parent qw(SL::DBUpgrade2::Base);
@@ -50,7 +50,9 @@ sub print_errors {
   foreach my $old_country (keys %$missing) {
     $report->add_data({
       old_name   => { data => $old_country },
-      country_id => { raw_data => select_tag('missing.'.$old_country, \@all_countries, value_key => 'id', title_key => 'description', default => $missing->{$old_country}, class => 'wi-wide') },
+      country_id => { raw_data =>
+        hidden_tag('missing[+].name', $old_country) .
+        select_tag('missing[].id', \@all_countries, value_key => 'id', title_key => 'description', default => $missing->{$old_country}, class => 'wi-wide') },
     });
   }
 
@@ -62,7 +64,8 @@ sub run {
   my ($self) = @_;
 
   my @errors = ();
-  my %missing = %{$::form->{missing} // {}};
+  my %missing = ();
+  $missing{$_->{name}} = $_->{id} for @{$::form->{missing} // []};
 
   SL::DB->client->with_transaction(sub {
     my ($query, $sth);
