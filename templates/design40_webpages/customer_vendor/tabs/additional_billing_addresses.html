@@ -63,7 +63,7 @@
       </tr>
       <tr>
         <th>[% 'Country' | $T8 %]</th>
-        <td>[% L.input_tag_trim('additional_billing_address.country', SELF.additional_billing_address.country, class="wi-wide") %]</td>
+        <td>[% P.country.picker('additional_billing_address.country_id', SELF.additional_billing_address.country_id, with_empty = 1, class = 'wi-wide') %]</td>
       </tr>
       <tr>
         <th>[% 'GLN' | $T8 %]</th>

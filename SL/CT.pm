@@ -164,17 +164,17 @@ sub search {
     push @values, (like($form->{addr_city})) x 2;
   }
 
-  if ($form->{addr_country}) {
-    $where .= " AND ((lower(ct.country) LIKE lower(?))
+  if ($form->{addr_country_id}) {
+    $where .= " AND ((ct.country_id = ?)
                      OR
                      (ct.id IN (
                         SELECT so.trans_id
                         FROM shipto so
                         WHERE (so.module = 'CT')
-                          AND (lower(so.shiptocountry) LIKE lower(?))
+                          AND (so.shiptocountry_id = ?)
                       ))
                      )";
-    push @values, (like($form->{addr_country})) x 2;
+    push @values, (conv_i($form->{addr_country_id})) x 2;
   }
 
   if ($form->{addr_gln}) {

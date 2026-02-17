@@ -167,7 +167,10 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}"             if $form->{addr_city};
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{addr_zipcode}"          if $form->{addr_zipcode};
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{addr_street}"           if $form->{addr_street};
-  push @options, $locale->text('Billing/shipping address (country)') . " : $form->{addr_country}"          if $form->{addr_country};
+  if ($form->{addr_country_id}) {
+    my $country = SL::DB::Country->new(id => $form->{addr_country_id})->load;
+    push @options, $locale->text('Billing/shipping address (country)') . " : " . $country->description;
+  }
   push @options, $locale->text('Billing/shipping address (GLN)')     . " : $form->{addr_gln}"              if $form->{addr_gln};
   push @options, $locale->text('Quick Search')                       . " : $form->{all}"                   if $form->{all};
   push @options, $locale->text('Factur-X/ZUGFeRD settings')          . " : $zugferd_filter"                if $zugferd_filter;

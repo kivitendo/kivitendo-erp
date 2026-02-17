@@ -91,7 +91,7 @@ __PACKAGE__->run_before(
 
 __PACKAGE__->run_before('normalize_name');
 
-my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country gln email phone fax default_address);
+my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country_id gln email phone fax default_address);
 
 sub action_add {
   my ($self) = @_;
@@ -683,7 +683,7 @@ sub action_ajaj_get_shipto {
         my $name = 'shipto'. $_;
         $name => $self->{shipto}->$name;
       }
-      qw(_id name department_1 department_2 street zipcode city gln country contact phone fax email)
+      qw(_id name department_1 department_2 street zipcode city gln country_id contact phone fax email)
     )
   };
 

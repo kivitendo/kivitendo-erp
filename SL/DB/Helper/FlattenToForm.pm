@@ -63,6 +63,7 @@ sub flatten_to_form {
   if ($shipto) {
     _copy($shipto,                  $form, '',            '', 0, grep { m{^shipto(?!_id$)} } map { $_->name } SL::DB::Shipto->meta->columns);
     _copy_custom_variables($shipto, $form, 'shiptocvar_', '');
+    $form->{shiptocountry}     = $shipto->shiptocountry->description if $shipto->shiptocountry;
   }
 
   _handle_user_data($self, $form);

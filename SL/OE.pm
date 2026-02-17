@@ -159,7 +159,7 @@ SQL
     qq|  ct.${vc}number AS vcnumber, countries.description AS country, ct.ustid, ct.business_id,  | .
     qq|  tz.description AS taxzone, | .
     qq|  shipto.shiptoname, shipto.shiptodepartment_1, shipto.shiptodepartment_2, | .
-    qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, shipto.shiptocountry, | .
+    qq|  shipto.shiptostreet, shipto.shiptozipcode, shipto.shiptocity, sc.description AS shiptocountry, | .
     qq|  order_statuses.name AS order_status | .
     $periodic_invoices_columns .
     $phone_notes_columns .
@@ -182,6 +182,7 @@ SQL
         (o.shipto_id = shipto.shipto_id) or
         (o.id = shipto.trans_id and shipto.module = 'OE')
        )| .
+    qq|LEFT JOIN countries sc ON (shipto.shiptocountry_id = sc.id)| .
     qq|$periodic_invoices_joins | .
     $phone_notes_join .
     qq|WHERE (o.record_type = ?) |;
@@ -454,9 +455,9 @@ SQL
     $query .= " AND shipto.shiptocity ILIKE ?";
     push(@values, like($form->{shiptocity}));
   }
-  if ($form->{shiptocountry}) {
-    $query .= " AND shipto.shiptocountry ILIKE ?";
-    push(@values, like($form->{shiptocountry}));
+  if ($form->{shiptocountry_id}) {
+    $query .= " AND shipto.shiptocountry_id = ?";
+    push(@values, conv_i($form->{shiptocountry_id}));
   }
 
   if ($form->{all}) {

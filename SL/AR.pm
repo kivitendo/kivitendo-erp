@@ -532,7 +532,7 @@ sub ar_transactions {
     qq|  pt.description AS payment_terms, | .
     qq|  d.description AS department, | .
     qq|  s.shiptoname, s.shiptodepartment_1, s.shiptodepartment_2, | .
-    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, s.shiptocountry, | .
+    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, sc.description AS shiptocountry, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
@@ -555,6 +555,7 @@ sub ar_transactions {
         (a.shipto_id = s.shipto_id) or
         (a.id = s.trans_id and s.module = 'AR')
        )| .
+    qq|LEFT JOIN countries sc ON (s.shiptocountry_id = sc.id)| .
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
@@ -789,9 +790,9 @@ SQL
     $where .= " AND s.shiptocity ILIKE ?";
     push(@values, like($form->{shiptocity}));
   }
-  if ($form->{shiptocountry}) {
-    $where .= " AND s.shiptocountry ILIKE ?";
-    push(@values, like($form->{shiptocountry}));
+  if ($form->{shiptocountry_id}) {
+    $where .= " AND s.shiptocountry_id = ?";
+    push(@values, conv_i($form->{shiptocountry_id}));
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',

@@ -12,7 +12,7 @@
         shiptostreet:       "[% JavaScript.escape(vc_obj.street) %]",
         shiptozipcode:      "[% JavaScript.escape(vc_obj.zipcode) %]",
         shiptocity:         "[% JavaScript.escape(vc_obj.city) %]",
-        shiptocountry:      "[% JavaScript.escape(vc_obj.country) %]",
+        shiptocountry_id:   "[% JavaScript.escape(vc_obj.country_id) %]",
         shiptogln:          "[% JavaScript.escape(vc_obj.gln) %]",
         shiptocontact:      "[% JavaScript.escape(vc_obj.contact) %]",
         shiptophone:        "[% JavaScript.escape(vc_obj.phone) %]",
@@ -31,7 +31,7 @@
         shiptostreet:       "[% JavaScript.escape(shipto.shiptostreet) %]",
         shiptozipcode:      "[% JavaScript.escape(shipto.shiptozipcode) %]",
         shiptocity:         "[% JavaScript.escape(shipto.shiptocity) %]",
-        shiptocountry:      "[% JavaScript.escape(shipto.shiptocountry) %]",
+        shiptocountry_id:   "[% JavaScript.escape(shipto.shiptocountry_id) %]",
         shiptogln:          "[% JavaScript.escape(shipto.shiptogln) %]",
         shiptocontact:      "[% JavaScript.escape(shipto.shiptocontact) %]",
         shiptophone:        "[% JavaScript.escape(shipto.shiptophone) %]",
@@ -63,7 +63,7 @@
 
 [% IF cs_obj ;
   fields = ['shiptoname', 'shiptodepartment_1', 'shiptodepartment_2',
-            'shiptostreet', 'shiptozipcode', 'shiptocity', 'shiptocountry',
+            'shiptostreet', 'shiptozipcode', 'shiptocity', 'shiptocountry_id',
             'shiptogln', 'shiptocontact', 'shiptocp_gender', 'shiptophone',
             'shiptofax', 'shiptoemail'] ;
   FOREACH field = fields ;
@@ -119,8 +119,8 @@ END ;
    </tr>
    <tr>
     <th>[% LxERP.t8('Country') %]</th>
-    <td>[% HTML.escape(vc_obj.country) %]</td>
-    <td>[% L.input_tag("shiptocountry", shiptocountry, "size", "35") %]</td>
+    <td>[% HTML.escape(vc_obj.country.description) %]</td>
+    <td>[% P.country.picker('shiptocountry_id', shiptocountry_id, with_empty = 1, class="wi-wide") %]</td>
    </tr>
    <tr>
     <th>[% LxERP.t8('GLN') %]</th>
