@@ -940,7 +940,7 @@ sub import_zugferd_data {
     },
     {
       # document class of SL::XMLInvoice
-      can => qw(metadata items)
+      can => [ qw(metadata items) ]
     }
   );
 
