@@ -1050,7 +1050,7 @@ sub _load_customer_vendor {
   } else {
     $self->{cv} = SL::DB::Customer->new(id => $::form->{id})->load();
   }
-  $self->{countries} = SL::DB::Manager::Country->get_all(sort_by => 'description');
+  $self->{countries} = SL::DB::Manager::Country->get_all_sorted();
 
   if ( $::form->{note_id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note_id})->load();
@@ -1124,7 +1124,7 @@ sub _create_customer_vendor {
 
   $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
-  $self->{countries} = SL::DB::Manager::Country->get_all(sort_by => 'description');
+  $self->{countries} = SL::DB::Manager::Country->get_all_sorted();
 
   $self->{note} = SL::DB::Note->new();
 

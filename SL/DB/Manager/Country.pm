@@ -7,11 +7,17 @@ use strict;
 
 use SL::Helper::ISO3166 qw(map_name_to_alpha_2_code);
 use SL::DB::Helper::Manager;
+use SL::DB::Helper::Sorted;
 use base qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::Country' }
 
 __PACKAGE__->make_manager_methods;
+
+sub _sort_spec {
+  return ( default => [ 'description', 1 ],
+           columns => { SIMPLE => 'ALL' } );
+}
 
 sub find_by_name {
   my ($country_name) = @_;

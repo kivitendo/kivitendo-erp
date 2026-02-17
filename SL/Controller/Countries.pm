@@ -38,7 +38,7 @@ sub action_list {
     raw_bottom_info_text => '</form></div>',
   );
 
-  foreach my $c (@{SL::DB::Manager::Country->get_all(sort_by => 'description')}) {
+  foreach my $c (@{SL::DB::Manager::Country->get_all_sorted}) {
     $report->add_data({
       iso2        => { data => $c->iso2 },
       description => { raw_data => input_tag('description.' . $c->id, $c->description, class => 'wi-wide') },
