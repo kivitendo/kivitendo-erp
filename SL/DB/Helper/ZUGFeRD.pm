@@ -1014,22 +1014,13 @@ sub import_zugferd_data {
   ) unless scalar @{$taxes};
 
   require SL::DB::RecordTemplate;
-  my %template_params;
-  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id]);
-  if ($template_ap) {
-    $template_params{globalproject_id}        = $template_ap->project_id;
-    $template_params{payment_id}              = $template_ap->payment_id;
-    $template_params{department_id}           = $template_ap->department_id;
-    $template_params{ordnumber}               = $template_ap->ordnumber;
-    $template_params{transaction_description} = $template_ap->transaction_description;
-    $template_params{notes}                   = $template_ap->notes;
-  }
+  my $template_ap = SL::DB::Manager::RecordTemplate->get_first(where => [vendor_id => $vendor->id])
+    or die t8("ZUGFeRD imports require a record template.");
 
   # Try to fill in AP account to book against
-  my $ap_chart_id = $template_ap ? $template_ap->ar_ap_chart_id
-                  : $::instance_conf->get_ap_chart_id;
+  my $ap_chart_id = $template_ap->ar_ap_chart_id;
   my $ap_chart;
-  if ( $ap_chart_id ne '' ) {
+  if ( $ap_chart_id ) {
     $ap_chart = SL::DB::Manager::Chart->find_by(id => $ap_chart_id);
   } else {
     # If no default account is configured, just use the first AP account found.
@@ -1048,51 +1039,85 @@ sub import_zugferd_data {
     : $today->to_kivitendo;
 
   my %params = (
-    invoice      => 0,
-    vendor_id    => $vendor->id,
-    taxzone_id   => $vendor->taxzone_id,
-    currency_id  => $currency->id,
-    direct_debit => $metadata{'direct_debit'},
-    invnumber    => $invnumber,
-    transdate    => $metadata{transdate} || $today->to_kivitendo,
-    duedate      => $metadata{duedate}   || $today->to_kivitendo,
-    taxincluded  => 0,
-    intnotes     => $intnotes,
-    transactions => [],
-    %template_params,
+    invoice                 => 0,
+    vendor_id               => $vendor->id,
+    taxzone_id              => $vendor->taxzone_id,
+    currency_id             => $currency->id,
+    direct_debit            => $metadata{'direct_debit'},
+    invnumber               => $invnumber,
+    transdate               => $metadata{transdate} || $today->to_kivitendo,
+    duedate                 => $metadata{duedate}   || $today->to_kivitendo,
+    taxincluded             => 0,
+    intnotes                => $intnotes,
+    transactions            => [],
+    globalproject_id        => $template_ap->project_id,
+    payment_id              => $template_ap->payment_id,
+    department_id           => $template_ap->department_id,
+    ordnumber               => $template_ap->ordnumber,
+    transaction_description => $template_ap->transaction_description,
+    notes                   => $template_ap->notes,
   );
 
   $self->assign_attributes(%params);
 
   # parse items
-  my $template_item;
-  if ($template_ap && scalar @{$template_ap->items}) {
-    $template_item = $template_ap->items->[0];
-  }
-  foreach my $i (@items) {
-    my %item = %{$i};
+  my $template_item = $template_ap->items->[0]
+    or die t8('Record Template needs at least one item');
 
-    my $net_total = $item{'subtotal'};
+  if ($zugferd_parser->can('tax_totals') && $::instance_conf->get_zugferd_ap_transaction_use_totals) {
 
-    # set default values for items
-    my %line_params;
-    $line_params{amount} = $net_total;
-    if ($template_item) {
+    my $tax_totals = $zugferd_parser->tax_totals;
+
+    for my $tax_row (@$tax_totals) {
+      my %line_params;
+
+      die t8('Record template tax rate (#1) does not match imported tax rate (#2)', $template_item->tax->rate, $tax_row->{tax_rate} / 100)
+        if abs($template_item->tax->rate * 100 - $tax_row->{tax_rate} * 1) > 1e-10;
+
+      $line_params{amount}     = $tax_row->{net_amount};
       $line_params{tax_id}     = $template_item->tax->id;
       $line_params{chart}      = $template_item->chart;
       $line_params{project_id} = $template_item->project_id;
-    } else {
-      my $tax_rate  = $item{'tax_rate'};
-         $tax_rate /= 100 if $tax_rate > 1; # XML data is usually in percent
-      my $tax   = first { $tax_rate              == $_->rate } @{ $taxes };
-         $tax //= first { $active_taxkey->tax_id == $_->id }   @{ $taxes };
-         $tax //= $taxes->[0];
-      $line_params{tax_id}  = $tax->id;
-      $line_params{chart}   = $default_ap_amount_chart;
+
+      $self->add_ap_amount_row(%line_params);
     }
 
-    $self->add_ap_amount_row(%line_params);
+    # special case: untaxed positions like deposit don't show up in the tax blocks
+    # invariant:
+    # net_amount + tax + [UntaxedAmount] = amount
+
+    my $untaxed_delta = $metadata{gross_total} - $metadata{net_total} - $metadata{tax_total};
+    if ($untaxed_delta > 0.005) {
+      my %line_params;
+
+      die t8('Record template tax rate (#1) does not match imported tax rate (#2)', $template_item->tax->rate, 0)
+        if $template_item->tax->rate != 0;
+
+      $line_params{amount}     = $untaxed_delta;
+      $line_params{tax_id}     = $template_item->tax->id;
+      $line_params{chart}      = $template_item->chart;
+      $line_params{project_id} = $template_item->project_id;
+
+      $self->add_ap_amount_row(%line_params);
+    }
+  } else {
+    foreach my $i (@items) {
+      my %item = %{$i};
+
+      die t8('Record template tax rate (#1) does not match imported tax rate (#2)', $template_item->tax->rate * 1, $item{tax_rate} / 100)
+        if abs($template_item->tax->rate * 100 - $item{tax_rate} * 1) > 1e-10;
+
+      # set default values for items
+      my %line_params;
+      $line_params{amount}     = $item{subtotal};
+      $line_params{tax_id}     = $template_item->tax->id;
+      $line_params{chart}      = $template_item->chart;
+      $line_params{project_id} = $template_item->project_id;
+
+      $self->add_ap_amount_row(%line_params);
+    }
   }
+
   $self->recalculate_amounts();
 
   $self->create_ap_row(chart => $ap_chart);
