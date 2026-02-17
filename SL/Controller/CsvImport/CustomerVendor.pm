@@ -211,19 +211,21 @@ sub check_business {
 sub check_country {
   my ($self, $entry) = @_;
 
+  my $country_id;
   my $object = $entry->{object};
 
-  if (!$entry->{raw_data}{country}) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Country missing');
-    return 0;
+  if ($entry->{raw_data}{country}) {
+    my $country = SL::DB::Manager::Country->find_by_name($entry->{raw_data}{country});
+    $country_id = $country->id if $country;
+  } else {
+    $country_id = $self->controller->profile->get('default_country_id');
   }
 
-  my $country = SL::DB::Manager::Country->find_by_name($entry->{raw_data}{country});
-  if (!$country) {
+  if (!$country_id) {
     push @{ $entry->{errors} }, $::locale->text('Error: Country not found: #1', $entry->{raw_data}{country});
     return 0;
   }
-  $object->country_id($country->id);
+  $object->country_id($country_id);
   $self->clone_methods->{country_id} = 1;
   return 1;
 }
