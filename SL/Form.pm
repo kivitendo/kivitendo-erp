@@ -1746,7 +1746,7 @@ sub add_shipto {
   my $shipto;
   my @values;
 
-  foreach my $item (qw(name department_1 department_2 street zipcode city country gln
+  foreach my $item (qw(name department_1 department_2 street zipcode city country_id gln
                        contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
