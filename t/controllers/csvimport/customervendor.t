@@ -25,8 +25,9 @@ sub do_import {
   );
   $controller->load_default_profile;
   $controller->profile->set(
-    charset  => 'utf-8',
-    sep_char => ';',
+    charset            => 'utf-8',
+    sep_char           => ';',
+    default_country_id => 1,
     %$settings
   );
 
