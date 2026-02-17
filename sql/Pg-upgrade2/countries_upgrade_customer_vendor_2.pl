@@ -35,7 +35,7 @@ sub print_errors {
     allow_pdf_export     => 0,
     raw_top_info_text    =>
       '<div class="wrapper"><form name="Form" method="post" action="login.pl"><input type="hidden" name="action" value="login">' .
-      html_tag('p', 'The following country names must be assigned to countries from the ISO 3166-1 alpha-2 code list, as automatic assignment failed for these.'),
+      html_tag('p', t8('The following country names must be assigned to countries from the ISO 3166-1 alpha-2 code list, as automatic assignment failed for these.')),
     raw_bottom_info_text =>
       submit_tag('rerun_countries_upgrade_customer_vendor_2', t8('Rerun update')) .
       '</form></div>',
