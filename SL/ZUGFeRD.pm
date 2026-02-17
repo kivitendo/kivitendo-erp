@@ -269,6 +269,8 @@ sub find_vendor_by_taxnumber {
       last;
     }
   }
+
+  return $vendor;
 }
 
 sub find_vendor_by_ustid {
