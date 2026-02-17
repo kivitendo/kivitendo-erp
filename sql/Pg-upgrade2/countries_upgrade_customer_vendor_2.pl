@@ -99,13 +99,13 @@ sub run {
     }
     return 0 if scalar @errors;
 
-    $query = 'UPDATE customer SET country_id = ? WHERE country = ?;';
+    $query = "UPDATE customer SET country_id = ? WHERE COALESCE(country, '') = ?;";
     $sth = $self->dbh->prepare($query);
     foreach my $name (keys %country_id_by_country_name) {
       do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
     }
 
-    $query = 'UPDATE vendor SET country_id = ? WHERE country = ?;';
+    $query = "UPDATE vendor SET country_id = ? WHERE COALESCE(country, '') = ?;";
     $sth = $self->dbh->prepare($query);
     foreach my $name (keys %country_id_by_country_name) {
       do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
