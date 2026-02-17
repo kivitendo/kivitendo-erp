@@ -44,7 +44,7 @@ sub print_errors {
   my ($query, $sth);
   $query = 'SELECT id, description FROM countries ORDER BY description;';
   $sth = $self->dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
+  $sth->execute || $self->db_error($query);
   my @all_countries = map { +{ id => $_->[0], description => $_->[1] } } @{ $sth->fetchall_arrayref };
 
   foreach my $old_country (keys %$missing) {
@@ -72,7 +72,7 @@ sub run {
 
     $query = 'SELECT id, iso2 FROM countries;';
     $sth = $self->dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $sth->execute || $self->db_error($query);
     my $countries = $sth->fetchall_arrayref();
     my %country_id_by_iso2 = map { $_->[1] => $_->[0] } @$countries;
 
@@ -84,7 +84,7 @@ sub run {
               UNION ALL
               SELECT distinct(country) FROM additional_billing_addresses WHERE country != '';";
     $sth = $self->dbh->prepare($query);
-    $sth->execute || $::form->dberror($query);
+    $sth->execute || $self->db_error($query);
     my %country_id_by_country_name = ();
     while (my $cv = $sth->fetchrow_hashref()) {
       my $country_id = $cv->{country} ? $country_id_by_iso2{ SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->{country}) } : undef;
@@ -133,14 +133,14 @@ sub run {
     $query = 'ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
               ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;';
     $sth = $self->dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $sth->execute || $self->db_error($query);
 
     $query = 'ALTER TABLE customer DROP COLUMN country;
               ALTER TABLE vendor   DROP COLUMN country;
               ALTER TABLE shipto   DROP COLUMN shiptocountry;
               ALTER TABLE additional_billing_addresses DROP COLUMN country;';
     $sth = $self->dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $sth->execute || $self->db_error($query);
 
     1;
   }) ;#or do { die SL::DB->client->error };
