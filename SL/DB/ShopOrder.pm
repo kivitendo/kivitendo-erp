@@ -9,6 +9,7 @@ use SL::DBUtils;
 use SL::DB::MetaSetup::ShopOrder;
 use SL::DB::Manager::ShopOrder;
 use SL::DB::Helper::LinkedRecords;
+use SL::DB::Country;
 use SL::Locale::String qw(t8);
 use Carp;
 
@@ -210,6 +211,14 @@ sub get_customer{
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $payment_id = $default_payment ? $default_payment->id : undef;
   if(!scalar(@{$customer_proposals})){
+
+    my $country_id = $shop->default_country_id;
+    if ($self->billing_country) {
+      my $country = SL::DB::Manager::Country->find_by_name($self->billing_country);
+      die t8('Error: Country not found: #1', $self->billing_country) if !$country;
+      $country_id = $country->id;
+    };
+
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
                     'department_2'          => $self->billing_department,
@@ -218,7 +227,7 @@ sub get_customer{
                     'city'                  => $self->billing_city,
                     'email'                 => $self->billing_email,
                     'invoice_mail'          => $self->billing_email,
-                    'country'               => $self->billing_country,
+                    'country_id'            => $country_id,
                     'greeting'              => $self->billing_greeting,
                     'fax'                   => $self->billing_fax,
                     'phone'                 => $self->billing_phone,
