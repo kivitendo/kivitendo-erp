@@ -6,9 +6,6 @@ package SL::DBUpgrade2::countries_upgrade_customer_vendor_2;
 use strict;
 use utf8;
 
-use SL::DB::Country;
-use SL::DB::Customer;
-use SL::DB::Vendor;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::Presenter::Tag qw(input_tag html_tag select_tag submit_tag);
@@ -44,12 +41,16 @@ sub print_errors {
       '</form></div>',
   );
 
-  my $all_countries = SL::DB::Manager::Country->get_all(sort_by => 'description');
+  my ($query, $sth);
+  $query = 'SELECT id, description FROM countries ORDER BY description;';
+  $sth = $self->dbh->prepare($query);
+  $sth->execute || $self->dberror($query);
+  my @all_countries = map { +{ id => $_->[0], description => $_->[1] } } @{ $sth->fetchall_arrayref };
 
   foreach my $old_country (keys %$missing) {
     $report->add_data({
       old_name   => { data => $old_country },
-      country_id => { raw_data => select_tag('missing.'.$old_country, $all_countries, value_key => 'id', title_key => 'description', default => $missing->{$old_country}, class => 'wi-wide') },
+      country_id => { raw_data => select_tag('missing.'.$old_country, \@all_countries, value_key => 'id', title_key => 'description', default => $missing->{$old_country}, class => 'wi-wide') },
     });
   }
 
