@@ -260,7 +260,7 @@ sub action_use_as_new {
     $self->part->$_(undef) for qw(sellprice lastcost listprice);
   }
 
-  $self->render_form(use_as_new => 1);
+  $self->render_form(use_as_new => 1, clear_cvars => $::form->{clear_cvars});
 }
 
 sub action_edit {
@@ -306,6 +306,11 @@ sub render_form {
   $params{CUSTOM_VARIABLES}  = $params{use_as_new} && $::form->{old_id}
                             ?  CVar->get_custom_variables(module => 'IC', trans_id => $::form->{old_id})
                             :  CVar->get_custom_variables(module => 'IC', trans_id => $self->part->id);
+  if ($params{use_as_new} && $params{clear_cvars}) {
+    $_->{value} = $_->{default_value} for @{$params{CUSTOM_VARIABLES}};
+    my $cvar_desc = join(', ', map { $_->{description} } @{$params{CUSTOM_VARIABLES}});
+    flash('info', t8('Custom variables have been reset to default values: #1', $cvar_desc));
+  }
 
 
   if (scalar @{ $params{CUSTOM_VARIABLES} }) {
@@ -1741,7 +1746,14 @@ sub _setup_form_action_bar {
         ],
         action => [
           t8('Use as new'),
-          call     => [ 'kivi.Part.use_as_new' ],
+          call     => [ 'kivi.Part.use_as_new' , { clear_cvars => 0 } ],
+          disabled => !$self->part->id ? t8('The object has not been saved yet.')
+                    : !$may_edit       ? t8('You do not have the permissions to access this function.')
+                    :                    undef,
+        ],
+        action => [
+          t8('Use as new and clear custom variables'),
+          call     => [ 'kivi.Part.use_as_new' , { clear_cvars => 1 } ],
           disabled => !$self->part->id ? t8('The object has not been saved yet.')
                     : !$may_edit       ? t8('You do not have the permissions to access this function.')
                     :                    undef,
