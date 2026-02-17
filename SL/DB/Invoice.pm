@@ -20,6 +20,7 @@ use SL::DB::Helper::RecordLink qw(RECORD_ID RECORD_TYPE_REF RECORD_ITEM_ID RECOR
 use SL::DB::Helper::SalesPurchaseInvoice;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::ZUGFeRD qw(:CREATE);
+use SL::DB::Helper::ZUGFeRDValidator;
 use SL::Locale::String qw(t8);
 
 __PACKAGE__->meta->add_relationship(

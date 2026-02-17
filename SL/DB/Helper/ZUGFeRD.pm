@@ -20,7 +20,6 @@ use SL::VATIDNr;
 use SL::ZUGFeRD qw(:PROFILES);
 use SL::Locale::String qw(t8);
 
-use Algorithm::CheckDigits ();
 use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any);
@@ -696,7 +695,7 @@ sub _applicable_header_trade_agreement {
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
   # BT-10 BuyerReference must always be given in XRechnung
-  # v3.0.2. _validate_data already checks for it.  Optional in
+  # v3.0.2. validate_zugferd_data already checks for it.  Optional in
   # Factur-X.
   my $buyer_reference = first { ($_ // '') ne '' } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid);
   if ($buyer_reference) {
@@ -780,108 +779,6 @@ sub _supply_chain_trade_transaction {
   #   </rsm:SupplyChainTradeTransaction>
 }
 
-sub _validate_data {
-  my ($self) = @_;
-
-  my %result;
-  my $prefix = $::locale->text('The ZUGFeRD invoice data cannot be generated because the data validation failed.') . ' ';
-
-  if (!$::instance_conf->get_co_ustid) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The VAT registration number is missing in the client configuration.'));
-  }
-
-  if (!SL::VATIDNr->validate($::instance_conf->get_co_ustid)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text("The VAT ID number in the client configuration is invalid."));
-  }
-
-  if (!$::instance_conf->get_company || any { my $get = "get_address_$_"; !$::instance_conf->$get } qw(street1 zipcode city)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The company\'s address information is incomplete in the client configuration.'));
-  }
-
-  if ($::instance_conf->get_address_country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
-  }
-
-  if (!$::instance_conf->get_invoice_mail) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The company\'s invoice mail address is missing in the client configuration.'));
-  }
-
-  if ($self->customer->country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($self->customer->country)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The country from the customer\'s address cannot be mapped to an ISO 3166-1 alpha 2 code.'));
-  }
-
-  if (!SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The currency "#1" cannot be mapped to an ISO 4217 currency code.', $self->currency->name));
-  }
-
-  my $failed_unit = first { !SL::Helper::UNECERecommendation20::map_name_to_code($_) } map { $_->unit } @{ $self->items };
-  if ($failed_unit) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('One of the units used (#1) cannot be mapped to a known unit code from the UN/ECE Recommendation 20 list.', $failed_unit));
-  }
-
-  if ($self->direct_debit) {
-    if (!$self->customer->iban) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The customer\'s bank account number (IBAN) is missing.'));
-    }
-
-  } else {
-    require SL::DB::Manager::BankAccount;
-    my $bank_accounts     = SL::DB::Manager::BankAccount->get_all;
-    $result{bank_account} = scalar(@{ $bank_accounts }) == 1 ? $bank_accounts->[0] : first { $_->use_for_zugferd } @{ $bank_accounts };
-
-    if (!$result{bank_account}) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('No bank account flagged for Factur-X/ZUGFeRD usage was found.'));
-    }
-  }
-
-  if ($self->amount - $self->paid > 0) {
-    if (!$self->duedate && !$self->payment_terms) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('In case the amount due is positive, either due date or payment term must be set.'));
-    }
-  }
-
-  if (_is_profile($self, PROFILE_XRECHNUNG())) {
-    if (!$self->customer->c_vendor_routing_id) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 3.0'));
-    }
-  }
-
-  #
-  # GS1 GTIN/EAN/GLN/ILN and ISBN-13 all use the same check digits
-  #
-  my $v_ean = Algorithm::CheckDigits::CheckDigits('ean');
-  if ($self->customer->gln && !$v_ean->is_valid($self->customer->gln)) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Customer GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->customer->gln));
-  }
-
-  if ($self->custom_shipto && $self->custom_shipto->shiptogln && !$v_ean->is_valid($self->custom_shipto->shiptogln)) {
-    SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Custom shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->custom_shipto->shiptogln));
-  } elsif ($self->shipto && $self->shipto->shiptogln && !$v_ean->is_valid($self->shipto->shiptogln)) {
-    SL::X::ZUGFeRDValidation->throw(message => $::locale->text('Shipto GLN check digit mismatch. #1 does not seem to be a valid GLN', $self->shipto->shiptogln));
-  }
-
-  if ($::instance_conf->get_gln && !$v_ean->is_valid($::instance_conf->get_gln)) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('Client config GLN check digit mismatch. #1 does not seem to be a valid GLN.', $::instance_conf->get_gln));
-  }
-
-  for my $item (@{ $self->items_sorted }) {
-    if ($item->part->ean && !$v_ean->is_valid($item->part->ean)) {
-        SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('EAN check digit mismatch for part #1. #2 does not seem to be a valid EAN.', $item->part->displayable_name, $item->part->ean));
-    }
-  }
-
-  my $have_buyer_electronic_address = first { $self->customer->$_ } qw(invoice_mail email gln);
-  if (!$have_buyer_electronic_address) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('At least one of the following fields has to be set in the customer data: Email of the invoice recipient; Email; GLN'));
-  }
-
-  if (_is_profile($self, PROFILE_XRECHNUNG()) && (($self->customer->c_vendor_routing_id // '') eq '')) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . $::locale->text('The routing ID has to be set in the customer data.'));
-  }
-
-  return %result;
-}
-
 sub create_zugferd_data {
   my ($self)        = @_;
   $self->{_zugferd} = { SL::ZUGFeRD->convert_customer_setting($self->customer->create_zugferd_invoices_for_this_customer) };
@@ -892,7 +789,7 @@ sub create_zugferd_data {
 
   my $output        = '';
 
-  my %params        = _validate_data($self);
+  my %params        = $self->validate_zugferd_data(prefix => $::locale->text('The ZUGFeRD invoice data cannot be generated because the data validation failed.') . ' ');
   $params{ptc_data} = { $self->calculate_prices_and_taxes };
   $params{xml}      = XML::Writer->new(
     OUTPUT          => \$output,
