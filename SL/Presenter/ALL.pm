@@ -3,6 +3,7 @@ package SL::Presenter::ALL;
 use strict;
 
 use SL::Presenter::Chart;
+use SL::Presenter::Country;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
 use SL::Presenter::DeliveryOrder;
@@ -31,6 +32,7 @@ use SL::Presenter::MaterialComponents;
 
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
+  country                     => 'SL::Presenter::Country',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
