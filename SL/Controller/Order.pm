@@ -1,6 +1,7 @@
 package SL::Controller::Order;
 
 use strict;
+use utf8;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash flash_later);
@@ -181,6 +182,7 @@ sub action_edit {
     }
   }
 
+  $self->validate_zugferd_data_for_active_periodic_invoices_sales_orders();
   $self->pre_render();
   $self->render(
     'order/form',
@@ -2869,6 +2871,21 @@ sub store_doc_to_webdav_and_filemanagement {
 sub init_type_data {
   my ($self) = @_;
   SL::DB::Helper::TypeDataProxy->new('SL::DB::Order', $self->order->record_type);
+}
+
+sub validate_zugferd_data_for_active_periodic_invoices_sales_orders {
+  my ($self) = @_;
+
+  return if !$self->order->is_type(SL::DB::Order::SALES_ORDER_TYPE());
+  return if !$self->order->periodic_invoices_config || !$self->order->periodic_invoices_config->active;
+  return if !$self->order->periodic_invoices_config->print && !$self->order->periodic_invoices_config->send_email;
+
+  return if eval { $self->order->validate_zugferd_data };
+
+  my $exception = SL::X::ZUGFeRDValidation->caught;
+  my $error     = $exception ? $exception->error : $EVAL_ERROR;
+
+  flash('warning', t8('Periodic invoices created from this sales order cannot be converted to PDFs at the moment as Factur-X/ZUGFeRD/XRechnung validation failed: #1', $error));
 }
 
 1;

@@ -6,6 +6,7 @@ use utf8;
 use parent qw(Exporter);
 our @EXPORT = qw(validate_zugferd_data);
 
+use Carp;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
 
@@ -20,11 +21,20 @@ use SL::ZUGFeRD qw(:PROFILES);
 sub validate_zugferd_data {
   my ($self, %params) = @_;
 
-  my %result;
+  if ((ref($self) eq 'SL::DB::Order') && !$self->is_type(SL::DB::Order::SALES_ORDER_TYPE())) {
+    croak "not implemented for SL::DB::Order types other than sales orders!";
+  }
+
+  my $is_sales_invoice  = ref($self) eq 'SL::DB::Invoice';
+  my $is_sales_order    = ref($self) eq 'SL::DB::Order';  # execution for other Order types is prevented above
+
+  my %result            = (valid => 1);
   my $prefix            = $params{prefix} // '';
 
   my %customer_settings = SL::ZUGFeRD->convert_customer_setting($self->customer->create_zugferd_invoices_for_this_customer);
   my $profile           = $customer_settings{profile};
+
+  return %result if !defined($profile);
 
   if (!$::instance_conf->get_co_ustid) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The VAT registration number is missing in the client configuration.'));
@@ -59,7 +69,7 @@ sub validate_zugferd_data {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('One of the units used (#1) cannot be mapped to a known unit code from the UN/ECE Recommendation 20 list.', $failed_unit));
   }
 
-  if ($self->direct_debit) {
+  if ($is_sales_invoice && $self->direct_debit) {
     if (!$self->customer->iban) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The customer\'s bank account number (IBAN) is missing.'));
     }
@@ -74,7 +84,7 @@ sub validate_zugferd_data {
     }
   }
 
-  if ($self->amount - $self->paid > 0) {
+  if ($is_sales_invoice && ($self->amount - $self->paid > 0)) {
     if (!$self->duedate && !$self->payment_terms) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('In case the amount due is positive, either due date or payment term must be set.'));
     }
@@ -149,6 +159,10 @@ Factur-X/ZUGFeRD)
 
 =item * whether or not certain pieces of information are set in the
 invoice
+
+=item * the class & type this mixin is called on (supported are sales
+invoices & sales orders, the former of which has more checks attached
+to it)
 
 =back
 

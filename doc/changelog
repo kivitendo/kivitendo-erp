@@ -25,6 +25,12 @@ Kleinere neue Features und Detailverbesserungen:
   - Kundenstammdaten: »E-Mail des Rechnungsempfängers«, »E-Mail« oder
     »GLN« auf dem Tab »Rechnungsadresse«
 
+- Factur-X/ZUGFeRD/XRechnung: beim Speichern von Aufträgen mit aktiven
+  wiederkehrenden Rechnungen wird eine Prüfung durchgeführt, ob für
+  daraus erzeugte Rechnungen die Factur-X/ZUGFeRD/XRechnungs-Daten
+  erzeugt werden können, oder ob Daten fehlen. Falls lezteres, wird
+  eine Warnung angezeigt.
+
 - ZUGFeRD-Export: Unterstützung für abweichende Lieferadresse und Referenz auf
   Lieferschein.
 
@@ -66,7 +72,7 @@ Kleinere neue Features und Detailverbesserungen:
   "Belegausdruck mitschicken: bevorzuge Erzeugung eines neuen Belegs"
   standardmäßig ein neuer Belegausdruck erstellt und verschickt (zuvor
   wurde standardmäßig der zuletzt erstellte Belegausdruck verwendet).
-  
+
 - Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
   wenn ein Preisfaktor gesetzt ist.
 
