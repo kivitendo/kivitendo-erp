@@ -20,7 +20,7 @@ sub _sort_spec {
 }
 
 sub find_by_name {
-  my ($self, $country_name) = @_;
+  my ($class, $country_name) = @_;
 
   my $country_code = map_name_to_alpha_2_code($country_name);
 
