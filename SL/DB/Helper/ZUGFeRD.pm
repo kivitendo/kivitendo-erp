@@ -319,6 +319,31 @@ sub _line_item {
   # <ram:IncludedSupplyChainTradeLineItem>
 }
 
+sub _billing_specified_period {
+  my ($self, %params) = @_;
+
+  return if !$self->tax_point;
+
+  #   <ram:BillingSpecifiedPeriod>
+  $params{xml}->startTag("ram:BillingSpecifiedPeriod");
+
+  #     <ram:StartDateTime>
+  $params{xml}->startTag("ram:StartDateTime");
+  $params{xml}->dataElement("udt:DateTimeString", ($self->tax_point)->strftime('%Y%m%d'), format => "102");
+  $params{xml}->endTag;
+  #     </ram:StartDateTime>
+
+  # We only have one date for the period, so set start and end to that.
+  #     <ram:EndDateTime>
+  $params{xml}->startTag("ram:EndDateTime");
+  $params{xml}->dataElement("udt:DateTimeString", ($self->tax_point)->strftime('%Y%m%d'), format => "102");
+  $params{xml}->endTag;
+  #     </ram:EndDateTime>
+
+  $params{xml}->endTag;
+  #   </ram:BillingSpecifiedPeriod>
+}
+
 sub _specified_trade_settlement_payment_means {
   my ($self, %params) = @_;
 
@@ -726,15 +751,17 @@ sub _applicable_header_trade_delivery {
 
   _shipto_trade_party($self, %params);
 
-  #       <ram:ActualDeliverySupplyChainEvent>
-  $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
+  if (!$self->tax_point) {
+    #       <ram:ActualDeliverySupplyChainEvent>
+    $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
 
-  $params{xml}->startTag("ram:OccurrenceDateTime");
-  $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), format => "102");
-  $params{xml}->endTag;
+    $params{xml}->startTag("ram:OccurrenceDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
 
-  $params{xml}->endTag;
-  #       </ram:ActualDeliverySupplyChainEvent>
+    $params{xml}->endTag;
+    #       </ram:ActualDeliverySupplyChainEvent>
+  }
 
   if ($self->donumber) {
     #       <ram:DespatchAdviceReferencedDocument>
@@ -758,6 +785,7 @@ sub _applicable_header_trade_settlement {
 
   _specified_trade_settlement_payment_means($self, %params);
   _taxes($self, %params);
+  _billing_specified_period($self, %params);
   _payment_terms($self, %params);
   _totals($self, %params);
 
