@@ -405,7 +405,7 @@ sub _print_invoice {
       push @{ $self->{printed_invoices} }, $invoice;
       1;
     } or do {
-      push @{ $self->{job_errors} }, $EVAL_ERROR->error;
+      push @{ $self->{job_errors} }, $::locale->text('Printing periodic invoice #1 failed: #2', $invoice->invnumber, $EVAL_ERROR->error);
       push @{ $self->{printed_failed} }, [ $invoice, $EVAL_ERROR->error ];
     };
   });
@@ -488,7 +488,7 @@ sub _email_invoice {
       my $error        = $mail->send;
 
       if ($error) {
-        push @{ $self->{job_errors} }, $error;
+        push @{ $self->{job_errors} }, $::locale->text('Sending email for periodic invoice #1 failed: #2', $data->{invoice}->invnumber, $error);
         push @{ $self->{emailed_failed} }, [ $data->{invoice}, $error ];
         $overall_error = 1;
       }
@@ -499,7 +499,7 @@ sub _email_invoice {
     1;
 
   } or do {
-    push @{ $self->{job_errors} }, $EVAL_ERROR;
+    push @{ $self->{job_errors} }, $::locale->text('Sending email for periodic invoice #1 failed: #2', $data->{invoice}->invnumber, $EVAL_ERROR);
     push @{ $self->{emailed_failed} }, [ $data->{invoice}, $EVAL_ERROR ];
   };
 
