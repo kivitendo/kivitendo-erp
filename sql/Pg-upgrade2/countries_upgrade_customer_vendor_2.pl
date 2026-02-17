@@ -1,6 +1,6 @@
 # @tag: countries_upgrade_customer_vendor_2
-# @description: Setzt Länder-Auswahlmenü als Pflichtfeld (not null) für Kunden und Lieferanten
-# @depends: release_3_9_2 countries_upgrade_customer_vendor
+# @description: Setzt Länder-Auswahlmenü als Pflichtfeld für Kunden und Lieferanten sowie als optionales Feld für abweichende Liefer- und Rechnungsadressen
+# @depends: release_4_0_0 countries_upgrade_customer_vendor
 package SL::DBUpgrade2::countries_upgrade_customer_vendor_2;
 
 use strict;
@@ -73,11 +73,15 @@ sub run {
     my $countries = $sth->fetchall_arrayref();
     my %country_id_by_iso2 = map { $_->[1] => $_->[0] } @$countries;
 
-    $query = 'SELECT distinct(country) FROM customer
+    $query = "SELECT distinct(country) FROM customer
               UNION ALL
-              SELECT distinct(country) FROM vendor;';
+              SELECT distinct(country) FROM vendor
+              UNION ALL
+              SELECT distinct(shiptocountry) AS country FROM shipto WHERE shiptocountry != ''
+              UNION ALL
+              SELECT distinct(country) FROM additional_billing_addresses WHERE country != '';";
     $sth = $self->dbh->prepare($query);
-    $sth->execute || $self->dberror($query);
+    $sth->execute || $::form->dberror($query);
     my %country_id_by_country_name = ();
     while (my $cv = $sth->fetchrow_hashref()) {
       my $country_id = $cv->{country} ? $country_id_by_iso2{ SL::Helper::ISO3166::map_name_to_alpha_2_code($cv->{country}) } : undef;
@@ -111,6 +115,17 @@ sub run {
       do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
     }
 
+    $query = 'UPDATE shipto SET shiptocountry_id = ? WHERE shiptocountry = ?;';
+    $sth = $self->dbh->prepare($query);
+    foreach my $name (keys %country_id_by_country_name) {
+      do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
+    }
+
+    $query = 'UPDATE additional_billing_addresses SET country_id = ? WHERE country = ?;';
+    $sth = $self->dbh->prepare($query);
+    foreach my $name (keys %country_id_by_country_name) {
+      do_statement($::form, $sth, $query, $country_id_by_country_name{$name}, $name);
+    }
 
     $query = 'ALTER TABLE customer ALTER COLUMN country_id SET NOT NULL;
               ALTER TABLE vendor   ALTER COLUMN country_id SET NOT NULL;';
@@ -118,7 +133,9 @@ sub run {
     $sth->execute || $self->dberror($query);
 
     $query = 'ALTER TABLE customer DROP COLUMN country;
-              ALTER TABLE vendor   DROP COLUMN country;';
+              ALTER TABLE vendor   DROP COLUMN country;
+              ALTER TABLE shipto   DROP COLUMN shiptocountry;
+              ALTER TABLE additional_billing_addresses DROP COLUMN country;';
     $sth = $self->dbh->prepare($query);
     $sth->execute || $self->dberror($query);
 
