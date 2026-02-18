@@ -5,6 +5,8 @@
 
 <h1>[% FORM.title %]</h1>
 
+<div class="wrapper">
+
 [% IF preview %]
   <form method="post" action="controller.pl" enctype="multipart/form-data" id="form">
     [% L.hidden_tag('file_name', SELF.file_name) %]
@@ -15,6 +17,7 @@
 
 <table class="tbl-horizontal">
   <tr>
+
     <th>[% LxERP.t8("Total number of entries") %]:</th>
     <td>[% SELF.statistics.total %]</td>
   </tr>
@@ -85,5 +88,7 @@
     [% END %]
   </tbody>
 </table>
+
+</div>
 
 [% END %]
