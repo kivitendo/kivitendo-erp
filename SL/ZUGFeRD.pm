@@ -367,6 +367,114 @@ SL::ZUGFeRD - Helper functions for dealing with PDFs containing Factur-X/ZUGFeRD
     my $dom = $inv->dom;
 
 
+=head1 GENERAL INFORMATION FOR ZUGFeRD/Factur-X / XRechnung
+
+=head2 What do all of these terms even mean?
+
+The following terms will pop up in the code dealing with ZUGFeRD:
+
+=over 4
+
+=item * eInvoice - electronic invoices
+
+=item * ZUGFeRD / Factur-X - German/French standard for electronic invoices
+
+=item * FeRD - Forum elektronische Rechnung Deutschland
+
+=item * UN/CEFACT - United Nations Centre for Trade Faciliation and Electronic
+Business. Created the CII format.
+
+=item * EU/2014/55 - EU directive for electronic invoicing in public
+procurement
+
+=item * EN 16931 - EU Norm 16931 implementing EU/2014/55 created by PEPPOL.
+Also one of the profiles of ZUGFeRD
+
+=item * XRechung - German CIUS of EN 16931 created by KoSIT. Also one of the
+profiles of ZUGFeRD. Intended for use when dealing with government entities,
+stricter profile.
+
+=item * CII / CrossIndustryInvoice - XML standard for electronic invoices,
+developed by UN/CEFACT and compatible with EN/16931.
+
+=item * UBL - ISO/IEC 19845, OASIS XML specification for electronic invoices.
+Implements EN16931
+
+=item * PEPPOL - Pan-European Public Procurement OnLine. Collection of
+specifications and components.
+
+=item * UN/ECE Recommendation°20 - code list of units to be used in electronic
+invoices
+
+=item * KoSIT - Koordinierungsstelle für IT Standards, maintains the XRechnung
+standard.
+
+=item * CIUS - Core Invoice Usage Specification - a national specification of
+the EN16931. XRechnung is an example of a CIUS.
+
+=back
+
+Of the various efforts to standardise electronic invoices, we focus on ZUGFeRD
+and XRechnung.
+
+ZUGFeRD standardises the semantics and contents of an electronic invoice and is
+de facto identical with the French Factur-X. ZUGFeRD has 6 different profiles
+which further specify requirements for the content: Minimum, Basic WL, Basic,
+EN 16931, Extended and XRechnung.
+
+Of these only EN16931 (formerly Comfort), Extended and XRechnung are fully
+compatible with EN16931. XRechnung is the only strict subset (as in: stricter
+rules) and CIUS of EN16931, while the Extended profile adds additional
+information. The XRechnung profile is not part of the official FeRD
+specification bundle, but is instead distributed and versioned independently.
+
+These profiles then have to be mapped into an XML transfer format. The two
+officially supported XML formats are the UN/CEFACT CrossIndustryInvoice (CII)
+format, and the OASIS Universal Business Language (UBL) format. The mappings
+for the former are included in the ZUGFeRD Standard. The UBL mappings are
+maintained by the UN/ECE and not downloadable for free.
+
+When creating ZUGFeRD invoices, we can create either CIUS XRechnung 3.0.x or
+Extended (called ZUGFeRD 2.2/Factur-X in the frontend) profiles in ZUGFeRD 2.
+In both cases we create CII XML as transfer documents, and optionally embed
+them into PDF 3/A.
+
+When importing ZUGFeRD invoices, we can read ZUGFeRD 1.0 in the
+CrossIndustryDocument format and ZUGFeRD 2 in both UBL and CII format, both as
+standalone XML files and as attachments in PDF-3/A files.
+
+
+=head1 USEFUL LINKS FOR ZUGFERD
+
+=over 4
+
+=item * L<https://www.ferd-net.de/> - Forum elektronische Rechnung Deutschland
+
+=item * L<https://e-rechnung-bund.de> - official BMI resources
+
+=item * L<https://xeinkauf.de/> - official page of the KoSIT
+
+=item * L<https://github.com/ConnectingEurope/eInvoicing-EN16931> - official schematron of EN16931
+
+=item * L<https://github.com/ZUGFeRD/corpus/> - ZuGFeRD example invoices corpus
+
+=back
+
+=head1 RESOURCES FOR ZUGFERD
+
+=over 4
+
+=item * L<https://www.ferd-net.de/ueber-uns/ressourcen-1/veroeffentlichungen> - ZUGFeRD Specification download
+
+=item * L<https://ec.europa.eu/digital-building-blocks/sites/spaces/DIGITAL/pages/467108971/Obtaining+a+copy+of+the+European+standard+on+eInvoicing> - UN/ECE eInvoicing downloads
+
+=item * L<https://xeinkauf.de/xrechnung/versionen-und-bundles/> - XRechnung specification
+
+=item * L<https://erechnungsvalidator.service-bw.de/> - XRechnung Online Validator
+
+=back
+
+
 =head1 FUNCTIONS
 
 =head2 extract_from_pdf E<lt>file_nameE<gt>
