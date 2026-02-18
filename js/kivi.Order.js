@@ -974,6 +974,8 @@ namespace('kivi.Order', function(ns) {
   };
 
   ns.show_purchase_delivery_order_select_items = function(params) {
+    if (!ns.check_cv()) return;
+
     var data = $('#order_form').serializeArray();
     data.push({ name: 'action', value: 'Order/show_conversion_to_purchase_delivery_order_item_selection' });
 
