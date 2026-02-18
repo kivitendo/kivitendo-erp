@@ -331,7 +331,8 @@ namespace('kivi.SalesPurchase', function(ns) {
       load:   kivi.SalesPurchase.setup_send_email_dialog,
       data:   data,
       dialog: {
-        height:      600,
+        width:       Math.max(800, Math.round(window.innerWidth  * 0.85)),
+        height:      Math.max(600, Math.round(window.innerHeight * 0.85)),
         title:       kivi.t8('Send email'),
         beforeClose: kivi.SalesPurchase.finish_send_email_dialog
       }

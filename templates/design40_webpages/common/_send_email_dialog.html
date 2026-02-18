@@ -4,6 +4,7 @@
 [% USE P %]
 [% SET have_files = 0 %]
 
+<div style="display: flex; flex-direction: column; height: 100%">
 [% BLOCK attach_file_list %]
   [% IF files.as_list.size %]
     [% SET have_files = 1 ;
@@ -24,6 +25,10 @@
 
 
 <table class="tbl-horizontal">
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-wider">
+  </colgroup>
   <tbody>
     <tr>
       <th>
@@ -75,7 +80,24 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Message") %] <sup> [% L.link("generictranslations.pl?action=edit_email_strings", "1)", title=LxERP.t8('Tired of copying always nice phrases for this message? Click here to use the new preset message option!'), target="_blank") %]</sup> </th>
-      <td>[% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="horizontal-scroll-wrapper" style="flex: 1; min-height: 150px">
+[% L.textarea_tag("email_form.message", email_form.message, style="height:150px", class="texteditor texteditor-space-for-toolbar wi-wider") %]
+</div>
+
+<table class="tbl-horizontal">
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-wider">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td></td>
+      <td></td>
     </tr>
     [% IF INSTANCE_CONF.get_doc_storage %]
       <tr>
@@ -132,4 +154,7 @@
 <div class="buttons">
   [% L.button_tag(email_form.js_send_function, LxERP.t8("Send email")) %]
   [% L.button_tag("\$('#send_email_dialog').dialog('close');", LxERP.t8("Abort"), class="button neutral") %]
+</div>
+
+
 </div>
