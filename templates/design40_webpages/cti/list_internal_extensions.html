@@ -1,8 +1,5 @@
 [% USE HTML %]
 [% USE LxERP %]
-<body>
-
-<h1>[% HTML.escape(title) %]</h1>
 
 <div class="wrapper">
   [% IF !SELF.internal_extensions.size %]
@@ -27,6 +24,3 @@
    </table>
   [% END %]
 </div>
-
-</body>
-</html>

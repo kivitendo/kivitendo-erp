@@ -4,8 +4,6 @@
 [% USE LxERP %]
 [% USE P %]
 
-<h1>[% is_receipt ? LxERP.t8('Receipt') : LxERP.t8('Payment') %]</h1>
-
 <form method="post" action="cp.pl" id="form">
 
 [% SET vc_id = vc _ '_id'

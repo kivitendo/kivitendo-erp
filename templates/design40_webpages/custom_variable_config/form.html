@@ -3,8 +3,6 @@
 [% USE L -%]
 [% USE T8 -%]
 
-<h1>[% HTML.escape(title) %]</h1>
-
 <div class="wrapper">
 <form action="controller.pl" method="post" id="form">
  [% L.hidden_tag("id", SELF.config.id) %]

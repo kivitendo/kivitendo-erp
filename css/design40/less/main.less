@@ -91,10 +91,7 @@ h1 {
 }
 // PENDENT: SIEHE AUCH .LISTTOP
 #content > h1 {
-  position:           fixed;
   z-index:            @zindex-h1; //hps:12
-  top:                60px;
-  width:              100%;
   color:              @base-h1-color ;
   background-color:   @base-h1-bg;
   padding:            @h1-padding;
@@ -105,7 +102,8 @@ h1 {
   font-size:          @h2-size;
   margin:             @margin-from-wrapper ;
 }
-body > h1{
+body > h1,
+.layout-split-right > h1 {
   color:              @base-h1-color ;
   background-color:   @base-h1-bg ;
   padding:            @h1-padding;

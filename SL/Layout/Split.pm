@@ -18,6 +18,7 @@ sub pre_content {
   my $left  = join '', map { $_->pre_content } @{ $_[0]->left  || [] };
   my $right = join '', map { $_->pre_content } @{ $_[0]->right || [] };
 
+  '<div class="frame-main">'.
   html_tag('div', $left, class => 'layout-split-left')
   .'<div class="layout-split-right">' . $right;
 }
@@ -27,6 +28,7 @@ sub post_content {
   my $right = join '', map { $_->post_content } @{ $_[0]->right || [] };
 
   $right . '</div>'
+  .'</div>'
   . html_tag('div', $left, class => 't-layout-left');
 }
 

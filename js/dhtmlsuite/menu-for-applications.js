@@ -2121,8 +2121,7 @@ DHTMLSuite.menuBar.prototype = {
 		
 			if(this.menuItems[indexThis].depth=='1'){	/* Top level item */
 				if(this.menuItemObj.submenuType[this.menuItems[indexThis].depth]=='top'){	/* Type = "top" - menu items side by side */
-					ref.style.styleFloat = 'left';				
-					ref.style.cssText = 'float:left';						
+					ref.style.cssText = 'display:flex';
 				}			
 			}else{
 				if(!this.menuItems[indexThis].depth){
@@ -2244,7 +2243,7 @@ DHTMLSuite.menuBar.prototype = {
 			var dir = this.menuItemObj.submenuType[depth];
 			if(dir=='top'){			
 				shortRef.style.left = DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement) + 'px';
-				shortRef.style.top = (DHTMLSuite.commonObj.getTopPos(this.menuItem_objects[parentId].divElement) + this.menuItem_objects[parentId].divElement.offsetHeight) + 'px';
+				shortRef.style.top = -10+ (DHTMLSuite.commonObj.getTopPos(this.menuItem_objects[parentId].divElement) + this.menuItem_objects[parentId].divElement.offsetHeight) + 'px';
 			}else{
               var too_large = DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement)
                             + this.menuItem_objects[parentId].divElement.offsetWidth

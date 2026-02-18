@@ -32,7 +32,9 @@ sub pre_content {
 
   my $content = join '', map { $_->render } @{ $self->actions };
   return if !$content;
-  html_tag('div', $content, class => HTML_CLASS);
+  html_tag('div',
+    html_tag('div', $content, class => HTML_CLASS),
+    class => 'layout-headline');
 }
 
 sub javascripts_inline {

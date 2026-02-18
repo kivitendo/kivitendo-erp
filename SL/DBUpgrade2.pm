@@ -347,8 +347,6 @@ sub apply_admin_dbupgrade_scripts {
     $self->{form}->header;
   }
 
-  print $self->{form}->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
-
   $::lxdebug->log_time("DB upgrades commencing");
 
   foreach my $control (@unapplied_scripts) {
