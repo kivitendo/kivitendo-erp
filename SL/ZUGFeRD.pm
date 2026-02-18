@@ -367,7 +367,7 @@ SL::ZUGFeRD - Helper functions for dealing with PDFs containing Factur-X/ZUGFeRD
     my $dom = $inv->dom;
 
 
-=head1 GENERAL INFORMATION FOR ZUGFeRD/Factur-X / XRechnung
+=head1 GENERAL INFORMATION FOR ZUGFeRD / Factur-X / XRechnung
 
 =head2 What do all of these terms even mean?
 
@@ -382,7 +382,7 @@ The following terms will pop up in the code dealing with ZUGFeRD:
 =item * FeRD - Forum elektronische Rechnung Deutschland
 
 =item * UN/CEFACT - United Nations Centre for Trade Faciliation and Electronic
-Business. Created the CII format.
+Business. Created the CII format
 
 =item * EU/2014/55 - EU directive for electronic invoicing in public
 procurement
@@ -390,27 +390,27 @@ procurement
 =item * EN 16931 - EU Norm 16931 implementing EU/2014/55 created by PEPPOL.
 Also one of the profiles of ZUGFeRD
 
-=item * XRechung - German CIUS of EN 16931 created by KoSIT. Also one of the
+=item * XRechnung - German CIUS of EN 16931 created by KoSIT. Also one of the
 profiles of ZUGFeRD. Intended for use when dealing with government entities,
-stricter profile.
+stricter profile
 
 =item * CII / CrossIndustryInvoice - XML standard for electronic invoices,
-developed by UN/CEFACT and compatible with EN/16931.
+developed by UN/CEFACT and compatible with EN/16931
 
 =item * UBL - ISO/IEC 19845, OASIS XML specification for electronic invoices.
 Implements EN16931
 
 =item * PEPPOL - Pan-European Public Procurement OnLine. Collection of
-specifications and components.
+specifications and components
 
 =item * UN/ECE Recommendation°20 - code list of units to be used in electronic
 invoices
 
 =item * KoSIT - Koordinierungsstelle für IT Standards, maintains the XRechnung
-standard.
+standard
 
 =item * CIUS - Core Invoice Usage Specification - a national specification of
-the EN16931. XRechnung is an example of a CIUS.
+the EN16931. XRechnung is an example of a CIUS
 
 =back
 
@@ -437,7 +437,7 @@ maintained by the UN/ECE and not downloadable for free.
 When creating ZUGFeRD invoices, we can create either CIUS XRechnung 3.0.x or
 Extended (called ZUGFeRD 2.2/Factur-X in the frontend) profiles in ZUGFeRD 2.
 In both cases we create CII XML as transfer documents, and optionally embed
-them into PDF 3/A.
+them into PDF-3/A.
 
 When importing ZUGFeRD invoices, we can read ZUGFeRD 1.0 in the
 CrossIndustryDocument format and ZUGFeRD 2 in both UBL and CII format, both as
@@ -482,7 +482,7 @@ standalone XML files and as attachments in PDF-3/A files.
 Opens an existing PDF file in the file system and tries to extract
 Factur-X/XRechnung/ZUGFeRD invoice data from it. First it'll parse the XMP
 metadata and look for the Factur-X/ZUGFeRD declaration inside. If the
-declaration isn't found or the declared version isn't 2p0, an warning is
+declaration isn't found or the declared version isn't 2p0, a warning is
 recorded in the returned data structure's C<warnings> key.
 
 Regardless of metadata presence, it will continue to iterate over all files
@@ -508,11 +508,11 @@ Other than that, the hash ref contains the following keys:
 
 =item C<message> - An error message detailing the problem upon nonzero C<result>, undef otherwise.
 
-=item C<metadata_xmp> - The XMP metadata extracted from the Factur-X/ZUGFeRD invoice (if present)
+=item C<metadata_xmp> - The XMP metadata extracted from the Factur-X/ZUGFeRD invoice (if present).
 
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
-=item C<warnings> - Warnings encountered upon extracting/parsing XML files (if any)
+=item C<warnings> - Warnings encountered upon extracting/parsing XML files (if any).
 
 =back
 
@@ -546,7 +546,7 @@ Other than that, the hash ref contains the following keys:
 
 =item C<invoice_xml> - An SL::XMLInvoice object holding the data extracted from the parsed XML invoice.
 
-=item C<warnings> - Warnings encountered upon extracting/parsing XML data (if any)
+=item C<warnings> - Warnings encountered upon extracting/parsing XML data (if any).
 
 =back
 
