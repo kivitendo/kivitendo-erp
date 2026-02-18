@@ -729,7 +729,7 @@ sub _applicable_header_trade_delivery {
   $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
 
   $params{xml}->startTag("ram:OccurrenceDateTime");
-  $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), format => "102");
+  $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->tax_point // $self->transdate)->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
 
   $params{xml}->endTag;
