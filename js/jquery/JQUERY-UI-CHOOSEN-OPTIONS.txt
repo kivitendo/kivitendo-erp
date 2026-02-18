@@ -1,0 +1,32 @@
+2026-02-18
+
+https://jqueryui.com/download
+
+Download Builder
+
+Version 1.13.3
+
+- Core
+  - (all)
+- Interactions
+  - Draggable
+  - Droppable
+  - Resizeable
+  - Sortable
+- Widgets
+  - Button
+  - Checkboxradio
+  - Controlgroup
+  - Datepicker
+  - Dialog
+  - Menu
+  - Mouse
+  - Progressbar
+  - Selectmenu
+  - Tabs
+  - Tooltip
+- Effects
+  - (none)
+
+
+Niklas Schmidt <niklas@kivitendo.de>
