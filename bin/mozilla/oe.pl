@@ -44,7 +44,7 @@ use SL::FU;
 use SL::OE;
 use SL::IR;
 use SL::IS;
-use SL::Helper::Flash qw(flash_later);
+use SL::Helper::Flash qw(flash flash_later);
 use SL::Helper::UserPreferences::DisplayPreferences;
 use SL::Helper::ShippedQty;
 use SL::MoreCommon qw(ary_diff restore_form save_form);
@@ -1033,6 +1033,7 @@ sub _oe_remove_delivered_or_billed_rows {
     via       => [ $params{type} eq 'delivered' ? qw(Order)       : qw(Order DeliveryOrder) ],
   );
 
+  my @existing_record_numbers = ();
   my %handled_base_qtys;
   foreach my $record (@{ $ord_quot->linked_records(%args) }) {
     next if $ord_quot->is_sales != $record->is_sales;
@@ -1043,7 +1044,18 @@ sub _oe_remove_delivered_or_billed_rows {
       $key    .= ':' . $item->serialnumber if $item->serialnumber;
       $handled_base_qtys{$key} += $item->qty * $item->unit_obj->base_factor;
     }
+
+    push @existing_record_numbers, $params{type} eq 'delivered' ? $record->donumber : $record->invnumber;
   }
 
   _remove_billed_or_delivered_rows(quantities => \%handled_base_qtys);
+
+  if (@existing_record_numbers) {
+    my $record_numbers = join(', ', @existing_record_numbers);
+    my $msg =
+      $params{type} eq 'delivered'
+        ? t8('Positions already delivered in delivery order #1 were removed automatically.', $record_numbers)
+        : t8('Positions already billed for in invoice #1 were removed automatically.', $record_numbers);
+    flash('info', $msg);
+  }
 }
