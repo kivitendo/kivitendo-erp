@@ -8,6 +8,14 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- Verbundene Kunden und Lieferanten:
+  In den Kunden-/Lieferantenstammdaten kann zu jedem Kunden ein
+  eineindeutiger verbundener Lieferant eingestellt werden, und umgekehrt.
+
+- Unterstützung des camt.053 Format beim Bankauszugimport neben CSV und MT940
+  Zu bedenken ist die Mehrzahl im Umlauf befindlicher Versionen des Standards,
+  was Testen erforderlicht macht.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Im Bericht VK-Rechnungen/Debitorenbuchungen und
@@ -28,10 +36,26 @@ Kleinere neue Features und Detailverbesserungen:
 - ZUGFeRD-Export: Unterstützung für abweichende Lieferadresse und Referenz auf
   Lieferschein.
 
+- PDF-Anhänge von Mahnungen werden in ein PDF zusammengeführt
+  betrifft Mahnungen bei welchen die Ursprungsrechnung mitgeschickt wird.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
+
+## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
+
+#631 2025 linked customer vendor
+#645 CAMT.053 - Erste Version
+#657 202511 fix requirement spec discount
+#677 20251204 factur x fixes
+#685 SMTP EHLO Header konfigurierbar
+#699 Debitorenbuchung: HTML: weitere Input-Tags in table nicht ausserhalb von tr/td
+#701 Mahnungen: PDFs für Mail-Anhang in einer Datei
+#702 Unit-Test datev/encoding: check_text wird nicht exportiert
+#706 2026 remove algorithm checkdigits override
+#707 202602 zugferd ship to trade party 2
+#711 test: neuer Test um zu prüfen ob irgendwo in den sql/Pg-upgrade Tests SL::DB::Object verwendet wird
 
 
 
