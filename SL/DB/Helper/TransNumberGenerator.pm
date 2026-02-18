@@ -92,7 +92,7 @@ sub get_next_trans_number {
   # prevent insertion of new entries while this routine is still
   # working. For the range table we only need a row-level lock,
   # therefore we're re-loading the row.
-  $self->db->dbh->do("LOCK " . $self->meta->table) || die $self->db->dbh->errstr;
+  $self->db->dbh->do('LOCK ' . $self->meta->table . ' IN ROW EXCLUSIVE MODE') || die $self->db->dbh->errstr;
 
   my ($query_in_use, $bind_vals_in_use) = Rose::DB::Object::QueryBuilder::build_select(
     dbh                  => $self->db->dbh,
