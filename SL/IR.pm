@@ -104,13 +104,15 @@ sub _post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
+  my $record_type = $form->{storno} ? 'purchase_invoice_storno' : 'purchase_invoice';
+
   #markierung
   if (!$payments_only) {
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
     } else {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id, taxzone_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?), ?)|, $form->{id}, $form->{currency}, $form->{taxzone_id});
+      do_query($form, $dbh, qq|INSERT INTO ap (id, record_type, invnumber, currency_id, taxzone_id) VALUES (?, ?, '', (SELECT id FROM currencies WHERE name=?), ?)|, $form->{id}, $record_type, $form->{currency}, $form->{taxzone_id});
     }
   }
   if ($form->{currency} eq $defaultcurrency) {

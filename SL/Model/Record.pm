@@ -7,6 +7,8 @@ use Carp;
 use SL::DB::Employee;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
+use SL::DB::Invoice;
+use SL::DB::PurchaseInvoice;
 use SL::DB::Reclamation;
 use SL::DB::RequirementSpecOrder;
 use SL::DB::History;
@@ -17,6 +19,8 @@ use SL::DB::Translation;
 use SL::DB::ValidityToken;
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::DeliveryOrder::TypeData qw(:types);
+use SL::DB::Invoice::TypeData qw(:types);
+use SL::DB::PurchaseInvoice::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::Helper::Record qw(get_class_from_type);
 
@@ -30,8 +34,16 @@ sub update_after_new {
 
   $new_record->transdate(DateTime->now_local());
 
-  my $default_reqdate = $new_record->type_data->defaults('reqdate');
-  $new_record->reqdate($default_reqdate);
+  if ($new_record->can('duedate')) {
+    # invoices and purchase invoices have a duedate instead
+    my $default_duedate = $new_record->type_data->defaults('duedate');
+    $new_record->duedate($default_duedate) if $default_duedate;
+  } else {
+    # orders, delivery orders and reclamations have a reqdate
+    my $default_reqdate = $new_record->type_data->defaults('reqdate');
+    $new_record->reqdate($default_reqdate);
+  }
+
 
   return $new_record;
 }
@@ -257,7 +269,8 @@ sub save {
 
     $_->delete for @{ $params{items_to_delete} || [] };
 
-    $record->save(cascade => 1);
+    my $save_method = $params{save_method} // 'save';
+    $record->$save_method(cascade => 1);
 
     if ($params{objects_to_close} && @{$params{objects_to_close}}) {
       $_->update_attributes(closed => 1) for @{$params{objects_to_close}};
