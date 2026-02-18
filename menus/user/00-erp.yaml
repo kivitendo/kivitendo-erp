@@ -200,11 +200,20 @@
     action: Reclamation/add
     type: sales_reclamation
 - parent: ar
+  id: ar_add_sales_invoice_experimental
+  name: Add Sales Invoice
+  icon: sales_invoice_add
+  order: 500
+  access: invoice_edit & client/feature_experimental_invoice
+  params:
+    action: Invoice/add
+    type: invoice
+- parent: ar
   id: ar_add_sales_invoice
   name: Add Sales Invoice
   icon: sales_invoice_add
   order: 500
-  access: invoice_edit
+  access: invoice_edit & (!client/feature_experimental_invoice)
   module: is.pl
   params:
     action: add
@@ -409,10 +418,18 @@
     action: Reclamation/add
     type: purchase_reclamation
 - parent: ap
+  id: ap_add_vendor_invoice_experimental
+  name: Add Vendor Invoice
+  order: 400
+  access: client/allow_new_purchase_invoice & vendor_invoice_edit & client/feature_experimental_invoice
+  params:
+    action: Invoice/add
+    type: purchase_invoice
+- parent: ap
   id: ap_add_vendor_invoice
   name: Add Vendor Invoice
   order: 400
-  access: client/allow_new_purchase_invoice & vendor_invoice_edit
+  access: client/allow_new_purchase_invoice & vendor_invoice_edit & (!client/feature_experimental_invoice)
   module: ir.pl
   params:
     action: add

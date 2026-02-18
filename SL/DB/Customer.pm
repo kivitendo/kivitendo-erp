@@ -123,4 +123,33 @@ sub default_billing_address {
   return first { $_->default_address } @{ $self->additional_billing_addresses };
 }
 
+sub creditremaining {
+  my ($self) = @_;
+
+  # adapted from IS::IS::get_customer
+  my $creditremaining = $self->creditlimit;
+
+  my $query = qq|SELECT SUM(amount - paid) FROM ar WHERE customer_id = ?|;
+  my ($value) = SL::DBUtils::selectrow_query($::form, $self->db->dbh, $query, $self->id);
+  $creditremaining -= $value;
+
+  $query =
+    qq|SELECT o.amount,
+         (SELECT e.buy FROM exchangerate e
+          WHERE e.currency_id = o.currency_id
+            AND e.transdate = o.transdate)
+       FROM oe o
+       WHERE o.customer_id = ?
+         AND o.record_type = 'sales_order'
+         AND o.closed = '0'|;
+  my $sth = SL::DBUtils::prepare_execute_query($::form, $self->db->dbh, $query, $self->id);
+
+  while (my ($amount, $exch) = $sth->fetchrow_array) {
+    $exch = 1 unless $exch;
+    $creditremaining -= $amount * $exch;
+  }
+
+  return $creditremaining;
+}
+
 1;
