@@ -635,6 +635,7 @@ sub type_data {
 sub _do_sales_remove_billed_rows {
   my (%params) = @_;
 
+  return unless $params{id};
   my $do = SL::DB::DeliveryOrder->new(id => $params{id})->load;
   return unless $do->is_sales; # Do not remove a purchase delivery orders' items from a sales invoice
 
