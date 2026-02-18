@@ -8,6 +8,13 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- Einkaufsrechnungssuche: Erweiterung um personenbezogene
+  Suchprofile. Jede Person kann nun die Optionen so setzen, wie sie
+  sie benötigt, und als Suchprofile speichern. Ein Suchprofil kann als
+  Standardprofil festgelegt werden, wodurch die darin enthaltenen
+  Einstellungen bei jedem Aufruf der Einkaufsrechnungssuche
+  standardmäßig gesetzt werden.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Im Bericht VK-Rechnungen/Debitorenbuchungen und

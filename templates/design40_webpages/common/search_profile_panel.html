@@ -1,0 +1,49 @@
+[%- USE LxERP -%][%- USE L -%][% BLOCK filter_toggle_panel %]
+
+  <div>
+    <h2>[% LxERP.t8("search profiles") %]</h2>
+
+    <table class="tbl-horizontal">
+      <colgroup>
+        <col class="wi-small">
+        <col class="wi-wide">
+      </colgroup>
+      <tbody>
+        [% IF SEARCH_PROFILE_OPTIONS.all_search_profiles.as_list.size %]
+          <tr>
+            <th>[% LxERP.t8("Load search profile") %]</th>
+            <td>[% L.select_tag('SEARCH_PROFILE_OPTIONS.search_profile_id', SEARCH_PROFILE_OPTIONS.all_search_profiles, default=SEARCH_PROFILE_OPTIONS.search_profile_id, title_key='displayable_name') %]</td>
+          </tr>
+
+          <tr>
+            <th></th>
+            <td>
+              [% L.submit_tag('dummy', LxERP.t8('Load'), onclick='$("#action").val("' _ SEARCH_PROFILE_OPTIONS.actions.load _ '"); return true;') %]
+              [% L.submit_tag('dummy', LxERP.t8('Delete'), onclick='return kivi.SearchProfile.validate_for_deleting("' _ SEARCH_PROFILE_OPTIONS.actions.delete _ '");') %]
+            </td>
+          </tr>
+
+        [% END %]
+        <tr>
+          <th>[% LxERP.t8("Save as search profile") %]</th>
+          <td>[% L.input_tag('SEARCH_PROFILE_OPTIONS.name', SEARCH_PROFILE_OPTIONS.name) %]</td>
+        </tr>
+
+        <tr>
+          <th></th>
+          <td>[% L.checkbox_tag('SEARCH_PROFILE_OPTIONS.default_profile', value=1, label=LxERP.t8('Make default search profile')) %]</td>
+        </tr>
+
+        <tr>
+          <th></th>
+          <td>[% L.submit_tag('dummy', LxERP.t8('Save'), onclick='return kivi.SearchProfile.validate_for_saving("' _ SEARCH_PROFILE_OPTIONS.actions.save _ '");') %]</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+[% END # /BLOCK filter_toggle_panel %]
+
+[% INCLUDE 'common/toggle_panel.html'
+     button_open   = LxERP.t8('Hide search profiles')
+     button_closed = LxERP.t8('Show search profiles')
+     summary_text  = SEARCH_PROFILE_OPTIONS.active_search_profile.displayable_name %]

@@ -217,6 +217,8 @@ namespace("kivi").setupLocale({
 "Yes":"",
 "You have changed the currency or exchange rate. Please check prices.":"",
 "You have entered or selected the following shipping address for this customer:":"",
+"You must enter a name for the search profile.":"",
+"You must select a profile to delete.":"",
 "close":"",
 "filename has not uploadable characters ":"",
 "filesize too big: ":"",
