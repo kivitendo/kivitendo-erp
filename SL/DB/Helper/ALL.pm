@@ -134,6 +134,8 @@ use SL::DB::RequirementSpecType;
 use SL::DB::RequirementSpecVersion;
 use SL::DB::RequirementSpec;
 use SL::DB::SchemaInfo;
+use SL::DB::SearchProfile;
+use SL::DB::SearchProfileSetting;
 use SL::DB::Secret;
 use SL::DB::SepaExport;
 use SL::DB::SepaExportItem;

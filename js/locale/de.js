@@ -217,6 +217,8 @@ namespace("kivi").setupLocale({
 "Yes":"Ja",
 "You have changed the currency or exchange rate. Please check prices.":"Die Währung oder der Wechselkurs hat sich geändert. Bitte überprüfen Sie die Preise.",
 "You have entered or selected the following shipping address for this customer:":"Sie haben die folgende Lieferadresse eingegeben oder ausgewählt:",
+"You must enter a name for the search profile.":"Sie müssen einen Namen für das Suchprofil angeben.",
+"You must select a profile to delete.":"Sie müssen ein Suchprofil zum Löschen auswählen.",
 "close":"schließen",
 "filename has not uploadable characters ":"Bitte Dateinamen ändern. Er hat für den Upload nicht verwendbare Sonderzeichen ",
 "filesize too big: ":"Datei zu groß: ",
