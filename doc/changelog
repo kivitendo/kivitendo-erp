@@ -31,6 +31,9 @@ Kleinere neue Features und Detailverbesserungen:
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
+- XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
+  Dateiname nun mit »xrechnung_« und nicht mehr mit »factur-x_«.
+
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
 
@@ -66,7 +69,7 @@ Kleinere neue Features und Detailverbesserungen:
   "Belegausdruck mitschicken: bevorzuge Erzeugung eines neuen Belegs"
   standardmäßig ein neuer Belegausdruck erstellt und verschickt (zuvor
   wurde standardmäßig der zuletzt erstellte Belegausdruck verwendet).
-  
+
 - Im Artikelstamm bei den Warenbeständen den Wert der Ware korrekt berechnen
   wenn ein Preisfaktor gesetzt ist.
 
