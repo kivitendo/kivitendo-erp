@@ -38,6 +38,7 @@ sub check_objects {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_vc($entry, 'customer_id');
+    $self->check_country_optional($entry);
 
     next if @{ $entry->{errors} };
 

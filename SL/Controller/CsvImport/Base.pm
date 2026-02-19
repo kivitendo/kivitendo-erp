@@ -526,6 +526,25 @@ sub check_delivery_term {
   return 1;
 }
 
+sub check_country_optional {
+  my ($self, $entry) = @_;
+
+  my $country_id;
+  my $object = $entry->{object};
+
+  return 1 unless ($entry->{raw_data}{country});
+
+  my $country = SL::DB::Manager::Country->find_by_name($entry->{raw_data}{country});
+  if (!$country) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Country not found: #1', $entry->{raw_data}{country});
+    return 0;
+  }
+  $object->country_id($country->id);
+  $self->clone_methods->{country_id} = 1;
+
+  return 1;
+}
+
 sub save_objects {
   my ($self, %params) = @_;
 
