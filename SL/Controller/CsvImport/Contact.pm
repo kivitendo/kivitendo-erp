@@ -78,6 +78,7 @@ sub check_objects {
     $self->check_name($entry);
     $self->check_vc($entry, 'cp_cv_id');
     $self->check_gender($entry);
+    $self->check_country_optional($entry);
     $self->handle_cvars($entry);
 
     my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax
