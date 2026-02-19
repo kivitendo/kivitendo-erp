@@ -1,3 +1,3 @@
 -- @tag: release_4_0_0
--- @description: Abhängigkeitsscript für Release 3.9.2
+-- @description: Abhängigkeitsscript für Release 4.0.0
 -- @depends: release_3_9_2
