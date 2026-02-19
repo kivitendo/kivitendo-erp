@@ -12,6 +12,7 @@ __PACKAGE__->meta->columns(
   description => { type => 'text' },
   id          => { type => 'serial', not_null => 1 },
   iso2        => { type => 'text' },
+  sortorder   => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

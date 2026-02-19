@@ -15,7 +15,7 @@ sub object_class { 'SL::DB::Country' }
 __PACKAGE__->make_manager_methods;
 
 sub _sort_spec {
-  return ( default => [ 'description', 1 ],
+  return ( default => [ 'sortorder', 1 ],
            columns => { SIMPLE => 'ALL' } );
 }
 
