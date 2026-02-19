@@ -8,6 +8,14 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- Verbundene Kunden/Lieferanten
+  Man kann jetzt Kunden und Lieferanten verbinden und so Geschäftspartner
+  abbilden, die in beiden Rollen auftreten. Dabei werden dann die Name, Straße
+  Stadt, Postleitzahl, Land, Währung, Steuerzone, Steuernummer, Steuergruppe,
+  UStID, Homepage, Sprache, Telefon, Fax, E-Mail und Ungültig zwischen beiden
+  synchronisiert. Benutzerdefinierte Variablen können einzeln für die
+  Synchronisation freigegeben werden.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Im Bericht VK-Rechnungen/Debitorenbuchungen und
@@ -34,10 +42,30 @@ Kleinere neue Features und Detailverbesserungen:
 - ZUGFeRD-Export: Unterstützung für abweichende Lieferadresse und Referenz auf
   Lieferschein.
 
+- experimenteller CAMT.053 Bankimport
+  Zusätzlich zum bisherigen MT940 Format können jetzt Bankauszüge auch im
+  CAMT.053 Format importiert werden.
+
+- PDF-Anhänge von Mahnungen werden in ein PDF zusammengeführt
+  betrifft Mahnungen bei welchen die Ursprungsrechnung mitgeschickt wird.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
+
+## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
+
+#631 2025 linked customer vendor
+#645 CAMT.053 - Erste Version
+#657 202511 fix requirement spec discount
+#677 20251204 factur x fixes
+#685 SMTP EHLO Header konfigurierbar
+#699 Debitorenbuchung: HTML: weitere Input-Tags in table nicht ausserhalb von tr/td
+#701 Mahnungen: PDFs für Mail-Anhang in einer Datei
+#702 Unit-Test datev/encoding: check_text wird nicht exportiert
+#706 2026 remove algorithm checkdigits override
+#707 202602 zugferd ship to trade party 2
+#711 test: neuer Test um zu prüfen ob irgendwo in den sql/Pg-upgrade Tests SL::DB::Object verwendet wird
 
 
 
@@ -47,20 +75,8 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
-- Verbundene Kunden/Lieferanten
-  Man kann jetzt Kunden und Lieferanten verbinden und so Geschäftspartner
-  abbilden, die in beiden Rollen auftreten. Dabei werden dann die Name, Straße
-  Stadt, Postleitzahl, Land, Währung, Steuerzone, Steuernummer, Steuergruppe,
-  UStID, Homepage, Sprache, Telefon, Fax, E-Mail und Ungültig zwischen beiden
-  synchronisiert. Benutzerdefinierte Variablen können einzeln für die
-  Synchronisation freigegeben werden.
-
 
 Kleinere neue Features und Detailverbesserungen:
-
-- experimenteller CAMT.053 Bankimport
-  Zusätzlich zum bisherigen MT940 Format können jetzt Bankauszüge auch im
-  CAMT.053 Format importiert werden.
 
 - Alle PDFs die sich im Reiter Dokumente befinden können beim E-Mail-Versand
   zu einem PDF im Anhang zusammengefasst werden.
