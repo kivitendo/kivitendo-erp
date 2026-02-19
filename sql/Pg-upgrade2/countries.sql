@@ -1,6 +1,6 @@
 -- @tag: countries
 -- @description: Table for countries
--- @depends: release_3_9_2
+-- @depends: release_4_0_0
 
 CREATE TABLE countries (
   id          SERIAL PRIMARY KEY,
