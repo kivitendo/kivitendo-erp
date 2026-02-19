@@ -75,6 +75,13 @@ sub run {
   my $countries = $sth->fetchall_arrayref();
   my %country_id_by_iso2 = map { $_->[1] => $_->[0] } @$countries;
 
+  unless (defined $::request) {
+    # Non interactive execution during unit tests
+    $query = "UPDATE defaults SET address_country = 'Deutschland';";
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $self->db_error($query);
+  }
+
   $query = "SELECT distinct(country) FROM customer
             UNION ALL
             SELECT distinct(country) FROM vendor
