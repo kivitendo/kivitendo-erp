@@ -1123,6 +1123,7 @@ sub _create_customer_vendor {
 
   $self->{cv} = $self->_new_customer_vendor_object;
   $self->{cv}->currency_id($::instance_conf->get_currency_id());
+  $self->{cv}->country_id($::instance_conf->get_address_country_id);
 
   $self->{note} = SL::DB::Note->new();
 
