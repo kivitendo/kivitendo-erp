@@ -81,6 +81,21 @@ my %supported_types = (
     },
   },
 
+  country => {
+    class  => 'Country',
+    auth   => 'config',
+    titles => {
+      list => t8('Country Names'),
+      edit => t8('Country Names'),
+    },
+    list_attributes => [
+      { method => 'iso2',        title => 'ISO 3166-1', },
+      { method => 'description', title => t8('Description'), },
+    ],
+    top_info_text => t8('The ISO 3166-1 alpha-2 codes are required for Factur-X/ZUGFeRD invoices. The corresponding names are printed on records.'),
+    no_create_delete => 1,
+  },
+
   department => {
     class  => 'Department',
     titles => {

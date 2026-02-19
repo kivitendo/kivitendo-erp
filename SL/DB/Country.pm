@@ -7,6 +7,7 @@ use strict;
 
 use SL::DB::MetaSetup::Country;
 use SL::DB::Manager::Country;
+use SL::DB::Helper::ActsAsList (column_name => 'sortorder');
 
 __PACKAGE__->meta->initialize;
 

@@ -1533,7 +1533,8 @@
   order: 3100
   access: admin
   params:
-    action: Countries/list
+    action: SimpleSystemSetting/list
+    type: country
 - id: program
   name: Program
   icon: program
