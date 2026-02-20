@@ -582,12 +582,12 @@ sub setup_is_action_bar {
                     : $form->{postal_invoice} ? t8('This customer wants a postal invoices.')
                     :                     undef,
         ],
-        action => [ t8('Factur-X/ZUGFeRD'),
+        action => [ t8('Factur-X/ZUGFeRD/XRechnung'),
           submit   => [ '#form', { action => "download_factur_x_xml" } ],
           checks   => [ 'kivi.validate_form' ],
           disabled => !$may_edit_create  ? t8('You must not print this invoice.')
                     : !$form->{id}       ? t8('This invoice has not been posted yet.')
-                    : !$factur_x_enabled ? t8('Creating Factur-X/ZUGFeRD invoices is not enabled for this customer.')
+                    : !$factur_x_enabled ? t8('Creating Factur-X/ZUGFeRD/XRechnung invoices is not enabled for this customer.')
                     :                      undef,
         ],
       ], # end of combobox "Export"

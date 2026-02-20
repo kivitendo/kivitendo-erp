@@ -61,6 +61,9 @@ Kleinere neue Features und Detailverbesserungen:
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
+- XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
+  Dateiname nun mit »xrechnung_« und nicht mehr mit »factur-x_«.
+
 Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
 ## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
