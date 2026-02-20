@@ -340,7 +340,161 @@ sub clone_for_save_as_new {
   return $new_record;
 }
 
+sub print_record {
+  my ($class, $record, %params) = @_;
 
+  my $format      = $params{print_options}->{format};
+  my $formname    = $params{print_options}->{formname};
+  my $groupitems  = $params{print_options}->{groupitems};
+  my $printer_id  = $params{print_options}->{printer_id};
+
+  # my $return;
+my $result = {
+    success => 0,
+    message => '',
+    errors  => undef,
+    file    => undef,
+    filename => undef,
+  };
+
+  # create a form for generate_attachment_filename
+  my $form   = Form->new;
+
+  $form->{$record->type_data->properties('nr_key')}  = $record->type_data->properties('nr_key');
+  $form->{type}             = $record->type;
+  $form->{format}           = $format;
+  $form->{formname}         = $formname;
+  $form->{language}         = '_' . $record->language->template_code if $record->language;
+  my $pdf_filename          = $form->generate_attachment_filename();
+  my $pdf;
+  my @errors = _generate_pdf($record, \$pdf, {
+      format     => $format,
+      formname   => $formname,
+      language   => $record->language,
+      printer_id => $printer_id,
+      groupitems => $groupitems
+    });
+  if (scalar @errors) {
+    $result->{success} = 0;
+    $result->{errors} = \@errors;
+    $result->{message} = t8("Errors while printing");
+    return $result;
+  }
+
+  $result->{success} = 1;
+  $result->{file} = $pdf;
+  $result->{filename} = $pdf_filename;
+  $result->{message} = t8("The document has been created");
+
+  return $result;
+}
+
+sub _generate_pdf {
+  my ($record, $pdf_ref, $params) = @_;
+
+  my @errors = ();
+
+  my $print_form = Form->new('');
+  $print_form->{type}        = $record->type;
+  $print_form->{formname}    = $params->{formname} || $record->type;
+  $print_form->{format}      = $params->{format}   || 'pdf';
+  $print_form->{media}       = $params->{media}    || 'file';
+  $print_form->{groupitems}  = $params->{groupitems};
+  $print_form->{printer_id}  = $params->{printer_id};
+  $print_form->{media}       = 'file' if $print_form->{media} eq 'screen';
+  $print_form->{record} = $record;
+
+  $record->language($params->{language});
+  $record->flatten_to_form($print_form, format_amounts => 1);
+
+  my $template_ext;
+  my $template_type;
+  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
+    $template_ext  = 'odt';
+    $template_type = 'OpenDocument';
+  }
+
+  # search for the template
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $print_form->{formname},
+    extension   => $template_ext,
+    email       => $print_form->{media} eq 'email',
+    language    => $params->{language},
+    printer_id  => $print_form->{printer_id},
+  );
+
+  if (!defined $template_file) {
+    push @errors, $::locale->text(
+      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
+      join ', ', map { "'$_'"} @template_files
+    );
+  }
+
+  return @errors if scalar @errors;
+
+  $print_form->throw_on_error(sub {
+    eval {
+      $print_form->prepare_for_printing;
+
+      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
+        format        => $print_form->{format},
+        template_type => $template_type,
+        template      => $template_file,
+        variables     => $print_form,
+        variable_content_types => {
+          longdescription => 'html',
+          partnotes       => 'html',
+          notes           => 'html',
+        },
+      );
+      1;
+    } || push @errors, ref($@) eq 'SL::X::FormError' ? $@->error : $@;
+  });
+
+  return @errors;
+#}
+}
+
+sub store_pdf_to_webdav_and_filemanagement {
+  my($class, $record, $content, $filename, $variant) = @_;
+
+  my @errors;
+
+  # copy file to webdav folder
+  if ($record->type_data->properties('nr_key') && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $record->type,
+      number   => $record->number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $filename,
+    );
+    eval {
+      $webdav_file->store(data => \$content);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
+    };
+  }
+  if ($record->id && $::instance_conf->get_doc_storage) {
+    eval {
+      SL::File->save(object_id     => $record->id,
+                     object_type   => $record->type,
+                     mime_type     => 'application/pdf',
+                     source        => 'created',
+                     file_type     => 'document',
+                     file_name     => $filename,
+                     file_contents => $content,
+                     print_variant => $variant);
+      1;
+    } or do {
+      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
+    };
+  }
+
+  return @errors;
+}
 1;
 
 __END__
