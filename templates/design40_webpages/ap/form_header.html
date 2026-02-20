@@ -228,7 +228,7 @@
     </tr>
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>
-      <td>[% P.project.picker('globalproject_id', globalproject_id, onchange="document.getElementById('update_button').click();") %]</td>
+      <td>[% P.project.picker('globalproject_id', globalproject_id) %]</td>
     </tr>
   </tbody>
 </table>
@@ -285,7 +285,7 @@
                row             = i
                row_classes     = show_details ? '' : 'hidden'
                all_departments = ALL_DEPARTMENTS
-               project_id      = loop.last ? globalproject_id : $temp_project_id
+               project_id      = $temp_project_id
                department_id   = $temp_department_id
     %]
     [% END %]
