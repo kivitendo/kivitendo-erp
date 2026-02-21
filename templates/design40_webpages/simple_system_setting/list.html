@@ -4,6 +4,10 @@
 
 <div class="wrapper">
 
+[% IF SELF.config.top_info_text %]
+  <p>[% HTML.escape(SELF.config.top_info_text) %]</p>
+[% END %]
+
 <table id="object_list" class="tbl-list wi-moderate">
  <thead>
   <tr>
