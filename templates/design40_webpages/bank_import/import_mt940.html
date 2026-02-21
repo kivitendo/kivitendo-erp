@@ -34,10 +34,14 @@
     <th>[% LxERP.t8("Imported entries") %]:</th>
     <td>[% SELF.statistics.imported %]</td>
 [% END %]
+  </tr>
   <tr>
     <th>[% LxERP.t8("Includes Automatic SEPA bookings") %]:</th>
     <td>[% SELF.statistics.sepa %]</td>
   </tr>
+  <tr>
+    <th>[% LxERP.t8("Includes Automatic GL bookings") %]:</th>
+    <td>[% SELF.statistics.gl_bookings %]</td>
   </tr>
 </table>
 
@@ -85,12 +89,21 @@
             [% HTML.escape(transaction.sei.reference) %]
             <br/><span>[% L.checkbox_tag('no_automatic_' _ transaction.sei.id, value => 1, checked => 0) %]
             [% LxERP.t8("Disable automatic SEPA booking") %]</span>
+          [% ELSIF transaction.direct_gl && preview %]
+            [% LxERP.t8("Direct GL") %]
+            <a href="gl.pl?action=load_record_template&id=[% HTML.url(transaction.direct_gl.id) %]">[% HTML.escape(transaction.direct_gl.reference) %]</a><br/>
+            [% HTML.escape(transaction.direct_gl.description) %]
+            <br/><span>[% L.checkbox_tag('no_automatic_' _ transaction.direct_gl.id, value => 1, checked => 0) %]
+            [% LxERP.t8("Disable automatic GL booking") %]</span>
           [% ELSIF preview %]
             [% LxERP.t8("To import") %]
           [% ELSE %]
             [% LxERP.t8("Imported") %]
             [% IF transaction.sei_ok %]
               <br/>[% LxERP.t8("SEPA Booking OK") %]
+            [% END %]  [% IF transaction.direct_gl_id %]
+              <br/>[% LxERP.t8("GL Booking OK") %]
+              <br/><a href="gl.pl?action=edit&id=[% HTML.url(transaction.direct_gl_id) %]">[% HTML.escape(transaction.direct_gl.reference) %]</a><br/>
             [% END %]
           [% END %]
         </td>

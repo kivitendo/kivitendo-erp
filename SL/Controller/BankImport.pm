@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use List::MoreUtils qw(apply);
 use List::Util qw(max min sum);
 
@@ -11,6 +12,7 @@ use SL::DB::BankAccount;
 use SL::DB::BankTransaction;
 use SL::DB::BankTransactionAccTrans;
 use SL::DB::Default;
+use SL::DB::Manager::RecordTemplate;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::MT940;
@@ -72,6 +74,7 @@ sub parse_and_analyze_transactions {
   my $errors     = 0;
   my $duplicates = 0;
   my $sepa       = 0;
+  my $gl_bookings = 0;
   my ($min_date, $max_date);
 
   my $currency_id = SL::DB::Default->get->currency_id;
@@ -109,6 +112,14 @@ sub parse_and_analyze_transactions {
     %existing_bank_transactions = map { (make_transaction_idx($_) => 1) } @entries;
   }
 
+  my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
+    query        => [ template_type => 'gl_transaction',
+                      chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transactions->[0]->{local_bank_account_id})->chart_id,
+                      bank_import_template => 1,
+                    ],
+    with_objects => [ qw(employee record_template_items) ],
+  );
+
   foreach my $transaction (@{ $self->transactions }) {
     next if $transaction->{error};
 
@@ -122,6 +133,12 @@ sub parse_and_analyze_transactions {
       $transaction->{sei} = $self->_check_sepa_automatic(transaction => $transaction);
       $sepa++ if ref $transaction->{sei} eq 'SL::DB::SepaExportItem';
     }
+    # check if template_gl description matches purpose
+    my $direct_gl = [ grep { $_->description && index($transaction->{purpose}, $_->description) != -1 } @{ $templates_gl } ];
+    if (scalar @{ $direct_gl} == 1) {
+      $transaction->{direct_gl} = $direct_gl->[0];
+      $gl_bookings++;
+    }
   }
 
   $self->statistics({
@@ -129,6 +146,7 @@ sub parse_and_analyze_transactions {
     errors     => $errors,
     duplicates => $duplicates,
     sepa       => $sepa,
+    gl_bookings => $gl_bookings,
     to_import  => scalar(@{ $self->transactions }) - $errors - $duplicates,
   });
 }
@@ -138,6 +156,7 @@ sub import_transactions {
 
   my $imported = 0;
   my $sepa     = 0;
+  my $gl_bookings = 0;
 
   my $db = SL::DB::client;
   $db->with_transaction(sub {
@@ -158,6 +177,10 @@ sub import_transactions {
         $sepa++;
         $transaction->{sei_ok} = 1;
       }
+      if ($transaction->{direct_gl} && !$::form->{"no_automatic_" . $transaction->{direct_gl}->id}) {
+        $transaction->{direct_gl_id} = $self->_book_gl_template(bt => $current_bt, direct_gl_template_id => $transaction->{direct_gl}->id);
+        $gl_bookings++;
+      }
     }
 
     1;
@@ -165,6 +188,7 @@ sub import_transactions {
 
   $self->statistics->{imported} = $imported;
   $self->statistics->{sepa}     = $sepa;
+  $self->statistics->{gl_bookings} = $gl_bookings;
 }
 
 sub _book_sepa {
@@ -243,6 +267,81 @@ sub _book_sepa {
   }
   $bt->save;
   return undef;
+}
+sub _book_gl_template {
+  my ($self, %params) = @_;
+  die "Need a bankt transaction" unless ref $params{bt} eq 'SL::DB::BankTransaction';
+
+  my $gl_template = SL::DB::Manager::RecordTemplate->find_by(id => $params{direct_gl_template_id});
+  die "Need a template GL" unless ref $gl_template eq 'SL::DB::RecordTemplate';
+
+  my $bt = delete $params{bt};
+
+  die "Need exactly two valid GL entries" unless     scalar @{ $gl_template->record_template_items } == 2
+                                                 || (scalar @{ $gl_template->record_template_items } == 3
+                                                     && $gl_template->record_template_items->[2]->amount1 == 0
+                                                     && $gl_template->record_template_items->[2]->amount2 == 0);
+  my ($credit, $debit, $credit_tax_id, $debit_tax_id);
+
+  foreach my $acc_trans (@{ $gl_template->items }) {
+    if ($acc_trans->amount1 > 0) {
+      $credit = SL::DB::Chart->load_cached($acc_trans->chart_id);
+      $credit_tax_id = $acc_trans->tax_id;
+    } elsif ($acc_trans->amount2 > 0) {
+      $debit  = SL::DB::Chart->load_cached($acc_trans->chart_id);
+      $debit_tax_id = $acc_trans->tax_id;
+    }
+  }
+  croak("Missing chart")  unless ref $credit eq 'SL::DB::Chart' && ref $debit eq 'SL::DB::Chart';
+
+  $bt->load;
+
+  $gl_template->substitute_variables($bt->valutadate);
+
+  my $current_transaction = SL::DB::GLTransaction->new(
+         transdate      => $bt->valutadate,
+         description    => $bt->purpose,
+         reference      => $gl_template->reference,
+         taxincluded    => $gl_template->taxincluded,
+         department_id  => $gl_template->department_id,
+         imported       => 0, # not imported
+         transaction_description   => $gl_template->transaction_description,
+    )->add_chart_booking(
+         chart  => $debit,
+         debit  => abs($bt->amount),
+         source => t8('Automatic GL Template Booking'),
+         tax_id => $debit_tax_id,
+    )->add_chart_booking(
+         chart  => $credit,
+         credit => abs($bt->amount),
+         source => t8('Automatic GL Template Booking'),
+         tax_id => $credit_tax_id,
+    )->post;
+
+  # add a stable link acc_trans_id to bank_transactions.id
+  foreach my $transaction (@{ $current_transaction->transactions }) {
+    my %props_acc = (
+         acc_trans_id        => $transaction->acc_trans_id,
+         bank_transaction_id => $bt->id,
+         gl                  => $current_transaction->id,
+    );
+    SL::DB::BankTransactionAccTrans->new(%props_acc)->save;
+  }
+
+  $bt->invoice_amount($bt->amount);
+  $bt->save;
+
+  # Record a record link from banktransactions to gl
+  my %props_rl = (
+       from_table => 'bank_transactions',
+       from_id    => $bt->id,
+       to_table   => 'gl',
+       to_id      => $current_transaction->id,
+  );
+  SL::DB::RecordLink->new(%props_rl)->save;
+
+
+  return $current_transaction->id;
 }
 
 sub check_auth {
