@@ -9,6 +9,7 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('gl');
 
 __PACKAGE__->meta->columns(
+  bank_import_template    => { type => 'boolean', default => 'false' },
   cb_transaction          => { type => 'boolean' },
   deliverydate            => { type => 'date' },
   department_id           => { type => 'integer' },
