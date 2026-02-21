@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('record_templates');
 
 __PACKAGE__->meta->columns(
   ar_ap_chart_id          => { type => 'integer' },
+  bank_import_template    => { type => 'boolean', default => 'false' },
   cb_transaction          => { type => 'boolean', default => 'false', not_null => 1 },
   currency_id             => { type => 'integer', not_null => 1 },
   customer_id             => { type => 'integer' },
