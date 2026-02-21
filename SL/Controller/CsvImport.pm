@@ -37,7 +37,7 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
-                                 import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones all_countries) ],
+                                 import_status errors headers raw_data_headers info_headers data num_importable displayable_columns file all_taxzones) ],
  'scalar --get_set_init' => [ qw(worker task_server num_imported mappings) ],
  'array'                 => [
    progress_tracker     => { },
@@ -369,7 +369,6 @@ sub render_inputs {
 
   if ( any { $_ eq $self->{type} } qw(customers_vendors orders delivery_orders ar_transactions ap_transactions) ) {
     $self->all_taxzones(SL::DB::Manager::TaxZone->get_all_sorted(query => [ obsolete => 0 ]));
-    $self->all_countries(SL::DB::Manager::Country->get_all_sorted());
   };
 
   if ($self->{type} eq 'parts') {
