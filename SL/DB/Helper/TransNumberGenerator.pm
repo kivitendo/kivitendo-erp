@@ -88,10 +88,12 @@ sub get_next_trans_number {
   # prevent deadlocks as the legacy code in SL/TransNumber.pm locks it
   # first, too.
 
-  # For the storage table we have to use a full lock in order to
+  # For the storage table we have to use a RowExclusiveLock in order to
   # prevent insertion of new entries while this routine is still
   # working. For the range table we only need a row-level lock,
   # therefore we're re-loading the row.
+  # Note that acquiring a full lock on a table collides with pg_dump.
+  # Acquiring a RowExclusiveLock does not pose this problem.
   $self->db->dbh->do('LOCK ' . $self->meta->table . ' IN ROW EXCLUSIVE MODE') || die $self->db->dbh->errstr;
 
   my ($query_in_use, $bind_vals_in_use) = Rose::DB::Object::QueryBuilder::build_select(
