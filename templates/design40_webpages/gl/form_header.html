@@ -105,7 +105,9 @@
 <table class="tbl-horizontal">
   <tbody>
     <tr>
-      <th>[% 'Reference' | $T8 %]</th>
+      <th>[% 'Reference' | $T8 %]
+          [% P.context_help_tag(LxERP.t8('If loaded from a template you can use date variables to avoid boring date alteration every month. All variables which are available for recurring invoices are supported. Example 1: Insurance <%current_month_long%> <%current_year%> => Insurance February 2026. Example 2: Rent <%reference_date FORMAT=%m/%Y %> => Rent 02/2026. Hint: reference_date is either the current date or if the source of the template is a bank transaction the valuta date from the bank transaction. Just try it!')) %]
+      </th>
       <td>[% L.input_tag('reference', reference, class='wi-wide', readonly=readonly) %]</td>
     </tr>
     <tr>
@@ -161,6 +163,14 @@
       <th>[% 'MwSt. inkl.' | $T8 %]</th>
       <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
     </tr>
+    <tr>
+      <th>
+        [% 'Bank Import Template' | $T8 %]
+        [% P.context_help_tag(LxERP.t8('Bored of creating "Gewerbesteuervorauszahlungsbuchungen" every quarter from the bank import? Try this: If this general ledger booking is used as a template for imported bank bookings and the saved text in description is a substring in the bank transaction purpose you can create this booking on the fly by importing the bank transaction. And yes this only works if exactly one credit and one debit booking is used. Too complicated? Ask your local official kivitendo partner or visit a kivitendo webinar. Still too complicated? You can check your pattern matching with the function "Create Invoice" in the bank transaction menu. If your pattern match the popup filter will be skipped.')) %]
+      </th>
+      <td>[% L.checkbox_tag('bank_import_template', checked=bank_import_template) %]</td>
+    </tr>
+
   </tbody>
 </table>
 
