@@ -314,18 +314,22 @@ sub action_create_invoice {
   # if we have exactly one ap match, use this directly
   if ($use_vendor_filter && 1 == scalar @{ $templates_ap }) {
     $self->redirect_to($self->load_ap_record_template_url($templates_ap->[0]));
-
-  } else {
-    my $dialog_html = $self->render(
-      'bank_transactions/create_invoice',
-      { layout => 0, output => 0 },
-      title        => t8('Create invoice'),
-      TEMPLATES_GL => $use_vendor_filter && @{ $templates_ap } ? undef : $templates_gl,
-      TEMPLATES_AP => $templates_ap,
-      vendor_name  => $use_vendor_filter && @{ $templates_ap } ? $vendor_of_transaction->name : undef,
-    );
-    $self->js->run('kivi.BankTransaction.show_create_invoice_dialog', $dialog_html)->render;
   }
+  # if description is substring in purpose, use this gl template directly
+  my $direct_gl = [ grep { $_->description && index($self->{transaction}->purpose, $_->description) != -1 } @{ $templates_gl } ];
+  if (1 == scalar @{ $direct_gl} ) {
+    $self->redirect_to($self->load_gl_record_template_url($direct_gl->[0]));
+  }
+
+  my $dialog_html = $self->render(
+    'bank_transactions/create_invoice',
+    { layout => 0, output => 0 },
+    title        => t8('Create invoice'),
+    TEMPLATES_GL => $use_vendor_filter && @{ $templates_ap } ? undef : $templates_gl,
+    TEMPLATES_AP => $templates_ap,
+    vendor_name  => $use_vendor_filter && @{ $templates_ap } ? $vendor_of_transaction->name : undef,
+  );
+  $self->js->run('kivi.BankTransaction.show_create_invoice_dialog', $dialog_html)->render;
 }
 
 sub action_ajax_payment_suggestion {
