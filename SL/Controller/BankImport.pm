@@ -79,7 +79,7 @@ sub parse_and_analyze_transactions {
 
   my $currency_id = SL::DB::Default->get->currency_id;
 
-  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } SL::MT940->parse($self->file_name, charset => $self->charset) ]);
+  $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } SL::MT940->parse($self->file_name, charset => $self->charset) ]) unless $params{unit_test};
 
   foreach my $transaction (@{ $self->transactions }) {
     $transaction->{bank_account}   = $self->bank_accounts->{ make_bank_account_idx($transaction->{local_bank_code}, $transaction->{local_account_number}) };
@@ -111,7 +111,6 @@ sub parse_and_analyze_transactions {
 
     %existing_bank_transactions = map { (make_transaction_idx($_) => 1) } @entries;
   }
-
   my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
     query        => [ template_type => 'gl_transaction',
                       chart_id      => SL::DB::Manager::BankAccount->find_by(id => $self->transactions->[0]->{local_bank_account_id})->chart_id,
@@ -119,7 +118,6 @@ sub parse_and_analyze_transactions {
                     ],
     with_objects => [ qw(employee record_template_items) ],
   );
-
   foreach my $transaction (@{ $self->transactions }) {
     next if $transaction->{error};
 
