@@ -1627,9 +1627,6 @@ sub display_form {
 
   relink_accounts();
 
-  my $new_rowcount = $::form->{"rowcount"} * 1 + 1;
-  $::form->{"project_id_${new_rowcount}"} = $::form->{"globalproject_id"};
-
   $::form->language_payment(\%::myconfig);
 
   Common::webdav_folder($::form);
