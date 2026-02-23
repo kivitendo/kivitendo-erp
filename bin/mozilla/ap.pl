@@ -1490,7 +1490,6 @@ sub add_from_purchase_order {
     $::form->{"previous_AP_amount_chart_id_$row"} = $::form->{"AP_amount_chart_id_$row"};
     $::form->{"amount_$row"}                      = $::form->format_amount(\%::myconfig, $pat{amounts}->{$amount_chart}->{amount} * (1 + $tax->rate), 2);
     $::form->{"taxchart_$row"}                    = $taxchart_to_use->id . '--' . $taxchart_to_use->rate;
-    $::form->{"project_id_$row"}                  = $order->globalproject_id;
 
     $row++;
   }
