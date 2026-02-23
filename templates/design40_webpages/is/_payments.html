@@ -115,10 +115,10 @@
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Total' | $T8 %]</td>
-      <td align="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
+      <td class="numeric">[% LxERP.format_amount(totalpaid, 2) | html %] [% currency %]</td>
       <td></td>
       [% IF show_exchangerate %]
-        <td align="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
+        <td class="numeric">[% LxERP.format_amount(defaultcurrency_totalpaid, 2) | html %] [% defaultcurrency %]</td>
       [% ELSE %]
       [% END %]
         <td></td>
@@ -126,7 +126,7 @@
     <tr>
       <td colspan="2"></td>
       <td class="right">[% 'Missing amount' | $T8 %]</td>
-      <td align="numeric">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
+      <td class="numeric">[% LxERP.format_amount(paid_missing, 2) | html %] [% currency %]</td>
       <td colspan="2">
       </td>
    </tr>
