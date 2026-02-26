@@ -441,6 +441,8 @@ sub invoice {
     $form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_SALES_INVOICE_POST())->token;
   }
 
+  _do_sales_remove_billed_rows(id => $form->{convert_from_do_ids});
+
   for my $i (1 .. $form->{rowcount}) {
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice lastcost basefactor discount);
     # für bug 1284
@@ -628,6 +630,33 @@ sub invoice_multi {
 
 sub type_data {
   SL::DB::Helper::TypeDataProxy->new('SL::DB::DeliveryOrder', $::form->{type});
+}
+
+sub _do_sales_remove_billed_rows {
+  my (%params) = @_;
+
+  return unless $params{id};
+  my $do = SL::DB::DeliveryOrder->new(id => $params{id})->load;
+  return unless $do->is_sales; # Do not remove a purchase delivery orders' items from a sales invoice
+
+  my @existing_record_numbers = ();
+  my %handled_base_qtys;
+  foreach my $record (@{ $do->linked_records(direction => 'to', to => 'Invoice') }) {
+    next if $do->is_sales != $record->is_sales;
+    next if $record->type eq 'invoice' && $record->storno;
+
+    foreach my $item (@{ $record->items }) {
+      my $key  = $item->parts_id;
+      $key    .= ':' . $item->serialnumber if $item->serialnumber;
+      $handled_base_qtys{$key} += $item->qty * $item->unit_obj->base_factor;
+    }
+
+    push @existing_record_numbers, $record->invnumber;
+  }
+
+  _remove_billed_or_delivered_rows(quantities => \%handled_base_qtys);
+
+  flash('info', t8('Positions already billed for in invoice #1 were removed automatically.', join(', ', @existing_record_numbers))) if @existing_record_numbers;
 }
 
 __END__
