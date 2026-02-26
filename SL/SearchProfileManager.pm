@@ -96,6 +96,8 @@ sub save_profile {
         '!id'           => $profile->id,
       ],
     );
+    $profile->default_profile(1);
+    $profile->save;
   }
 
   return $profile;
