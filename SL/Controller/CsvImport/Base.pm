@@ -571,7 +571,7 @@ sub save_objects {
     SL::DB->client->with_transaction(sub {
 
       foreach my $refs (@{ $referenced_tables_by_type{$self->controller->{type}} || [] }) {
-        SL::DB->client->dbh->do("LOCK " . $refs) || die SL::DB->client->dbh->errstr;
+        SL::DB->client->dbh->do('LOCK ' . $refs . ' IN ROW EXCLUSIVE MODE') || die SL::DB->client->dbh->errstr;
       }
 
       foreach my $entry_index ($chunk_size * $chunk .. min( $last_index, $chunk_size * ($chunk + 1) - 1 )) {

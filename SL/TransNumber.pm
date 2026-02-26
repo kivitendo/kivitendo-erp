@@ -156,7 +156,7 @@ sub create_unique {
       $where
 SQL
 
-    do_query($form, $self->dbh, "LOCK TABLE " . $filters{table}) || die $self->dbh->errstr;
+    do_query($form, $self->dbh, 'LOCK TABLE ' . $filters{table} . ' IN ROW EXCLUSIVE MODE') || die $self->dbh->errstr;
     my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use', @{ $filters{values} // [] });
 
     my $business_number;

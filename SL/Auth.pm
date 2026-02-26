@@ -801,7 +801,7 @@ sub save_session {
 
   # If this fails then the "auth" schema might not exist yet, e.g. if
   # the admin is just trying to create the auth database.
-  if (!$dbh->do(qq|LOCK auth.session_content|)) {
+  if (!$dbh->do(qq|LOCK auth.session_content IN ROW EXCLUSIVE MODE|)) {
     $dbh->rollback unless $provided_dbh;
     return;
   }
