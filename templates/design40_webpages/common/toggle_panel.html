@@ -27,6 +27,7 @@
   # display_status = 'open'              # optional / default/empty is 'closed'
   # button_closed  = 'Show Filter'       # optional / Term in closed button / default/empty is 'Show Filter' (historical)
   # button_open    = 'Hide Filter'       # optional / Term in opened button / default/empty is 'Hide Filter' (historical)
+  # summary_text   = 'all projects'      # optional / Summary text to show next to 'button_closed' while panel is closed; derived from SELF.filter_summary if empty
 %]
 
 [%
@@ -46,11 +47,14 @@
   IF !toggle_class || toggle_class == '';
     toggle_class = 'toggle_panel' ; # this is default for one toggle panel per page
   END ;
+  IF (!summary_text || summary_text == '') && SELF.filter_summary;
+    summary_text = LxERP.t8("Current filter") _ ": " _ SELF.filter_summary ;
+  END ;
 %]
 
 <div class="toggle_panel control-panel [% toggle_class %]" [% display_off %]>
   <a href="#" onClick='javascript:$(".[% toggle_class %]").toggle()' class="button toggle off neutral">[% button_closed %]</a>
-  [% IF SELF.filter_summary %]([% LxERP.t8("Current filter") %]: [% SELF.filter_summary | html %])[% END %]
+  [% IF summary_text %]([% summary_text | html %])[% END %]
 </div>
 
 <div class="toggle_panel control-panel [% toggle_class %]" [% display_on %]>
