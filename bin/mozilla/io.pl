@@ -57,6 +57,7 @@ use SL::Presenter::Part;
 use SL::Presenter::Chart;
 use SL::Presenter::Tag;
 use SL::Util qw(trim);
+use SL::ZUGFeRD;
 
 use SL::DB::AuthUser;
 use SL::DB::Contact;
@@ -2389,9 +2390,10 @@ sub download_factur_x_xml {
       || !$record->can('create_zugferd_data')
       || !$record->customer->create_zugferd_invoices_for_this_customer;
 
-  my $xml_content = eval { $record->create_zugferd_data } or do { $::form->error($@) };
-
-  my $attachment_filename = "factur-x_" . $::form->generate_attachment_filename;
+  my $xml_content         = eval { $record->create_zugferd_data } or do { $::form->error($@) };
+  my %factur_x_settings   = SL::ZUGFeRD->convert_customer_setting($record->customer->create_zugferd_invoices_for_this_customer);
+  my $prefix              = $factur_x_settings{profile} == SL::ZUGFeRD::PROFILE_XRECHNUNG() ? "xrechnung" : "factur-x";
+  my $attachment_filename = "${prefix}_" . $::form->generate_attachment_filename;
   $attachment_filename    =~ s{\.[^.]+$}{.xml};
   my %headers             = (
     '-type'           => 'application/xml',
