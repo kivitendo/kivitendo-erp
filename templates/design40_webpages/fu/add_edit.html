@@ -30,6 +30,32 @@
 [% END %]
 
 <div class="wrapper">
+  <table class="tbl-horizontal">
+    <tbody>
+      [% FOREACH row = LINKS %]
+        <tr>
+          <th>[% 'Reference' | $T8 %]</th>
+          <td>[% P.link_tag(row.url, row.title, target="_blank") %]</td>
+        </tr>
+      [% END %]
+      <tr>
+        <th>[% 'Follow-Up Date' | $T8 %]</th>
+        <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Subject' | $T8 %]</th>
+        <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
+      </tr>
+      <tr>
+        <th>[% 'Body' | $T8 %]</th>
+        <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<div class="wrapper">
   <h3>[% 'Follow-Up for user' | $T8 %]</h3>
   <div class="col">
   <table class="tbl-list">
@@ -78,31 +104,6 @@
     </tbody>
   </table>
   </div>
-</div>
-
-<div class="wrapper">
-  <table class="tbl-horizontal">
-    <tbody>
-      [% FOREACH row = LINKS %]
-        <tr>
-          <th>[% 'Reference' | $T8 %]</th>
-          <td>[% P.link_tag(row.url, row.title, target="_blank") %]</td>
-        </tr>
-      [% END %]
-      <tr>
-        <th>[% 'Follow-Up Date' | $T8 %]</th>
-        <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
-      </tr>
-      <tr>
-        <th>[% 'Subject' | $T8 %]</th>
-        <td><input type="text" name="subject" value="[% HTML.escape(subject) %]" class="wi-wider"></td>
-      </tr>
-      <tr>
-        <th>[% 'Body' | $T8 %]</th>
-        <td><textarea class="wi-wider" rows="10" name="body">[% HTML.escape(body) %]</textarea></td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
 [% IF POPUP_MODE %]
