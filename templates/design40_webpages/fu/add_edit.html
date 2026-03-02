@@ -2,6 +2,7 @@
 [% USE L %]
 [% USE HTML %]
 [% USE LxERP %]
+[% USE P %]
 <h1>[% title %]</h1>
 
 <script type="text/javascript">
@@ -82,6 +83,12 @@
 <div class="wrapper">
   <table class="tbl-horizontal">
     <tbody>
+      [% FOREACH row = LINKS %]
+        <tr>
+          <th>[% 'Reference' | $T8 %]</th>
+          <td>[% P.link_tag(row.url, row.title, target="_blank") %]</td>
+        </tr>
+      [% END %]
       <tr>
         <th>[% 'Follow-Up Date' | $T8 %]</th>
         <td>[% L.date_tag('follow_up_date', follow_up_date, class="wi-date") %]</td>
