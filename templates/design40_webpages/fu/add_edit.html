@@ -29,8 +29,9 @@
 [% END %]
 
 <div class="wrapper">
+  <h3>[% 'Follow-Up for user' | $T8 %]</h3>
+  <div class="col">
   <table class="tbl-list">
-    <caption>[% 'Follow-Up for user' | $T8 %]</caption>
     <thead>
       <tr>
         <th>[% L.checkbox_tag('checkall_checkboxes', label='', id='checkall', checkall="[data-checkall=1]") %]</th>
@@ -51,6 +52,9 @@
       [% END %]
     </tbody>
   </table>
+  </div>
+
+  <div class="col">
   <table class="tbl-list">
     <thead>
       <tr>
@@ -72,6 +76,7 @@
       [% END %]
     </tbody>
   </table>
+  </div>
 </div>
 
 <div class="wrapper">
