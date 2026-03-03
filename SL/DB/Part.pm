@@ -24,6 +24,7 @@ use SL::DB::Helper::DisplayableNamePreferences (
   options => [ {name => 'partnumber',  title => t8('Part Number')     },
                {name => 'description', title => t8('Description')    },
                {name => 'notes',       title => t8('Notes')},
+               {name => 'onhand',      title => t8('Onhand'),     sub => sub { $::form->format_amount(\%::myconfig, $_[0]->onhand) } },
                {name => 'partsgroup',  title => t8('Partsgroup'), sub => sub { $_[0]->partsgroup && $_[0]->partsgroup->partsgroup } },
                {name => 'ean',         title => t8('EAN')            }, ],
 );
