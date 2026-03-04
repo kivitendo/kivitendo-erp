@@ -512,6 +512,7 @@ sub names_status_multi {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $obsolete = $form->{obsolete} ? 1 : 0;
 
   $::auth->assert('customer_vendor_all_edit');
 
@@ -521,8 +522,8 @@ sub names_status_multi {
     $form->show_generic_error($locale->text('You have not selected any entry.'));
   }
 
-  SL::DB::Manager::Customer->update_all(set => { obsolete => 1 }, where => [ 'id' => \@ct_ids ]);
-  SL::DB::Manager::Vendor  ->update_all(set => { obsolete => 1 }, where => [ 'id' => \@ct_ids ]);
+  SL::DB::Manager::Customer->update_all(set => { obsolete => $obsolete }, where => [ 'id' => \@ct_ids ]);
+  SL::DB::Manager::Vendor  ->update_all(set => { obsolete => $obsolete }, where => [ 'id' => \@ct_ids ]);
 
   print $form->redirect_header($form->{callback});
   $::dispatcher->end_request;
@@ -553,8 +554,14 @@ sub setup_ct_list_names_action_bar {
         action => [ t8('Validity') ],
         action => [
           t8('Mark as obsolete'),
-          submit   => [ '#form', { action => 'names_status_multi' } ],
-          confirm  => t8('Do you really want to mark the selected entries as obsolete?'),
+          submit   => [ '#form', { action => 'names_status_multi', obsolete => 1 } ],
+          confirm  => t8('Do you really want to change the selected entries?'),
+          disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8("You don't have the rights to edit this entry."),
+        ],
+        action => [
+          t8('Mark as valid'),
+          submit   => [ '#form', { action => 'names_status_multi', obsolete => 0 } ],
+          confirm  => t8('Do you really want to change the selected entries?'),
           disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8("You don't have the rights to edit this entry."),
         ],
       ],
