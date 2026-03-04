@@ -1,5 +1,9 @@
 [% USE T8 %]
 [% USE HTML %]
+[% USE P %]
+
+[% P.hidden_tag("callback", callback) %]
+</form>
 
 <form method="post" action="controller.pl" id="new_form">
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">

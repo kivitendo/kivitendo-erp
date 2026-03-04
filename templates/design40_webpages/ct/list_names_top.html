@@ -3,4 +3,5 @@
 [% USE L %]
 
 <div class="wrapper">
+<form method="post" action="ct.pl" id="form">
 [% 'Options' | $T8 %]: [% FOREACH o = options %][% HTML.escape(o) %]<br>[% END %]

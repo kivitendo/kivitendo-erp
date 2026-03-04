@@ -137,6 +137,7 @@ sub list_names {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $cgi      = $::request->{cgi};
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -208,6 +209,7 @@ sub list_names {
   };
 
   my @columns = (
+    'ids',
     'id',        'name',    "$form->{db}number",   'contact', 'main_contact_person',
     'department_1',         'department_2',        'phone',   'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
@@ -223,6 +225,7 @@ sub list_names {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my %column_defs = (
+    'ids'               => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "multi_all", checkall => "[data-checkall=1]"), align => 'center' },
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $locale->text('Number'), },
     'name'              => { 'text' => $form->{IS_CUSTOMER} ? $::locale->text('Customer Name') : $::locale->text('Vendor Name'), },
@@ -263,6 +266,8 @@ sub list_names {
   );
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
+
+  $column_defs{ids}->{visible} = 'HTML';
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
@@ -327,6 +332,13 @@ sub list_names {
 
   foreach my $ref (@{ $form->{CT} }) {
     my $row = { map { $_ => { 'data' => '' } } @columns };
+
+    my $ord_id = $ref->{id};
+    $row->{ids}  = {
+      'raw_data' => $cgi->checkbox('-name' => "multi_ct_id[+]", ' id' => "multi_ct_id[+]", '-value' => $ord_id, 'data-checkall' => 1, '-label' => ''),
+      'valign'   => 'center',
+      'align'    => 'center',
+    };
 
     if ($ref->{id} ne $previous_id) {
       $previous_id = $ref->{id};
@@ -494,6 +506,30 @@ sub list_contacts {
   $::lxdebug->leave_sub;
 }
 
+sub names_status_multi {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  $::auth->assert('customer_vendor_all_edit');
+
+  my @ct_ids = @{ $form->{multi_ct_id} // [] };
+
+  if (!scalar @ct_ids) {
+    $form->show_generic_error($locale->text('You have not selected any entry.'));
+  }
+
+  SL::DB::Manager::Customer->update_all(set => { obsolete => 1 }, where => [ 'id' => \@ct_ids ]);
+  SL::DB::Manager::Vendor  ->update_all(set => { obsolete => 1 }, where => [ 'id' => \@ct_ids ]);
+
+  print $form->redirect_header($form->{callback});
+  $::dispatcher->end_request;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub setup_ct_search_action_bar {
   my %params = @_;
 
@@ -513,7 +549,16 @@ sub setup_ct_list_names_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
+      combobox => [
+        action => [ t8('Validity') ],
+        action => [
+          t8('Mark as obsolete'),
+          submit   => [ '#form', { action => 'names_status_multi' } ],
+          confirm  => t8('Do you really want to mark the selected entries as obsolete?'),
+          disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8("You don't have the rights to edit this entry."),
+        ],
+      ],
+       action => [
         t8('Add'),
         submit    => [ '#new_form', { action => 'CustomerVendor/add' } ],
         accesskey => 'enter',
