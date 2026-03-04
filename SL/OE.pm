@@ -1160,7 +1160,7 @@ sub order_details {
       $form->{nodiscount_total} += $nodiscount_linetotal;
       $form->{discount_total}   += $discount;
 
-      if ($subtotal_active) {
+      if ($subtotal_active || $subtotal_turn_off) {
         $discount_subtotal   += $linetotal;
         $nodiscount_subtotal += $nodiscount_linetotal;
       }
