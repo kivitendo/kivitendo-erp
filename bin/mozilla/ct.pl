@@ -567,7 +567,7 @@ sub setup_ct_list_names_action_bar {
           disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8("You don't have the rights to edit this entry."),
         ],
       ],
-       action => [
+      action => [
         t8('Add'),
         submit    => [ '#new_form', { action => 'CustomerVendor/add' } ],
         accesskey => 'enter',
