@@ -148,10 +148,12 @@ sub list_names {
   my $cvar_configs = CVar->get_configs('module' => 'CT');
 
   my @options;
-  if ($form->{status} eq 'all') {
-    push @options, $locale->text('All');
-  } elsif ($form->{status} eq 'orphaned') {
-    push @options, $locale->text('Orphaned');
+  if ($form->{status}) {
+    push @options, $::locale->text('Scope') . ': ' . (
+      $form->{status} eq 'all'             ? $locale->text('All')                        :
+      $form->{status} eq 'orphaned'        ? $locale->text('Orphaned (no records)')      :
+      $form->{status} eq 'only_quotations' ? $locale->text('Orphaned (only quotations)') : ''
+    );
   }
 
   my @zugferd_settings_list = _zugferd_settings();
