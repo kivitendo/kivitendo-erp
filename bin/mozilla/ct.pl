@@ -150,9 +150,9 @@ sub list_names {
   my @options;
   if ($form->{status}) {
     push @options, $::locale->text('Scope') . ': ' . (
-      $form->{status} eq 'all'             ? $locale->text('All')                        :
-      $form->{status} eq 'orphaned'        ? $locale->text('Orphaned (no records)')      :
-      $form->{status} eq 'only_quotations' ? $locale->text('Orphaned (only quotations)') : ''
+      $form->{status} eq 'all'                ? $locale->text('All')                           :
+      $form->{status} eq 'orphaned'           ? $locale->text('Orphaned (no records)')         :
+      $form->{status} eq 'quotations_at_best' ? $locale->text('Orphaned (quotations at best)') : ''
     );
   }
 

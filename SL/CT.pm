@@ -192,7 +192,7 @@ sub search {
     push @values, (like($form->{addr_gln})) x 2;
   }
 
-  if ( $form->{status} eq 'orphaned' || $form->{status} eq 'only_quotations' ) {
+  if ( $form->{status} eq 'orphaned' || $form->{status} eq 'quotations_at_best' ) {
     my @order_types     = (SALES_ORDER_TYPE, PURCHASE_ORDER_TYPE, SALES_ORDER_INTAKE_TYPE, PURCHASE_ORDER_CONFIRMATION_TYPE);
     my @quotation_types = (REQUEST_QUOTATION_TYPE, SALES_QUOTATION_TYPE, PURCHASE_QUOTATION_INTAKE_TYPE);
 
