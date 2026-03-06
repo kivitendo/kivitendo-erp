@@ -130,6 +130,8 @@ sub load_record_template {
 
   my $row = 0;
   foreach my $item (@{ $template->items }) {
+    next unless ($item->amount1 > 0 || $item->amount2 > 0);
+
     $row++;
     $item->amount1($item->amount1 * 1 ? 0 : 1) if $switch_sign;
     $item->amount2($item->amount2 * 1 ? 0 : 1) if $switch_sign;
@@ -165,7 +167,7 @@ sub load_record_template {
   $::form->{form_validity_token} = SL::DB::ValidityToken->create(scope => SL::DB::ValidityToken::SCOPE_GL_TRANSACTION_POST())->token;
 
   update(
-    keep_rows_without_amount => 1,
+    keep_rows_without_amount => 0,
     dont_add_new_row         => 1,
   );
 }
