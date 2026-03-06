@@ -1014,7 +1014,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehouse bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price price_factor stock_value);
+  my @columns = qw(warehouse bin default_warehouse default_bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price price_factor stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description partsgroup_id chargenumber bestbefore date include_invalid_warehouses);
@@ -1103,6 +1103,8 @@ sub generate_report {
   my %column_defs = (
     'warehouse'            => { 'text' => $locale->text('Warehouse'), },
     'bin'                  => { 'text' => $locale->text('Bin'), },
+    'default_warehouse'    => { 'text' => $locale->text('Default Warehouse'), },
+    'default_bin'          => { 'text' => $locale->text('Default Bin'), },
     'partnumber'           => { 'text' => $locale->text('Part Number'), },
     'type_and_classific'   => { 'text' => $locale->text('Type'), },
     'partdescription'      => { 'text' => $locale->text('Part Description'), },
@@ -1188,6 +1190,7 @@ sub generate_report {
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
       $row->{purchase_price}->{data} = $form->format_amount(\%myconfig, $subtotals{purchase_price} * 1, 2);
       $row->{list_price}->{data}     = $form->format_amount(\%myconfig, $subtotals{list_price}     * 1, 2);
+      $row->{default_bin}{data} = 'AV';
 
       %subtotals                  = map { $_ => 0 } @subtotals_columns;
 
