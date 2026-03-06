@@ -282,10 +282,10 @@ sub _book_gl_template {
   my ($credit, $debit, $credit_tax_id, $debit_tax_id);
 
   foreach my $acc_trans (@{ $gl_template->items }) {
-    if ($acc_trans->amount1 > 0) {
+    if ($acc_trans->amount2 > 0) {
       $credit = SL::DB::Chart->load_cached($acc_trans->chart_id);
       $credit_tax_id = $acc_trans->tax_id;
-    } elsif ($acc_trans->amount2 > 0) {
+    } elsif ($acc_trans->amount1 > 0) {
       $debit  = SL::DB::Chart->load_cached($acc_trans->chart_id);
       $debit_tax_id = $acc_trans->tax_id;
     }
