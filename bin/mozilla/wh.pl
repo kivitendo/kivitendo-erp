@@ -1092,7 +1092,7 @@ sub generate_report {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description partsgroup_id chargenumber bestbefore qty_op qty qty_unit partunit l_warehouse l_bin);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description partsgroup_id chargenumber bestbefore qty_op qty qty_unit partunit l_warehouse l_bin l_default_warehouse l_default_bin);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
   push @hidden_variables, qw(classification_id stock_value_basis allrows);
   push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
