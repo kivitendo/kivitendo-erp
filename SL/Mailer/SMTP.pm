@@ -59,7 +59,7 @@ sub init {
   return 1 unless $login;
 
   if (!$self->{smtp}->auth($login, $cfg->{password})) {
-    $self->extended_status('SMTP authentication failed');
+    $self->extended_status('SMTP authentication failed: ' . $self->{smtp}->message());
     die $self->extended_status;
   }
 }
