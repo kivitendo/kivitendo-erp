@@ -1556,6 +1556,14 @@ sub print_form {
 
   $form->set_addition_billing_address_print_variables;
 
+  my $language;
+  $language = SL::DB::Manager::Language->find_by(id => $form->{language_id}) if $form->{language_id};
+  my $country_description_key = 'description_' .
+    (($language && $language->template_code =~ m/^de$/i) ? 'de' :
+     ($language && $language->template_code =~ m/^en$/i) ? 'en' : 'de');
+  $form->{shiptocountry} = SL::DB::Country->new(id => $form->{shiptocountry_id})->load->$country_description_key if $form->{shiptocountry_id};
+  $form->{cp_country} = SL::DB::Country->new(id => $form->{cp_country_id})->load->$country_description_key if $form->{cp_country_id};
+
   $form->{notes} =~ s/^\s+//g;
 
   delete $form->{printer_command};
