@@ -31,6 +31,7 @@ sub flatten_to_form {
     $form->{vendor}      = $self->vendor->name if $self->vendor;
   };
   $form->{country}       = $self->$vc->country->$country_description_key if $self->$vc;
+  $form->{billing_address_country} = $self->billing_address->country->$country_description_key if $self->billing_address && $self->billing_address->country;
 
   if (_has($self, 'transdate')) {
     my $transdate_idx = ref($self) eq 'SL::DB::Order'         ? ($self->quotation ? 'quodate' : 'orddate')

@@ -3301,7 +3301,13 @@ sub set_addition_billing_address_print_variables {
   my $address = SL::DB::Manager::AdditionalBillingAddress->find_by(id => $self->{billing_address_id});
   return if !$address;
 
+  $self->{language} = SL::DB::Manager::Language->find_by(id => $self->{language_id}) if $self->{language_id};
+  my $country_description_key = 'description_' .
+    (($self->{language} && $self->{language}->template_code =~ m/^de$/i) ? 'de' :
+     ($self->{language} && $self->{language}->template_code =~ m/^en$/i) ? 'en' : 'de');
+
   $self->{"billing_address_${_}"} = $address->$_ for map { $_->name } @{ $address->meta->columns };
+  $self->{billing_address_country} = $address->country->$country_description_key if $address->country;
 }
 
 sub substitute_placeholders_in_template_arrays {
