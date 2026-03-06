@@ -1190,7 +1190,6 @@ sub generate_report {
       $row->{stock_value}->{data} = $form->format_amount(\%myconfig, $subtotals{stock_value} * 1, 2);
       $row->{purchase_price}->{data} = $form->format_amount(\%myconfig, $subtotals{purchase_price} * 1, 2);
       $row->{list_price}->{data}     = $form->format_amount(\%myconfig, $subtotals{list_price}     * 1, 2);
-      $row->{default_bin}{data} = 'AV';
 
       %subtotals                  = map { $_ => 0 } @subtotals_columns;
 
