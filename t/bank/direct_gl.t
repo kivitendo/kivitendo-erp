@@ -132,7 +132,7 @@ sub test_bank_transaction_direct_gl {
   is($gl_booking->description, $bt->purpose,  'bank transaction purpose in gl booking description');
   is($gl_booking->transactions->[0]->source, 'Automatische Dialogbuchung', 'Booking amount correct');
   my ($bank_booking) = grep { $_->chart->accno eq '1200' } @{ $gl_booking->transactions };
-  is ($bank_booking->amount, '184208.24000', 'Bank booking is debit');t
+  is ($bank_booking->amount, '184208.24000', 'Bank booking is debit');
 }
 
 sub create_record_template_gl {
