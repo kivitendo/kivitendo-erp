@@ -126,13 +126,13 @@ sub test_bank_transaction_direct_gl {
   is (scalar @{ $bt_links }, 2, 'all acc_trans entries for this Bank Transaction created');
 
   my $gl_booking = SL::DB::Manager::GLTransaction->find_by(id => $bt_links->[0]->gl_id);
-
   is (ref $gl_booking, 'SL::DB::GLTransaction', 'GL Transaction created');
   is($gl_booking->reference, '02 im Jahr 2026 Gewerbesteuer-Vorauszahlung', 'Variable reference date for reference replaced');
   is($gl_booking->transaction_description, 'Februar 2026 Gewerbesteuer', 'Variable transaction_description replaced');
   is($gl_booking->description, $bt->purpose,  'bank transaction purpose in gl booking description');
-  is(abs($gl_booking->transactions->[0]->amount), 184208.24000, 'Booking amount correct');
   is($gl_booking->transactions->[0]->source, 'Automatische Dialogbuchung', 'Booking amount correct');
+  my ($bank_booking) = grep { $_->chart->accno eq '1200' } @{ $gl_booking->transactions };
+  is ($bank_booking->amount, '184208.24000', 'Bank booking is debit');t
 }
 
 sub create_record_template_gl {
