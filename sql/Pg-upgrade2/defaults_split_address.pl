@@ -28,6 +28,8 @@ sub run {
     }
   }
 
+  $country ||= 'DE'; # countries_phase_2.pl, run non-interactively during unit tests and client database creation, requires a country
+
   $self->db_query(<<SQL);
     ALTER TABLE defaults
     ADD COLUMN  address_street1 TEXT,
