@@ -2425,6 +2425,7 @@ $self->{texts} = {
   'Multi mode not supported.'   => '',
   'Multiple addresses can be entered separated by commas.' => '',
   'MwSt. inkl.'                 => '',
+  'NI optimized booking'        => '',
   'Name'                        => '',
   'Name (Shipping)'             => '',
   'Name 2'                      => '',
