@@ -311,14 +311,18 @@ sub action_create_invoice {
     'filter.fromdate'     => $::form->{filter}->{fromdate},
   ));
 
-  # if we have exactly one ap match, use this directly
-  if ($use_vendor_filter && 1 == scalar @{ $templates_ap }) {
-    $self->redirect_to($self->load_ap_record_template_url($templates_ap->[0]));
-  }
-  # if description is substring in purpose, use this gl template directly
-  my $direct_gl = [ grep { $_->description && index($self->{transaction}->purpose, $_->description) != -1 } @{ $templates_gl } ];
-  if (1 == scalar @{ $direct_gl} ) {
-    $self->redirect_to($self->load_gl_record_template_url($direct_gl->[0]));
+  if ($::form->{ni}) {
+    # if we have exactly one ap match, use this directly
+    if ($use_vendor_filter && 1 == scalar @{ $templates_ap }) {
+      $self->redirect_to($self->load_ap_record_template_url($templates_ap->[0]));
+      return;
+    }
+    # if description is substring in purpose, use this gl template directly
+    my $direct_gl = [ grep { $_->description && index($self->{transaction}->purpose, $_->description) != -1 } @{ $templates_gl } ];
+    if (1 == scalar @{ $direct_gl} ) {
+      $self->redirect_to($self->load_gl_record_template_url($direct_gl->[0]));
+      return;
+    }
   }
 
   my $dialog_html = $self->render(
