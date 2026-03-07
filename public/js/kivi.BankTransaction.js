@@ -41,9 +41,9 @@ namespace('kivi.BankTransaction', function(ns) {
     ns.update_invoice_amount(bank_transaction_id);
   };
 
-  ns.create_invoice = function(bank_transaction_id) {
+  ns.create_invoice = function(bank_transaction_id, ni) {
     $.post('controller.pl?action=BankTransaction/create_invoice',
-           '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bank_account').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
+           '&ni=' + ni + '&bt_id=' + bank_transaction_id + "&filter.bank_account=" + $('#filter_bank_account').val() + '&filter.fromdate=' + $('#filter_fromdate').val() + '&filter.todate=' + $('#filter_todate').val(),
            kivi.eval_json_result);
   };
 

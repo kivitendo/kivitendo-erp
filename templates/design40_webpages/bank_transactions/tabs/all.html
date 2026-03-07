@@ -11,7 +11,7 @@
         </div>
 [% END %]
 
-[% SET debug=1 %]
+[% SET debug= 0 %]
 <form method="post" id="list_all_form">
   [% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
   [% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
@@ -22,6 +22,7 @@
   <table id="bt_list" class="tbl-list">
     <thead>
       <tr>
+        <th></th>
         <th></th>
         <th></th>
         <th>[% LxERP.t8("Assigned invoices with amount") %]</th>
@@ -104,6 +105,7 @@
           <tr id="bt_id_[% bt.id %]">
             <td><a href=# onclick="kivi.BankTransaction.assign_invoice('[% bt.id %]'); return false;">[% 'Assign invoice' | $T8 %]</a></td>
             <td><a href=# onclick="kivi.BankTransaction.create_invoice('[% bt.id %]'); return false;">[% 'Create invoice' | $T8 %]</a></td>
+            <td><a href=# onclick="kivi.BankTransaction.create_invoice('[% bt.id %]', 'ni'); return false;">[% 'NI optimized booking' | $T8 %]</a></td>
             <td id="assigned_invoices_[% bt.id %]_[% prop.id %]"></td>
             <td>[% P.input_tag("sources_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
             <td>[% P.input_tag("memos_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
@@ -131,6 +133,7 @@
           <tr>
             <td></td>
             <td></td>
+            <td></td>
             <td id="assigned_invoices_[% bt.id %]_[% prop.id %]"></td>
             <td>[% P.input_tag("sources_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
             <td>[% P.input_tag("memos_" _ bt.id _ "_" _ prop.id, "", class="hidden") %]</td>
@@ -140,6 +143,7 @@
             <td>
             [% PROCESS proposal_div %]
             </td>
+            <td></td>
             <td></td>
             <td></td>
             <td></td>
