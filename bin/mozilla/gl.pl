@@ -182,10 +182,13 @@ sub save_record_template {
 
 
   # bank transactions need amounts for assignment
-  my $can_save = 0;
-  $can_save    = 1 if ($::form->{credit_1} > 0 && $::form->{debit_2} > 0 && $::form->{credit_2} == 0 && $::form->{debit_1} == 0);
-  $can_save    = 1 if ($::form->{credit_2} > 0 && $::form->{debit_1} > 0 && $::form->{credit_1} == 0 && $::form->{debit_2} == 0);
-  return $js->flash('error', t8('Can only save template if amounts,i.e. 1 for debit and credit are set.'))->render unless $can_save;
+  my ($has_debit, $has_credit);
+  foreach my $i (1 .. $::form->{rowcount}) {
+    $has_debit  = 1 if $::form->{"debit_$i"};
+    $has_credit = 1 if $::form->{"credit_$i"};
+  }
+  return $js->flash('error', t8('Can only save template if amounts,i.e. 1 for debit and credit are set.'))->render
+    unless $has_debit && $has_credit;
 
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
