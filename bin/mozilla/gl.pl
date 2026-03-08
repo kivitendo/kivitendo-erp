@@ -191,7 +191,8 @@ sub save_record_template {
     unless $has_debit && $has_credit;
 
   my @items = grep {
-    $_->{chart_id} && (($_->{tax_id} // '') ne '')
+       $_->{chart_id}     && (($_->{tax_id} // '') ne '')
+    && ($_->{amount1} != 0 || $_->{amount2} != 0)
   } map {
     +{ chart_id   => $::form->{"accno_id_${_}"},
        amount1    => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
