@@ -5,6 +5,8 @@ package SL::DB::Country;
 
 use strict;
 
+use Carp;
+
 use SL::DB::MetaSetup::Country;
 use SL::DB::Manager::Country;
 use SL::DB::Helper::ActsAsList (column_name => 'sortorder');
@@ -14,6 +16,19 @@ __PACKAGE__->before_delete('can_be_deleted');
 
 sub can_be_deleted {
   return 0;
+}
+
+sub description_localized {
+  my $self = shift;
+  my $language_code = shift;
+
+  croak "Method is not a setter" if @_;
+
+  my $country_description_key = 'description_' .
+    ($language_code =~ m/^de$/i ? 'de' :
+     $language_code =~ m/^en$/i ? 'en' : 'de');
+
+  $self->$country_description_key;
 }
 
 
