@@ -534,7 +534,7 @@ sub ar_transactions {
     qq|  pt.description AS payment_terms, | .
     qq|  d.description AS department, | .
     qq|  s.shiptoname, s.shiptodepartment_1, s.shiptodepartment_2, | .
-    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, sc.description AS shiptocountry, | .
+    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, sc.$country_description_key AS shiptocountry, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
