@@ -82,6 +82,7 @@ my %supported_types = (
   },
 
   country => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_country_form")
     class  => 'Country',
     auth   => 'config',
     titles => {
