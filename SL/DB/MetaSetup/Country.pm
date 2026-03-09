@@ -13,12 +13,16 @@ __PACKAGE__->meta->columns(
   description_en => { type => 'text', not_null => 1 },
   id             => { type => 'serial', not_null => 1 },
   iso2           => { type => 'text', not_null => 1 },
+  itime          => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime          => { type => 'timestamp' },
   sortorder      => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->unique_keys([ 'iso2' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
 ;
