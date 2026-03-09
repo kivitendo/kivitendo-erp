@@ -89,8 +89,8 @@ my %supported_types = (
       edit => t8('Country Names'),
     },
     list_attributes => [
-      { method => 'iso2',        title => 'ISO 3166-1', },
-      { method => 'description_'.$::myconfig{countrycode}, title => t8('Description').' ('.$::myconfig{countrycode}.')', },
+      { method => 'iso2',  title => 'ISO 3166-1', },
+      {                    title => t8('Description'), formatter => sub { $_[0]->description_localized($::myconfig{countrycode}) } },
     ],
     top_info_text => t8('The ISO 3166-1 alpha-2 codes are required for Factur-X/ZUGFeRD invoices. The corresponding names are printed on records.'),
     no_create => 1,
