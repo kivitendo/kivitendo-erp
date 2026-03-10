@@ -479,7 +479,7 @@ sub search_contacts {
     'vcnumber'  => 'vcnumber, cp_name, cp_givenname',
     );
 
-  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email cp_street cp_zipcode cp_city cp_position vcname vcnumber);
+  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email cp_street cp_zipcode cp_city cp_country cp_position vcname vcnumber);
 
   my $order_by  = $sortcols{$::form->{sort}} ? $::form->{sort} : 'cp_name';
   $::form->{sort} = $order_by;
@@ -533,12 +533,16 @@ sub search_contacts {
 
   my $where = @where_tokens ? 'WHERE ' . join ' AND ', @where_tokens : '';
 
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
+
   my $query     = qq|SELECT cp.*,
                        COALESCE(c.id,             v.id)           AS vcid,
                        COALESCE(c.name,           v.name)         AS vcname,
                        COALESCE(c.customernumber, v.vendornumber) AS vcnumber,
-                       CASE WHEN c.name IS NULL THEN 'vendor' ELSE 'customer' END AS db
+                       CASE WHEN c.name IS NULL THEN 'vendor' ELSE 'customer' END AS db,
+                       countries.$country_description_key AS cp_country
                      FROM contacts cp
+                     LEFT JOIN countries ON cp.cp_country_id = countries.id
                      LEFT JOIN customer c ON (cp.cp_cv_id = c.id)
                      LEFT JOIN vendor v   ON (cp.cp_cv_id = v.id)
                      $where
