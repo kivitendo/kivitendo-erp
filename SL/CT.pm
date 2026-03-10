@@ -63,6 +63,7 @@ sub search {
   my $where = "1 = 1";
   my @values;
 
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
   my %allowed_sort_columns = (
       "id"                 => "ct.id",
       "customernumber"     => "ct.customernumber",
@@ -84,7 +85,7 @@ sub search {
       "quonumber"          => "ct.quonumber",
       "zipcode"            => "ct.zipcode",
       "city"               => "ct.city",
-      "country"            => "country",
+      "country"            => "countries.$country_description_key",
       "gln"                => "ct.gln",
       "discount"           => "ct.discount",
       "insertdate"         => "ct.itime",
@@ -319,7 +320,6 @@ sub search {
                               FROM contacts cp WHERE ct.id=cp.cp_cv_id AND cp.cp_main LIMIT 1)
                               AS main_contact_person /;
   }
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
     qq|  pt.description as payment, tz.description as taxzone, countries.$country_description_key as country | .
