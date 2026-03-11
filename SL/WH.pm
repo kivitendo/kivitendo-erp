@@ -1021,31 +1021,7 @@ $main::lxdebug->enter_sub();
   return ($max_qty_parts, $error);
 }
 
-sub get_wh_and_bin_for_charge {
-  $main::lxdebug->enter_sub();
 
-  my $self     = shift;
-  my %params   = @_;
-  my %bin_qty;
-
-  croak t8('Need charge number!') unless $params{chargenumber};
-
-  my $inv_items = SL::DB::Manager::Inventory->get_all(where => [chargenumber => $params{chargenumber} ]);
-
-  croak t8("Invalid charge number: #1", $params{chargenumber}) unless (ref @{$inv_items}[0] eq 'SL::DB::Inventory');
-  # add all qty for one bin and add wh_id
-  ($bin_qty{$_->bin_id}{qty}, $bin_qty{$_->bin_id}{wh}) = ($bin_qty{$_->bin_id}{qty} + $_->qty, $_->warehouse_id) for @{ $inv_items };
-
-  while (my ($bin, $value) = each (%bin_qty)) {
-    if ($value->{qty} > 0) {
-      $main::lxdebug->leave_sub();
-      return ($value->{qty}, $value->{wh}, $bin, $params{chargenumber});
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-  return undef;
-}
 1;
 
 __END__
@@ -1198,15 +1174,6 @@ The typical params would be:
     'qty'              => $form->{qty},
     'comment'          => $form->{comment}
   );
-
-
-=head2 get_wh_and_bin_for_charge C<$params{chargenumber}>
-
-Gets the current qty from the inventory entries with the mandatory chargenumber: C<$params{chargenumber}>.
-Croaks if the chargenumber is missing or no entry currently exists.
-If there is one bin and warehouse with a positive qty, this fields are returned:
-C<qty> C<warehouse_id>, C<bin_id>, C<chargenumber>.
-Otherwise returns undef.
 
 
 =head3 Prerequisites
