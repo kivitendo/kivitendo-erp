@@ -1780,19 +1780,21 @@ sub transfer_out {
         last;
       }
       foreach my $serial (@serials) {
-        ($qty, $wh_id, $bin_id, $chargenumber) = WH->get_wh_and_bin_for_charge(chargenumber => $serial);
-        if (!$qty) {
+        my $inventory_items = SL::DB::Manager::Inventory->get_all(where => [chargenumber => $serial ]);
+        if (scalar@{ $inventory_items} == 0) {
           push @errors, $::locale->text("Not enough in stock for the serial number #1", $serial);
           last;
         }
+        my $inventory_item = $inventory_items->[0];
         push @transfers, {
             'parts_id'         => $form->{"id_$i"},
             'qty'              => 1,
             'unit'             => $form->{"unit_$i"},
             'transfer_type'    => 'shipped',
-            'src_warehouse_id' => $wh_id,
-            'src_bin_id'       => $bin_id,
-            'chargenumber'     => $chargenumber,
+            'src_warehouse_id' => $inventory_item->warehouse_id,
+            'src_bin_id'       => $inventory_item->bin_id,
+            'chargenumber'     => $inventory_item->chargenumber,
+            'bestbefore'       => $inventory_item->bestbefore,
             'project_id'       => $form->{"project_id_$i"},
             'invoice_id'       => $form->{"invoice_id_$i"},
             'comment'          => $::locale->text("Default transfer invoice with charge number"),
