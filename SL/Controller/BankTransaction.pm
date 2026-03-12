@@ -311,7 +311,7 @@ sub action_create_invoice {
     'filter.fromdate'     => $::form->{filter}->{fromdate},
   ));
 
-  if ($::form->{ni}) {
+  if ($::form->{ni} eq 'ni') {
     # if we have exactly one ap match, use this directly
     if ($use_vendor_filter && 1 == scalar @{ $templates_ap }) {
       $self->redirect_to($self->load_ap_record_template_url($templates_ap->[0]));
