@@ -216,10 +216,21 @@
           [% HTML.escape(INSTANCE_CONF.get_weightunit) %]
         </td>
       </tr>
-      <tr>
-        <th>[% 'On Hand' | $T8 %]</th>
-        <td><span class="data wi-small numeric">[% LxERP.format_amount(SELF.part.onhand) %] [% SELF.part.unit | html %]</span></td>
-      </tr>
+      [% IF INSTANCE_CONF.get_reserve_warehouse_id %]
+        <tr>
+          <th>[% 'On Hand' | $T8 %]</th>
+          <td><span class="data wi-small numeric">[% LxERP.format_amount(SELF.part.onhand) %] [% SELF.part.unit | html %]</span></td>
+        </tr>
+        <tr>
+          <th>[% 'On Hand Reserved' | $T8 %]</th>
+          <td><span class="data wi-small numeric">[% LxERP.format_amount(SELF.part.onhand_reserved) %] [% SELF.part.unit | html %]</span></td>
+        </tr>
+      [% ELSE %]
+        <tr>
+          <th>[% 'On Hand' | $T8 %]</th>
+          <td><span class="data wi-small numeric">[% LxERP.format_amount(SELF.part.onhand - SELF.part.onhand_reserved) %] [% SELF.part.unit | html %]</span></td>
+        </tr>
+      [% END %]
       <tr>
         <th>[% 'ROP' | $T8 %]</th>
         <td>[% L.input_tag("part.rop_as_number", SELF.part.rop_as_number, size=10, class='wi-small reformat_number numeric') %]</td>
