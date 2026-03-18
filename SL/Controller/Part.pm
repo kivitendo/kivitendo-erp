@@ -325,7 +325,7 @@ sub render_form {
 
   $self->render(
     'part/form',
-    title             => $title_hash{$self->part->part_type},
+    title             => $title_hash{$self->part->part_type} . ': ' . $self->part->displayable_name,
     %assortment_vars,
     %assembly_vars,
     translations_map  => { map { ($_->language_id   => $_) } @{$self->part->translations} },
