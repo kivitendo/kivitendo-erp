@@ -393,7 +393,7 @@ sub bank_transfer_edit {
     has_executed              => $has_executed,
   );
 
-  $form->{title}    = $locale->text('View SEPA export');
+  $form->{title}    = $locale->text('View SEPA export') . ': ' . join(', ', @ids);
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_edit',
                                    { ids                       => \@ids,
