@@ -640,7 +640,7 @@ sub config_step1 {
 
   $::auth->assert('advance_turnover_tax_return');
 
-$::form->{title} = $::locale->text('Tax Office Preferences');
+  $::form->{title} = $::locale->text('Tax Office Preferences');
 
   # edit all taxauthority prefs
 
@@ -654,10 +654,6 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
 
   my $land = $::form->{fa_land_nr};
   my $amt  = $::form->{fa_bufa_nr};
-
-
-  $::form->{title} = $::locale->text('Tax Office Preferences');
-
 
   my $select_tax_office               = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%::myconfig, $::form));
   my $method_local = ($::form->{accounting_method} eq 'accrual') ? $::locale->text('accrual')
@@ -717,6 +713,7 @@ sub config_step2 {
 
   setup_ustva_config_step2_action_bar();
 
+  $form->{title} = $::locale->text('Tax Office Preferences');
   $form->header();
 
   my $fa_land_nr         = '';
