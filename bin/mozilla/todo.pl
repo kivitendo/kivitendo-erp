@@ -71,7 +71,7 @@ sub show_todo_list {
   my $locale   = $main::locale;
 
   $form->{todo_list} = create_todo_list();
-  $form->{title}     = $locale->text('TODO list');
+  $form->{title}     = $locale->text('Your TODO list');
 
   $form->header();
   print $form->parse_html_template('todo/show_todo_list');
