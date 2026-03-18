@@ -107,6 +107,7 @@ sub display_form {
 
   setup_rc_display_form_action_bar();
 
+  $::form->{title} = t8('Reconciliation') . ": $::form->{accno} $::form->{account}";
   $::form->header;
   print $::form->parse_html_template('rc/step2', {
     is_asset         => $::form->{category} eq 'A',
