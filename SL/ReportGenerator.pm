@@ -899,7 +899,6 @@ sub generate_chart_content {
   }
 
   my $variables = {
-    'TITLE'                => $opts->{title},
     'TOP_INFO_TEXT'        => $self->html_format($opts->{top_info_text}),
     'RAW_TOP_INFO_TEXT'    => $opts->{raw_top_info_text},
     'BOTTOM_INFO_TEXT'     => $self->html_format($opts->{bottom_info_text}),
@@ -914,6 +913,7 @@ sub generate_chart_content {
 
   $::request->layout->add_javascripts('chart.js', 'kivi.ChartReport.js');
 
+  $::form->{title} = $opts->{title};
   $::form->header;
   print $::form->parse_html_template('report_generator/chart_report',
                                       {
