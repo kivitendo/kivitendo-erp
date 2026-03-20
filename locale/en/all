@@ -3317,7 +3317,6 @@ $self->{texts} = {
   'Report configuration overview' => '',
   'Report date'                 => '',
   'Report date:'                => '',
-  'Report for'                  => '',
   'Report separately'           => '',
   'Reports'                     => '',
   'Reqdate'                     => '',
