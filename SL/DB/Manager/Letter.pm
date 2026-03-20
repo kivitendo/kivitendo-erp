@@ -23,8 +23,9 @@ sub is_sales_filter {
   my ($class, $value, $prefix) = @_;
 
   return () if !defined $value;
-  return ($prefix . 'customer_id' => { gt => 0 }) if $value;
-  return ($prefix . 'vendor_id'   => { gt => 0 }) if !$value;
+  # Return letters saved without a customer or vendor, in any case
+  return ($prefix . 'customer_id' => undef) if !$value;
+  return ($prefix . 'vendor_id'   => undef) if $value;
 }
 
 sub _sort_spec {
