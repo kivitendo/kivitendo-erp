@@ -3,24 +3,12 @@
 [% USE L %]
 [% SET style="width: 400px" %]
 
-[% IF !popup_dialog %]
-  <h1>[% title %]</h1>
-[% END %]
-
 <form name="Form" action="oe.pl" method="post">
 
-[% IF popup_dialog %]
-  <div class="buttons">
-    [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
-    [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class='neutral') %]
-  </div>
-[% ELSE %]
-  <div class="buttons">
-    [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
-    [% L.submit_tag('', LxERP.t8('Assign')) %]
-    [% L.submit_tag('', LxERP.t8('Cancel'), onclick => "self.close(); return false;", class='neutral') %]
-  </div>
-[% END %]
+<div class="buttons">
+  [% L.button_tag(popup_js_assign_function, LxERP.t8('Assign')) %]
+  [% L.button_tag(popup_js_close_function, LxERP.t8('Cancel'), class='neutral') %]
+</div>
 
 <div class="wrapper">
 
