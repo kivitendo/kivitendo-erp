@@ -860,6 +860,7 @@ $(function() {
   });
 
   kivi.DeliveryOrder.init_row_handlers();
+  kivi.DeliveryOrder.renumber_positions();
 
   $('#row_table_id').on('sortstop', function(event, ui) {
     $('#row_table_id thead a img').remove();
