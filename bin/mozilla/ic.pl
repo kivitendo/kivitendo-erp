@@ -170,7 +170,8 @@ sub generate_report {
   my %column_defs = (
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
-    'notes'              => { 'text' => $locale->text('Notes'), },
+    'notes'              => { 'text' => $locale->text('Long Description'), },
+    'intnotes'           => { 'text' => $locale->text('Internal Notes'), },
     'drawing'            => { 'text' => $locale->text('Drawing'), },
     'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
@@ -393,7 +394,7 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber type_and_classific description notes partsgroup warehouse bin
+    partnumber type_and_classific description notes intnotes partsgroup warehouse bin
     make model assembly_qty onhand rop soldtotal unit price_factor_description listprice
     linetotallistprice sellprice linetotalsellprice lastcost assembly_lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
@@ -578,6 +579,7 @@ sub generate_report {
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
     $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
+    $row->{intnotes}{data} = SL::HTML::Util->strip($ref->{intnotes});
     $row->{type_and_classific}{data} = SL::Presenter::Part::type_abbreviation($ref->{part_type}).
                                        SL::Presenter::Part::classification_abbreviation($ref->{classification_id});
 
