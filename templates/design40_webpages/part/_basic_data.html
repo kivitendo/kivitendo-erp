@@ -95,6 +95,12 @@
       <tr>
         <td class="wi-mediumsmall-wide">[% L.textarea_tag("part.notes", P.restricted_html(SELF.part.notes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
       </tr>
+      <tr>
+        <td class="wi-mediumsmall-wide">
+          <span class="label above">[% 'Internal Notes' | $T8 %]</span>
+          [% L.textarea_tag('part.intnotes', P.restricted_html(SELF.part.intnotes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]
+        </td>
+      </tr>
     </tbody>
   </table>
 </div><!-- /.col -->
