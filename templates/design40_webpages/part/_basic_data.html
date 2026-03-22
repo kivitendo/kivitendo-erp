@@ -95,11 +95,13 @@
       <tr>
         <td class="wi-mediumsmall-wide">[% L.textarea_tag("part.notes", P.restricted_html(SELF.part.notes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
       </tr>
+    </tbody>
+  </table>
+  <table class="tbl-horizontal">
+    <caption>[% 'Internal Notes' | $T8 %]</caption>
+    <colgroup> <col class="wi-mediumsmall-wide"> </colgroup>
       <tr>
-        <td class="wi-mediumsmall-wide">
-          <span class="label above">[% 'Internal Notes' | $T8 %]</span>
-          [% L.textarea_tag('part.intnotes', P.restricted_html(SELF.part.intnotes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]
-        </td>
+        <td class="wi-mediumsmall-wide">[% L.textarea_tag('part.intnotes', P.restricted_html(SELF.part.intnotes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
       </tr>
     </tbody>
   </table>
