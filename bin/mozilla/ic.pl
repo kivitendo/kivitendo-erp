@@ -578,8 +578,7 @@ sub generate_report {
     }
     map { $row->{$_}{link} = $ref->{$_} } qw(drawing microfiche);
 
-    $row->{notes}{data} = SL::HTML::Util->strip($ref->{notes});
-    $row->{intnotes}{data} = SL::HTML::Util->strip($ref->{intnotes});
+    $row->{$_}{data} = SL::HTML::Util->strip($ref->{$_}) for qw(notes intnotes);
     $row->{type_and_classific}{data} = SL::Presenter::Part::type_abbreviation($ref->{part_type}).
                                        SL::Presenter::Part::classification_abbreviation($ref->{classification_id});
 
