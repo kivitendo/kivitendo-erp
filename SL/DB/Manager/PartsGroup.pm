@@ -37,7 +37,7 @@ sub get_hierarchy {
   countparts AS ( SELECT partsgroup_id, count(id) as partscount FROM parts GROUP BY partsgroup_id)
   SELECT rec.id,rec.parent_id,rec.partsgroup,rec.description,rec.obsolete,rec.path,rec.depth AS level,rec.sort_key, cp.partscount FROM reclist rec 
   LEFT JOIN countparts cp ON cp.partsgroup_id = rec.id
-  ORDER BY rec.sortkey
+  ORDER BY rec.sort_key
 SQL
   
   my @reclist = selectall_hashref_query($::form, SL::DB::client->dbh, $query);
