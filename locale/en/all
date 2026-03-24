@@ -2817,7 +2817,6 @@ $self->{texts} = {
   'Part Description missing!'   => '',
   'Part Metatag Description is too long for this Shopware version. It should have lower than 255 characters.' => '',
   'Part Metatag Title is too long for this Shopware version. It should have lower than 255 characters.' => '',
-  'Part Notes'                  => '',
   'Part Number'                 => '',
   'Part Number missing!'        => '',
   'Part Test'                   => '',
