@@ -33,6 +33,7 @@ use SL::Presenter::Warehouse;
 
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
+  contact                     => 'SL::Presenter::Contact',
   country                     => 'SL::Presenter::Country',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
