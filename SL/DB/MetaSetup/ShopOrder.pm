@@ -1,18 +1,19 @@
-# This file has been auto-generated. Do not modify it; it will be overwritten
-# by rose_auto_create_model.pl automatically.
-package SL::DB::ShopOrder;
+  # This file has been auto-generated. Do not modify it; it will be overwritten
+  # by rose_auto_create_model.pl automatically.
+  package SL::DB::ShopOrder;
 
-use strict;
+  use strict;
 
-use parent qw(SL::DB::Object);
+  use parent qw(SL::DB::Object);
 
-__PACKAGE__->meta->table('shop_orders');
+  __PACKAGE__->meta->table('shop_orders');
 
 __PACKAGE__->meta->columns(
   amount                 => { type => 'numeric', precision => 15, scale => 5 },
   billing_city           => { type => 'text' },
   billing_company        => { type => 'text' },
   billing_country        => { type => 'text' },
+  billing_country_id     => { type => 'integer' },
   billing_department     => { type => 'text' },
   billing_email          => { type => 'text' },
   billing_fax            => { type => 'text' },
@@ -26,6 +27,7 @@ __PACKAGE__->meta->columns(
   customer_city          => { type => 'text' },
   customer_company       => { type => 'text' },
   customer_country       => { type => 'text' },
+  customer_country_id    => { type => 'integer' },
   customer_department    => { type => 'text' },
   customer_email         => { type => 'text' },
   customer_fax           => { type => 'text' },
@@ -40,6 +42,7 @@ __PACKAGE__->meta->columns(
   delivery_city          => { type => 'text' },
   delivery_company       => { type => 'text' },
   delivery_country       => { type => 'text' },
+  delivery_country_id    => { type => 'integer' },
   delivery_department    => { type => 'text' },
   delivery_email         => { type => 'text' },
   delivery_fax           => { type => 'text' },
@@ -88,6 +91,21 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  billing_country_obj => {
+    class       => 'SL::DB::Country',
+    key_columns => { billing_country_id => 'id' },
+  },
+
+  customer_country_obj => {
+    class       => 'SL::DB::Country',
+    key_columns => { customer_country_id => 'id' },
+  },
+
+  delivery_country_obj => {
+    class       => 'SL::DB::Country',
+    key_columns => { delivery_country_id => 'id' },
+  },
+
   kivi_customer => {
     class       => 'SL::DB::Customer',
     key_columns => { kivi_customer_id => 'id' },
@@ -100,4 +118,3 @@ __PACKAGE__->meta->foreign_keys(
 );
 
 1;
-
