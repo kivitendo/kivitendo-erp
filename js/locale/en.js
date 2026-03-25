@@ -55,6 +55,7 @@ namespace("kivi").setupLocale({
 "Do you really want to delete this draft?":"",
 "Do you really want to delete this record template?":"",
 "Do you really want to print?":"",
+"Do you really want to remove this link?":"",
 "Do you really want to revert to this version?":"",
 "Do you really want to unimport the selected documents?":"",
 "Do you want delete #1 rows?":"",
