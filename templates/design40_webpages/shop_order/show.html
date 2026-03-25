@@ -77,7 +77,7 @@
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% L.input_tag('customer_country', IMPORT.customer_country) %]</td>
+          <td>[% P.country.picker('customer_country_id', IMPORT.customer_country_id, with_empty=1, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
@@ -171,7 +171,7 @@
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% L.input_tag('billing_country', IMPORT.billing_country) %]</td>
+          <td>[% P.country.picker('billing_country_id', IMPORT.billing_country_id, with_empty=1, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
