@@ -470,6 +470,10 @@ sub list_contacts {
     $row->{vcname}->{link}   = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{vcid}), 'db=' . E($ref->{db}), 'callback', @hidden_nondefault);
     $row->{vcnumber}->{link} = $row->{vcname}->{link};
 
+    for (qw(cp_name cp_givenname)) {
+      $row->{$_}->{link} = build_std_url('script=controller.pl', 'action=Contact/edit', 'id=' . E($ref->{cp_id}), 'callback', @hidden_nondefault);
+    }
+
     for (qw(cp_email cp_privatemail)) {
       $row->{$_}->{link} = 'mailto:' . E($ref->{$_}) if $ref->{$_};
     }
