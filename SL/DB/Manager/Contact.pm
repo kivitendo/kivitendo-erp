@@ -3,13 +3,21 @@ package SL::DB::Manager::Contact;
 use strict;
 
 use SL::DB::Helper::Manager;
-use base qw(SL::DB::Helper::Manager);
-
 use SL::DB::Helper::Sorted;
+use SL::DB::Helper::Paginated;
+use SL::DB::Helper::Filtered;
+use base qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::Contact' }
 
 __PACKAGE__->make_manager_methods;
+
+__PACKAGE__->add_filter_specs(
+  all => sub {
+    my ($key, $value, $prefix) = @_;
+    return or => [ map { $prefix . $_ => $value } qw(cp_number cp_name cp_givenname cp_email) ]
+  }
+);
 
 sub _sort_spec {
   return (

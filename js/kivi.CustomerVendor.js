@@ -74,36 +74,6 @@ namespace('kivi.CustomerVendor', function(ns) {
     }
   };
 
-  this.selectContact = function(params) {
-    var contactId = $('#contact_cp_id').val();
-
-    var url = 'controller.pl?action=CustomerVendor/ajaj_get_contact&id='+ $('#cv_id').val() +'&db='+ $('#db').val() +'&contact_id='+ contactId;
-
-    $.getJSON(url, function(data) {
-      var contact = data.contact;
-      for(var key in contact)
-        $('#contact_'+ key).val(contact[key])
-
-      kivi.CustomerVendor.setCustomVariablesFromAJAJ(data.contact_cvars, 'contact_cvars_');
-
-      if ( contactId ) {
-        $('#action_delete_contact').show();
-        $('#contact_cp_title_select').val(contact['cp_title']);
-        $('#contact_cp_abteilung_select').val(contact['cp_abteilung']);
-      } else {
-        $('#action_delete_contact').hide();
-        $('#contact_cp_title_select, #contact_cp_abteilung_select').val('');
-      }
-      if (data.contact.disable_cp_main === 1)
-        $("#contact_cp_main").prop("disabled", true);
-      else
-        $("#contact_cp_main").prop("disabled", false);
-      if ( params.onFormSet )
-        params.onFormSet();
-    });
-
-  };
-
   var mapSearchStmts = [
     '#street',
     ', ',
@@ -221,7 +191,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     var action_id = $input.prop('id') + '-dial-action';
 
     if (!$('#' + action_id).size()) {
-      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1"></a>');
+      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1">a</a>');
       $input.wrap('<span nobr></span>').after($action);
 
       $input.change(function() { kivi.CustomerVendor.update_dial_action($input); });
@@ -468,7 +438,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         $(elt).data('customer_vendor_picker', new kivi.CustomerVendor.Picker($(elt)));
     });
 
-    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2').each(function(idx, elt) {
+    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone').each(function(idx, elt) {
       kivi.CustomerVendor.init_dial_action($(elt));
     });
   }

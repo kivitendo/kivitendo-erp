@@ -21,8 +21,6 @@ use SL::DB::AuthGroup;
 use SL::DB::Customer;
 use SL::DB::Vendor;
 use SL::DB::Business;
-use SL::DB::ContactDepartment;
-use SL::DB::ContactTitle;
 use SL::DB::Employee;
 use SL::DB::Greeting;
 use SL::DB::Language;
@@ -31,7 +29,6 @@ use SL::DB::Note;
 use SL::DB::PaymentTerm;
 use SL::DB::Pricegroup;
 use SL::DB::Price;
-use SL::DB::Contact;
 use SL::DB::FollowUp;
 use SL::DB::FollowUpLink;
 use SL::DB::History;
@@ -60,7 +57,6 @@ __PACKAGE__->run_before(
     'save_and_quotation',
     'save_and_rfq',
     'delete',
-    'delete_contact',
     'delete_shipto',
     'delete_additional_billing_address',
   ]
@@ -74,7 +70,6 @@ __PACKAGE__->run_before(
     'update',
     'ajaj_get_shipto',
     'ajaj_get_additional_billing_address',
-    'ajaj_get_contact',
     'ajax_list_prices',
   ]
 );
@@ -212,17 +207,6 @@ sub _save {
   my $save_greeting           = $self->{cv}->greeting
     && $::instance_conf->get_vc_greetings_use_textfield
     && SL::DB::Manager::Greeting->get_all_count(where => [description => $self->{cv}->greeting]) == 0;
-
-  $self->{contact}->cp_title(trim($self->{contact}->cp_title));
-  my $save_contact_title      = $self->{contact}->cp_title
-    && $::instance_conf->get_contact_titles_use_textfield
-    && SL::DB::Manager::ContactTitle->get_all_count(where => [description => $self->{contact}->cp_title]) == 0;
-
-  $self->{contact}->cp_abteilung(trim($self->{contact}->cp_abteilung));
-  my $save_contact_department = $self->{contact}->cp_abteilung
-    && $::instance_conf->get_contact_departments_use_textfield
-    && SL::DB::Manager::ContactDepartment->get_all_count(where => [description => $self->{contact}->cp_abteilung]) == 0;
-
   my $db = $self->{cv}->db;
 
   $db->with_transaction(sub {
@@ -252,23 +236,6 @@ sub _save {
     $self->{cv}->save(cascade => 1);
 
     SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;
-
-    if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
-      SL::DB::ContactTitle     ->new(description => $self->{contact}->cp_title)    ->save if $save_contact_title;
-      SL::DB::ContactDepartment->new(description => $self->{contact}->cp_abteilung)->save if $save_contact_department;
-
-      $self->{contact}->save(cascade => 1);
-      $self->{cv}->link_contact($self->{contact}, main => !!$self->{contact}{cp_main});
-      $self->{cv}->load;
-    }
-
-    # reconcile linked contacts
-    my $old_contacts = $self->{cv}->contacts;
-    my $new_contacts = $self->{contacts};
-    my %new_ids = map { $_->cp_id => 1 } @$new_contacts, $self->{contact};
-    my %old_ids = map { $_->cp_id => 1 } @$old_contacts;
-    $self->{cv}->link_contact($_)   for grep { !$old_ids{$_->cp_id} } @$new_contacts;
-    $self->{cv}->detach_contact($_) for grep { !$new_ids{$_->cp_id} } @$old_contacts;
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
 
@@ -350,10 +317,6 @@ sub action_save {
     id     => $self->{cv}->id,
     db     => ($self->is_vendor() ? 'vendor' : 'customer'),
   );
-
-  if ( $self->{contact}->cp_id ) {
-    push(@redirect_params, contact_id => $self->{contact}->cp_id);
-  }
 
   if ( $self->{shipto}->shipto_id ) {
     push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
@@ -491,36 +454,6 @@ sub action_delete {
     $::form->redirect($msg);
   }
 
-}
-
-
-sub action_delete_contact {
-  my ($self) = @_;
-
-  my $db = $self->{contact}->db;
-
-  if ( !$self->{contact}->cp_id ) {
-    SL::Helper::Flash::flash('error', $::locale->text('No contact selected to delete'));
-  } else {
-
-    $db->with_transaction(sub {
-      if ( $self->{contact}->used ) {
-        $self->{contact}->customers([]);
-        $self->{contact}->vendors([]);
-        $self->{contact}->save();
-        SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
-      } else {
-        $self->{contact}->delete(cascade => 1);
-        SL::Helper::Flash::flash('info', $::locale->text('Contact deleted.'));
-      }
-
-      1;
-    }) || die($db->error);
-
-    $self->{contact} = $self->_new_contact_object;
-  }
-
-  $self->action_edit();
 }
 
 sub action_delete_shipto {
@@ -710,40 +643,6 @@ sub action_ajaj_get_additional_billing_address {
       map { ($_ => $self->{additional_billing_address}->$_) } ('id', @ADDITIONAL_BILLING_ADDRESS_COLUMNS)
     },
   };
-
-  $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
-}
-
-sub action_ajaj_get_contact {
-  my ($self) = @_;
-
-  my $data;
-
-  $data->{contact} = {
-    map(
-      {
-        my $name = 'cp_'. $_;
-
-        if ( $_ eq 'birthday' && $self->{contact}->$name ) {
-          $name => $self->{contact}->$name->to_lxoffice;
-        } else {
-          $name => $self->{contact}->$name;
-        }
-      }
-      qw(
-        id gender abteilung title position givenname name number email phone1 phone2 fax mobile1 mobile2
-        satphone satfax project street zipcode city privatphone privatemail birthday
-      )
-    )
-  };
-
-  $data->{contact}{cp_main} = $self->{contact}{main};
-
-  $data->{contact_cvars} = $self->_prepare_cvar_configs_for_ajaj($self->{contact}->cvars_by_config);
-
-  # avoid two or more main_cp
-  my $has_main_cp = $self->{cv}->main_contact;
-  $data->{contact}->{disable_cp_main} = 1 if ($has_main_cp && !$data->{contact}{cp_main});
 
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
@@ -1041,17 +940,7 @@ sub _instantiate_args {
     $self->{additional_billing_address}->assign_attributes(%{ $::form->{additional_billing_address} });
   }
 
-  if ( $::form->{contact}->{cp_id} ) {
-    $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
-  } else {
-    $self->{contact} = $self->_new_contact_object;
-  }
-  $self->{contact}->assign_attributes(%{$::form->{contact}});
-  $self->{linked_contacts} = $::form->{linked_contacts} // [];
-  $self->{contacts} = @{ $self->{linked_contacts} } ? SL::DB::Manager::Contact->get_all(query => [ cp_id => $self->{linked_contacts} ]) : [];
-
   $self->_copy_form_to_cvars(target => $self->{cv},      source => $::form->{cv_cvars});
-  $self->_copy_form_to_cvars(target => $self->{contact}, source => $::form->{contact_cvars});
   $self->_copy_form_to_cvars(target => $self->{shipto},  source => $::form->{shipto_cvars});
 }
 
@@ -1092,26 +981,6 @@ sub _load_customer_vendor {
     } else {
       $self->{additional_billing_address} = SL::DB::AdditionalBillingAddress->new;
     }
-  }
-
-  $self->{linked_contacts} = [ map { $_->cp_id } $self->{cv}->contacts ];
-  $self->{contacts}        = $self->{cv}->contacts;
-
-  if ( $::form->{contact_id} ) {
-    $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact_id})->load();
-
-    my $cv_contact = $self->is_vendor()
-      ? SL::DB::Manager::VendorContact->get_first(  query => [ contact_id => $::form->{contact_id}, vendor_id   => $::form->{id} ])
-      : SL::DB::Manager::CustomerContact->get_first(query => [ contact_id => $::form->{contact_id}, customer_id => $::form->{id} ]);
-    die "missing contact" unless $cv_contact;
-
-    $self->{contact}->{main} = $cv_contact->main;
-
-    if (none { $self->{contact}->cp_id == $_->cp_id } $self->{cv}->contacts) {
-      die($::locale->text('Error'));
-    }
-  } else {
-    $self->{contact} = $self->_new_contact_object;
   }
 }
 
@@ -1175,19 +1044,6 @@ sub _pre_render {
   }
 
 
-  $self->{all_contact_titles} = SL::DB::Manager::ContactTitle->get_all_sorted();
-  foreach my $contact (@{ $self->{contacts} }) {
-    if ($contact->cp_title && !grep {$contact->cp_title eq $_->description} @{$self->{all_contact_titles}}) {
-      unshift @{$self->{all_contact_titles}}, (SL::DB::ContactTitle->new(description => $contact->cp_title));
-    }
-  }
-
-  $self->{all_contact_departments} = SL::DB::Manager::ContactDepartment->get_all_sorted();
-  foreach my $contact (@{ $self->{contacts} }) {
-    if ($contact->cp_abteilung && !grep {$contact->cp_abteilung eq $_->description} @{$self->{all_contact_departments}}) {
-      unshift @{$self->{all_contact_departments}}, (SL::DB::ContactDepartment->new(description => $contact->cp_abteilung));
-    }
-  }
 
   $self->{all_currencies} = SL::DB::Manager::Currency->get_all();
 

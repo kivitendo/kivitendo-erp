@@ -31,6 +31,7 @@ use SL::Presenter::MaterialComponents;
 
 our %presenters = (
   chart                       => 'SL::Presenter::Chart',
+  contact                     => 'SL::Presenter::Contact',
   customer_vendor             => 'SL::Presenter::CustomerVendor',
   date_period                 => 'SL::Presenter::DatePeriod',
   delivery_order              => 'SL::Presenter::DeliveryOrder',
