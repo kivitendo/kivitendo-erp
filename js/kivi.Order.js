@@ -1041,6 +1041,7 @@ $(function() {
   });
 
   kivi.Order.init_row_handlers();
+  kivi.Order.renumber_positions();
 
   $('#row_table_id').on('sortstop', function(event, ui) {
     $('#row_table_id thead a img').remove();
@@ -1071,6 +1072,4 @@ $(function() {
   });
 
   $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
-
-  kivi.Order.renumber_positions();
 });
