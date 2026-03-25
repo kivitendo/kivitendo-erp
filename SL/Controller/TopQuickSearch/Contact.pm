@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::TopQuickSearch::Base);
 
 use SL::Controller::CustomerVendor;
+use SL::Controller::Contact;
 use SL::DB::Vendor;
 use SL::DBUtils qw(selectfirst_array_query like);
 use SL::Locale::String qw(t8);
@@ -55,7 +56,7 @@ SQL
       map {
         value       => $contact->full_name,
         label       => $contact->full_name . ' (' . $_->displayable_name . ')',
-        id          => $contact->cp_id . ';' . $_->meta->table . ';' . $_->id,
+        id          => $contact->cp_id,
       }, $contact->customers, $contact->vendors;
     } @$result
   ];
@@ -63,9 +64,8 @@ SQL
 
 sub select_autocomplete {
   my ($self) = @_;
-  my ($contact_id, $db, $cv_id) = split /;/, $::form->{id};
 
-  SL::Controller::CustomerVendor->new->url_for(action => 'edit', id => $cv_id, contact_id => $contact_id, db => $db, fragment => 'contacts');
+  SL::Controller::Contact->new->url_for(action => 'edit', id => $::form->{id});
 }
 
 sub do_search {
