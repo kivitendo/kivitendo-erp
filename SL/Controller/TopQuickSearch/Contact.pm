@@ -53,11 +53,11 @@ SQL
   return [
     map {
       my $contact = $_;
-      map {
-        value       => $contact->full_name,
-        label       => $contact->full_name . ' (' . $_->displayable_name . ')',
-        id          => $contact->cp_id,
-      }, $contact->customers, $contact->vendors;
+      {
+        value => $contact->full_name,
+        label => $contact->full_name . ' (' . join(', ', map { $_->displayable_name } $contact->customers, $contact->vendors) . ')',
+        id    => $contact->cp_id,
+      };
     } @$result
   ];
 }
