@@ -1,7 +1,10 @@
 [% USE HTML %]
 [% USE T8 %]
 [% USE L %]
+[% USE P %]
 
 <div class="wrapper">
 <form method="post" action="ct.pl" id="form">
+[% P.hidden_tag("callback", callback) %]
+[% P.hidden_tag("db", db) %]
 [% 'Options' | $T8 %]: [% FOREACH o = options %][% HTML.escape(o) %]<br>[% END %]
