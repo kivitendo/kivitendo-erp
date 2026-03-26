@@ -112,7 +112,7 @@
   <tbody>
     <tr>
       <th>[% 'Open' | $T8 %]</th>
-      <td>[% P.checkbox_tag('open', value="Y", checked=open) %]</td>
+      <td>[% P.checkbox_tag('open', value="Y", checked=open, for_submit=1) %]</td>
     </tr>
     <tr>
       <th>[% 'Closed' | $T8 %]</th>
@@ -129,7 +129,7 @@
   <div class="list col">
     <h4>[% 'Dates' | $T8 %]</h4>
     <div>
-      [% P.checkbox_tag('l_transdate', label=LxERP.t8('Invoice Date'), value='Y', checked=l_transdate) %]
+      [% P.checkbox_tag('l_transdate', label=LxERP.t8('Invoice Date'), value='Y', checked=l_transdate, for_submit=1) %]
     </div>
     <div>
       [% P.checkbox_tag('l_datepaid', label=LxERP.t8('Date Paid'), value='Y', checked=l_datepaid) %]
@@ -148,7 +148,7 @@
       [% P.checkbox_tag('l_id', label=LxERP.t8('ID'), value='Y', checked=l_id) %]
     </div>
     <div>
-      [% P.checkbox_tag('l_invnumber', label=LxERP.t8('Invoice Number'), value='Y', checked=l_invnumber) %]
+      [% P.checkbox_tag('l_invnumber', label=LxERP.t8('Invoice Number'), value='Y', checked=l_invnumber, for_submit=1) %]
     </div>
     <div>
       [% P.checkbox_tag('l_ordnumber', label=LxERP.t8('Order Number'), value='Y', checked=l_ordnumber) %]
@@ -160,7 +160,7 @@
       [% P.checkbox_tag('l_globalprojectdescription', label=LxERP.t8('Document Project Description'), value='Y', checked=l_globalprojectdescription) %]
     </div>
     <div>
-      [% P.checkbox_tag('l_transaction_description', label=LxERP.t8('Transaction description'), value='Y', checked=l_transaction_description) %]
+      [% P.checkbox_tag('l_transaction_description', label=LxERP.t8('Transaction description'), value='Y', checked=l_transaction_description, for_submit=1) %]
     </div>
   </div>
 
@@ -176,10 +176,10 @@
       [% P.checkbox_tag('l_subtotal', label=LxERP.t8('Subtotal'), value='Y', checked=l_subtotal) %]
     </div>
     <div>
-      [% P.checkbox_tag('l_amount', label=LxERP.t8('Total'), value='Y', checked=l_amount) %]
+      [% P.checkbox_tag('l_amount', label=LxERP.t8('Total'), value='Y', checked=l_amount, for_submit=1) %]
     </div>
     <div>
-      [% P.checkbox_tag('l_paid', label=LxERP.t8('Paid'), value='Y', checked=l_paid) %]
+      [% P.checkbox_tag('l_paid', label=LxERP.t8('Paid'), value='Y', checked=l_paid, for_submit=1) %]
     </div>
     <div>
       [% P.checkbox_tag('l_due', label=LxERP.t8('Amount Due'), value='Y', checked=l_due) %]
@@ -227,7 +227,7 @@
   <div class="list col">
   <h4>[% 'Vendor' | $T8 %]</h4>
   <div>
-    [% P.checkbox_tag('l_name', label=LxERP.t8('Vendor'), value='Y', checked=l_name) %]
+    [% P.checkbox_tag('l_name', label=LxERP.t8('Vendor'), value='Y', checked=l_name, for_submit=1) %]
   </div>
   <div>
     [% P.checkbox_tag('l_vendornumber', label=LxERP.t8('Vendor Number'), value='Y', checked=l_vendornumber) %]
