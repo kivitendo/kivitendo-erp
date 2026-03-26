@@ -5,6 +5,7 @@ use strict;
 use SL::HTML::Restrict;
 use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape);
+use SL::Util qw(trim);
 use Scalar::Util qw(blessed);
 
 use Exporter qw(import);
@@ -13,7 +14,7 @@ our @EXPORT_OK = qw(
   checkbox_tag button_tag submit_tag ajax_submit_tag input_number_tag
   stringify_attributes textarea_tag link_tag date_tag
   div_tag radio_button_tag img_tag multi_level_select_tag input_tag_trim
-  input_email_tag context_help_tag);
+  input_email_tag input_phone_tag context_help_tag);
 our %EXPORT_TAGS = (ALL => \@EXPORT_OK);
 
 use Carp;
@@ -528,6 +529,32 @@ sub input_email_tag {
                            img_tag(src => 'image/mail.png', alt => t8('Send email'), border => 0),
                            (id    => $link_id)x!!$link_id,
                            (style => 'display:none')x!$show_icon);
+
+  return '<span>' . $html . '</span>';
+}
+
+sub input_phone_tag {
+  my ($name, $value, %params) = @_;
+
+  my $show_icon = $value || delete($params{show_icon_always});
+
+  # _set_id_attribute removes the no_id param
+  my $no_id_wanted = $params{no_id};
+  _set_id_attribute(\%params, $name);
+  $params{no_id} = $no_id_wanted;
+
+  my $cti_enabled = !!$::lx_office_conf{cti}{dial_command};
+
+  my $html = input_tag_trim($name, $value, %params);
+
+  my $link_id   = $params{id} ? $params{id} . '_link' : undef;
+  $value = trim($value);
+  if ($cti_enabled && $value) {
+    $html      .= link_tag('controller.pl?action=CTI/call&number=' . escape($value),
+                           img_tag(src => 'image/icons/16x16/phone.png', alt => t8('Call'), border => 0), target => '_blank',
+                           (id    => $link_id)x!!$link_id,
+                           (style => 'display:none')x!$show_icon);
+  }
 
   return '<span>' . $html . '</span>';
 }
