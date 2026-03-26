@@ -78,7 +78,7 @@ sub action_list {
   my $sort_by = $::form->{sort_by} ? $::form->{sort_by} : 'order_date';
   $sort_by .=$::form->{sort_dir} ? ' DESC' : ' ASC';
   my $shop_orders = SL::DB::Manager::ShopOrder->get_all( %filter, sort_by => $sort_by,
-                                                      with_objects => ['shop_order_items', 'kivi_customer', 'shop'],
+                                                          with_objects => ['shop_order_items', 'kivi_customer', 'shop','billing_country','customer_country','delivery_country'],
                                                     );
 
   foreach my $shop_order(@{ $shop_orders }){
@@ -228,7 +228,7 @@ sub action_apply_customer {
                   'zipcode'               => $::form->{$what.'_zipcode'},
                   'city'                  => $::form->{$what.'_city'},
                   'email'                 => $::form->{$what.'_email'},
-                  'country'               => $::form->{$what.'_country'},
+                  'country_id'            => $::form->{$what.'_country_id'},
                   'phone'                 => $::form->{$what.'_phone'},
                   'email'                 => $::form->{$what.'_email'},
                   'greeting'              => $::form->{$what.'_greeting'},
