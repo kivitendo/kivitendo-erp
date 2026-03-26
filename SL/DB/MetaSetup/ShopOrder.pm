@@ -12,8 +12,7 @@ __PACKAGE__->meta->columns(
   amount                 => { type => 'numeric', precision => 15, scale => 5 },
   billing_city           => { type => 'text' },
   billing_company        => { type => 'text' },
-  billing_country        => { type => 'text' },
-  billing_country_id     => { type => 'integer' },
+  billing_country_id     => { type => 'integer', not_null => 1 },
   billing_department     => { type => 'text' },
   billing_email          => { type => 'text' },
   billing_fax            => { type => 'text' },
@@ -26,8 +25,7 @@ __PACKAGE__->meta->columns(
   billing_zipcode        => { type => 'text' },
   customer_city          => { type => 'text' },
   customer_company       => { type => 'text' },
-  customer_country       => { type => 'text' },
-  customer_country_id    => { type => 'integer' },
+  customer_country_id    => { type => 'integer', not_null => 1 },
   customer_department    => { type => 'text' },
   customer_email         => { type => 'text' },
   customer_fax           => { type => 'text' },
@@ -41,8 +39,7 @@ __PACKAGE__->meta->columns(
   customer_zipcode       => { type => 'text' },
   delivery_city          => { type => 'text' },
   delivery_company       => { type => 'text' },
-  delivery_country       => { type => 'text' },
-  delivery_country_id    => { type => 'integer' },
+  delivery_country_id    => { type => 'integer', not_null => 1 },
   delivery_department    => { type => 'text' },
   delivery_email         => { type => 'text' },
   delivery_fax           => { type => 'text' },
@@ -91,17 +88,17 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  billing_country_obj => {
+  billing_country => {
     class       => 'SL::DB::Country',
     key_columns => { billing_country_id => 'id' },
   },
 
-  customer_country_obj => {
+  customer_country => {
     class       => 'SL::DB::Country',
     key_columns => { customer_country_id => 'id' },
   },
 
-  delivery_country_obj => {
+  delivery_country => {
     class       => 'SL::DB::Country',
     key_columns => { delivery_country_id => 'id' },
   },
