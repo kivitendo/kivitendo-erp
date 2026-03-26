@@ -15,8 +15,6 @@
 [% L.hidden_tag('link_with_cv_id', FORM.link_with_cv_id) %]
 [% L.hidden_tag('link_with_cv_db', FORM.link_with_cv_db) %]
 
-[% L.hidden_tag('_cti_enabled', !!LXCONFIG.cti.dial_command) %]
-
 <div class="wrapper">
 
 <table class="tbl-horizontal">
@@ -130,11 +128,11 @@
     </tr>
     <tr>
       <th>[% 'Phone1' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_phone1', SELF.contact.cp_phone1, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_phone1', SELF.contact.cp_phone1, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Phone2' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_phone2', SELF.contact.cp_phone2, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_phone2', SELF.contact.cp_phone2, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Fax' | $T8 %]</th>
@@ -142,15 +140,15 @@
     </tr>
     <tr>
       <th>[% 'Mobile1' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_mobile1', SELF.contact.cp_mobile1, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_mobile1', SELF.contact.cp_mobile1, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Mobile2' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_mobile2', SELF.contact.cp_mobile2, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_mobile2', SELF.contact.cp_mobile2, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Sat. Phone' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_satphone', SELF.contact.cp_satphone, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_satphone', SELF.contact.cp_satphone, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Sat. Fax' | $T8 %]</th>
@@ -158,7 +156,7 @@
     </tr>
     <tr>
       <th>[% 'Private Phone' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_privatphone', SELF.contact.cp_privatphone, class="wi-wide") %]</td>
+      <td>[% P.input_phone_tag('contact.cp_privatphone', SELF.contact.cp_privatphone, class="wi-wide") %]</td>
     </tr>
     <tr>
       <th>[% 'Private E-mail' | $T8 %]</th>

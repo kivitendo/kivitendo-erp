@@ -168,40 +168,6 @@ namespace('kivi.CustomerVendor', function(ns) {
     window.open(url, "_new_generic", parm);
   };
 
-  this.update_dial_action = function($input) {
-    var $action = $('#' + $input.prop('id') + '-dial-action');
-
-    if (!$action)
-      return true;
-
-    var number = $input.val().replace(/\s+/g, '');
-    if (number === '')
-      $action.hide();
-    else
-      $action.prop('href', 'controller.pl?action=CTI/call&number=' + encodeURIComponent(number)).show();
-
-    return true;
-  };
-
-  this.init_dial_action = function(input) {
-    if ($('#_cti_enabled').val() != 1)
-      return false;
-
-    var $input    = $(input);
-    var action_id = $input.prop('id') + '-dial-action';
-
-    if (!$('#' + action_id).size()) {
-      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1">a</a>');
-      $input.wrap('<span nobr></span>').after($action);
-
-      $input.change(function() { kivi.CustomerVendor.update_dial_action($input); });
-    }
-
-    kivi.CustomerVendor.update_dial_action($input);
-
-    return true;
-  };
-
   this.inline_report = function(target, source, data){
 //    alert("HALLO S " + source + " --T " + target + " tt D " + data);
     $.ajax({
@@ -436,10 +402,6 @@ namespace('kivi.CustomerVendor', function(ns) {
     kivi.run_once_for('input.customer_vendor_autocomplete', 'customer_vendor_picker', function(elt) {
       if (!$(elt).data('customer_vendor_picker'))
         $(elt).data('customer_vendor_picker', new kivi.CustomerVendor.Picker($(elt)));
-    });
-
-    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone').each(function(idx, elt) {
-      kivi.CustomerVendor.init_dial_action($(elt));
     });
   }
 

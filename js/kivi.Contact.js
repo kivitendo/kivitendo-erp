@@ -283,10 +283,6 @@ namespace('kivi.Contact', function(ns) {
       if (!$(elt).data('contact_picker'))
         $(elt).data('contact_picker', new kivi.Contact.Picker($(elt)));
     });
-
-    $('#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2').each(function(idx, elt) {
-      kivi.CustomerVendor.init_dial_action($(elt));
-    });
   }
 
   ns.init = function() {
