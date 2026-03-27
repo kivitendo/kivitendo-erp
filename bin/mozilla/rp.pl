@@ -1106,7 +1106,9 @@ sub aging {
       };
     }
 
-    $row->{invnumber}->{link} =  build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
+    $row->{invnumber}->{link} = $::instance_conf->get_feature_experimental_invoice
+                              ? build_std_url('script=controller.pl', 'action=Invoice/edit', 'type=' . ($ref->{module} eq 'is' ? 'invoice' : 'purchase_invoice') . '&id=' . E($ref->{id}), 'callback')
+                              : build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
     if ($row->{type}->{data} eq 'final_invoice') {
       $row->{type}->{data} = $locale->text('Final Invoice, please use mark as paid manually');
       $row->{type}->{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'callback', 'id=' . E($ref->{id}));
@@ -1594,7 +1596,9 @@ sub list_payments {
         };
       }
 
-      $row->{invnumber}->{link} = build_std_url("script=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
+      $row->{invnumber}->{link} = $::instance_conf->get_feature_experimental_invoice
+                                ? build_std_url('script=controller.pl', 'action=Invoice/edit', 'type=' . ($module eq 'is' ? 'invoice' : 'purchase_invoice') . '&id=' . E($payment->{id}), 'callback')
+                                : build_std_url("script=${module}.pl", 'action=edit', 'id=' . E($payment->{id}), 'callback');
 
       $report->add_data($row);
     }

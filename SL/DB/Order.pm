@@ -29,6 +29,7 @@ use SL::Locale::String qw(t8);
 use SL::RecordLinks;
 use Rose::DB::Object::Helpers qw(as_tree strip);
 
+use SL::DB::Invoice::TypeData qw(:types);
 use SL::DB::Order::TypeData qw(:types validate_type);
 use SL::DB::Reclamation::TypeData qw(:types);
 
@@ -329,7 +330,7 @@ sub convert_to_invoice {
   my $invoice;
   if (!$self->db->with_transaction(sub {
     require SL::DB::Invoice;
-    $invoice = SL::DB::Invoice->new_from($self, %params)->post || die;
+    $invoice = SL::DB::Invoice->new_from($self, record_type => INVOICE_TYPE, %params)->post || die;
     $self->update_attributes(closed => 1);
     1;
   })) {
