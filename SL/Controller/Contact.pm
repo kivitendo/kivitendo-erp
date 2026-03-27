@@ -15,7 +15,6 @@ use SL::DB::ContactDepartment;
 use SL::DB::ContactTitle;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar                  => [ qw(user_has_edit_rights) ],
   'scalar --get_set_init' => [ qw(contact) ],
 );
 
@@ -240,12 +239,7 @@ sub _pre_render {
 sub _check_auth {
   my ($self, $action) = @_;
 
-  my $has_edit_rights    = $::auth->assert('customer_vendor_edit',     1); # TODO fixme
-  $self->user_has_edit_rights($has_edit_rights);
-
-  if (!$has_edit_rights) {#$self->_may_access_action($action)) {
-    $::auth->deny_access;
-  }
+  $::auth->assert('customer_vendor_all_edit');
 }
 
 sub init_contact {
@@ -277,22 +271,19 @@ sub _instantiate_args {
 sub _setup_form_action_bar {
   my ($self) = @_;
 
-  my $no_rights = $self->user_has_edit_rights ? undef : t8("You don't have the rights to edit this contact.");
-
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
         t8('Save'),
         submit    => [ '#form', { action => "Contact/save" } ],
         accesskey => 'enter',
-        disabled  => $no_rights,
       ],
 
       action => [
         t8('Delete'),
         submit   => [ '#form', { action => "Contact/delete" } ],
         confirm  => t8('Delete the contact? This will also remove the contact from all other customers and vendors.'),
-        disabled => !$self->contact->cp_id ? t8('This object has not been saved yet.') : $no_rights,
+        disabled => !$self->contact->cp_id ? t8('This object has not been saved yet.') : undef,
       ],
 
       #action => [
