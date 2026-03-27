@@ -186,6 +186,7 @@ $self->{texts} = {
   'Add Assembly'                => 'Erzeugnis erfassen',
   'Add Assortment'              => 'Sortiment erfassen',
   'Add Client'                  => 'Neuer Mandant',
+  'Add Contact'                 => 'Ansprechperson erfassen',
   'Add Credit Note'             => 'Gutschrift erfassen',
   'Add Credit Note for this dunning level:' => 'Diese Gutschrift für untenstehende Mahnstufe anzeigen',
   'Add Customer'                => 'Kunde erfassen',
