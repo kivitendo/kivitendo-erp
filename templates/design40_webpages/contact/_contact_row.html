@@ -1,19 +1,18 @@
-[% USE T8 %]
-[% USE HTML %]
-[% USE LxERP %]
-[% USE L %]
-[% USE P %]
-
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE P %]
 <tr>
-  <td>[% contact.cp_number | html %]</td>
+  <td>[%- L.hidden_tag('linked_contacts[+].cp_id', contact.cp_id) %]
+      [%- L.button_tag("kivi.Contact.detach_contact_or_cv(this)", LxERP.t8("X"), class="wi-verytiny") %]</td>
+  <td>[% contact.cp_number    | html %]</td>
   <td>[% contact.presenter.contact(callback = callback) %]</td>
-  <td>[% contact.cp_title | html %]</td>
+  <td>[% contact.cp_title     | html %]</td>
   <td>[% contact.cp_abteilung | html %]</td>
-  <td>[% contact.cp_position | html %]</td>
-  <td>[% contact.cp_street | html %]</td>
-  <td>[% contact.cp_city | html %]</td>
+  <td>[% contact.cp_position  | html %]</td>
+  <td>[% contact.cp_street    | html %]</td>
+  <td>[% contact.cp_city      | html %]</td>
   <td>[% P.link_tag('mailto:' _ contact.cp_email, contact.cp_email) %]</td>
-  <td>[% contact.cp_phone1 | html %]</td>
-  <td>[% L.yes_no_tag('main_' _ contact.cp_id, main, title = LxERP.t8('Main Contact Person'), onchange='kivi.Contact.set_main_contact(' _ contact.cp_id _ ')') %]</td>
-  <td>[% L.button_tag("kivi.Contact.detach_contact(this, "_ contact.cp_id _")", LxERP.t8("X"), class="wi-verytiny") %]</td>
+  <td>[% contact.cp_phone1    | html %]</td>
+  <td>[% L.yes_no_tag('linked_contacts[].main', main, title = LxERP.t8('Main Contact Person'), onchange='kivi.Contact.set_main_contact(this)') %]</td>
 </tr>

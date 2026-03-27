@@ -87,7 +87,7 @@ sub action_edit {
   $self->_pre_render();
   $self->render(
     'contact/form',
-    title => $self->contact->cp_id ? t8('Edit Contact') . ' - ' . $self->contact->full_name : t8('New contact'),
+    title => $self->contact->cp_id ? t8('Edit Contact') . ' - ' . $self->contact->full_name : t8('Add Contact'),
     %{$self->{template_args}}
   );
 }
@@ -115,6 +115,21 @@ sub action_save {
     SL::DB::Manager::ContactTitle     ->delete_unused if $save_contact_title;
     SL::DB::Manager::ContactDepartment->delete_unused if $save_contact_department;
   }
+
+  # reconcile linked customers and vendors
+  my %old_customer_ids = map { $_->id => 1 } @{$self->contact->customers};
+  my %new_customer_ids = map { $_->{cv_id} => 1 } grep { $_->{cv_db} eq 'customer' } @{$::form->{linked_contacts}};
+  my $new_customers    = %new_customer_ids ? SL::DB::Manager::Customer->get_all(query => [ id => [ keys %new_customer_ids ] ]) : [];
+
+  $_->detach_contact($self->contact) for grep { !$new_customer_ids{$_->id} } $self->contact->customers;
+  $_->link_contact($self->contact)   for grep { !$old_customer_ids{$_->id} } @$new_customers;
+
+  my %old_vendor_ids = map { $_->id => 1 } @{$self->contact->vendors};
+  my %new_vendor_ids = map { $_->{cv_id} => 1 } grep { $_->{cv_db} eq 'vendor' } @{$::form->{linked_contacts}};
+  my $new_vendors    = %new_vendor_ids ? SL::DB::Manager::Vendor->get_all(  query => [ id => [ keys %new_vendor_ids ] ]) : [];
+
+  $_->detach_contact($self->contact) for grep { !$new_vendor_ids{$_->id} } $self->contact->vendors;
+  $_->link_contact($self->contact)   for grep { !$old_vendor_ids{$_->id} } @$new_vendors;
 
   my @redirect_params = (
     action => 'edit',
@@ -151,7 +166,6 @@ sub action_add_cv {
   my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
 
   my $was_already_linked = first { $_->cp_id == $self->contact->cp_id } @{ $cv_obj->contacts };
-  $cv_obj->link_contact($self->contact);
 
   unless ($was_already_linked) {
     my $row_as_html = $self->p->render('contact/_cv_row', cv => $cv_obj);
@@ -171,8 +185,6 @@ sub action_add_contact {
 
   my $was_already_linked = first { $_->cp_id == $self->contact->cp_id } @{ $cv_obj->contacts };
 
-  $cv_obj->link_contact($self->contact);
-
   unless ($was_already_linked) {
     my $row_as_html = $self->p->render('contact/_contact_row', contact => $self->contact,
       callback => $self->url_for(controller => 'CustomerVendor', action => 'edit', id => $cv_obj->id, db => $::form->{cv_db})
@@ -183,40 +195,6 @@ sub action_add_contact {
   $self->js->val(".add_contact_input", '');
   $self->js->render();
 }
-
-sub action_set_main_contact {
-  my ($self) = @_;
-
-  my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
-
-  my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
-
-  my $cv_contact = "SL::DB::Manager::${class}Contact"->get_first(query => [
-    "$::form->{cv_db}_id" => $::form->{cv_id},
-    main => 1,
-  ]);
-  if ($cv_contact) {
-    $cv_contact->main(0);
-    $cv_contact->save;
-    $self->js->val("#main_$cv_contact->{contact_id}", '0');
-  }
-
-  $cv_obj->link_contact($self->contact, main => 1);
-
-  $self->js->render();
-}
-
-sub action_detach_cv {
-  my ($self) = @_;
-
-  my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
-
-  my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
-  $cv_obj->detach_contact($self->contact);
-
-  $self->js->render();
-}
-
 
 sub _pre_render {
   my ($self) = @_;
@@ -260,7 +238,6 @@ sub _instantiate_args {
   $self->_copy_form_to_cvars(target => $self->contact, source => $::form->{contact_cvars});
 }
 
-
 sub _setup_form_action_bar {
   my ($self) = @_;
 
@@ -281,7 +258,6 @@ sub _setup_form_action_bar {
     );
   }
 }
-
 
 
 1;

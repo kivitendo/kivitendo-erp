@@ -172,8 +172,7 @@
     <table class="tbl-list">
       <thead>
         <tr>
-          <th colspan="2">[% 'Customers' | $T8 %]</th>
-          <th></th>
+          <th colspan="3">[% 'Customers' | $T8 %]</th>
         </tr>
       </thead>
       <tbody>
@@ -181,17 +180,15 @@
           [% PROCESS 'contact/_cv_row.html', cv=customer %]
         [% END %]
         <tr id="add_customer_row">
-          <td>[% 'Insert new' | $T8 %]:</td>
+          <td colspan="2">[% 'Insert new' | $T8 %]:</td>
           <td>[% P.customer_vendor.picker('add_customer_id', '', type='customer', onchange="kivi.Contact.on_add_cv('customer')", class="add_customer_input wi-wide") %]</td>
-          <td></td>
         </tr>
     </table>
 
     <table class="tbl-list">
       <thead>
         <tr>
-          <th colspan="2">[% 'Vendors' | $T8 %]</th>
-          <th></th>
+          <th colspan="3">[% 'Vendors' | $T8 %]</th>
         </tr>
       </thead>
       <tbody>
@@ -199,9 +196,8 @@
           [% PROCESS 'contact/_cv_row.html', cv=vendor %]
         [% END %]
         <tr id="add_vendor_row">
-          <td>[% 'Insert new' | $T8 %]:</td>
+          <td colspan="2">[% 'Insert new' | $T8 %]:</td>
           <td>[% P.customer_vendor.picker('add_vendor_id',   '', type='vendor',   onchange="kivi.Contact.on_add_cv('vendor')", class="add_vendor_input wi-wide") %]</td>
-          <td></td>
         </tr>
       </tbody>
     </table>

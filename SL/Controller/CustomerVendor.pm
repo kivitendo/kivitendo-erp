@@ -237,6 +237,23 @@ sub _save {
 
     SL::DB::Greeting->new(description => $self->{cv}->greeting)->save if $save_greeting;
 
+    # reconcile linked contacts
+    my $old_contacts = $self->{cv}->contacts;
+    my $new_contacts = $::form->{linked_contacts} ? SL::DB::Manager::Contact->get_all(query => [ cp_id => [ map { $_->{cp_id} } @{$::form->{linked_contacts}} ] ]) : [];
+    my %old_ids = map { $_->cp_id => 1 } @$old_contacts;
+    my %new_ids = map { $_->cp_id => 1 } @$new_contacts;
+    my %new_main_ids = map { $_->{cp_id} => 1 } grep { $_->{main} } @{$::form->{linked_contacts}};
+
+    $self->{cv}->link_contact($_)   for grep { !$old_ids{$_->cp_id} } @$new_contacts;
+    $self->{cv}->detach_contact($_) for grep { !$new_ids{$_->cp_id} } @$old_contacts;
+
+    my $class = $self->is_customer ? 'Customer' : 'Vendor';
+    my $db    = $self->is_customer ? 'customer' : 'vendor';
+    "SL::DB::Manager::${class}Contact"->update_all(
+      set   => { main => 0 },
+      where => [ main => 1, "${db}_id" => $self->{cv}->id ]);
+    $self->{cv}->link_contact($_, main => 1) for grep { $new_main_ids{$_->cp_id} } @$new_contacts;
+
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
 
       if ( !$self->{note_followup}->follow_up_date ) {
