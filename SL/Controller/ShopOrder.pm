@@ -228,7 +228,7 @@ sub action_apply_customer {
                   'zipcode'               => $::form->{$what.'_zipcode'},
                   'city'                  => $::form->{$what.'_city'},
                   'email'                 => $::form->{$what.'_email'},
-                  'country'               => $::form->{$what.'_country'},
+                  'country_id'            => $::form->{$what.'_country_id'},
                   'phone'                 => $::form->{$what.'_phone'},
                   'email'                 => $::form->{$what.'_email'},
                   'greeting'              => $::form->{$what.'_greeting'},

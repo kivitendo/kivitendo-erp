@@ -976,14 +976,15 @@ sub map_data_to_shoporder {
   );
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
-  #
 
+  my $billing_country_id  = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} )->id;
+  my $delivery_country_id = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} )->id;
 
   my %columns = (
     amount                  => $import->{amountTotal},
     billing_city            => $billing->{city},
-    billing_company         => $billing->{company},
-    billing_country         => $billing->{country}->{name},
+    billing_company         => $billing->{additionalAddressLine1},
+    billing_country_id      => $billing_country_id,
     billing_department      => $billing->{department},
     billing_email           => $import->{orderCustomer}->{email},
     billing_fax             => $billing->{fax},
@@ -996,7 +997,7 @@ sub map_data_to_shoporder {
     billing_zipcode         => $billing->{zipcode},
     customer_city           => $billing->{city},
     customer_company        => $billing->{company},
-    customer_country        => $billing->{country}->{name},
+    customer_country_id     => $billing_country_id,
     customer_department     => $billing->{department},
     customer_email          => $billing->{email},
     customer_fax            => $billing->{fax},
@@ -1009,9 +1010,9 @@ sub map_data_to_shoporder {
     customer_zipcode        => $billing->{zipcode},
 #    customer_newsletter     => $customer}->{newsletter},
     delivery_city           => $shipto->{city},
-    delivery_company        => $shipto->{company},
-    delivery_country        => $shipto->{country}->{name},
-    delivery_department     => $shipto->{department},
+    delivery_company        => $shipto->{additionalAddressLine1},
+    delivery_country_id     => $delivery_country_id,
+    delivery_department     => $postnumber || $shipto->{department},
     delivery_email          => "",
     delivery_fax            => $shipto->{fax},
     delivery_firstname      => $shipto->{firstName},

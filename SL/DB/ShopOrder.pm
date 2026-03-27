@@ -91,12 +91,13 @@ sub convert_to_sales_order {
           shiptostreet       => $self->delivery_street,
           shiptozipcode      => $self->delivery_zipcode,
           shiptocity         => $self->delivery_city,
-          shiptocountry      => $self->delivery_country,
+          shiptocountry_id   => $self->delivery_country_id,
           trans_id           => $customer->id,
           module             => "CT",
         );
         $deliveryaddress->save;
         $shipto_id = $deliveryaddress->{shipto_id};
+        $taxzone = $deliveryaddress->shiptocountry->get_taxzone;
       }
     }
 
@@ -227,7 +228,7 @@ sub get_customer{
                     'city'                  => $self->billing_city,
                     'email'                 => $self->billing_email,
                     'invoice_mail'          => $self->billing_email,
-                    'country_id'            => $country_id,
+                    'country_id'            => $self->billing_country_id,
                     'greeting'              => $self->billing_greeting,
                     'fax'                   => $self->billing_fax,
                     'phone'                 => $self->billing_phone,
