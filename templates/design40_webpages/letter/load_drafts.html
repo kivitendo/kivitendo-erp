@@ -2,14 +2,11 @@
 [% USE HTML %]
 [% USE L %]
 
-<h1>[% 'Load letter draft' | $T8 %]</h1>
-
+<div class="wrapper">
  <form method="post" name="Form" action="controller.pl" id="form">
   [% L.hidden_tag('is_sales', SELF.is_sales) %]
   <p>[% 'The following drafts have been saved and can be loaded.' | $T8 %]</p>
   <table width="100%">
-    </td>
-   </tr>
    <tr>
     <td>
      <table>
@@ -41,3 +38,4 @@
    </tr>
   </table>
  </form>
+</div>

@@ -3,8 +3,6 @@
 [% USE T8 %]
 [% USE LxERP  %]
 
-<h1>[% accno | html %]--[% account | html %]</h1>
-
 <p>[% FOREACH row IN option %][% row %][% ', ' UNLESS loop.last %][% END %]</p>
 
 <form method="post" action="rc.pl" id="form">
