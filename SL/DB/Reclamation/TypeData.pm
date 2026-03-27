@@ -38,6 +38,7 @@ my %type_data = (
       is_customer    => 1,
       nr_key         => "record_number",
       worflow_needed => 0,
+      template       => 'sales_reclamation',
     },
     defaults => {
       reqdate => sub { return; },
@@ -73,6 +74,7 @@ my %type_data = (
       is_customer    => 0,
       nr_key         => "record_number",
       worflow_needed => 0,
+      template       => 'purchase_reclamation',
     },
     defaults => {
       reqdate => sub { return; },
