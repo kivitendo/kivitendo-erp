@@ -43,8 +43,12 @@
         <td>[% L.input_tag("description", "", class='initial_focus wi-lightwide') %]</td>
       </tr>
       <tr>
-        <th>[% 'Notes' | $T8 %]</th>
+        <th>[% 'Long Description' | $T8 %]</th>
         <td>[% L.input_tag("notes", "", class='wi-lightwide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Internal Notes' | $T8 %]</th>
+        <td>[% L.input_tag("intnotes", "", class='wi-lightwide') %]</td>
       </tr>
       <tr>
         <th>[% 'Part Classification' | $T8 %]</th>
@@ -168,7 +172,8 @@
     <p>[% L.checkbox_tag('l_unit', label=LxERP.t8('Unit of measure'), value='Y', checked=1) %]</p>
     <p>[% L.checkbox_tag('l_weight', label=LxERP.t8('Weight'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_partsgroup', label=LxERP.t8('Partsgroup'), value='Y') %]</p>
-    <p>[% L.checkbox_tag('l_notes', label=LxERP.t8('Notes'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_notes', label=LxERP.t8('Long Description'), value='Y') %]</p>
+    <p>[% L.checkbox_tag('l_intnotes', label=LxERP.t8('Internal Notes'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_ean', label=LxERP.t8('EAN'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_shop', label=LxERP.t8('Shop article'), value='Y') %]</p>
     <p>[% L.checkbox_tag('l_projectnumber', label=LxERP.t8('Project Number'), value='Y') %]</p>
