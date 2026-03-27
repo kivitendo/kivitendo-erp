@@ -164,7 +164,7 @@
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% L.input_tag("shiptocountry", "") %]</td>
+          <td>[% P.country.picker("shiptocountry_id", "", with_empty = 1, class = 'wi-normal') %]</td>
         </tr>
       </tbody>
     </table>

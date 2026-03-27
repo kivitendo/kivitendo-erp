@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('shops');
 
 __PACKAGE__->meta->columns(
   connector                => { type => 'text' },
+  default_country_id       => { type => 'integer' },
   description              => { type => 'text' },
   id                       => { type => 'serial', not_null => 1 },
   itime                    => { type => 'timestamp', default => 'now()' },
@@ -37,6 +38,13 @@ __PACKAGE__->meta->columns(
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
+
+__PACKAGE__->meta->foreign_keys(
+  default_country => {
+    class       => 'SL::DB::Country',
+    key_columns => { default_country_id => 'id' },
+  },
+);
 
 1;
 ;

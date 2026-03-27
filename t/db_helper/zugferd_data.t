@@ -44,7 +44,7 @@ $defaults->update_attributes(
   address_street1 => 'An der Küppe',
   address_zipcode => '53225',
   address_city    => 'Bonn',
-  address_country => 'Deutschland',
+  address_country => SL::DB::Manager::Country->find_by(iso2 => 'DE'),
   co_ustid        => 'DE259582878',
   invoice_mail    => 'rechnung@localhost'
 );

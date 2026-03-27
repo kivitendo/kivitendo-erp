@@ -31,6 +31,7 @@ sub check_objects {
 
     $self->check_vc($entry, 'trans_id');
     $entry->{object}->module('CT');
+    $self->check_country_optional($entry);
   } continue {
     $i++;
   }

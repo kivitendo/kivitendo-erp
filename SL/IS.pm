@@ -57,6 +57,7 @@ use SL::IC;
 use SL::IO;
 use SL::TransNumber;
 use SL::DB::Chart;
+use SL::DB::Country;
 use SL::DB::Customer;
 use SL::DB::Default;
 use SL::DB::Draft;
@@ -67,7 +68,6 @@ use SL::TransNumber;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use SL::Helper::QrBillFunctions qw(get_qrbill_account assemble_ref_number);
-use SL::Helper::ISO3166;
 use strict;
 use constant PCLASS_OK             =>   0;
 use constant PCLASS_NOTFORSALE     =>   1;
@@ -638,15 +638,14 @@ sub invoice_details {
       $form->{qrbill_iban} = $qr_account->{iban};
     }
 
-    my $biller_country = $::instance_conf->get_address_country() || 'CH';
-    my $biller_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($biller_country);
-    $form->{qrbill_biller_countrycode} = $biller_countrycode;
+    $form->{qrbill_biller_countrycode} = SL::DB::Country->new(id => $::instance_conf->get_address_country_id)->load->iso2;
 
-    my $customer_country = $form->{billing_address_id} ?
-                            $form->{billing_address_country} || 'CH' :
-                            $form->{country} || 'CH';
-    my $customer_countrycode = SL::Helper::ISO3166::map_name_to_alpha_2_code($customer_country);
-    $form->{qrbill_customer_countrycode} = $customer_countrycode;
+    $form->set_addition_billing_address_print_variables;
+    my $customer_country_id = ($form->{billing_address_id} && $form->{billing_address_country_id})
+                            ? $form->{billing_address_country_id}
+                            : $form->{country_id};
+
+    $form->{qrbill_customer_countrycode} = SL::DB::Country->new(id => $customer_country_id)->load->iso2;
 
     $form->{qrbill_amount} = sprintf("%.2f", $form->parse_amount($myconfig, $form->{'total'}));
   }
@@ -675,13 +674,20 @@ sub customer_details {
   }
 
   # get rest for the customer
+  my $template_code = $language_id && SL::DB::Language->new(id => $language_id)->load->template_code;
+  my $country_description_key = 'description_' .
+    (($template_code =~ m/^de$/i) ? 'de' :
+     ($template_code =~ m/^en$/i) ? 'en' : 'de');
+
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         cu.name AS currency
+         cu.name AS currency, ctc.$country_description_key AS country, cpc.$country_description_key AS cp_country
        FROM customer ct
-       LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
-       LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
+       LEFT JOIN currencies cu  ON (ct.currency_id = cu.id)
+       LEFT JOIN contacts   cp  ON (ct.id = cp.cp_cv_id)
+       LEFT JOIN countries  ctc ON (ct.country_id = ctc.id)
+       LEFT JOIN countries  cpc ON (cp.cp_country_id = cpc.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
@@ -693,7 +699,7 @@ sub customer_details {
       $ref->{name} = $customer->name;
       $ref->{street} = $customer->street;
       $ref->{zipcode} = $customer->zipcode;
-      $ref->{country} = $customer->country;
+      $ref->{country} = $customer->country->$country_description_key;
       $ref->{gln} = $customer->gln;
     }
     my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
@@ -2519,11 +2525,12 @@ sub get_customer {
     $where .= 'AND c.id = ?';
     push @values, $cid;
   }
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
   $query =
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
-         c.street, c.zipcode, c.city, c.country,
+         c.street, c.zipcode, c.city, countries.$country_description_key AS country,
          c.notes AS intnotes, c.pricegroup_id as customer_pricegroup_id, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
          (SELECT aba.id
@@ -2534,6 +2541,7 @@ sub get_customer {
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
        LEFT JOIN currencies cu ON (c.currency_id=cu.id)
+       LEFT JOIN countries ON (c.country_id = countries.id)
        WHERE 1 = 1 $where|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
   die t8("Cannot find a single customer. Maybe there is no customer yet?") unless $ref;

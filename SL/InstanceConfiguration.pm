@@ -86,6 +86,12 @@ sub AUTOLOAD {
   return $self->$method(@_);
 }
 
+sub get_address_country {
+  my ($self) = @_;
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  return SL::DB::Country->new(id => $self->get_address_country_id)->load->$country_description_key;
+}
+
 1;
 
 __END__

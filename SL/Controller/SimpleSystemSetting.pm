@@ -81,6 +81,22 @@ my %supported_types = (
     },
   },
 
+  country => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_country_form")
+    class  => 'Country',
+    auth   => 'config',
+    titles => {
+      list => t8('Country Names'),
+      edit => t8('Country Names'),
+    },
+    list_attributes => [
+      { method => 'iso2',  title => 'ISO 3166-1', },
+      {                    title => t8('Description'), formatter => sub { $_[0]->description_localized($::myconfig{countrycode}) } },
+    ],
+    top_info_text => t8('The ISO 3166-1 alpha-2 codes are required for Factur-X/ZUGFeRD invoices. The corresponding names are printed on records.'),
+    no_create => 1,
+  },
+
   department => {
     class  => 'Department',
     titles => {
@@ -502,11 +518,14 @@ sub setup_language {
 sub setup_list_action_bar {
   my ($self, %params) = @_;
 
+  my $can_be_created = !$self->config->{no_create};
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       link => [
         t8('Add'),
-        link => $self->url_for(action => 'new', type => $self->type),
+        link    => $self->url_for(action => 'new', type => $self->type),
+        only_if => $can_be_created,
       ],
     );
   }

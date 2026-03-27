@@ -1,0 +1,19 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE HTML %]
+
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
+    <tbody>
+      <tr>
+        <th> [% LxERP.t8("Description") %] (DE) </th>
+        <td> [% L.input_tag("object.description_de", SELF.object.description_de, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("Description") %] (EN) </th>
+        <td> [% L.input_tag("object.description_en", SELF.object.description_en, class='wi-wider', "data-validate"="required") %] </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

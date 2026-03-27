@@ -511,6 +511,8 @@ sub ar_transactions {
 
   my @values;
 
+  my $country_description_key = 'description_'.$::myconfig{countrycode};
+
   my $query =
     qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .
     qq|  a.donumber, a.deliverydate, | .
@@ -522,16 +524,17 @@ sub ar_transactions {
     qq|  a.type, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  pr.description   AS globalprojectdescription, | .
-    qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
+    qq|  c.name, c.customernumber, c.ustid, b.description as customertype, | .
     qq|  c.id as customer_id, c.dunning_lock as customer_dunning_lock,| .
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
     qq|  dc.dunning_description, | .
     qq|  tz.description AS taxzone, | .
+    qq|  countries.$country_description_key as country, | .
     qq|  pt.description AS payment_terms, | .
     qq|  d.description AS department, | .
     qq|  s.shiptoname, s.shiptodepartment_1, s.shiptodepartment_2, | .
-    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, s.shiptocountry, | .
+    qq|  s.shiptostreet, s.shiptozipcode, s.shiptocity, sc.$country_description_key AS shiptocountry, | .
     qq{  ( SELECT ch.accno || ' -- ' || ch.description
            FROM acc_trans at
            LEFT JOIN chart ch ON ch.id = at.chart_id
@@ -547,12 +550,14 @@ sub ar_transactions {
     qq|LEFT JOIN dunning_config dc ON (a.dunning_config_id = dc.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = a.taxzone_id)| .
+    qq|LEFT JOIN countries ON (c.country_id = countries.id)| .
     qq|LEFT JOIN payment_terms pt ON (pt.id = a.payment_id)| .
     qq|LEFT JOIN business b ON (b.id = c.business_id)| .
     qq|LEFT JOIN shipto s ON (
         (a.shipto_id = s.shipto_id) or
         (a.id = s.trans_id and s.module = 'AR')
        )| .
+    qq|LEFT JOIN countries sc ON (s.shiptocountry_id = sc.id)| .
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
@@ -787,9 +792,9 @@ SQL
     $where .= " AND s.shiptocity ILIKE ?";
     push(@values, like($form->{shiptocity}));
   }
-  if ($form->{shiptocountry}) {
-    $where .= " AND s.shiptocountry ILIKE ?";
-    push(@values, like($form->{shiptocountry}));
+  if ($form->{shiptocountry_id}) {
+    $where .= " AND s.shiptocountry_id = ?";
+    push(@values, conv_i($form->{shiptocountry_id}));
   }
 
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',

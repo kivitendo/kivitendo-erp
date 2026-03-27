@@ -10,7 +10,6 @@ use Carp;
 use List::MoreUtils qw(any);
 use List::Util qw(first);
 
-use SL::Helper::ISO3166;
 use SL::Helper::ISO4217;
 use SL::Helper::UNECERecommendation20;
 use SL::Locale::String qw(t8);
@@ -48,16 +47,8 @@ sub validate_zugferd_data {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The company\'s address information is incomplete in the client configuration.'));
   }
 
-  if ($::instance_conf->get_address_country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($::instance_conf->get_address_country)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The country from the company\'s address in the client configuration cannot be mapped to an ISO 3166-1 alpha 2 code.'));
-  }
-
   if (!$::instance_conf->get_invoice_mail) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The company\'s invoice mail address is missing in the client configuration.'));
-  }
-
-  if ($self->customer->country && !SL::Helper::ISO3166::map_name_to_alpha_2_code($self->customer->country)) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The country from the customer\'s address cannot be mapped to an ISO 3166-1 alpha 2 code.'));
   }
 
   if (!SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name)) {

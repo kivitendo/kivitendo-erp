@@ -617,8 +617,7 @@ sub orders {
                   if $form->{shiptozipcode};
   push @options, $locale->text('City (Shipping)')         . " : $form->{shiptocity}"
                   if $form->{shiptocity};
-  push @options, $locale->text('Country (Shipping)')      . " : $form->{shiptocountry}"
-                  if $form->{shiptocountry};
+  push @options, $locale->text('Country (Shipping)')      . " : " . SL::DB::Country->new(id => $form->{shiptocountry_id})->load->description_localized($::myconfig{countrycode}) if ($form->{shiptocountry_id});
   push @options, $locale->text('Part Description')        . " : $form->{parts_description}"               if $form->{parts_description};
   push @options, $locale->text('Part Number')             . " : $form->{parts_partnumber}"                if $form->{parts_partnumber};
   push @options, $locale->text('Phone Notes')             . " : $form->{phone_notes}"                     if $form->{phone_notes};
