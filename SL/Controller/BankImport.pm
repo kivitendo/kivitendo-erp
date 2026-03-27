@@ -131,6 +131,12 @@ sub parse_and_analyze_transactions {
       $errors++;
       next;
     }
+    if ($transaction->{amount} == 0) {
+      $transaction->{error} = $::locale->text('Zero amount for bank transaction #1, skipping import.', $transaction->{purpose});
+      $errors++;
+      next;
+    }
+
 
     $transaction->{local_bank_account_id} = $transaction->{bank_account}->id;
     $transaction->{currency_id}           = $currency_id;
