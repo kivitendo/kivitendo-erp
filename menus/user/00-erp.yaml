@@ -48,6 +48,14 @@
     action: CustomerVendor/add
     db: vendor
 - parent: master_data
+  id: master_data_add_contact
+  name: Add Contact
+  icon: contact_add
+  order: 250
+  access: customer_vendor_all_edit
+  params:
+    action: Contact/edit
+- parent: master_data
   id: master_data_add_part
   name: Add Part
   icon: part_add
