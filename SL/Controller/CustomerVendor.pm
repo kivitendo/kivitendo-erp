@@ -1197,6 +1197,12 @@ sub _setup_form_action_bar {
           checks => [ 'check_taxzone_and_ustid' ],
           disabled => $no_rights,
         ]) x !$self->is_vendor,
+        action => [
+          t8('Save and create new Contact'),
+          submit => [ '#form', { action => "Contact/edit", link_with_cv_id => $self->{cv}->id, link_with_cv_db => $::form->{db} } ],
+          checks => [ 'check_taxzone_and_ustid' ],
+          disabled => !$self->{cv}->id? t8('This object has not been saved yet.') : $no_rights,
+        ],
       ], # end of combobox "Workflow"
 
       action => [
