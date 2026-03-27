@@ -15,6 +15,7 @@ use SL::DB::ContactDepartment;
 use SL::DB::ContactTitle;
 
 use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(all_contact_departments all_contact_titles) ],
   'scalar --get_set_init' => [ qw(contact) ],
 );
 
@@ -110,6 +111,9 @@ sub action_save {
     SL::DB::ContactDepartment->new(description => $self->contact->cp_abteilung)->save if $save_contact_department;
 
     $self->contact->save(cascade => 1);
+
+    SL::DB::Manager::ContactTitle     ->delete_unused if $save_contact_title;
+    SL::DB::Manager::ContactDepartment->delete_unused if $save_contact_department;
   }
 
   my @redirect_params = (
@@ -217,19 +221,8 @@ sub action_detach_cv {
 sub _pre_render {
   my ($self) = @_;
 
-  $self->{all_contact_titles} = SL::DB::Manager::ContactTitle->get_all_sorted();
-  #foreach my $contact (@{ $self->{contacts} }) {
-  #  if ($contact->cp_title && !grep {$contact->cp_title eq $_->description} @{$self->{all_contact_titles}}) {
-  #    unshift @{$self->{all_contact_titles}}, (SL::DB::ContactTitle->new(description => $contact->cp_title));
-  #  }
-  #}
-
-  $self->{all_contact_departments} = SL::DB::Manager::ContactDepartment->get_all_sorted();
-  #foreach my $contact (@{ $self->{contacts} }) {
-  #  if ($contact->cp_abteilung && !grep {$contact->cp_abteilung eq $_->description} @{$self->{all_contact_departments}}) {
-  #    unshift @{$self->{all_contact_departments}}, (SL::DB::ContactDepartment->new(description => $contact->cp_abteilung));
-  #  }
-  #}
+  $self->all_contact_titles     (SL::DB::Manager::ContactTitle     ->get_all_sorted);
+  $self->all_contact_departments(SL::DB::Manager::ContactDepartment->get_all_sorted);
 
   $::request->{layout}->add_javascripts("$_.js") for qw (kivi.Contact);
 
@@ -285,12 +278,6 @@ sub _setup_form_action_bar {
         confirm  => t8('Delete the contact? This will also remove the contact from all other customers and vendors.'),
         disabled => !$self->contact->cp_id ? t8('This object has not been saved yet.') : undef,
       ],
-
-      #action => [
-      #  t8('History'),
-      #  call     => [ 'kivi.CustomerVendor.showHistoryWindow', $self->{cv}->id ],
-      #  disabled => !$self->{cv}->id ? t8('This object has not been saved yet.') : undef,
-      #],
     );
   }
 }
