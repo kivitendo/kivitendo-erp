@@ -446,9 +446,9 @@ sub _post_invoice {
       my $h_invoice_id = prepare_query($form, $dbh, $q_invoice_id);
       do_statement($form, $h_invoice_id, $q_invoice_id);
       $form->{"invoice_id_$i"}  = $h_invoice_id->fetchrow_array();
-      my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id) values (?, ?, ?, ?)|;
+      my $q_create_invoice_id = qq|INSERT INTO invoice (id, trans_id, position, parts_id, tax_id) values (?, ?, ?, ?, ?)|;
       do_query($form, $dbh, $q_create_invoice_id, conv_i($form->{"invoice_id_$i"}),
-               conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}));
+               conv_i($form->{id}), conv_i($position), conv_i($form->{"id_$i"}), conv_i($form->{"tax_id_$i"}));
       $h_invoice_id->finish();
     }
 

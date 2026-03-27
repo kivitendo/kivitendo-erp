@@ -408,7 +408,7 @@
     <tr>
       <th>[% 'Project Number' | $T8 %]</th>
       <td></td>
-      <td>[% L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = '1', onChange = "document.getElementById('update_button').click();", class="wi-small") %]</td>
+      <td>[% L.select_tag('globalproject_id', ALL_PROJECTS, title_key = 'projectnumber', default = globalproject_id, with_empty = '1', class="wi-small") %]</td>
     </tr>
     [%- IF has_qr_reference %]
     <tr>

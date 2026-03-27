@@ -17,7 +17,6 @@
   };
   //-->
   </script>
-  <script type="text/javascript" src="js/show_form_details.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 <script type="text/javascript" src="js/kivi.Draft.js"></script>
 
@@ -130,10 +129,10 @@
       <td>[% L.date_tag('deliverydate', deliverydate) %]</td>
     </tr>
     [% SET departments_style = "";
-       SET departments_style = "style='visibility:hidden'" IF ALL_DEPARTMENTS.size == 0 %]
-    <tr>
-      <th [%- departments_style -%]>[% 'Department' | $T8 %]</th>
-      <td [%- departments_style -%]>[% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
+       SET departments_style = "style='display:none'" IF ALL_DEPARTMENTS.size == 0 %]
+    <tr [%- departments_style -%]>
+      <th>[% 'Department' | $T8 %]</th>
+      <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, default=department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
     </tr>
     <tr>
       <th>[% 'Transaction description' | $T8 %]</th>
@@ -166,8 +165,8 @@
 <div class="wrapper">
 
 <div class="buttons positions">
-  <label class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
-  [% L.checkbox_tag('show_details', checked=show_details, onclick='show_form_details();', style='display:none') %]
+  <label id="details_button" class="button neutral" for="show_details">[% IF show_details %][% 'Hide details' | $T8 %][% ELSE %][% 'Show details' | $T8 %][% END %]</label>
+  [% L.checkbox_tag('show_details', checked=show_details, onclick='kivi.ARAP.toggle_form_details();', style='display:none') %]
 </div>
 
 <table class="tbl-list wi-moderate">
@@ -180,11 +179,6 @@
       <th class="right">[% 'Credit' | $T8 %]</th>
       <th class="right">[% 'Tax' | $T8 %]</th>
       <th>[% 'Taxkey' | $T8 %]</th>
-      [% IF show_details %]
-        <th>[% 'Source' | $T8 %]</th>
-        <th>[% 'Memo' | $T8 %]</th>
-        <th>[% 'Project Number' | $T8 %]</th>
-      [% END %]
     </tr>
   </thead>
   <tbody>

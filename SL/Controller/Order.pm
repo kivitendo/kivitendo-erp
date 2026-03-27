@@ -1934,7 +1934,6 @@ sub make_item {
   if ($is_new) {
     my $texts = SL::Model::Record->get_part_texts($item->part, $record->language_id);
     $item->longdescription($texts->{longdescription})              if !defined $attr->{longdescription};
-    $item->project_id($record->globalproject_id)                   if !defined $attr->{project_id};
     $item->lastcost($record->is_sales ? $item->part->lastcost : 0) if !defined $attr->{lastcost_as_number};
   }
 

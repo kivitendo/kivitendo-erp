@@ -54,6 +54,7 @@ use SL::DBUtils qw(selectrow_query selectall_hashref_query);
 use SL::Webdav;
 use SL::Locale::String qw(t8);
 use SL::Helper::GlAttachments qw(count_gl_attachments);
+use SL::Presenter;
 use SL::Presenter::Tag;
 use SL::Presenter::Chart;
 require "bin/mozilla/common.pl";
@@ -143,7 +144,7 @@ sub load_record_template {
     $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount1), 2) if $item->amount1 * 1;
     $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount2), 2) if $item->amount2 * 1;
     $::form->{"taxchart_${row}"}          = $item->tax_id . '--' . $tax->rate;
-    $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id);
+    $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id department_id);
   }
 
   $::form->{$_} = $form_defaults->{$_} for keys %{ $form_defaults // {} };
@@ -176,13 +177,14 @@ sub save_record_template {
   my @items = grep {
     $_->{chart_id} && (($_->{tax_id} // '') ne '')
   } map {
-    +{ chart_id   => $::form->{"accno_id_${_}"},
-       amount1    => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
-       amount2    => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
-       tax_id     => (split m{--}, $::form->{"taxchart_${_}"})[0],
-       project_id => $::form->{"project_id_${_}"} || undef,
-       source     => $::form->{"source_${_}"},
-       memo       => $::form->{"memo_${_}"},
+    +{ chart_id      => $::form->{"accno_id_${_}"},
+       amount1       => $::form->parse_amount(\%::myconfig, $::form->{"debit_${_}"}),
+       amount2       => $::form->parse_amount(\%::myconfig, $::form->{"credit_${_}"}),
+       tax_id        => (split m{--}, $::form->{"taxchart_${_}"})[0],
+       project_id    => $::form->{"project_id_${_}"} || undef,
+       department_id => $::form->{"department_id_${_}"} || undef,
+       source        => $::form->{"source_${_}"},
+       memo          => $::form->{"memo_${_}"},
      }
   } (1..($::form->{rowcount} || 1));
 
@@ -298,7 +300,8 @@ sub prepare_transaction {
           $form->{"credit_$j"} += $form->{"tax_$j"};
         }
       }
-      $form->{"project_id_$j"} = $ref->{project_id};
+      $form->{"project_id_$j"}    = $ref->{project_id};
+      $form->{"department_id_$j"} = $ref->{department_id};
 
     } else {
       $form->{"accno_id_$i"} = $ref->{chart_id};
@@ -310,8 +313,9 @@ sub prepare_transaction {
         $form->{totalcredit} += $ref->{amount};
         $form->{"credit_$i"} = $ref->{amount};
       }
-      $form->{"taxchart_$i"} = $ref->{id}."--0.00000";
-      $form->{"project_id_$i"} = $ref->{project_id};
+      $form->{"taxchart_$i"}      = $ref->{id}."--0.00000";
+      $form->{"project_id_$i"}    = $ref->{project_id};
+      $form->{"department_id_$i"} = $ref->{department_id};
       $i++;
     }
     if ($ref->{taxaccno} && !$tax) {
@@ -841,20 +845,7 @@ sub display_rows {
   my $transdate     = $::form->{transdate} ? DateTime->from_kivitendo($::form->{transdate}) : DateTime->today_local;
   my $deliverydate  = $::form->{deliverydate} ? DateTime->from_kivitendo($::form->{deliverydate}) : undef;
 
-  my ($source, $memo, $source_hidden, $memo_hidden);
   for my $i (1 .. $form->{rowcount}) {
-    if ($form->{show_details}) {
-      $source = qq|
-      <td><input name="source_$i" value="$form->{"source_$i"}" size="16"></td>|;
-      $memo = qq|
-      <td><input name="memo_$i" value="$form->{"memo_$i"}" size="16"></td>|;
-    } else {
-      $source_hidden = qq|
-      <input type="hidden" name="source_$i" value="$form->{"source_$i"}" size="16">|;
-      $memo_hidden = qq|
-      <input type="hidden" name="memo_$i" value="$form->{"memo_$i"}" size="16">|;
-    }
-
     my %taxchart_labels = ();
     my @taxchart_values = ();
 
@@ -950,9 +941,6 @@ sub display_rows {
       }
     }
 
-    my $projectnumber = SL::Presenter::Project::picker("project_id_$i", $form->{"project_id_$i"});
-    my $projectnumber_hidden = SL::Presenter::Tag::hidden_tag("project_id_$i", $form->{"project_id_$i"});
-
     my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
     my $balance     = $form->format_amount(\%::myconfig, $balances{$accno_id} // 0, 2, 'DRCR');
 
@@ -979,24 +967,22 @@ sub display_rows {
       print qq|  </td>|;
     }
 
-    if ($form->{show_details}) {
-      print qq|
-    $source
-    $memo
-    <td>$projectnumber</td>
-|;
-    } else {
     print qq|
-    <td class="hidden">
-    $source_hidden
-    $memo_hidden
-    $projectnumber_hidden
-    </td>
-    |;
-    }
-    print qq|
-  </tr>
+    </tr>
 |;
+
+    my $html = SL::Presenter->get->render('arap/_second_row', {},
+                                          type            => 'gl',
+                                          row             => $i,
+                                          row_classes     => $form->{show_details} ? '' : 'hidden',
+                                          all_departments => $form->{ALL_DEPARTMENTS},
+                                          source          => $form->{"source_$i"},
+                                          memo            => $form->{"memo_$i"},
+                                          project_id      => $form->{"project_id_$i"},
+                                          department_id   => $form->{"department_id_$i"},
+    );
+
+    print qq|$html|;
   }
 
   print qq|  <tr class="hidden">
@@ -1190,7 +1176,7 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
+  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.GL.js", "kivi.ARAP.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
 
   $::form->get_lists(
     "charts"    => { "key" => "ALL_CHARTS", "transdate" => $::form->{transdate} },
@@ -1302,7 +1288,7 @@ sub post_transaction {
   my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
   my $zerotaxes  = selectall_hashref_query($form, $dbh, "SELECT id FROM tax WHERE rate = 0", );
 
-  my @flds = qw(accno_id debit credit projectnumber fx_transaction source memo tax taxchart);
+  my @flds = qw(accno_id debit credit projectnumber department_id fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
     next if $form->{"debit_$i"} eq "" && $form->{"credit_$i"} eq "";
