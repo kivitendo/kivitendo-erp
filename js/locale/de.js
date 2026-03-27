@@ -55,7 +55,6 @@ namespace("kivi").setupLocale({
 "Do you really want to delete this draft?":"Möchten Sie diesen Entwurf wirklich löschen?",
 "Do you really want to delete this record template?":"Möchten Sie diese Belegvorlage wirklich löschen?",
 "Do you really want to print?":"Wollen Sie wirklich drucken?",
-"Do you really want to remove this link?":"Möchten Sie diese Verknüpfung wirklich löschen?",
 "Do you really want to revert to this version?":"Möchten Sie wirklich auf diese Version zurücksetzen?",
 "Do you really want to unimport the selected documents?":"Möchten Sie wirklich diese Dateien an die Quelle zurückgeben?",
 "Do you want delete #1 rows?":"Wollen Sie #1 Zeilen löschen?",
