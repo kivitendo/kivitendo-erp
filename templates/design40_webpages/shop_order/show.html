@@ -1,6 +1,7 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
+[% USE P %]
 [% USE T8 %]
 [% L.stylesheet_tag('webshop') %]
 
@@ -53,27 +54,27 @@
         </tr>
         <tr>
           <th>[% 'Customer' | $T8 %]</th>
-          <td>[% L.input_tag('customer_name', customer) %]</td>
+          <td>[% L.input_tag('customer_name', customer, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 2' | $T8 %]</th>
-          <td>[% L.input_tag('customer_company', IMPORT.customer_company) %]</td>
+          <td>[% L.input_tag('customer_company', IMPORT.customer_company, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 3' | $T8 %]</th>
-          <td>[% L.input_tag('customer_department', IMPORT.customer_department) %]</td>
+          <td>[% L.input_tag('customer_department', IMPORT.customer_department, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Street' | $T8 %]</th>
-          <td>[% L.input_tag('customer_street', IMPORT.customer_street) %]</td>
+          <td>[% L.input_tag('customer_street', IMPORT.customer_street, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Zipcode' | $T8 %]</th>
-          <td>[% L.input_tag('customer_zipcode', IMPORT.customer_zipcode) %]</td>
+          <td>[% L.input_tag('customer_zipcode', IMPORT.customer_zipcode, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'City' | $T8 %]</th>
-          <td>[% L.input_tag('customer_city', IMPORT.customer_city) %]</td>
+          <td>[% L.input_tag('customer_city', IMPORT.customer_city, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
@@ -81,11 +82,11 @@
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
-          <td>[% L.input_tag('customer_phone', IMPORT.customer_phone) %]</td>
+          <td>[% L.input_tag('customer_phone', IMPORT.customer_phone, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Email' | $T8 %]</th>
-          <td>[% L.input_tag('customer_email', IMPORT.customer_email) %]</td>
+          <td>[% L.input_tag('customer_email', IMPORT.customer_email, class="wi-wide") %]</td>
         </tr>
 
         [% IF C_ADDRESS %]
@@ -115,23 +116,23 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_greeting) %]</td>
+          <td>[% HTML.escape(IMPORT.billing_greeting, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Firstname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_firstname) %]</td>
+          <td>[% HTML.escape(IMPORT.billing_firstname, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Lastname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_lastname) %]</td>
+          <td>[% HTML.escape(IMPORT.billing_lastname, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Company' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_company) %]</td>
+          <td>[% HTML.escape(IMPORT.billing_company, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Department' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_department) %]</td>
+          <td>[% HTML.escape(IMPORT.billing_department, class="wi-wide") %]</td>
         </tr>
       </table>
 
@@ -143,31 +144,31 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% L.input_tag('billing_greeting', IMPORT.billing_greeting) %]</td>
+          <td>[% L.input_tag('billing_greeting', IMPORT.billing_greeting, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Customer' | $T8 %]</th>
-          <td>[% L.input_tag('billing_name', billing) %]</td>
+          <td>[% L.input_tag('billing_name', billing, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 2' | $T8 %]</th>
-          <td>[% L.input_tag('billing_company', IMPORT.billing_company) %]</td>
+          <td>[% L.input_tag('billing_company', IMPORT.billing_company, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 3' | $T8 %]</th>
-          <td>[% L.input_tag('billing_department', IMPORT.billing_department) %]</td>
+          <td>[% L.input_tag('billing_department', IMPORT.billing_department, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Street' | $T8 %]</th>
-          <td>[% L.input_tag('billing_street', IMPORT.billing_street) %]</td>
+          <td>[% L.input_tag('billing_street', IMPORT.billing_street, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Zipcode' | $T8 %]</th>
-          <td>[% L.input_tag('billing_zipcode', IMPORT.billing_zipcode) %]</td>
+          <td>[% L.input_tag('billing_zipcode', IMPORT.billing_zipcode, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'City' | $T8 %]</th>
-          <td>[% L.input_tag('billing_city', IMPORT.billing_city) %]</td>
+          <td>[% L.input_tag('billing_city', IMPORT.billing_city, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
@@ -175,11 +176,11 @@
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
-          <td>[% L.input_tag('billing_phone', IMPORT.billing_phone) %]</td>
+          <td>[% L.input_tag('billing_phone', IMPORT.billing_phone, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Email' | $T8 %]</th>
-          <td>[% L.input_tag('billing_email', IMPORT.billing_email) %]</td>
+          <td>[% L.input_tag('billing_email', IMPORT.billing_email, class="wi-wide") %]</td>
         </tr>
         [% IF D_ADDRESS %]
         <tr>
@@ -208,23 +209,23 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_greeting) %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_greeting, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Firstname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_firstname) %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_firstname, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Lastname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_lastname) %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_lastname, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Company' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_company) %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_company, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Department' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_department) %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_department, class="wi-wide") %]</td>
         </tr>
       </table>
 
@@ -235,43 +236,43 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_greeting', IMPORT.delivery_greeting) %]</td>
+          <td>[% L.input_tag('delivery_greeting', IMPORT.delivery_greeting, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Customer' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_name', delivery) %]</td>
+          <td>[% L.input_tag('delivery_name', delivery, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 2' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_company', IMPORT.delivery_company) %]</td>
+          <td>[% L.input_tag('delivery_company', IMPORT.delivery_company, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Name 3' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_department', IMPORT.delivery_department) %]</td>
+          <td>[% L.input_tag('delivery_department', IMPORT.delivery_department, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Street' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_street', IMPORT.delivery_street) %]</td>
+          <td>[% L.input_tag('delivery_street', IMPORT.delivery_street, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Zipcode' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_zipcode', IMPORT.delivery_zipcode) %]</td>
+          <td>[% L.input_tag('delivery_zipcode', IMPORT.delivery_zipcode, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'City' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_city', IMPORT.delivery_city) %]</td>
+          <td>[% L.input_tag('delivery_city', IMPORT.delivery_city, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_country', IMPORT.delivery_country) %]</td>
+          <td>[% P.country.picker('delivery_country_id', IMPORT.delivery_country_id, with_empty=1, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_phone', IMPORT.delivery_phone) %]</td>
+          <td>[% L.input_tag('delivery_phone', IMPORT.delivery_phone, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Email' | $T8 %]</th>
-          <td>[% L.input_tag('delivery_email', IMPORT.delivery_email) %]</td>
+          <td>[% L.input_tag('delivery_email', IMPORT.delivery_email, class="wi-wide") %]</td>
         </tr>
         [% IF D_ADDRESS %]
         <tr>

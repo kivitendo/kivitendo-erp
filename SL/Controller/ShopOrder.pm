@@ -78,7 +78,7 @@ sub action_list {
   my $sort_by = $::form->{sort_by} ? $::form->{sort_by} : 'order_date';
   $sort_by .=$::form->{sort_dir} ? ' DESC' : ' ASC';
   my $shop_orders = SL::DB::Manager::ShopOrder->get_all( %filter, sort_by => $sort_by,
-                                                      with_objects => ['shop_order_items', 'kivi_customer', 'shop'],
+                                                          with_objects => ['shop_order_items', 'kivi_customer', 'shop','billing_country','customer_country','delivery_country'],
                                                     );
 
   foreach my $shop_order(@{ $shop_orders }){
@@ -221,6 +221,9 @@ sub action_apply_customer {
   my ( $self, %params ) = @_;
   my $shop = SL::DB::Manager::Shop->find_by( id => $self->shop_order->shop_id );
   my $what = $::form->{create_customer}; # new from billing, customer or delivery address
+  my $country = SL::DB::Manager::Country->find_by(id => $::form->{$what.'_country_id'});
+  die t8('Error: Country not found: #1', $::form->{$what.'_country'}) if !$country;
+  my $taxzone = $country->get_taxzone;
   my %address = ( 'name'                  => $::form->{$what.'_name'},
                   'department_1'          => $::form->{$what.'_company'},
                   'department_2'          => $::form->{$what.'_department'},
@@ -235,7 +238,7 @@ sub action_apply_customer {
                   'taxincluded_checked'   => $shop->pricetype eq "brutto" ? 1 : 0,
                   'taxincluded'           => $shop->pricetype eq "brutto" ? 1 : 0,
                   'pricegroup_id'         => (split '\/',$shop->price_source)[0] eq "pricegroup" ?  (split '\/',$shop->price_source)[1] : undef,
-                  'taxzone_id'            => $shop->taxzone_id,
+                  'taxzone_id'            => $taxzone->id,
                   'currency'              => $::instance_conf->get_currency_id,
                   #'payment_id'            => 7345,# TODO hardcoded
                 );
