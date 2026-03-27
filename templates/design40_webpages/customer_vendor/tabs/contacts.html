@@ -25,7 +25,7 @@
       <td>[% 'Insert new' | $T8 %]:</td>
       <td colspan="9">
         [% P.contact.picker('add_contact_id', '', onchange="kivi.Contact.on_add_contact()", class="add_contact_input wi-wide") %]
-        [% L.link(SELF.url_for(controller='Contact', action='edit', link_with_cv_id=SELF.cv.id, link_with_cv_db=FORM.db), LxERP.t8('New contact')) %]
+        [% L.link(SELF.url_for(controller='Contact', action='edit', link_with_cv_id=SELF.cv.id, link_with_cv_db=FORM.db), LxERP.t8('New contact'), target='_blank') %]
       </td>
       <td></td>
     </tr>
