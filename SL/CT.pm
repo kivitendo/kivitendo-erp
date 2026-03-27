@@ -42,6 +42,7 @@ use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
 use SL::DB;
+use SL::DB::Order::TypeData qw(:types);
 use SL::Util qw(trim);
 use Text::ParseWords;
 
@@ -191,10 +192,17 @@ sub search {
     push @values, (like($form->{addr_gln})) x 2;
   }
 
-  if ( $form->{status} eq 'orphaned' ) {
+  if ( $form->{status} eq 'orphaned' || $form->{status} eq 'quotations_at_best' ) {
+    my @order_types     = (SALES_ORDER_TYPE, PURCHASE_ORDER_TYPE, SALES_ORDER_INTAKE_TYPE, PURCHASE_ORDER_CONFIRMATION_TYPE);
+    my @quotation_types = (REQUEST_QUOTATION_TYPE, SALES_QUOTATION_TYPE, PURCHASE_QUOTATION_INTAKE_TYPE);
+
+    my $types = join(', ', map { "'$_'" } ($form->{status} eq 'orphaned')
+              ? (@order_types, @quotation_types)
+              : (@order_types));
+
     $where .=
       qq| AND ct.id NOT IN | .
-      qq|   (SELECT o.${cv}_id FROM oe o, $cv cv WHERE cv.id = o.${cv}_id)|;
+      qq|   (SELECT o.${cv}_id FROM oe o, $cv cv WHERE cv.id = o.${cv}_id AND o.record_type IN ($types))|;
     if ($cv eq 'customer') {
       $where .=
         qq| AND ct.id NOT IN | .

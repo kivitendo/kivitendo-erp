@@ -137,6 +137,7 @@ sub list_names {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $cgi      = $::request->{cgi};
 
   $form->{IS_CUSTOMER} = $form->{db} eq 'customer';
 
@@ -147,10 +148,12 @@ sub list_names {
   my $cvar_configs = CVar->get_configs('module' => 'CT');
 
   my @options;
-  if ($form->{status} eq 'all') {
-    push @options, $locale->text('All');
-  } elsif ($form->{status} eq 'orphaned') {
-    push @options, $locale->text('Orphaned');
+  if ($form->{status}) {
+    push @options, $::locale->text('Scope') . ': ' . (
+      $form->{status} eq 'all'                ? $locale->text('All')                           :
+      $form->{status} eq 'orphaned'           ? $locale->text('Orphaned (no records)')         :
+      $form->{status} eq 'quotations_at_best' ? $locale->text('Orphaned (quotations at best)') : ''
+    );
   }
 
   my @zugferd_settings_list = _zugferd_settings();
@@ -208,6 +211,7 @@ sub list_names {
   };
 
   my @columns = (
+    'ids',
     'id',        'name',    "$form->{db}number",   'contact', 'main_contact_person',
     'department_1',         'department_2',        'phone',   'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
@@ -223,6 +227,7 @@ sub list_names {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my %column_defs = (
+    'ids'               => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "multi_all", checkall => "[data-checkall=1]"), align => 'center' },
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $locale->text('Number'), },
     'name'              => { 'text' => $form->{IS_CUSTOMER} ? $::locale->text('Customer Name') : $::locale->text('Vendor Name'), },
@@ -263,6 +268,8 @@ sub list_names {
   );
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
+
+  $column_defs{ids}->{visible} = 'HTML';
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
@@ -327,6 +334,13 @@ sub list_names {
 
   foreach my $ref (@{ $form->{CT} }) {
     my $row = { map { $_ => { 'data' => '' } } @columns };
+
+    my $ord_id = $ref->{id};
+    $row->{ids}  = {
+      'raw_data' => $cgi->checkbox('-name' => "multi_ct_id[+]", ' id' => "multi_ct_id[+]", '-value' => $ord_id, 'data-checkall' => 1, '-label' => ''),
+      'valign'   => 'center',
+      'align'    => 'center',
+    };
 
     if ($ref->{id} ne $previous_id) {
       $previous_id = $ref->{id};
@@ -494,6 +508,31 @@ sub list_contacts {
   $::lxdebug->leave_sub;
 }
 
+sub names_status_multi {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my $obsolete = $form->{obsolete} ? 1 : 0;
+
+  $::auth->assert('customer_vendor_all_edit');
+
+  my @ct_ids = @{ $form->{multi_ct_id} // [] };
+
+  if (!scalar @ct_ids) {
+    $form->show_generic_error($locale->text('You have not selected any entry.'));
+  }
+
+  my $class = $form->{db} eq 'customer' ? 'Customer' : 'Vendor';
+  "SL::DB::Manager::$class"->update_all(set => { obsolete => $obsolete }, where => [ 'id' => \@ct_ids ]);
+
+  print $form->redirect_header($form->{callback});
+  $::dispatcher->end_request;
+
+  $main::lxdebug->leave_sub();
+}
+
 sub setup_ct_search_action_bar {
   my %params = @_;
 
@@ -513,6 +552,21 @@ sub setup_ct_list_names_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
+      combobox => [
+        action => [ t8('Validity') ],
+        action => [
+          t8('Mark as obsolete'),
+          submit   => [ '#form', { action => 'names_status_multi', obsolete => 1 } ],
+          confirm  => t8('Do you really want to change the selected entries?'),
+          disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8('You do not have the permissions to access this function.'),
+        ],
+        action => [
+          t8('Mark as valid'),
+          submit   => [ '#form', { action => 'names_status_multi', obsolete => 0 } ],
+          confirm  => t8('Do you really want to change the selected entries?'),
+          disabled => $::auth->assert('customer_vendor_all_edit', 1) ? undef : t8('You do not have the permissions to access this function.'),
+        ],
+      ],
       action => [
         t8('Add'),
         submit    => [ '#new_form', { action => 'CustomerVendor/add' } ],
