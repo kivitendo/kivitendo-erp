@@ -1,5 +1,6 @@
 \documentclass[paper=a4,fontsize=10pt]{scrartcl}
 \usepackage{kiviletter}
+\usepackage{xstring}
 <%if template_meta.formname == "invoice_copy"%>
   \usepackage{transparent}
   \DeclareNewLayer[page,foreground,contents={
@@ -31,6 +32,7 @@
 
 <%if template_meta.formname == "storno_invoice"%>
   \renewcommand{\rechnung}{\stornorechnung}
+
 <%end template_meta.formname == "storno_invoice"%>
 
 % laufende Kopfzeile:
@@ -49,7 +51,14 @@
 \setkomavar{info10}[\textEmail]        {<%employee_email%>}
 \setkomavar{fromname}                  {<%employee_name%>}
 
-\setkomavar{title}{\rechnung~\nr~<%invnumber%>}
+<%if template_meta.formname == "storno_invoice"%>
+  \setkomavar{title}{\rechnungs-<%invnumber%>}
+
+  \setkomavar{info5}[\rechnung~\nr]    {\StrSubstitute{<%invnumber%>}{Storno zu }{}}
+<%else%>
+  \setkomavar{title}{\rechnung~\nr~<%invnumber%>}
+<%end%>
+
 
 <%if shiptoname%>%
   \makeatletter
@@ -63,11 +72,12 @@
       \par
       \normalsize
       <%shiptoname%>\par
-      <%if shiptocontact%> <%shiptocontact%><%end if%>\par
       <%shiptodepartment_1%>\par
       <%shiptodepartment_2%>\par
+      <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
       <%shiptostreet%>\par
-      <%shiptozipcode%> <%shiptocity%>%
+      <%shiptozipcode%> <%shiptocity%>\par
+      <%shiptocountry%>
     }
   \end{lrbox}
   \makeatother
@@ -75,24 +85,24 @@
 
 \begin{document}
 
-\begin{letter}{%
-  <%if billing_address_id%>%
-    <%billing_address_name%> \strut\\%
-    <%if billing_address_department_1%><%billing_address_department_1%>\\<%end if%>%
-    <%if billing_address_department_2%><%billing_address_department_2%>\\<%end if%>%
-    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
-    <%billing_address_street%>\strut\\%
-    <%billing_address_zipcode%> <%billing_address_city%> \strut\\%
-    <%billing_address_country%>\strut\\%
-  <%else%>%
-    <%name%>\strut\\%
-    <%if department_1%><%department_1%>\\<%end if%>%
-    <%if department_2%><%department_2%>\\<%end if%>%
-    <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\%
-    <%street%>\strut\\%
-    <%zipcode%> <%city%>\strut\\%
-    <%country%>\strut%
-  <%end billing_address_id%>%
+\begin{letter}{
+  <%if billing_address_id%> %
+    <%billing_address_name%>         \strut\\
+    <%billing_address_department_1%> \ifhmode\\\fi
+    <%billing_address_department_2%> \ifhmode\\\fi
+    <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+    <%billing_address_street%>       \ifhmode\\\fi
+    <%billing_address_zipcode%> <%billing_address_city%> \ifhmode\\\fi
+    <%billing_address_country%>      %
+  <%else%> %
+    <%name%>                         \strut\\
+    <%department_1%>                 \ifhmode\\\fi
+    <%department_2%>                 \ifhmode\\\fi
+    <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+    <%street%>                       \ifhmode\\\fi
+    <%zipcode%> <%city%>             \ifhmode\\\fi
+    <%country%>                      %
+  <%end%> %
   }
 
   % Bei Kontaktperson Anrede nach Geschlecht unterscheiden.
@@ -109,13 +119,19 @@
   }
   \thispagestyle{kivitendo.letter.first}
 
+  <%if template_meta.formname == "storno_invoice"%>
+    \stornoErstatten{\StrSubstitute{<%invnumber%>}{Storno zu }{}}
+  <%else%>
+    \rechnungsformel
+  <%end%>
+
   <%if notes%>%
     <%notes%>%
     \vspace{0.5cm}
   <%end notes%>%
 
 
-  \begin{PricingTabular*}[pricetotal/colspec = K]
+  \begin{PricingTabular*}[price/colspec = K, pricetotal/colspec = K]
     % eigentliche Tabelle
     \FakeTable{%
     <%foreach number%>%
@@ -128,9 +144,14 @@
       <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
       &%
       <%qty%> <%unit%> &%
-      <%sellprice%>&%
+      <%sellprice%>\,\currency&%
       <%if optional%>\optional<%else%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end optional%>
       \tabularnewline
+      <%if discount_sub%>
+        \rlap{\zwischensumme}& & & & &
+        <%discount_sub%>\,\currency
+        \tabularnewline
+      <%end%>
     <%end number%>%
     }%
     \begin{PricingTotal}%
@@ -153,7 +174,7 @@
         <%iap_invnumber%> & <%iap_transdate_as_date%> & <%iap_amount%> & <%iap_taxamount%>\\%
       <%end iap_invnumber%>%
     \end{SimpleTabular}%
-    \bfseries\rechnungsbetrag: <%iap_final_amount%> \currency\\%
+    \textbf{\rechnungsbetrag: <%iap_final_amount%> \currency} \\%
   <%end iap_existing%>
   <%end%>%
 

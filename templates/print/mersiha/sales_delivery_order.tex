@@ -31,22 +31,23 @@
 \begin{document}
 
 \begin{letter}{
-    \Ifstr{<%shiptoname%>}{}{ % KEINE ABWEICHENDE LIEFERADRESSE
-      <%name%>\strut\\
-      <%if department_1%><%department_1%>\\<%end if%>%
-      <%if department_2%><%department_2%>\\<%end if%>%
-      <%cp_title%> <%cp_givenname%> <%cp_name%>\strut\\
-      <%street%>\strut\\
-      <%zipcode%> <%city%>\strut\\
-      <%country%> \strut
-    }{ % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
-      <%shiptoname%>\strut\\
-      <%if shiptocontact%> <%shiptocontact%><%end if%>\strut\\
-      <%shiptodepartment_1%>\strut\\
-      <%shiptodepartment_2%>\strut\\
-      <%shiptostreet%>\strut\\
-      <%shiptozipcode%> <%shiptocity%>\strut
-    } % ende ifthenelse LIEFERADRESSE
+    <%if shiptoname%> % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
+      <%shiptoname%>          \strut\\
+      <%shiptodepartment_1%>  \ifhmode\\\fi
+      <%shiptodepartment_2%>  \ifhmode\\\fi
+      <%if shiptocontact%> <%shiptocontact%> <%else%> <%cp_title%> <%cp_givenname%> <%cp_name%> <%end if%> \ifhmode\\\fi
+      <%shiptostreet%>        \ifhmode\\\fi
+      <%shiptozipcode%> <%shiptocity%> \ifhmode\\\fi
+      <%shiptocountry%>       %
+    <%else%> % KEINE ABWEICHENDE LIEFERADRESSE
+      <%name%>                \strut\\
+      <%department_1%>        \ifhmode\\\fi
+      <%department_2%>        \ifhmode\\\fi
+      <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+      <%street%>              \ifhmode\\\fi
+      <%zipcode%> <%city%>    \ifhmode\\\fi
+      <%country%>             %
+    <%end%> %
   }
 
   \opening{}
