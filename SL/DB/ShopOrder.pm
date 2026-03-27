@@ -75,13 +75,14 @@ sub convert_to_sales_order {
   } @soi;
   if(!scalar(@error_report)){
 
-    my $shipto_id;
+    my ( $shipto_id, $taxzone );
     if ($self->has_differing_delivery_address) {
       if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_fullname,
                                                          shiptostreet => $self->delivery_street,
                                                          shiptocity   => $self->delivery_city,
                                                         )) {
         $shipto_id = $address->{shipto_id};
+        $taxzone = $address->shiptocountry->get_taxzone;
       } else {
         my $deliveryaddress = SL::DB::Shipto->new;
         $deliveryaddress->assign_attributes(
@@ -113,7 +114,7 @@ sub convert_to_sales_order {
       salesman_id             => $employee->id,
       taxincluded             => $self->tax_included,
       payment_id              => $self->payment_id,
-      taxzone_id              => $customer->taxzone_id,
+      taxzone_id              => $taxzone ? $taxzone->id : $customer->taxzone_id,
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,
       transdate               => $transdate,
@@ -213,12 +214,8 @@ sub get_customer{
   my $payment_id = $default_payment ? $default_payment->id : undef;
   if(!scalar(@{$customer_proposals})){
 
-    my $country_id = $shop->default_country_id;
-    if ($self->billing_country) {
-      my $country = SL::DB::Manager::Country->find_by_name($self->billing_country);
-      die t8('Error: Country not found: #1', $self->billing_country) if !$country;
-      $country_id = $country->id;
-    };
+    my $taxzone;
+    $taxzone = $self->billing_country->get_taxzone;
 
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
@@ -236,7 +233,7 @@ sub get_customer{
                     'taxincluded_checked'   => $shop->pricetype eq "brutto" ? 1 : 0,
                     'taxincluded'           => $shop->pricetype eq "brutto" ? 1 : 0,
                     'pricegroup_id'         => (split '\/',$shop->price_source)[0] eq "pricegroup" ?  (split '\/',$shop->price_source)[1] : undef,
-                    'taxzone_id'            => $shop->taxzone_id,
+                    'taxzone_id'            => $taxzone->id,
                     'currency'              => $::instance_conf->get_currency_id,
                     'payment_id'            => $payment_id,
                   );
