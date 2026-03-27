@@ -13,21 +13,6 @@ namespace('kivi.Contact', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.detach_cv = function(clicked, db, id) {
-    if (!confirm(kivi.t8('Do you really want to remove this link?')))
-      return;
-
-    var row = $(clicked).parents('tr').first();
-    $(row).remove();
-
-    var data = $('#form').serializeArray();
-    data.push({ name: 'action', value: 'Contact/detach_cv' },
-              { name: 'cv_db', value: db },
-              { name: 'cv_id', value: id });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
-  };
-
   ns.on_add_contact = function(db) {
     if (!$('#add_contact_id').val())
       return;
@@ -40,30 +25,17 @@ namespace('kivi.Contact', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.detach_contact = function(clicked, id) {
-    if (!confirm(kivi.t8('Do you really want to remove this link?')))
-      return;
-
+  ns.detach_contact_or_cv = function(clicked) {
     var row = $(clicked).parents('tr').first();
     $(row).remove();
-
-    var data = [];
-    data.push({ name: 'action', value: 'Contact/detach_cv' },
-              { name: 'cv_db',  value: $('[name=db]').val() },
-              { name: 'cv_id',  value: $('#cv_id').val() },
-              { name: 'id', value: id });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.set_main_contact = function(id) {
-    var data = [];
-    data.push({ name: 'action', value: 'Contact/set_main_contact' },
-              { name: 'cv_db',  value: $('[name=db]').val() },
-              { name: 'cv_id',  value: $('#cv_id').val() },
-              { name: 'id', value: id });
-
-    $.post("controller.pl", data, kivi.eval_json_result);
+  ns.set_main_contact = function(clicked) {
+    let inputs = $(clicked).parents('table').first().find('[name="linked_contacts[].main"]');
+    inputs.map((index, el) => {
+      if (el != clicked)
+        $(el).val(0);
+    });
   };
 
   var KEY = {

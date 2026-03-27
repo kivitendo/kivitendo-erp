@@ -1,17 +1,19 @@
-[% USE T8 %]
-[% USE HTML %]
-[% USE LxERP %]
-[% USE L %]
-[% USE P %]
-
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE P %]
 <tr>
   [% IF ( cv.is_customer ) %]
+    <td>[%- L.hidden_tag('linked_contacts[+].cv_db', 'customer') %]
+        [%- L.hidden_tag('linked_contacts[].cv_id', cv.id) %]
+        [%- L.button_tag("kivi.Contact.detach_contact_or_cv(this)", LxERP.t8("X"), class="wi-verytiny") %]</td>
     <td>[% cv.customernumber | html %]</td>
     <td>[% cv.presenter.customer %]</td>
-    <td>[% L.button_tag("kivi.Contact.detach_cv(this, 'customer', "_ cv.id _")", LxERP.t8("X"), class="wi-verytiny") %]</td>
   [% ELSE %]
+    <td>[%- L.hidden_tag('linked_contacts[+].cv_db', 'vendor') %]
+        [%- L.hidden_tag('linked_contacts[].cv_id', cv.id) %]
+        [%- L.button_tag("kivi.Contact.detach_contact_or_cv(this)", LxERP.t8("X"), class="wi-verytiny") %]</td>
     <td>[% cv.vendornumber| html %]</td>
     <td>[% cv.presenter.vendor %]</td>
-    <td>[% L.button_tag("kivi.Contact.detach_cv(this, 'vendor', "_ cv.id _")", LxERP.t8("X"), class="wi-verytiny") %]</td>
   [% END %]
 </tr>
