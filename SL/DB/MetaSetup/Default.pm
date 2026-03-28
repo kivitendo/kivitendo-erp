@@ -185,6 +185,7 @@ __PACKAGE__->meta->columns(
   reqdate_on                                => { type => 'boolean', default => 'true' },
   require_transaction_description_ps        => { type => 'boolean', default => 'false', not_null => 1 },
   requirement_spec_section_order_part_id    => { type => 'integer' },
+  reserve_warehouse_id                      => { type => 'integer' },
   revtrans                                  => { type => 'boolean', default => 'false' },
   rfqnumber                                 => { type => 'text' },
   rmanumber                                 => { type => 'text' },
@@ -313,6 +314,11 @@ __PACKAGE__->meta->foreign_keys(
   requirement_spec_section_order_part => {
     class       => 'SL::DB::Part',
     key_columns => { requirement_spec_section_order_part_id => 'id' },
+  },
+
+  reserve_warehouse => {
+    class       => 'SL::DB::Warehouse',
+    key_columns => { reserve_warehouse_id => 'id' },
   },
 
   stocktaking_bin => {
