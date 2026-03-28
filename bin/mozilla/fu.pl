@@ -51,6 +51,7 @@ sub add {
 
   if (0 < scalar @{ $form->{LINKS} }) {
     $link_details = FU->link_details(%{ $form->{LINKS}->[0] });
+    $form->{LINKS}->[0]{$_} = $link_details->{$_} for keys %$link_details;
   }
 
   if ($link_details && $link_details->{title}) {
