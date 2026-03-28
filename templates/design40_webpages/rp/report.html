@@ -286,28 +286,6 @@
       </td>
     </tr>
   [% END   #IF is_payments %]
-  [% IF 0 # is_taxreport %]
-    <tr>
-      <td colspan="2">
-        <input type="hidden" name="nextsub" value="generate_tax_report">
-        [% 'Period' | $T8 %] [% 'from' | $T8 %]
-      </td>
-      <td colspan="2" class="wi-date">[% L.date_tag('fromdate', fromdate) %] [% 'Bis' | $T8 %] [% L.date_tag('todate', todate) %]</td>
-    </tr>
-    <tr>
-      <th colspan="2">[% 'Report for' | $T8 %]</th>
-      <td colspan="2">
-        [% FOREACH row IN taxaccounts %]
-          <input name="accno" type="radio" value='[% row.accno %]' [% loop.first ? 'checked' : '' %]> [% row.description %]
-          <input name="[% row.accno %]_description" type="hidden" value="[% row.description %]">
-          <input name="[% row.accno %]_rate" type="hidden" value="[% row.rate %]">
-        [% END %]
-        <input type="hidden" name="db" value='[% db %]'>
-        <input type="hidden" name="sort" value="transdate">
-      </td>
-    </tr>
-    [% PROCESS cash_or_accrual %]
-  [% END %]
 </table>
 
 [% IF 0 # is_taxreport - formerly at end of table above in a separate row %]
