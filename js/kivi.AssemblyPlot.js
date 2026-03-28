@@ -1,0 +1,242 @@
+namespace('kivi.AssemblyPlot', function(ns) {
+  'use strict';
+
+  ns.get_objects = () => {
+    let objects;
+    $.ajax({
+      url: 'controller.pl',
+      data: {action: 'AssemblyPlot/get_objects',
+             id: $('#id').val()
+            },
+      method: 'POST',
+      async:  false,
+      dataType: 'json',
+      success: function(data){
+        objects = data;
+      }
+    });
+    return objects;
+  };
+
+  // see: https://observablehq.com/@d3/collapsible-tree
+  ns.collapsableChart = (data) => {
+
+    // Specify the charts’ dimensions. The height is variable, depending on the layout.
+    const marginTop = 30;
+    const marginRight = 10;
+    const marginBottom = 30;
+    const marginLeft = 40;
+
+    // Rows are separated by dx pixels, columns by dy pixels. These names can be counter-intuitive
+    // (dx is a height, and dy a width). This because the tree must be viewed with the root at the
+    // “bottom”, in the data domain. The width of a column is based on the tree’s height.
+    //const root = d3.hierarchy(data);
+    const root = data;
+    const dx = 50;
+    const text_f = 0.65;
+
+    function generate_text(data) {
+      const textLines = [(data.qty ? data.qty + "x " : "") + data.description,
+                         data.partnumber,
+                         data.ean];
+      let maxLength = 0;
+      textLines.forEach((e) => {if (e && maxLength < e.length) maxLength = e.length});
+      return {textLines: textLines, maxLength: maxLength};
+    }
+
+    let maxTextLength = 0;
+    root.eachBefore(d => {
+      const g = generate_text(d.data);
+      d.data.descr_textLines = g.textLines;
+      const l = d.data.descr_length = text_f * g.maxLength;
+      if (maxTextLength < l) maxTextLength = l;
+    });
+
+    const dy = 12*maxTextLength + 30;
+    const width = dy * (1 + root.height) + marginLeft + marginRight;
+
+    // Define the tree layout and the shape for links.
+    const tree = d3.tree().nodeSize([dx, dy]);
+    const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
+
+    // Create the SVG container, a layer for the links and a layer for the nodes.
+    const svg = d3.create("svg")
+          .attr("width", width)
+          .attr("height", dx)
+          .attr("viewBox", [-marginLeft, -marginTop, width, dx])
+          .attr("style", "max-width: 100%; height: auto; font: 12px sans-serif; user-select: none;");
+
+    const gLink = svg.append("g")
+          .attr("fill", "none")
+          .attr("stroke", "#555")
+          .attr("stroke-opacity", 0.4)
+          .attr("stroke-width", 1.5);
+
+    const gNode = svg.append("g")
+          .attr("pointer-events", "all");
+
+    const handleZoom = (e) => {
+      gLink.attr('transform', e.transform);
+      gNode.attr('transform', e.transform);
+    };
+    const zoom = d3.zoom().on('zoom', handleZoom);
+    svg.call(zoom);
+
+    let maxHeight = 0;
+    function update(event, source) {
+      const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
+      const nodes = root.descendants().reverse();
+      const links = root.links();
+
+      // Compute the new tree layout.
+      tree(root);
+
+      let left = root;
+      let right = root;
+      root.eachBefore(node => {
+        if (node.x < left.x) left = node;
+        if (node.x > right.x) right = node;
+      });
+
+      const height = right.x - left.x + marginTop + marginBottom;
+      maxHeight = (maxHeight < height) ? height : maxHeight;
+
+      const transition = svg.transition()
+            .duration(duration)
+            .attr("height", maxHeight)
+            .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+      // Update the nodes…
+      const node = gNode.selectAll("g")
+            .data(nodes, d => d.id);
+
+      // Enter any new nodes at the parent's previous position.
+      const nodeEnter = node.enter().append("g")
+            .attr("transform", `translate(${source.y0},${source.x0})`)
+            .attr("fill-opacity", 0)
+            .attr("stroke-opacity", 0)
+
+      nodeEnter.append("rect")
+        .attr("fill", d => (d.children || d._children) ? "#ffcc00" : "#ffff99")
+        .attr("width", maxTextLength + "em")
+        .attr("height", "4em")
+        .attr("x", 0)
+        .attr("y", "-2em")
+      ;
+
+      const a = nodeEnter.append("a")
+        .attr("xlink:href", d => d.data.link)
+        .attr("target", "_blank")
+        .attr("style", "text-decoration: none; font-weight: normal;")
+      ;
+
+      const lh = 1.3;
+      let i = 0;
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[0])
+      ;
+      i++;
+
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[1])
+      ;
+      i++;
+
+      a.append("text")
+        .attr("x", 6)
+        .attr("y", `${-1+i*lh}em`)
+        .attr("text-anchor", "start")
+        .text(d => d.data.descr_textLines[2])
+      ;
+      i++;
+
+      nodeEnter.append("rect")
+        .attr("fill", "#100")
+        .attr("width", "2em")
+        .attr("height", "4em")
+        .attr("x", maxTextLength - 2 + "em")
+        .attr("y", "-2em")
+        .attr("opacity", d => (d.children || d._children) ? 0.5 : 0.0)
+        .attr("cursor", d => (d.children || d._children) ? "pointer" : "")
+        .on("click", (event, d) => {
+          d.children = d.children ? null : d._children;
+          update(event, d);
+        })
+      ;
+
+      // Transition nodes to their new position.
+      const nodeUpdate = node.merge(nodeEnter).transition(transition)
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .attr("fill-opacity", 1)
+            .attr("stroke-opacity", 1);
+
+      // Transition exiting nodes to the parent's new position.
+      const nodeExit = node.exit().transition(transition).remove()
+            .attr("transform", `translate(${source.y},${source.x})`)
+            .attr("fill-opacity", 0)
+            .attr("stroke-opacity", 0);
+
+      // Update the links…
+      const link = gLink.selectAll("path")
+            .data(links, d => d.target.id);
+
+      // Enter any new links at the parent's previous position.
+      const linkEnter = link.enter().append("path")
+            .attr("d", () => {
+              const o = {x: source.x0, y: source.y0};
+              return diagonal({source: o, target: o});
+            });
+
+      // Transition links to their new position.
+      link.merge(linkEnter).transition(transition)
+        .attr("d", d => {
+          const dy = 12*maxTextLength; // + "em";
+          const so = {x: d.source.x, y: d.source.y + dy};
+          const to = {x: d.target.x, y: d.target.y};
+          return diagonal(
+            {source: so, target: to});
+        });
+
+      // Transition exiting links to the parent's new position.
+      link.exit().transition(transition).remove()
+        .attr("d", () => {
+          const o = {x: source.x, y: source.y};
+          return diagonal({source: o, target: o});
+        });
+
+      // Stash the old positions for transition.
+      root.eachBefore(d => {
+        d.x0 = d.x;
+        d.y0 = d.y;
+      });
+    }
+
+    // Do the first update to the initial configuration of the tree — where a number of nodes
+    // are open (arbitrarily selected as the root, plus nodes with 7 letters).
+    root.x0 = dy / 2;
+    root.y0 = 0;
+    root.descendants().forEach((d, i) => {
+      d.id = i;
+      d._children = d.children;
+      //if (d.depth && d.data.name.length !== 7) d.children = null;
+    });
+
+    update(null, root);
+
+    return svg.node();
+  };
+
+  $(() => {
+    const objects = ns.get_objects();
+    const root = d3.stratify()(objects);
+    const svg = ns.collapsableChart(root);
+    $('#svg').html(svg);
+  });
+
+});
