@@ -106,12 +106,14 @@ sub _buyer_contact_information {
 
   my $contact = $params{contact};
 
-  #       <ram:DefinedTradeContact>
+  # BT-9 <ram:DefinedTradeContact>
   $params{xml}->startTag("ram:DefinedTradeContact");
 
+  # BT-56
   $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
 
   if ($contact->cp_abteilung) {
+    # BT-56-0
     $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
   }
 
@@ -123,7 +125,9 @@ sub _buyer_contact_information {
     $contact->cp_satphone,
   );
   if ($phone_number) {
+    # BT-57-00
     $params{xml}->startTag("ram:TelephoneUniversalCommunication");
+    # BT-57
     $params{xml}->dataElement("ram:CompleteNumber", _u8($phone_number));
     $params{xml}->endTag;
   }
@@ -134,14 +138,18 @@ sub _buyer_contact_information {
       $contact->cp_satfax,
     );
     if ($fax_number) {
+      # BT-X-115-00
       $params{xml}->startTag("ram:FaxUniversalCommunication");
+      # BT-X-115
       $params{xml}->dataElement("ram:CompleteNumber", _u8($fax_number));
       $params{xml}->endTag;
     }
   }
 
   if ($contact->cp_email) {
+    # BT-58-00
     $params{xml}->startTag("ram:EmailURIUniversalCommunication");
+    # BT-58
     $params{xml}->dataElement("ram:URIID", _u8($contact->cp_email));
     $params{xml}->endTag;
   }
@@ -153,14 +161,18 @@ sub _buyer_contact_information {
 sub _customer_postal_trade_address {
   my (%params) = @_;
 
-  #       <ram:PostalTradeAddress>
+  # BG-8 <ram:PostalTradeAddress>
   $params{xml}->startTag("ram:PostalTradeAddress");
 
   my @parts = grep { $_ } map { $params{customer}->$_ } qw(department_1 department_2 street);
 
+  # BT-53
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{customer}->zipcode));
+  # BT-50, BT-51, BT-163
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
+  # BT-52
   $params{xml}->dataElement("ram:CityName",     _u8($params{customer}->city));
+  # BT-55
   $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{customer}->country) // 'DE'));
   $params{xml}->endTag;
   #       </ram:PostalTradeAddress>
@@ -169,15 +181,19 @@ sub _customer_postal_trade_address {
 sub _shipto_postal_trade_address {
   my (%params) = @_;
 
-  #       <ram:PostalTradeAddress>
+  # BG-15 <ram:PostalTradeAddress>
   $params{xml}->startTag("ram:PostalTradeAddress");
 
   my @parts = grep { $_ } map { $params{shipto}->$_ } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet);
 
+  # BT-78
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{shipto}->shiptozipcode));
+  # BT-75, BT-76, BT-165
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
 
+  # BT-77
   $params{xml}->dataElement("ram:CityName",     _u8($params{shipto}->shiptocity));
+  # BT-80
   $params{xml}->dataElement("ram:CountryID",    _u8(SL::Helper::ISO3166::map_name_to_alpha_2_code($params{shipto}->shiptocountry) // 'DE'));
   $params{xml}->endTag;
   #       </ram:PostalTradeAddress>
@@ -193,14 +209,16 @@ sub _shipto_trade_party {
 
   return if !$shipto;
 
-  #       <ram:ShipToTradeParty>
+  # BG-13 <ram:ShipToTradeParty>
   $params{xml}->startTag("ram:ShipToTradeParty");
 
   if ($shipto->shiptogln) {
+    # BT-71
     $params{xml}->dataElement("ram:ID", _u8($shipto->shiptogln), schemeID => '0088');
   }
 
   if ($shipto->shiptoname) {
+    # BT-70
     $params{xml}->dataElement("ram:Name", _u8($shipto->shiptoname));
   }
 
@@ -219,11 +237,15 @@ sub _buyer_communication {
     $customer->email,
   );
   if ($buyer_electronic_address) {
+    # BT-49-00
     $params{xml}->startTag("ram:URIUniversalCommunication");
+    # BT-49
     $params{xml}->dataElement("ram:URIID", _u8($buyer_electronic_address), schemeID => 'EM');
     $params{xml}->endTag;
   } elsif ($customer->gln) {
+    # BT-49-00
     $params{xml}->startTag("ram:URIUniversalCommunication");
+    # BT-49
     $params{xml}->dataElement("ram:URIID", _u8($customer->gln), schemeID => '0088');
     $params{xml}->endTag;
   }
@@ -259,54 +281,70 @@ sub _line_item {
   my $tax      = $item_ptc->{taxkey_id} ? SL::DB::Tax->load_cached($taxkey->tax_id)           : undef;
   my %tax_info = _tax_rate_and_code($self->taxzone, $tax);
 
-  # <ram:IncludedSupplyChainTradeLineItem>
+  # BG-25 <ram:IncludedSupplyChainTradeLineItem>
   $params{xml}->startTag("ram:IncludedSupplyChainTradeLineItem");
 
-  #   <ram:AssociatedDocumentLineDocument>
+  # BT-126-00 <ram:AssociatedDocumentLineDocument>
   $params{xml}->startTag("ram:AssociatedDocumentLineDocument");
+  # BT-126
   $params{xml}->dataElement("ram:LineID", $params{line_number} + 1);
   $params{xml}->endTag;
 
+  # BG-31
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
   if ($params{item}->part->ean) {
+    # BT-155
     $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
   } else {
+    # BT-155
     $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
   }
+  # BT-153
   $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
+  # BT-154
   $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
     if $params{item}->longdescription_as_stripped_html;
   $params{xml}->endTag;
 
+  # BG-29
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
+  # BT-148-00
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
+  # BT-148
   $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
   $params{xml}->endTag;
+  # BT-146-00
   $params{xml}->startTag("ram:NetPriceProductTradePrice");
+  # BT-146
   $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
   $params{xml}->endTag;
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeAgreement>
 
-  #   <ram:SpecifiedLineTradeDelivery>
+  # BT-129-00 <ram:SpecifiedLineTradeDelivery>
   $params{xml}->startTag("ram:SpecifiedLineTradeDelivery");
+  # BT-129
   $params{xml}->dataElement("ram:BilledQuantity", $params{item}->qty, unitCode => _unit_code($params{item}->unit));
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeDelivery>
 
-  #   <ram:SpecifiedLineTradeSettlement>
+  # BG-30-00 <ram:SpecifiedLineTradeSettlement>
   $params{xml}->startTag("ram:SpecifiedLineTradeSettlement");
 
-  #     <ram:ApplicableTradeTax>
+  # BG-30 <ram:ApplicableTradeTax>
   $params{xml}->startTag("ram:ApplicableTradeTax");
+  # BT-151-0
   $params{xml}->dataElement("ram:TypeCode",              "VAT");
+  # BT-151
   $params{xml}->dataElement("ram:CategoryCode",          $tax_info{code});
+  # BT-152
   $params{xml}->dataElement("ram:RateApplicablePercent", _r2($tax_info{rate}));
   $params{xml}->endTag;
   #     </ram:ApplicableTradeTax>
 
-  #     <ram:SpecifiedTradeSettlementLineMonetarySummation>
+  # BT-131-00 <ram:SpecifiedTradeSettlementLineMonetarySummation>
   $params{xml}->startTag("ram:SpecifiedTradeSettlementLineMonetarySummation");
+  # BT-131
   $params{xml}->dataElement("ram:LineTotalAmount", _r2($item_ptc->{linetotal}));
   $params{xml}->endTag;
   #     </ram:SpecifiedTradeSettlementLineMonetarySummation>
@@ -321,17 +359,22 @@ sub _line_item {
 sub _specified_trade_settlement_payment_means {
   my ($self, %params) = @_;
 
-  #     <ram:SpecifiedTradeSettlementPaymentMeans>
+  # BG-16 <ram:SpecifiedTradeSettlementPaymentMeans>
   $params{xml}->startTag('ram:SpecifiedTradeSettlementPaymentMeans');
+  # BT-81
   $params{xml}->dataElement('ram:TypeCode', $self->direct_debit ? 59 : 58); # 59 = SEPA direct debit, 58 = SEPA credit transfer
 
   if ($self->direct_debit) {
+    # BT-91-00
     $params{xml}->startTag('ram:PayerPartyDebtorFinancialAccount');
+    # BT-91
     $params{xml}->dataElement('ram:IBANID', $self->customer->iban);
     $params{xml}->endTag;
 
   } else {
+    # BG-17
     $params{xml}->startTag('ram:PayeePartyCreditorFinancialAccount');
+    # BT-84
     $params{xml}->dataElement('ram:IBANID', $params{bank_account}->iban);
     $params{xml}->endTag;
   }
@@ -356,12 +399,17 @@ sub _taxes {
   foreach my $taxinfo (@taxes) {
     my %rate_and_code = _tax_rate_and_code($self->taxzone, $taxinfo->{tax});
 
-    #     <ram:ApplicableTradeTax>
+    # BG-23 <ram:ApplicableTradeTax>
     $params{xml}->startTag("ram:ApplicableTradeTax");
+    # BT-117
     $params{xml}->dataElement("ram:CalculatedAmount",      _r2($taxinfo->{amount}));
+    # BT-118-0
     $params{xml}->dataElement("ram:TypeCode",              "VAT");
+    # BT-116
     $params{xml}->dataElement("ram:BasisAmount",           _r2($taxinfo->{netamount}));
+    # BT-118
     $params{xml}->dataElement("ram:CategoryCode",          $rate_and_code{code});
+    # BT-119
     $params{xml}->dataElement("ram:RateApplicablePercent", _r2($rate_and_code{rate}));
     $params{xml}->endTag;
     #     </ram:ApplicableTradeTax>
@@ -436,11 +484,12 @@ sub _payment_terms {
   return if !$self->payment_terms && !$self->duedate;
 
   if (!$self->payment_terms) { # only duedate
-    #     <ram:SpecifiedTradePaymentTerms>
+    # BT-20-00 <ram:SpecifiedTradePaymentTerms>
     $params{xml}->startTag("ram:SpecifiedTradePaymentTerms");
 
-    #       <ram:DueDateDateTime>
+    # BT-9-00 <ram:DueDateDateTime>
     $params{xml}->startTag("ram:DueDateDateTime");
+    # BT-9
     $params{xml}->dataElement("udt:DateTimeString", $self->duedate->strftime('%Y%m%d'), format => "102");
     $params{xml}->endTag;
     #       </ram:DueDateDateTime>
@@ -452,13 +501,15 @@ sub _payment_terms {
 
   my %payment_terms_vars = _calculate_payment_terms_values($self);
 
-  #     <ram:SpecifiedTradePaymentTerms>
+  # BT-20-00 <ram:SpecifiedTradePaymentTerms>
   $params{xml}->startTag("ram:SpecifiedTradePaymentTerms");
 
+  # BT-20
   $params{xml}->dataElement("ram:Description", _u8(_format_payment_terms_description($self, %payment_terms_vars)));
 
-  #       <ram:DueDateDateTime>
+  # BT-9-00 <ram:DueDateDateTime>
   $params{xml}->startTag("ram:DueDateDateTime");
+  # BT-9
   $params{xml}->dataElement("udt:DateTimeString", $self->duedate->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
   #       </ram:DueDateDateTime>
@@ -468,10 +519,13 @@ sub _payment_terms {
       && $self->payment_terms->terms_skonto) {
     my $currency_id = _u8(SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name) // 'EUR');
 
-    #       <ram:ApplicableTradePaymentDiscountTerms>
+    # BG-X-44 <ram:ApplicableTradePaymentDiscountTerms>
     $params{xml}->startTag("ram:ApplicableTradePaymentDiscountTerms");
+    # BT-X-283, BT-X-284
     $params{xml}->dataElement("ram:BasisPeriodMeasure", $self->payment_terms->terms_skonto, unitCode => "DAY");
+    # BT-X-285
     $params{xml}->dataElement("ram:BasisAmount",        _r2($payment_terms_vars{amounts}->{invtotal}));
+    # BT-X-286
     $params{xml}->dataElement("ram:CalculationPercent", _r2($self->payment_terms->percent_skonto * 100));
     $params{xml}->endTag;
     #       </ram:ApplicableTradePaymentDiscountTerms>
@@ -484,14 +538,20 @@ sub _payment_terms {
 sub _totals {
   my ($self, %params) = @_;
 
-  #     <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+  # BG-22 <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
   $params{xml}->startTag("ram:SpecifiedTradeSettlementHeaderMonetarySummation");
 
+  # BT-106
   $params{xml}->dataElement("ram:LineTotalAmount",     _r2($self->netamount));
+  # BT-109
   $params{xml}->dataElement("ram:TaxBasisTotalAmount", _r2($self->netamount));
+  # BT-110, BT-110-0
   $params{xml}->dataElement("ram:TaxTotalAmount",      _r2(sum(values %{ $params{ptc_data}->{taxes_by_tax_id} })), currencyID => "EUR");
+  # BT-114
   $params{xml}->dataElement("ram:GrandTotalAmount",    _r2($self->amount));
+  # BT-113
   $params{xml}->dataElement("ram:TotalPrepaidAmount",  _r2($self->paid));
+  # BT-115
   $params{xml}->dataElement("ram:DuePayableAmount",    _r2($self->amount - $self->paid));
 
   $params{xml}->endTag;
@@ -501,11 +561,13 @@ sub _totals {
 sub _exchanged_document_context {
   my ($self, %params) = @_;
 
-  #   <rsm:ExchangedDocumentContext>
+  # BG-2 <rsm:ExchangedDocumentContext>
   $params{xml}->startTag("rsm:ExchangedDocumentContext");
 
   if ($self->{_zugferd}->{test_mode}) {
+    # BT-X-1-00
     $params{xml}->startTag("ram:TestIndicator");
+    # BT-X-1
     $params{xml}->dataElement("udt:Indicator", "true");
     $params{xml}->endTag;
   }
@@ -515,11 +577,15 @@ sub _exchanged_document_context {
   # for most customers. If any of ours requests to make this
   # configurable, we'll move the configuration into the customer base
   # data, just like the ZUGFeRD/XRechnung version selector itself.
+  # BT-23-00
   $params{xml}->startTag("ram:BusinessProcessSpecifiedDocumentContextParameter");
+  # BT-23
   $params{xml}->dataElement("ram:ID", 'urn:fdc:peppol.eu:2017:poacc:billing:01:1.0');
   $params{xml}->endTag;
 
+  # BT-24-00
   $params{xml}->startTag("ram:GuidelineSpecifiedDocumentContextParameter");
+  # BT-24
   $params{xml}->dataElement("ram:ID", $standards_ids{ $self->{_zugferd}->{profile} });
   $params{xml}->endTag;
   $params{xml}->endTag;
@@ -529,7 +595,9 @@ sub _exchanged_document_context {
 sub _included_note {
   my ($self, %params) = @_;
 
+  # BG-1
   $params{xml}->startTag("ram:IncludedNote");
+  # BT-22
   $params{xml}->dataElement("ram:Content", _u8($params{note}));
   $params{xml}->endTag;
 }
@@ -538,13 +606,17 @@ sub _exchanged_document {
   my ($self, %params) = @_;
 
   #   <rsm:ExchangedDocument>
+  # BT-1-00
   $params{xml}->startTag("rsm:ExchangedDocument");
 
+  # BT-1
   $params{xml}->dataElement("ram:ID",       _u8($self->invnumber));
+  # BT-3
   $params{xml}->dataElement("ram:TypeCode", _u8(_type_code($self)));
 
-  #     <ram:IssueDateTime>
+  # BT-2-00 <ram:IssueDateTime>
   $params{xml}->startTag("ram:IssueDateTime");
+  # BT-2
   $params{xml}->dataElement("udt:DateTimeString", $self->transdate->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
   #     </ram:IssueDateTime>
@@ -552,6 +624,7 @@ sub _exchanged_document {
   if (   _is_profile($self, PROFILE_FACTURX_EXTENDED())
       && $self->language
       && (($self->language->template_code // '') =~ m{^(de|en)}i)) {
+    # BT-X-4
     $params{xml}->dataElement("ram:LanguageID", uc($1));
   }
 
@@ -585,7 +658,9 @@ sub _specified_tax_registration {
   my ($ustid_nr, %params) = @_;
 
   #         <ram:SpecifiedTaxRegistration>
+  # BT-31-00 (seller), BT-48-00 (buyer)
   $params{xml}->startTag("ram:SpecifiedTaxRegistration");
+  # BT-31, BT-48
   $params{xml}->dataElement("ram:ID", _u8(SL::VATIDNr->normalize($ustid_nr)), schemeID => "VA");
   $params{xml}->endTag;
   #         </ram:SpecifiedTaxRegistration>
@@ -602,33 +677,42 @@ sub _seller_trade_party {
   $sales_person_cfg{email} ||= $sales_person->deleted_email;
   $sales_person_cfg{tel}   ||= $sales_person->deleted_tel;
 
-  #       <ram:SellerTradeParty>
+  # BG-4  <ram:SellerTradeParty>
   $params{xml}->startTag("ram:SellerTradeParty");
   # 0088 = GLN, 0060 = D-U-N-S, only one ID is allowed
   if ($self->customer->c_vendor_id) {
+    # BT-29
     $params{xml}->dataElement("ram:ID", _u8($self->customer->c_vendor_id));
   } elsif($::instance_conf->get_gln) {
+    # BT-29
     $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_gln), schemeID => '0088');
   } elsif($::instance_conf->get_duns) {
+    # BT-29
     $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_duns), schemeID => '0060');
   } else {
     # no sensible default yet
   }
+  # BT-27
   $params{xml}->dataElement("ram:Name", _u8($::instance_conf->get_company));
 
-  #         <ram:DefinedTradeContact>
+  # BG-6    <ram:DefinedTradeContact>
   $params{xml}->startTag("ram:DefinedTradeContact");
 
+  # BT-41
   $params{xml}->dataElement("ram:PersonName", _u8($sales_person->safe_name));
 
   if ($sales_person_cfg{tel}) {
+    # BT-42-00
     $params{xml}->startTag("ram:TelephoneUniversalCommunication");
+    # BT-42
     $params{xml}->dataElement("ram:CompleteNumber", _u8($sales_person_cfg{tel}));
     $params{xml}->endTag;
   }
 
   if ($sales_person_cfg{email}) {
+    # BT-43-00
     $params{xml}->startTag("ram:EmailURIUniversalCommunication");
+    # BT-43
     $params{xml}->dataElement("ram:URIID", _u8($sales_person_cfg{email}));
     $params{xml}->endTag;
   }
@@ -637,20 +721,23 @@ sub _seller_trade_party {
   #         </ram:DefinedTradeContact>
 
   if (@our_address) {
-    #         <ram:PostalTradeAddress>
+    # BG-5   <ram:PostalTradeAddress>
     $params{xml}->startTag("ram:PostalTradeAddress");
     foreach my $element (@our_address) {
+      # BT-38, BT-35, BT-36, BT-162, BT-37, BT-40
       $params{xml}->dataElement("ram:" . $element->[0], _u8($element->[1]));
     }
     $params{xml}->endTag;
     #         </ram:PostalTradeAddress>
   }
 
-  # BT-34
+  # BT-34-00
   $params{xml}->startTag("ram:URIUniversalCommunication");
+  # BT-34
   $params{xml}->dataElement("ram:URIID", _u8($::instance_conf->get_invoice_mail), schemeID => 'EM');
   $params{xml}->endTag;
 
+  # BT-31
   _specified_tax_registration($::instance_conf->get_co_ustid, %params);
 
   $params{xml}->endTag;
@@ -660,13 +747,16 @@ sub _seller_trade_party {
 sub _buyer_trade_party {
   my ($self, %params) = @_;
 
-  #       <ram:BuyerTradeParty>
+  # BG-7  <ram:BuyerTradeParty>
   $params{xml}->startTag("ram:BuyerTradeParty");
   if ($self->customer->gln) {
+    # BT-46
     $params{xml}->dataElement("ram:ID", _u8($self->customer->gln), schemeID => '0088');
   } else {
+    # BT-46
     $params{xml}->dataElement("ram:ID", _u8($self->customer->customernumber));
   }
+  # BT-44
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
   _buyer_contact_information($self, %params, contact => $self->contact) if ($self->cp_id);
@@ -691,12 +781,11 @@ sub _included_supply_chain_trade_line_item {
 sub _applicable_header_trade_agreement {
   my ($self, %params) = @_;
 
-  #     <ram:ApplicableHeaderTradeAgreement>
+  # BT-10-00  <ram:ApplicableHeaderTradeAgreement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeAgreement");
 
   # BT-10 BuyerReference must always be given in XRechnung
-  # v3.0.2. validate_zugferd_data already checks for it.  Optional in
-  # Factur-X.
+  # v3.0.2. validate_zugferd_data already checks for it.  Optional in Factur-X.
   my $buyer_reference = first { ($_ // '') ne '' } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid);
   if ($buyer_reference) {
     $params{xml}->dataElement("ram:BuyerReference", _u8($buyer_reference));
@@ -706,8 +795,9 @@ sub _applicable_header_trade_agreement {
   _buyer_trade_party($self, %params);
 
   if ($self->cusordnumber) {
-    #     <ram:BuyerOrderReferencedDocument>
+    # BT-13-00 <ram:BuyerOrderReferencedDocument>
     $params{xml}->startTag("ram:BuyerOrderReferencedDocument");
+    # BT-13
     $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->cusordnumber));
     $params{xml}->endTag;
     #     </ram:BuyerOrderReferencedDocument>
@@ -720,15 +810,17 @@ sub _applicable_header_trade_agreement {
 sub _applicable_header_trade_delivery {
   my ($self, %params) = @_;
 
-  #     <ram:ApplicableHeaderTradeDelivery>
+  # BG-13-00 <ram:ApplicableHeaderTradeDelivery>
   $params{xml}->startTag("ram:ApplicableHeaderTradeDelivery");
 
   _shipto_trade_party($self, %params);
 
-  #       <ram:ActualDeliverySupplyChainEvent>
+  # BT-72-000 <ram:ActualDeliverySupplyChainEvent>
   $params{xml}->startTag("ram:ActualDeliverySupplyChainEvent");
 
+  # BT-72-00
   $params{xml}->startTag("ram:OccurrenceDateTime");
+  # BT-72
   $params{xml}->dataElement("udt:DateTimeString", ($self->deliverydate // $self->transdate)->strftime('%Y%m%d'), format => "102");
   $params{xml}->endTag;
 
@@ -736,8 +828,9 @@ sub _applicable_header_trade_delivery {
   #       </ram:ActualDeliverySupplyChainEvent>
 
   if ($self->donumber) {
-    #       <ram:DespatchAdviceReferencedDocument>
+    # BT-16-00 <ram:DespatchAdviceReferencedDocument>
     $params{xml}->startTag("ram:DespatchAdviceReferencedDocument");
+    # BT-16
     $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->donumber));
 
     $params{xml}->endTag;
@@ -751,8 +844,9 @@ sub _applicable_header_trade_delivery {
 sub _applicable_header_trade_settlement {
   my ($self, %params) = @_;
 
-  #     <ram:ApplicableHeaderTradeSettlement>
+  # BG-19 <ram:ApplicableHeaderTradeSettlement>
   $params{xml}->startTag("ram:ApplicableHeaderTradeSettlement");
+  # BT-5
   $params{xml}->dataElement("ram:InvoiceCurrencyCode", _u8(SL::Helper::ISO4217::map_currency_name_to_code($self->currency->name) // 'EUR'));
 
   _specified_trade_settlement_payment_means($self, %params);
@@ -767,7 +861,7 @@ sub _applicable_header_trade_settlement {
 sub _supply_chain_trade_transaction {
   my ($self, %params) = @_;
 
-  #   <rsm:SupplyChainTradeTransaction>
+  # BG-25-00 <rsm:SupplyChainTradeTransaction>
   $params{xml}->startTag("rsm:SupplyChainTradeTransaction");
 
   _included_supply_chain_trade_line_item($self, %params);
