@@ -65,6 +65,7 @@ Kleinere neue Features und Detailverbesserungen:
   ab welchen die Angebote/Aufträge für die Aufgabenliste als überfällig
   gelten.
 
+- CSV-Export für Aufträge aus der Auftragsmaske heraus.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
