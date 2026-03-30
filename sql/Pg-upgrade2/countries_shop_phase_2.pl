@@ -69,6 +69,17 @@ sub run {
   $missing{$_->{name}} = $_->{id} for @{$::form->{missing} // []};
 
   my ($query, $sth);
+  $query = "UPDATE shop_orders SET customer_country = '' WHERE customer_country IS NULL;";
+  $sth = $self->dbh->prepare($query);
+  do_statement($::form, $sth, $query);
+
+  $query = "UPDATE shop_orders SET billing_country = '' WHERE billing_country IS NULL;";
+  $sth = $self->dbh->prepare($query);
+  do_statement($::form, $sth, $query);
+
+  $query = "UPDATE shop_orders SET delivery_country = '' WHERE delivery_country IS NULL;";
+  $sth = $self->dbh->prepare($query);
+    do_statement($::form, $sth, $query);
 
   $query = 'SELECT id, iso2 FROM countries;';
   $sth = $self->dbh->prepare($query);
