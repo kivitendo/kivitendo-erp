@@ -19,6 +19,7 @@ use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
+use SL::DB::Helper::RecordExporter;
 use SL::DB::Helper::TypeDataProxy;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::Payment qw(forex);
