@@ -680,6 +680,25 @@ sub action_send_email {
   $self->redirect_to(@redirect_params);
 }
 
+# export the order as csv and offer for download
+sub action_csv_export {
+  my ($self) = @_;
+
+  my $csv_string  = $self->order->export_as_csv_string(compatible_for_import => 0);
+
+  my $type_prefix = $self->type;
+  my $number      = $self->order->number;
+  $number         =~ s{[^[:word:]]+}{_}g;
+  my $timestamp   = DateTime->now_local->strftime('%Y-%m-%d_%H-%M-%S');
+  my $filename    = sprintf('%s_%s_%s.csv', $type_prefix, $number, $timestamp);
+
+  $self->send_file(
+    \$csv_string,
+    type => SL::MIME->mime_type_from_ext($filename),
+    name => $filename,
+  );
+}
+
 # open the periodic invoices config dialog
 #
 # If there are values in the form (i.e. dialog was opened before),
@@ -2628,6 +2647,13 @@ sub setup_edit_action_bar {
                     : !$self->order->id ? t8('This object has not been saved yet.')
                     : undef,
           only_if  => $self->type_data->show_menu('save_and_email'),
+        ],
+        action => [
+          t8('Export as CSV'),
+          submit   => [ '#order_form', { action => "Order/csv_export" } ],
+          disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
+                    : undef,
+          only_if  => $self->type_data->show_menu('csv_export'),
         ],
         action => [
           t8('Download attachments of all parts'),
