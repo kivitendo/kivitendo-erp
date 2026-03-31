@@ -332,6 +332,7 @@ namespace('kivi.Part', function(ns) {
   };
 
   var KEY = {
+    BACKSPACE: 8,
     TAB:       9,
     ENTER:     13,
     SHIFT:     16,
@@ -501,6 +502,14 @@ namespace('kivi.Part', function(ns) {
      *  event.which does not contain tab events in keypressed in firefox but will report 0
      *  chrome does not fire keypressed at all on tab or escape
      */
+    handle_keyup: function(event) {
+      var self = this;
+      // if string is empty assume they want to delete
+      if (event.which == KEY.BACKSPACE && self.$dummy.val() === '') {
+        self.set_item({});
+        return true;
+      }
+    },
     handle_keydown: function(event) {
       var self = this;
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
@@ -604,6 +613,7 @@ namespace('kivi.Part', function(ns) {
           self.autocomplete_open = false;
         }
       });
+      this.$dummy.keyup  (function(event){ self.handle_keyup  (event); });
       this.$dummy.keydown(function(event){ self.handle_keydown(event); });
       this.$dummy.on('paste', function(){
         setTimeout(function() {
