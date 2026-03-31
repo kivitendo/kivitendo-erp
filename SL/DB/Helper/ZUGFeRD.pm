@@ -109,12 +109,15 @@ sub _buyer_contact_information {
   # BT-9 <ram:DefinedTradeContact>
   $params{xml}->startTag("ram:DefinedTradeContact");
 
-  # BT-56
-  $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
-
-  if ($contact->cp_abteilung) {
+  # while technically it's allowed that BT-56 and BT-56-0 are both present, some validators mark it as an error, so only use one of them.
+  if (grep { $_ } $contact->cp_givenname, $contact->cp_name) {
+    # BT-56
+    $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
+  } elsif ($contact->cp_abteilung) {
     # BT-56-0
     $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
+  } else {
+    # no fallback
   }
 
   my $phone_number = first {$_} (
