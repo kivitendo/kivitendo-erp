@@ -311,6 +311,19 @@ sub _line_item {
 
   # BG-29
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
+
+  # if there's exactly one sales order item linked to this invoice item, emit the line numbers as BT-132
+  if (my @linked_items = $params{item}->linked_record(from => 'OrderItem') && @linked_items == 1) {
+    # BT-132-00  <ram:BuyerOrderReferencedDocument>
+    $params{xml}->startTag("ram:BuyerOrderReferencedDocument");
+    # BT-132
+    $params{xml}->dataElement("ram:LineID", $linked_items[0]->position); #
+    $params{xml}->endTag;
+    #            </ram:BuyerOrderReferencedDocument>
+
+  }
+
+
   # BT-148-00
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
   # BT-148
