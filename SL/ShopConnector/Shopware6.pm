@@ -978,7 +978,7 @@ sub map_data_to_shoporder {
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
 
   my $billing_country_id  = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} )->id;
-  my $delivery_country_id = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} )->id;
+  my $delivery_country_id = SL::DB::Manager::Country->find_by( iso2 => $shipto->{country}->{iso} )->id;
 
   my %columns = (
     amount                  => $import->{amountTotal},
