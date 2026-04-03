@@ -76,7 +76,7 @@ sub convert_to_sales_order {
   if(!scalar(@error_report)){
 
     my ( $shipto_id );
-    my $taxzone = $address->delivery_country->get_taxzone;
+    my $taxzone = $self->delivery_country->get_taxzone;
     if ($self->has_differing_delivery_address) {
       if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_fullname,
                                                          shiptostreet => $self->delivery_street,
