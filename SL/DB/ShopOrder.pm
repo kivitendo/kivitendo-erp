@@ -75,7 +75,8 @@ sub convert_to_sales_order {
   } @soi;
   if(!scalar(@error_report)){
 
-    my ( $shipto_id, $taxzone );
+    my ( $shipto_id );
+    my $taxzone = $address->delivery_country->get_taxzone;
     if ($self->has_differing_delivery_address) {
       if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_fullname,
                                                          shiptostreet => $self->delivery_street,
@@ -114,7 +115,7 @@ sub convert_to_sales_order {
       salesman_id             => $employee->id,
       taxincluded             => $self->tax_included,
       payment_id              => $self->payment_id,
-      taxzone_id              => $taxzone ? $taxzone->id : $customer->taxzone_id,
+      taxzone_id              => $taxzone->id,
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,
       transdate               => $transdate,
