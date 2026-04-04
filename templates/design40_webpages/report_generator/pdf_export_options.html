@@ -116,6 +116,19 @@
         <td><input type="text" name="report_generator_pdf_options_copies" size="4" value="[% HTML.escape(copies) %]"></td>
       </tr>
     [% END %]
+    [% IF report_generator_hidden_l_doccnt %]
+    <tr>
+      <th class="caption" colspan="2">[% 'Miscellaneous Options' | $T8 %]:</th>
+    </tr>
+      <tr>
+        <td>
+          <label for="report_generator_addattachments">[% 'Add PDF Documents' | $T8 %]</label>
+        </td>
+        <td>
+          <input type="checkbox" name="report_generator_addattachments" value="1" checked>
+        </td>
+      </tr>
+    [% END %]
   </tbody>
 </table>
 
