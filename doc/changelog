@@ -65,6 +65,8 @@ Kleinere neue Features und Detailverbesserungen:
   ab welchen die Angebote/Aufträge für die Aufgabenliste als überfällig
   gelten.
 
+- PDF Dokumente im Beleg-Reiter Dokumente können beim Buchungsjournal direkt
+  mitexportiert werden, vorausgesetzt der Haken bei Belege ist dort gesetzt.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
