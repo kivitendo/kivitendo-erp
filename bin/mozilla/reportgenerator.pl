@@ -46,7 +46,7 @@ sub report_generator_setup_action_bar {
         ],
         action => [
           $::locale->text('PDF export with attachments'),
-          submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf", report_generator_addattachments => 1 } ],
+          submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf" } ],
           only_if => $params{allow_attachments},
         ],
       ],
