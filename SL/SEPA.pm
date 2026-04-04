@@ -557,16 +557,18 @@ sub send_concatinated_sepa_pdfs {
     # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
     # but there is no get_latest_version (but sorts objects by itime!)
     # check if already resynced
-    my ( $file_object ) = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
-                                            object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
-                                            file_type   => 'document',
-                                           );
-    next if     (ref $file_object ne 'SL::File::Object');
-    next unless $file_object->mime_type eq 'application/pdf';
+    my @file_objects = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
+                                         object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
+                                         file_type   => 'document',
+                                        );
+    foreach my $file_object (@file_objects) {
+      next if     (ref $file_object ne 'SL::File::Object');
+      next unless $file_object->mime_type eq 'application/pdf';
 
-    my $file = $file_object->get_file;
-    die "No file" unless -e $file;
-    push @files, $file;
+      my $file = $file_object->get_file;
+      die "No file" unless -e $file;
+      push @files, $file;
+    }
   }
 
   my @cmd = (
