@@ -110,6 +110,7 @@ my %type_data = (
       save_and_invoice                     => 1,
       save_and_print                       => 1,
       save_and_email                       => 1,
+      csv_export                           => 0,
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {
@@ -161,6 +162,7 @@ my %type_data = (
       save_and_invoice                     => 1,
       save_and_print                       => 1,
       save_and_email                       => 1,
+      csv_export                           => 0,
       delete => 1,
     },
     properties => {
@@ -219,6 +221,7 @@ my %type_data = (
       save_and_invoice                     => 1,
       save_and_print                       => 1,
       save_and_email                       => 1,
+      csv_export                           => 0,
       delete => 1,
     },
     properties => {
@@ -270,6 +273,7 @@ my %type_data = (
       save_and_invoice                     => 0,
       save_and_print                       => 1,
       save_and_email                       => 1,
+      csv_export                           => 0,
       delete => 1,
     },
     properties => {
@@ -321,6 +325,7 @@ my %type_data = (
       save_and_invoice                     => 0,
       save_and_print                       => 1,
       save_and_email                       => 1,
+      csv_export                           => 0,
       delete => sub { $::instance_conf->get_sales_order_show_delete },
     },
     properties => {
@@ -379,6 +384,7 @@ my %type_data = (
       save_and_invoice                     => 1,
       save_and_print                       => 0,
       save_and_email                       => 0,
+      csv_export                           => 0,
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {
