@@ -56,12 +56,10 @@ sub company_logo {
 
   my $git             = SL::Git->new;
   ($form->{git_head}) = $git->get_log(since => 'HEAD~1', until => 'HEAD') if $git->is_git_installation;
-  $form->{xmas}       = '_xmas' if (DateTime->today->month == 12 && DateTime->today->day < 27);
-  $form->{xmas}       = '_mir'  if (DateTime->today->month >= 3 && DateTime->today->year == 2022
-                                    && DateTime->today->month <= 9);
-  $form->{xmas}       = '_mir'  if (DateTime->today->day == 24 && DateTime->today->month == 2);
 
   my $td = DateTime->today;
+  $form->{xmas}       = '_xmas'   if ($td->month == 12 && $td->day  < 27);
+  $form->{xmas}       = '_mir'    if ($td->month ==  2 && $td->day == 24);
   $form->{xmas}       = '_easter' if _is_between($td->subtract_datetime(_easter_date_catholic($td->year))->delta_days(), -2, 1);
   $form->{xmas}       = '_easter' if _is_between($td->subtract_datetime(_easter_date_orthodox($td->year))->delta_days(), -2, 1);
 
