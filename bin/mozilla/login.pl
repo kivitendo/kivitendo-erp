@@ -32,6 +32,7 @@ use SL::DB::Default;
 use SL::Form;
 use SL::Git;
 use DateTime;
+use POSIX qw(floor);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/todo.pl";
@@ -60,12 +61,69 @@ sub company_logo {
                                     && DateTime->today->month <= 9);
   $form->{xmas}       = '_mir'  if (DateTime->today->day == 24 && DateTime->today->month == 2);
 
+  my $td = DateTime->today;
+  $form->{xmas}       = '_easter' if _is_between($td->subtract_datetime(_easter_date_catholic($td->year))->delta_days(), -2, 1);
+  $form->{xmas}       = '_easter' if _is_between($td->subtract_datetime(_easter_date_orthodox($td->year))->delta_days(), -2, 1);
+
   # create the logo screen
   $form->header() unless $form->{noheader};
 
   print $form->parse_html_template('login/company_logo', { version => $::form->read_version });
 
   $main::lxdebug->leave_sub();
+}
+
+sub _is_between {
+  my ($x, $a, $b) = @_;
+
+  $x >= $a && $x <= $b;
+}
+
+sub _easter_date_catholic {
+  # Western Easter Date Algorithm New Scientist 1961
+  my ($Y) = @_;
+  my ($a, $b, $c, $d, $e, $g, $h, $i, $k, $l, $m, $n, $p);
+
+  $a = $Y % 19;
+  $b = floor($Y/100);
+  $c = $Y % 100;
+  $d = floor($b/4);
+  $e = $b % 4;
+  $g = floor((8*$b+13)/25);
+  $h = (19*$a + $b - $d - $g + 15) % 30;
+  $i = floor($c/4);
+  $k = $c % 4;
+  $l = (32 + 2*$e + 2*$i - $h - $k) % 7;
+  $m = floor(($a+11*$h+19*$l)/433);
+  $n = floor(($h+$l+-7*$m+90)/25);
+  $p = ($h + $l - 7*$m + 33*$n + 19) % 32;
+
+  DateTime->new(year => $Y, month => $n, day => $p);
+}
+
+sub _easter_date_orthodox {
+  # Eastern Easter Date Meeus's Julian algorithm
+  # Astronomical Algorithms (1991, p. 69)
+  my ($Y) = @_;
+  my ($a, $b, $c, $d, $e, $doy, $month, $day);
+
+  $a = $Y % 4;
+  $b = $Y % 7;
+  $c = $Y % 19;
+  $d = (19*$c + 15) % 30;
+  $e = (2*$a+4*$b-$d+34) % 7;
+  $doy = $d+$e+114;
+  $month = floor($doy/31);  # Julian date
+  $day   = ($doy % 31) + 1; # Julian date
+
+  my @a = (31, 30, 31);
+  $day += 13;
+  if ($day > $a[$month-3]) {
+    $day -= $a[$month-3];
+    $month += 1;
+  }
+
+  DateTime->new(year => $Y, month => $month, day => $day);
 }
 
 1;
