@@ -43,7 +43,7 @@ sub description_column_localized {
 sub is_eu_country {
   my $self = shift;
 
-  my @eu_country_iso2 = qw(BE BG DE DK EE FI FR GR IE IT HR LV LT MT NL AT PL PT RO SE SK SI ES CZ HU CY);
+  my @eu_country_iso2 = qw(BE BG DE DK EE FI FR GR IE IT HR LV LT LU MT NL AT PL PT RO SE SK SI ES CZ HU CY);
   return 1 if grep $_ eq $self->iso2, @eu_country_iso2;
   return 0
 }
