@@ -51,7 +51,7 @@ sub processed_options {
   my $ops = $self->options;
   my $ret;
 
-  if ( $self->type eq 'select' ) {
+  if ( $self->type eq 'select' || $self->type eq 'multiselect') {
     my @op_array = split('##', $ops);
     $ret = \@op_array;
   }
@@ -99,8 +99,15 @@ sub has_flag {
 sub type_dependent_default_value {
   my ($self) = @_;
 
-  return $self->default_value if $self->type ne 'select';
-  return (any { $_ eq $self->default_value } @{ $self->processed_options }) ? $self->default_value : $self->processed_options->[0];
+  if ($self->type eq 'select') {
+    return (any { $_ eq $self->default_value } @{ $self->processed_options }) ? $self->default_value : $self->processed_options->[0];
+  }
+
+  if ($self->type eq 'multiselect') {
+    return [ split /##/, $self->processed_options ];
+  }
+
+  return $self->default_value;
 }
 
 sub value_col {
@@ -120,7 +127,8 @@ sub value_col {
     htmlfield => 'text_value',
     text      => 'text_value',
     textfield => 'text_value',
-    select    => 'text_value'
+    select    => 'text_value',
+    multiselect => 'text_value',
   }->{$type};
 }
 

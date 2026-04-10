@@ -41,7 +41,7 @@ SQL
     my $configs  = selectall_hashref_query($form, $dbh, $query, @values);
 
     foreach my $config (@{ $configs }) {
-      if ($config->{type} eq 'select') {
+      if ($config->{type} eq 'select' or $config->{type} eq 'multiselect') {
         $config->{OPTIONS} = [ map { { 'value' => $_ } } split(m/\#\#/, $config->{options}) ];
 
       } elsif ($config->{type} eq 'number') {
@@ -126,7 +126,7 @@ sub get_custom_variables {
     } elsif ($cvar->{type} eq 'number') {
       $cvar->{precision} = $1 if ($cvar->{options} =~ m/precision=(\d+)/i);
 
-    } elsif ($cvar->{type} eq 'select') {
+    } elsif ($cvar->{type} eq 'select' or $cvar->{type} eq 'multiselect') {
       $cvar->{OPTIONS} = [ map { { 'value' => $_ } } split(m/\#\#/, $cvar->{options}) ];
     }
 
@@ -150,6 +150,7 @@ sub get_custom_variables {
                      : $cvar->{type} eq 'vendor'    ? $act_var->{number_value}
                      : $cvar->{type} eq 'part'      ? $act_var->{number_value}
                      : $cvar->{type} eq 'bool'      ? $act_var->{bool_value}
+                     : $cvar->{type} eq 'multiselect' ? [ split /##/, ($act_var->{text_value} =~ s/^##|##$//gr) ]  # value is assumed serialized with leading and trailing ## for easier matching
                      :                                $act_var->{text_value};
       $cvar->{valid} = $valid;
     } else {
@@ -275,6 +276,11 @@ sub _save_custom_variables {
     if (any { $config->{type} eq $_ } qw(text textfield htmlfield select)) {
       push @values, undef, undef, $value, undef;
 
+    } elsif ($config->{type} eq 'multiselect') {
+      # multiselect values are serialized with leading and trailing delimiter to make this match easier
+      # for example with value '##B##C##BB##' searching for B will match against '##B##'
+      push @values, undef, undef, join('##', '', @$value, ''), undef;
+
     } elsif (($config->{type} eq 'date') || ($config->{type} eq 'timestamp')) {
       push @values, undef, conv_date($value), undef, undef;
 
@@ -387,6 +393,14 @@ sub build_filter_query {
 
       push @sub_where,  qq|cvar.text_value = ?|;
       push @sub_values, $params{filter}->{$name};
+
+    } elsif ($config->{type} eq 'multiselect') {
+      next unless ($params{filter}->{$name});
+
+      # multiselect values are serialized with leading and trailing delimiter to make this match easier
+      # for example with value '##B##C##BB##' searching for B will match against '##B##'
+      push @sub_where,  qq|cvar.text_value like ?|;
+      push @sub_values, '##' . $params{filter}->{$name} . '##';
 
     } elsif (($config->{type} eq 'date') || ($config->{type} eq 'timestamp')) {
       my $name_from = "${name}_from";
@@ -527,6 +541,7 @@ sub add_custom_variables_to_report {
         : $cfg->{type} eq 'part'      ? (SL::DB::Manager::Part->find_by(id => 1*$ref->{number_value})     || SL::DB::Part->new)->partnumber
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
         : $cfg->{type} eq 'htmlfield' ? SL::Presenter::Text::stripped_html($ref->{text_value})
+        : $cfg->{type} eq 'multiselect' ? ($ref->{text_value} =~ s/^##|##$//gr) =~ s/##/, /gr    # strip leading/trailing delimiter and change ## to ,
         :                               $ref->{text_value};
     }
   }
@@ -693,6 +708,7 @@ sub parse {
   return !ref $value ? SL::DB::Manager::Customer->find_by(id => $value * 1) : $value  if $config->{type} eq 'customer';
   return !ref $value ? SL::DB::Manager::Vendor->find_by(id => $value * 1)   : $value  if $config->{type} eq 'vendor';
   return !ref $value ? SL::DB::Manager::Part->find_by(id => $value * 1)     : $value  if $config->{type} eq 'part';
+  return !ref $value ? [ split /##/, ($value =~ s/^##|##$//gr) ]            : $value  if $config->{type} eq 'multiselect';
   return $value;
 }
 
