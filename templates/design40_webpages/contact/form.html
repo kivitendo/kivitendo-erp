@@ -181,7 +181,7 @@
         [% END %]
         <tr id="add_customer_row">
           <td colspan="2">[% 'Insert new' | $T8 %]:</td>
-          <td>[% P.customer_vendor.picker('add_customer_id', '', type='customer', onchange="kivi.Contact.on_add_cv('customer')", class="add_customer_input wi-wide") %]</td>
+          <td>[% P.customer_vendor.picker('add_customer_id', '', type='customer', action = { commit_one = 'kivi.Contact.on_add_cv_customer' }, class="add_customer_input wi-wide") %]</td>
         </tr>
     </table>
 
@@ -197,7 +197,7 @@
         [% END %]
         <tr id="add_vendor_row">
           <td colspan="2">[% 'Insert new' | $T8 %]:</td>
-          <td>[% P.customer_vendor.picker('add_vendor_id',   '', type='vendor',   onchange="kivi.Contact.on_add_cv('vendor')", class="add_vendor_input wi-wide") %]</td>
+          <td>[% P.customer_vendor.picker('add_vendor_id',   '', type='vendor', action = { commit_one = 'kivi.Contact.on_add_cv_vendor' }, class="add_vendor_input wi-wide") %]</td>
         </tr>
       </tbody>
     </table>

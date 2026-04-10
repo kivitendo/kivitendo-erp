@@ -23,7 +23,7 @@
     <tr id="add_contact_row">
       <td colspan="2">[% 'Insert new' | $T8 %]:</td>
       <td colspan="9">
-        [% P.contact.picker('add_contact_id', '', onchange="kivi.Contact.on_add_contact()", class="add_contact_input wi-wide") %]
+        [% P.contact.picker('add_contact_id', '', action = { commit_one = "kivi.Contact.on_add_contact" }, class="add_contact_input wi-wide") %]
       </td>
     </tr>
 </table>
