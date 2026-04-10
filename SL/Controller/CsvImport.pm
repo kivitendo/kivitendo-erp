@@ -105,16 +105,18 @@ sub action_result {
   my $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $data->{profile_id});
   $self->profile($profile);
 
+  my $error_msg;
   if ($data->{errors} and my $first_error =  $data->{errors}->[0]) {
     if ('ARRAY' eq ref $first_error) {
-      flash('error', $::locale->text('There was an error parsing the csv file: #1 in line #2.', $first_error->[2], $first_error->[4]));
+      $error_msg = $::locale->text('There was an error parsing the csv file: #1 in line #2.', $first_error->[2], $first_error->[4]);
     } else {
-      flash('error', $::locale->text('There was an error parsing the csv file: #1', $first_error));
+      $error_msg = $::locale->text('There was an error parsing the csv file: #1', $first_error);
     }
   }
 
-  if ($data->{progress}{finished} || $data->{errors}) {
-    $self->render('csv_import/_deferred_report', { layout => 0 });
+  if ($data->{progress}{finished} || $error_msg) {
+    $self->render('csv_import/_deferred_report', { layout => 0 }, error => $error_msg);
+
   } else {
     if (!$self->task_server->is_running) {
       $self->task_server->start;
