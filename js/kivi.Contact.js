@@ -1,5 +1,8 @@
 namespace('kivi.Contact', function(ns) {
 
+  ns.on_add_cv_vendor   = function() { ns.on_add_cv('vendor'); };
+  ns.on_add_cv_customer = function() { ns.on_add_cv('customer'); };
+
   ns.on_add_cv = function(db) {
     let cv_id = $('#add_' + db + '_id').val();
     if (!cv_id)
