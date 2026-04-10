@@ -31,6 +31,8 @@
   [% P.part.picker(var_name, var.value, class='wi-wide') %]
 [% ELSIF ( var.config.type == 'select' ) %]
   [% L.select_tag(var_name, var.config.processed_options, default = var.value, class='wi-wide') %]
+[% ELSIF ( var.config.type == 'multiselect' ) %]
+  [% L.select_tag(var_name _ '[]', var.config.processed_options, multiple = 1, default = var.value, class='wi-wide') %]
 [% ELSIF ( var.config.type == 'number' ) %]
   [% L.input_tag(var_name, LxERP.format_amount(var.value, -2), class='wi-small numeric') %]
 [% ELSE %]

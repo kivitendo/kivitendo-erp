@@ -37,6 +37,7 @@ my @types = (
 # text, textfield, htmlfield, bool are not supported
 our %price_rule_type_by_cvar_type = (
   select    => 'text',
+  multiselect => 'text',
   customer  => 'int',
   vendor    => 'int',
   part      => 'int',

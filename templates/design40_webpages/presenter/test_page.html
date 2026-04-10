@@ -37,4 +37,10 @@
   [% P.context_help_tag("<h1>tooltip html</h1><p>with content</p>", html=1) %]<br>
   [% L.input_tag %][% P.context_help_tag("<h1>tooltip html</h1><p>with content</p>", html=1) %]
 
+
+  <h3>Select Tags</h3>
+
+  [% P.select_tag("test1", [ "A", "B", "C" ], multiple=1, default=["A","B"]) %]
+  [% P.select_tag("test2", [ "A", "B", "C" ], multiple=1, default=["B"]) %]
+  [% P.select_tag("test3", [ "A", "B", "C" ], multiple=1, default=["B","C"]) %]
 </div>
