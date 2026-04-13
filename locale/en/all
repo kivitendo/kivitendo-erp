@@ -2797,7 +2797,6 @@ $self->{texts} = {
   'PDF (OpenDocument/OASIS)'    => '',
   'PDF export'                  => '',
   'PDF export -- options'       => '',
-  'PDF export with attachments' => '',
   'PDF-Export'                  => '',
   'PLZ Grosskunden'             => '',
   'POSTED'                      => '',
