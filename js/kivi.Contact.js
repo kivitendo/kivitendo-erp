@@ -1,4 +1,7 @@
 namespace('kivi.Contact', function(ns) {
+  ns.check_contact = function() {
+    return kivi.Validator.validate_all('#form');
+  };
 
   ns.on_add_cv_vendor   = function() { ns.on_add_cv('vendor'); };
   ns.on_add_cv_customer = function() { ns.on_add_cv('customer'); };
@@ -39,6 +42,22 @@ namespace('kivi.Contact', function(ns) {
       if (el != clicked)
         $(el).val(0);
     });
+  };
+
+  ns.save = function() {
+    if (!ns.check_contact()) return;
+
+    var data = $('#form').serializeArray();
+    data.push({ name: 'action', value: 'Contact/save' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.delete_contact = function() {
+    var data = $('#form').serializeArray();
+    data.push({ name: 'action', value: 'Contact/delete' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   var KEY = {
