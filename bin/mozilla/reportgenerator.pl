@@ -39,16 +39,9 @@ sub report_generator_setup_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      combobox => [
-        action => [
-          $type eq 'pdf' ? $::locale->text('PDF export') : $type eq 'csv' ? $::locale->text('CSV export') : $::locale->text('Chart export'),
-          submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
-        ],
-        action => [
-          $::locale->text('PDF export with attachments'),
-          submit  => [ '#report_generator_form', { report_generator_dispatch_to => "report_generator_export_as_pdf" } ],
-          only_if => $params{allow_attachments},
-        ],
+      action => [
+        $type eq 'pdf' ? $::locale->text('PDF export') : $type eq 'csv' ? $::locale->text('CSV export') : $::locale->text('Chart export'),
+        submit => [ '#report_generator_form', { 'report_generator_dispatch_to' => "report_generator_export_as_${type}" } ],
       ],
       action => [
         $::locale->text('Back'),
