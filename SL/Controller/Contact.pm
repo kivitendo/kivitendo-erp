@@ -3,16 +3,15 @@ package SL::Controller::Contact;
 use strict;
 use parent qw(SL::Controller::Base);
 
-
-use SL::Locale::String qw(t8);
-use SL::Util qw(trim);
 use List::Util qw(first);
-use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::ReportGenerator;
-use SL::Controller::Helper::ParseFilter;
 use SL::DB::Contact;
 use SL::DB::ContactDepartment;
 use SL::DB::ContactTitle;
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::ParseFilter;
+use SL::Controller::Helper::ReportGenerator;
+use SL::Locale::String qw(t8);
+use SL::Util qw(trim);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(all_contact_departments all_contact_titles) ],
@@ -106,15 +105,13 @@ sub action_save {
     && SL::DB::Manager::ContactDepartment->get_all_count(where => [description => $self->contact->cp_abteilung]) == 0;
 
 
-  if( $self->contact->cp_name ne '' || $self->contact->cp_givenname ne '' ) {
-    SL::DB::ContactTitle     ->new(description => $self->contact->cp_title)    ->save if $save_contact_title;
-    SL::DB::ContactDepartment->new(description => $self->contact->cp_abteilung)->save if $save_contact_department;
+  SL::DB::ContactTitle     ->new(description => $self->contact->cp_title)    ->save if $save_contact_title;
+  SL::DB::ContactDepartment->new(description => $self->contact->cp_abteilung)->save if $save_contact_department;
 
-    $self->contact->save(cascade => 1);
+  $self->contact->save(cascade => 1);
 
-    SL::DB::Manager::ContactTitle     ->delete_unused if $save_contact_title;
-    SL::DB::Manager::ContactDepartment->delete_unused if $save_contact_department;
-  }
+  SL::DB::Manager::ContactTitle     ->delete_unused if $save_contact_title;
+  SL::DB::Manager::ContactDepartment->delete_unused if $save_contact_department;
 
   # reconcile linked customers and vendors
   my %old_customer_ids = map { $_->id => 1 } @{$self->contact->customers};
@@ -131,31 +128,24 @@ sub action_save {
   $_->detach_contact($self->contact) for grep { !$new_vendor_ids{$_->id} } $self->contact->vendors;
   $_->link_contact($self->contact)   for grep { !$old_vendor_ids{$_->id} } @$new_vendors;
 
-  my @redirect_params = (
+  if ($::form->{link_with_cv_id}) {
+    my $cv_obj = $::form->{link_with_cv_db} eq 'customer'
+      ? SL::DB::Customer->new(id => $::form->{link_with_cv_id})->load
+      : SL::DB::Vendor  ->new(id => $::form->{link_with_cv_id})->load;
+    $cv_obj->link_contact($self->contact);
+  }
+
+  my $redirect_url = $self->url_for(
     action => 'edit',
     id     => $self->contact->cp_id,
   );
-
-  if ($::form->{link_with_cv_id}) {
-    if ($self->contact->cp_id) {
-      my $class = $::form->{link_with_cv_db} eq 'customer' ? 'Customer' : 'Vendor';
-      my $cv_obj = "SL::DB::$class"->new(id => $::form->{link_with_cv_id})->load;
-      $cv_obj->link_contact($self->contact);
-    } else {
-      push @redirect_params, (
-        link_with_cv_id => $::form->{link_with_cv_id},
-        link_with_cv_db => $::form->{link_with_cv_db},
-      );
-    }
-  }
-
-  $self->redirect_to(@redirect_params);
+  $self->js->redirect_to($redirect_url)->render;
 }
 
 sub action_delete {
   my ($self) = @_;
   $self->contact->delete;
-  $self->redirect_to($::form->{callback});
+  $self->js->redirect_to($::form->{callback})->render;
 }
 
 sub action_add_cv {
@@ -245,13 +235,13 @@ sub _setup_form_action_bar {
     $bar->add(
       action => [
         t8('Save'),
-        submit    => [ '#form', { action => "Contact/save" } ],
+        call      => [ 'kivi.Contact.save' ],
         accesskey => 'enter',
       ],
 
       action => [
         t8('Delete'),
-        submit   => [ '#form', { action => "Contact/delete" } ],
+        call     => [ 'kivi.Contact.delete_contact' ],
         confirm  => t8('Delete the contact? This will also remove the contact from all other customers and vendors.'),
         disabled => !$self->contact->cp_id ? t8('This object has not been saved yet.') : undef,
       ],
