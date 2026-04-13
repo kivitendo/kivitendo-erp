@@ -26,11 +26,11 @@
     </tr>
     <tr>
       <th>[% 'Given Name' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_givenname', SELF.contact.cp_givenname, class="wi-wide") %]</td>
+      <td>[% L.input_tag_trim('contact.cp_givenname', SELF.contact.cp_givenname, class='wi-wide', 'data-validate'='required') %]</td>
     </tr>
     <tr>
       <th>[% 'Surname' | $T8 %]</th>
-      <td>[% L.input_tag_trim('contact.cp_name', SELF.contact.cp_name, class="wi-wide") %]</td>
+      <td>[% L.input_tag_trim('contact.cp_name', SELF.contact.cp_name, class='wi-wide', 'data-validate'='required') %]</td>
     </tr>
     <tr>
       <th>[% 'Gender' | $T8 %]</th>
