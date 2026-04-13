@@ -3,6 +3,7 @@ package SL::Presenter::ALL;
 use strict;
 
 use SL::Presenter::Chart;
+use SL::Presenter::Contact;
 use SL::Presenter::Country;
 use SL::Presenter::CustomerVendor;
 use SL::Presenter::DatePeriod;
