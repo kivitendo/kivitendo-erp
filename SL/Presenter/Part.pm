@@ -39,7 +39,7 @@ sub part_picker {
   my ($name, $value, %params) = @_;
 
   $value = SL::DB::Manager::Part->find_by(id => $value) if $value && !ref $value;
-  my $id = $params{id} || name_to_id($name);
+  my $id = delete($params{id}) || name_to_id($name);
 
   my @classes = $params{class} ? ($params{class}) : ();
   push @classes, 'part_autocomplete';
