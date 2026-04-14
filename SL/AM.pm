@@ -487,6 +487,10 @@ sub layout_style {
   SL::Helper::UserPreferences::DisplayPreferences->new()->get_layout_style();
 }
 
+sub async_messages {
+  SL::Helper::UserPreferences::DisplayPreferences->new()->get_async_messages();
+}
+
 sub part_picker_search_all_as_list_default {
   SL::Helper::UserPreferences::PartPickerSearch->new()->get_all_as_list_default();
 }
@@ -540,6 +544,9 @@ sub save_preferences {
   }
   if (exists $form->{layout_style}) {
     SL::Helper::UserPreferences::DisplayPreferences->new()->store_layout_style($form->{layout_style})
+  }
+  if (exists $form->{async_messages}) {
+    SL::Helper::UserPreferences::DisplayPreferences->new()->store_async_messages($form->{async_messages})
   }
   if (exists $form->{part_picker_search_all_as_list_default}) {
     SL::Helper::UserPreferences::PartPickerSearch->new()->store_all_as_list_default($form->{part_picker_search_all_as_list_default})

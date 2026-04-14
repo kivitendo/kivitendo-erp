@@ -38,6 +38,14 @@ sub store_layout_style {
   $self->user_prefs->store('layout_style', $style);
 }
 
+sub get_async_messages {
+  $_[0]->user_prefs->get('async_messages') // 0;
+}
+
+sub store_async_messages {
+  $_[0]->user_prefs->store('async_messages', $_[1]);
+}
+
 sub init_user_prefs {
   SL::Helper::UserPreferences->new(
     namespace => $_[0]->namespace,

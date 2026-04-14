@@ -102,6 +102,7 @@ my %kivitendo_package_names = (
   ap_gl                          => 'ap_gl',
   assembly                       => 'assembly',
   assortment_items               => 'assortment_item',
+  async_events                   => 'AsyncEvent',
   background_jobs                => 'background_job',
   background_job_histories       => 'background_job_history',
   bank_accounts                  => 'bank_account',

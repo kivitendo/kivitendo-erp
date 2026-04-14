@@ -666,6 +666,7 @@ sub config {
   $form->{time_recording_use_duration}            = AM->time_recording_use_duration();
   $form->{longdescription_dialog_size_percentage} = AM->longdescription_dialog_size_percentage();
   $form->{layout_style}                           = AM->layout_style();
+  $form->{async_messages}                         = AM->async_messages();
   $form->{part_picker_search_all_as_list_default} = AM->part_picker_search_all_as_list_default();
   $form->{order_item_input_position}              = AM->order_item_input_position();
 

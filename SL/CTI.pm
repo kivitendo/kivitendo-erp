@@ -2,6 +2,7 @@ package SL::CTI;
 
 use strict;
 
+use SL::CTI::AsteriskManagerInterface;
 use String::ShellQuote;
 
 use SL::MoreCommon qw(uri_encode);
@@ -18,13 +19,16 @@ sub call {
     phone_password     => $::myconfig{phone_password}  || die($::locale->text('Phone password missing in user configuration')),
     number             => $external_prefix . $class->sanitize_number(%params),
   );
+  my $ami;
+  $ami = SL::CTI::AsteriskManagerInterface->new();
+  $ami->originate(%command_args);
 
-  foreach my $key (keys %command_args) {
-    my $value = shell_quote($command_args{$key});
-    $command  =~ s{<\% ${key} \%>}{$value}gx;
-  }
+  #foreach my $key (keys %command_args) {
+  #  my $value = shell_quote($command_args{$key});
+  #  $command  =~ s{<\% ${key} \%>}{$value}gx;
+  #}
 
-  return `$command`;
+  #return `$command`;
 }
 
 sub call_link {

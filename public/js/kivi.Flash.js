@@ -8,7 +8,7 @@ namespace("kivi.Flash", function(ns) {
     ok:      kivi.t8('Ok')
   };
 
-  ns.display_flash = function(type, message, details, timestamp) {
+  ns.display_flash = function(type, message, details, timestamp, close_msg_id) {
     if (kivi.Materialize)
       return kivi.Materialize.display_flash(type, message, details, timestamp);
 
@@ -18,6 +18,7 @@ namespace("kivi.Flash", function(ns) {
     let $dom = $('<div>');
     $dom.addClass('layout-flash-' + type);
     $dom.addClass('layout-flash-message');
+    $dom.attr('data-msg-id', close_msg_id);
 
     let $header = $('<div>');
     $header.addClass('layout-flash-header');
@@ -66,7 +67,10 @@ namespace("kivi.Flash", function(ns) {
     $("#layout_flash_container").append($dom);
 
     // fadeout after 1min
-    $dom.delay(60000).fadeOut('slow');
+    if (!close_msg_id) {
+      // fadeout after 1min
+      $dom.delay(60000).fadeOut('slow');
+    }
 
     ns.show();
     ns.update_indicator();
@@ -101,8 +105,20 @@ namespace("kivi.Flash", function(ns) {
 
   ns.remove_entry = function(e) {
     $(e.target).closest('div.layout-flash-message').remove();
+    let $t = $(e.target).closest('div.layout-flash-message');
+    let async_msg_id = $t.attr('data-msg-id');
+    if (async_msg_id) {
+       $.post("controller.pl", { action: 'AsyncEvent/delete_msg', msg_id: async_msg_id }, kivi.eval_json_result);
+      return;
+    }
+    $t.remove();
     ns.update_indicator();
   };
+
+  ns.remove_msg_by_id = function(id) {
+    $('[data-msg-id='+id+']').remove();
+    ns.update_indicator();
+  }
 
   ns.toggle = function() {
     // don't use builtin toggle because fadeout might have hidden all entries

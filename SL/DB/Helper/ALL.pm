@@ -7,6 +7,7 @@ use SL::DB::AdditionalBillingAddress;
 use SL::DB::ApGl;
 use SL::DB::Assembly;
 use SL::DB::AssortmentItem;
+use SL::DB::AsyncEvent;
 use SL::DB::AuthClient;
 use SL::DB::AuthClientUser;
 use SL::DB::AuthClientGroup;
