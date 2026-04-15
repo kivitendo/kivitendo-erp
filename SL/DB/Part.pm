@@ -428,6 +428,14 @@ SQL
   return $stock_info;
 }
 
+sub onhand_reserved {
+  my ($self, %params) = @_;
+
+  return undef unless $self->id;
+
+  return $self->get_stock(warehouse_id => SL::DB::Default->get->reserve_warehouse_id);
+}
+
 sub get_mini_journal {
   my ($self) = @_;
 
