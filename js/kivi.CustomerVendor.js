@@ -221,7 +221,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     var action_id = $input.prop('id') + '-dial-action';
 
     if (!$('#' + action_id).size()) {
-      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1"></a>');
+      var $action = $('<a href="" id="' + action_id + '" target="_blank" tabindex="-1"><img src="image/icons/16x16/phone.png"></a>');
       $input.wrap('<span nobr></span>').after($action);
 
       $input.change(function() { kivi.CustomerVendor.update_dial_action($input); });
