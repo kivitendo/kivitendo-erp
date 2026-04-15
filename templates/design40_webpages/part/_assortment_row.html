@@ -14,7 +14,7 @@
     [% L.button_tag("kivi.Part.delete_item_row(this)", LxERP.t8("✖"), class="wi-verytiny neutral delete-item") %] [% # , confirm=LxERP.t8("Are you sure?")) %]
   </td>
   <td class="center">
-    <div id="position">
+    <div name="position">
       [% HTML.escape(position) or HTML.escape(ITEM.position) %]
     </div>
   </td>
