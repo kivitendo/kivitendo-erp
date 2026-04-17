@@ -52,9 +52,9 @@
 \setkomavar{fromname}                  {<%employee_name%>}
 
 <%if template_meta.formname == "storno_invoice"%>
-  \setkomavar{title}{\rechnungs-<%invnumber%>}
+  \setkomavar{title}{\stornorechnung{} \StrSubstitute{<%invnumber%>}{Storno zu }{}}
 
-  \setkomavar{info5}[\rechnung~\nr]    {\StrSubstitute{<%invnumber%>}{Storno zu }{}}
+  \setkomavar{info5}[\rechnung~\nr]   {\StrSubstitute{<%invnumber%>}{Storno zu }{}}
 <%else%>
   \setkomavar{title}{\rechnung~\nr~<%invnumber%>}
 <%end%>
