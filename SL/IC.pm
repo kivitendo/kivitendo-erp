@@ -247,7 +247,7 @@ sub all_parts {
      ordnumber    => 'apoe.', make         => 'mm.',
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
-     lastcost     => 'p.',  , soldtotal    => ' ',
+     lastcost     => 'p.',    soldtotal    => ' ',
      factor       => 'pfac.', projectnumber => 'pj.',
      'SUM(ioi.qty)' => ' ',   projectdescription => 'pj.',
      description  => 'p.',    customer     => 'pcp.',
