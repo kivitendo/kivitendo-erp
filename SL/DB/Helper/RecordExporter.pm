@@ -69,9 +69,9 @@ my %columns_for = (
       department              => { text => t8('Department (description)'),
                                    sub  => sub {$_[0]->department ? $_[0]->department->description : ''} },
       globalprojectnumber     => { text => t8('Document Project (number)'),
-                                   sub  => sub {$_[0]->globalproject ? $_[0]->globalproject->description : ''} },
-      globalproject           => { text => t8('Document Project (description)'),
                                    sub  => sub {$_[0]->globalproject ? $_[0]->globalproject->projectnumber : ''} },
+      globalproject           => { text => t8('Document Project (description)'),
+                                   sub  => sub {$_[0]->globalproject ? $_[0]->globalproject->description : ''} },
     },
     item   => {
       datatype                 => { sub  => sub {t8('OrderItem')} },
