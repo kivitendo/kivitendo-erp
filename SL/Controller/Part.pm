@@ -365,7 +365,7 @@ sub action_update_item_totals {
   my $lastcost_sum     = $self->recalc_item_totals(part_type => $part_type, price_type => 'lastcost');
   my $items_weight_sum = $self->recalc_item_totals(part_type => $part_type, price_type => 'weight');
 
-  my $sum_diff      = $sellprice_sum-$lastcost_sum;
+  my $sum_diff         = $sellprice_sum-$lastcost_sum;
   my $sum_diff_percent = $sellprice_sum != 0
                        ? (100 - $lastcost_sum / $sellprice_sum * 100)
                        : undef;
@@ -488,6 +488,7 @@ sub action_add_assembly_item {
   my $items_sum_diff_percent = $items_sellprice_sum != 0
                              ? (100 - $items_lastcost_sum / $items_sellprice_sum * 100)
                              : undef;
+
   $self->js
     ->append('#assembly_rows', $html)  # append in tbody
     ->val('.add_assembly_item_input' , '')
