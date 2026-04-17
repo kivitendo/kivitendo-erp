@@ -124,8 +124,10 @@ sub export_as_csv_string {
     binary   => 1,
   });
 
+  die 'Cannot use CSV: '.Text::CSV_XS->error_diag() if !$csv;
+
   my $csv_string;
-  open(my $outfh, '>:encoding(UTF-8)', \$csv_string) or die "open for csv string failed";
+  open(my $outfh, '>:encoding(UTF-8)', \$csv_string) or die "open for csv string failed: $!";
 
   my $record_header = get_record_header($self, %params);
   my $item_header   = get_item_header($self, %params);
