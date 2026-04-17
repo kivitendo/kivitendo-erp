@@ -421,7 +421,7 @@ sub all_parts {
   # unfortunately make would have to match vendor.name which is already taken for vendor.name in bsooqr mode.
   # fortunately makemodel doesn't need to be displayed later, so adding a special clause to where_token is sufficient.
   # the lateral join mm already creates a string consisting of vendornumbers and vendornames in mm.make
-  # and the models in mm.make
+  # and the models in mm.model
   if ($form->{make}) {
     push @where_tokens, 'mm.make ILIKE ?';
     push @bind_vars, like($form->{make});
