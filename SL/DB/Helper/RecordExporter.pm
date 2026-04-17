@@ -254,8 +254,8 @@ The main keys of the hash are the class names of the defined records
 (i.e. C<SL::DB::Order> for now) and the values are hashrefs.
 
 For each defined class, there is a hashref for C<record> and a hashref
-for C<item>. These consists of the name of the column and a hasref with
-the definiton of the column.
+for C<item>. These consists of the name of the column and a hashref with
+the definition of the column.
 In the definition there can be following keys:
 
 =over 2
