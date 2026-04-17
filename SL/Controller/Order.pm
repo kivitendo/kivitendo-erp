@@ -53,6 +53,7 @@ use SL::Helper::UserPreferences::ItemInputPosition;
 
 use SL::Controller::Helper::GetModels;
 
+use DateTime;
 use List::Util qw(first sum0);
 use List::UtilsBy qw(sort_by uniq_by);
 use List::MoreUtils qw(uniq any none pairwise first_index);
