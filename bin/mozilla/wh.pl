@@ -546,7 +546,9 @@ sub create_assembly_chargenumbers {
 
   my $hidden_vars = { map { $_ => $form->{$_} } qw(parts_id warehouse_id bin_id bestbefore chargenumber qty unit comment) };
 
-  $form->{title} = $::locale->text('Select Chargenumbers to produce quantity #1 of #2 #3', $form->{qty}, $assembly->partnumber, $assembly->description);
+  $form->{title} = $::locale->text('Select charge numbers to produce quantity #1 of #2',
+                     $form->format_amount(\%main::myconfig, $form->{qty}) . ' ' . $form->{unit},
+                     $assembly->displayable_name);
   $form->header;
 
   print $form->parse_html_template(
