@@ -56,7 +56,6 @@
               [% P.hidden_tag('allocations[].bestbefore', part.bestbefore )%]
               [% P.hidden_tag('allocations[].warehouse_id', part.warehouse_id )%]
               [% P.hidden_tag('allocations[].bin_id', part.bin_id )%]
-              [% P.hidden_tag('allocations[].bestbefore', part.bestbefore) %]
               [% part.part.partnumber | html %]
             </td>
             <td>[% part.part.description      | html                 %]</td>
@@ -71,7 +70,7 @@
             <td>[% part.part.unit             | html                 %]</td>
           </tr>
         [% END %]
-        <tr><td colspan="8"></td></tr>
+        <tr><td colspan="[% IF INSTANCE_CONF.get_show_bestbefore %]9[% ELSE %]8[% END %]"></td></tr>
       [% END %]
     </tbody>
   </table>
