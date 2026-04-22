@@ -819,6 +819,7 @@ $self->{texts} = {
   'Contact Person'              => 'Ansprechperson',
   'Contact Person (database ID)' => 'Ansprechperson (Datenbank-ID)',
   'Contact Person (name)'       => 'Ansprechperson (Name)',
+  'Contact Test'                => 'Ansprechpersonen-Test',
   'Contact Titles'              => 'Titel von Ansprechpersonen',
   'Contact person (surname)'    => 'Ansprechperson (Nachname)',
   'Contact persons'             => 'Ansprechpersonen',
