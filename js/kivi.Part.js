@@ -507,7 +507,6 @@ namespace('kivi.Part', function(ns) {
       // if string is empty assume they want to delete
       if (event.which == KEY.BACKSPACE && self.$dummy.val() === '') {
         self.set_item({});
-        return true;
       }
     },
     handle_keydown: function(event) {
@@ -518,12 +517,12 @@ namespace('kivi.Part', function(ns) {
         // if string is empty assume they want to delete
         if (self.$dummy.val() === '') {
           self.set_item({});
-          return true;
+          return;
         } else if (self.state == self.STATES.PICKED) {
           if (self.o.action.commit_one) {
             self.run_action(self.o.action.commit_one);
           }
-          return true;
+          return;
         }
         if (event.which == KEY.TAB) {
           event.preventDefault();
@@ -536,7 +535,7 @@ namespace('kivi.Part', function(ns) {
             match_one:  self.o.action.commit_one,
             match_many: self.o.action.commit_many
           });
-          return false;
+          return;
         }
       } else if (event.which == KEY.DOWN && !self.autocomplete_open) {
         var old_options = self.$dummy.autocomplete('option');
