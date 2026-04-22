@@ -61,6 +61,7 @@ namespace('kivi.Contact', function(ns) {
   };
 
   var KEY = {
+    BACKSPACE: 8,
     TAB:       9,
     ENTER:     13,
     SHIFT:     16,
@@ -73,6 +74,7 @@ namespace('kivi.Contact', function(ns) {
     UP:        38,
     RIGHT:     39,
     DOWN:      40,
+    DELETE:    46,
   };
 
   ns.Picker = function($real, options) {
@@ -182,18 +184,25 @@ namespace('kivi.Contact', function(ns) {
         }
       });
     },
+    handle_keyup: function(event) {
+      var self = this;
+      // if string is empty assume they want to delete
+      if ((event.which == KEY.BACKSPACE || event.which == KEY.DELETE) && self.$dummy.val() === '') {
+        self.set_item({});
+      }
+    },
     handle_keydown: function(event) {
       var self = this;
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
         // if string is empty assume they want to delete
         if (self.$dummy.val() === '') {
           self.set_item({});
-          return true;
+          return;
         } else if (self.state == self.STATES.PICKED) {
           if (self.o.action.commit_one) {
             self.run_action(self.o.action.commit_one);
           }
-          return true;
+          return;
         }
         if (event.which == KEY.TAB) {
           event.preventDefault();
@@ -206,7 +215,7 @@ namespace('kivi.Contact', function(ns) {
             match_one:  self.o.action.commit_one,
             match_many: self.o.action.commit_many
           });
-          return false;
+          return;
         }
       } else if (event.which == KEY.DOWN && !self.autocomplete_open) {
         var old_options = self.$dummy.autocomplete('option');
@@ -246,10 +255,18 @@ namespace('kivi.Contact', function(ns) {
           self.autocomplete_open = false;
         }
       });
-      this.$dummy.keydown(function(event){ self.handle_keydown(event) });
+      this.$dummy.keyup  (function(event){ self.handle_keyup  (event); });
+      this.$dummy.keydown(function(event){ self.handle_keydown(event); });
       this.$dummy.on('paste', function(){
         setTimeout(function() {
           self.handle_changed_text();
+        }, 1);
+      });
+      this.$dummy.on('cut', function(){
+        setTimeout(function() {
+          if (self.$dummy.val() === '') {
+            self.set_item({});
+          }
         }, 1);
       });
       this.$dummy.blur(function(){
