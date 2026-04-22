@@ -132,7 +132,7 @@ sub invoice_transactions {
   }
   if ($form->{country_id}) {
     $where .= qq| AND (countries.id = ?)|;
-    push(@values, like($form->{country_id}));
+    push(@values, conv_i($form->{country_id}));
   }
 
   # when filtering for parts by description we probably want to filter by the description of the part as per the master data
