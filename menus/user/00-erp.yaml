@@ -1626,6 +1626,13 @@
   params:
     action: Chart/test_page
 - parent: develop
+  id: chart_test
+  name: Contact Test
+  access: developer
+  order: 250
+  params:
+    action: Contact/test_page
+- parent: develop
   id: customervendor_test
   name: Customer-Vendor Test
   access: developer

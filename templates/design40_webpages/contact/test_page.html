@@ -1,0 +1,60 @@
+[% USE L %]
+[% USE P %]
+
+<h1>Contact Picker Testpage</h1>
+
+<div class="wrapper">
+
+  Alle: <br>
+  [% P.contact.picker('part_id') %] text<br>
+  <br>
+  Pre-filled:<br>
+  [% P.contact.picker('part_id6', pre_filled_contact) %]<br>
+
+  <h2>Styling</h2>
+
+  In a span:
+  <span>Leading text: [% P.contact.picker('p1', undef, part_type='part,service') %] and text after with spacing</span><br>
+  <span>Leading text:[% P.contact.picker('p2', undef, part_type='part,service') %]and text after without spacing</span><br>
+  <div>Leading text: [% P.contact.picker('p3', undef, part_type='part,service') %] and text after with spacing with div</div><br>
+  <div>Leading text:[% P.contact.picker('p4', undef, part_type='part,service') %]and text after with spacing with div</div><br>
+
+  <span>Picker + input next to each other: [% P.contact.picker('p5', undef, part_type='part,service', width="100%") %]<input type=text></span>
+
+  <div>[% P.contact.picker('p6', undef, part_type='part,service', style="width:500px") %] 500px width</div>
+  <div>[% P.contact.picker('p7', undef, part_type='part,service', style="width:200px") %] 200px width</div>
+  <div>[% P.contact.picker('p8', undef, part_type='part,service', style="height:40px") %] 40px height</div>
+
+  [%# FOREACH i IN 1..50 %]
+  [%# P.contact.picker('part_id_' _ i) %] <br>
+  [%# END %]
+
+  <h2>In tables</h2>
+
+  <p>No classes:</p>
+
+  <table>
+  <tr>
+    <th>Contact picker in table heading</th>
+    <th>[% P.contact.picker('p9', undef, part_type='part,service') %]</th>
+  </tr>
+  <tr>
+    <td>Contact picker in table cell</td>
+    <td>[% P.contact.picker('p10', undef, part_type='part,service') %]</td>
+  </tr>
+  </table>
+
+  <p>With classes:</p>
+
+  <table>
+  <tr>
+    <th>Contact picker in table heading</th>
+    <th>[% P.contact.picker('p11', undef, part_type='part,service') %]</th>
+  </tr>
+  <tr>
+    <td>Contact picker in table cell</td>
+    <td>[% P.contact.picker('p12', undef, part_type='part,service') %]</td>
+  </tr>
+  </table>
+
+</div>
