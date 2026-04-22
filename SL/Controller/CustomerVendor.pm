@@ -893,8 +893,7 @@ sub action_show_customer_vendor_details_dialog {
   $details{delivery_terms}      = $cv->delivery_term->description if $cv->delivery_term;
   $details{payment_terms}       = $cv->payment->description       if $cv->payment;
   $details{pricegroup}          = $cv->pricegroup->pricegroup     if $is_customer && $cv->pricegroup;
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
-  $details{country}             = $cv->country->$country_description_key;
+  $details{country}             = $cv->country->description_localized($::myconfig{countrycode});
 
   if ($is_customer) {
     foreach my $entry (@{ $cv->additional_billing_addresses }) {
