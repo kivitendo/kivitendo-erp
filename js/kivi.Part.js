@@ -345,6 +345,7 @@ namespace('kivi.Part', function(ns) {
     UP:        38,
     RIGHT:     39,
     DOWN:      40,
+    DELETE:    46,
   };
 
   ns.Picker = function($real, options) {
@@ -505,7 +506,7 @@ namespace('kivi.Part', function(ns) {
     handle_keyup: function(event) {
       var self = this;
       // if string is empty assume they want to delete
-      if (event.which == KEY.BACKSPACE && self.$dummy.val() === '') {
+      if ((event.which == KEY.BACKSPACE || event.which == KEY.DELETE) && self.$dummy.val() === '') {
         self.set_item({});
       }
     },
