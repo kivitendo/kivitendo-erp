@@ -70,8 +70,10 @@ Kleinere neue Features und Detailverbesserungen:
 
 - CSV-Export für Aufträge aus der Auftragsmaske heraus.
 
-- PDF Dokumente im Beleg-Reiter Dokumente können beim Buchungsjournal direkt
-  mitexportiert werden, vorausgesetzt der Haken bei Belege ist dort gesetzt.
+- PDF Dokumente im Beleg-Reiter Dokumente können beim Buchungsjournal durch
+  setzen des enstprechenden Häkchens beim Export mitexportiert werden. Die
+  etwas versteckte Möglichkeit dafür über eine zweite Aktion in der Action-Bar
+  entfällt.
 
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
