@@ -7,16 +7,18 @@ namespace('kivi', function(k){
       return $real.data("project_picker");
 
     var KEY = {
-      ESCAPE: 27,
-      ENTER:  13,
-      TAB:    9,
-      LEFT:   37,
-      RIGHT:  39,
-      PAGE_UP: 33,
+      BACKSPACE: 8,
+      ESCAPE:    27,
+      ENTER:     13,
+      TAB:       9,
+      LEFT:      37,
+      RIGHT:     39,
+      PAGE_UP:   33,
       PAGE_DOWN: 34,
       SHIFT:     16,
       CTRL:      17,
       ALT:       18,
+      DELETE:    46,
     };
     var CLASSES = {
       PICKED:       'projectpicker-picked',
@@ -221,6 +223,13 @@ namespace('kivi', function(k){
      *  event.which does not contain tab events in keypressed in firefox but will report 0
      *  chrome does not fire keypressed at all on tab or escape
      */
+    $dummy.keyup(function(event){
+      // if string is empty assume they want to delete
+      if ((event.which == KEY.BACKSPACE || event.which == KEY.DELETE) && $dummy.val() === '') {
+        set_item({});
+      }
+    });
+
     $dummy.keydown(function(event){
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
         // if string is empty assume they want to delete
@@ -248,6 +257,14 @@ namespace('kivi', function(k){
     $dummy.on('paste', function(){
       setTimeout(function() {
         handle_changed_text();
+      }, 1);
+    });
+
+    $dummy.on('cut', function(){
+      setTimeout(function() {
+        if ($dummy.val() === '') {
+          set_item({});
+        }
       }, 1);
     });
 
