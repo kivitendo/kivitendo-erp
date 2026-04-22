@@ -551,7 +551,7 @@ sub ap_transactions {
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
 
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .

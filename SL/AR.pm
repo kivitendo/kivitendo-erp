@@ -511,7 +511,7 @@ sub ar_transactions {
 
   my @values;
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
 
   my $query =
     qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .

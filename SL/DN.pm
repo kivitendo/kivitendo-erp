@@ -641,7 +641,7 @@ sub get_invoices {
     push(@values, $form->{invoice});
   }
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my %columns = (
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",
@@ -989,7 +989,7 @@ sub print_dunning {
       map { push @{ $form->{TEMPLATE_ARRAYS}->{"dn_$_"} }, $value->{$_} } keys %{ $value };
     }
   }
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   $query =
     qq|SELECT
          c.id AS customer_id, c.name,         c.street,       c.zipcode,   c.city,
@@ -1130,7 +1130,7 @@ sub print_invoice_for_fees {
   $query = qq|SELECT SUM(fee), SUM(interest) FROM dunning WHERE id = ?|;
   my ($fee_total, $interest_total) = selectrow_query($form, $dbh, $query, $dunning_id);
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   $query =
     qq|SELECT
          ar.invnumber, ar.transdate AS invdate, ar.amount, ar.netamount,

@@ -1232,7 +1232,7 @@ sub get_vendor {
     $where .= 'AND v.vendornumber = ?';
     push @values, $vnr;
   }
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my $query =
     qq|SELECT
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
@@ -1523,7 +1523,7 @@ sub vendor_details {
 
   # get rest for the vendor
   # fax and phone and email as vendor*
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
          cu.name AS currency, countries.$country_description_key AS country

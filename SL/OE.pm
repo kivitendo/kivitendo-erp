@@ -142,7 +142,7 @@ SQL
                      ? ''
                      : qq| , o.amount, o.netamount, o.marge_total, o.marge_percent, (o.netamount * o.order_probability / 100) AS expected_netamount |;
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate | .
     $amount_columns .

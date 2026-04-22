@@ -63,7 +63,7 @@ sub search {
   my $where = "1 = 1";
   my @values;
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my %allowed_sort_columns = (
       "id"                 => "ct.id",
       "customernumber"     => "ct.customernumber",
@@ -553,7 +553,7 @@ sub search_contacts {
 
   my $where = @where_tokens ? 'WHERE ' . join ' AND ', @where_tokens : '';
 
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
 
   my $query     = qq|SELECT cp.*,
                        COALESCE(c.id,             v.id)           AS vcid,
