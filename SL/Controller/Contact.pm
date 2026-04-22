@@ -28,6 +28,9 @@ __PACKAGE__->run_before(
 
 __PACKAGE__->run_before('_check_auth');
 
+__PACKAGE__->run_before(sub { $::auth->assert('developer') },
+                        only => [ qw(test_page) ]);
+
 sub action_ajaj_autocomplete {
   my ($self, %params) = @_;
 
@@ -184,6 +187,10 @@ sub action_add_contact {
 
   $self->js->val(".add_contact_input", '');
   $self->js->render();
+}
+
+sub action_test_page {
+  $_[0]->render('contact/test_page', pre_filled_contact => SL::DB::Manager::Contact->get_first);
 }
 
 sub _pre_render {
