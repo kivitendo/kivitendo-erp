@@ -58,7 +58,7 @@ sub contact_picker {
     input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => "@classes", type => 'hidden', id => $id,
       'data-contact-picker-data' => JSON::to_json(\%params),
     ) .
-    input_tag("", ref $value  ? $value->displayable_name : '', id => "${id}_name", %params);
+    input_tag("", ref $value  ? $value->full_name : '', id => "${id}_name", %params);
 
   $::request->layout->add_javascripts('kivi.Contact.js');
   $::request->presenter->need_reinit_widgets($id);
