@@ -250,6 +250,7 @@ namespace('kivi.CustomerVendor', function(ns) {
   };
 
   var KEY = {
+    BACKSPACE: 8,
     TAB:       9,
     ENTER:     13,
     SHIFT:     16,
@@ -262,6 +263,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     UP:        38,
     RIGHT:     39,
     DOWN:      40,
+    DELETE:    46,
   };
 
   ns.Picker = function($real, options) {
@@ -372,6 +374,13 @@ namespace('kivi.CustomerVendor', function(ns) {
         }
       });
     },
+    handle_keyup: function(event) {
+      var self = this;
+      // if string is empty assume they want to delete
+      if ((event.which == KEY.BACKSPACE || event.which == KEY.DELETE) && self.$dummy.val() === '') {
+        self.set_item({});
+      }
+    },
     handle_keydown: function(event) {
       var self = this;
       if (event.which == KEY.ENTER || event.which == KEY.TAB) {
@@ -436,10 +445,18 @@ namespace('kivi.CustomerVendor', function(ns) {
           self.autocomplete_open = false;
         }
       });
+      this.$dummy.keyup  (function(event){ self.handle_keyup  (event); });
       this.$dummy.keydown(function(event){ self.handle_keydown(event) });
       this.$dummy.on('paste', function(){
         setTimeout(function() {
           self.handle_changed_text();
+        }, 1);
+      });
+      this.$dummy.on('cut', function(){
+        setTimeout(function() {
+          if (self.$dummy.val() === '') {
+            self.set_item({});
+          }
         }, 1);
       });
       this.$dummy.blur(function(){
