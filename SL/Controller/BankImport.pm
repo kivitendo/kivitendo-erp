@@ -132,7 +132,7 @@ sub parse_and_analyze_transactions {
       next;
     }
     if ($transaction->{amount} == 0) {
-      $transaction->{error} = $::locale->text('Zero amount for bank transaction #1, skipping import.', $transaction->{purpose});
+      $transaction->{error} = $::locale->text('Zero amount for bank transaction #1, skipping transaction.', $transaction->{purpose});
       $errors++;
       next;
     }
