@@ -260,10 +260,10 @@
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag('order.ordnumber', SELF.order.ordnumber, onchange='kivi.Order.set_number_in_title(this)', class='wi-normal') %]
           [%- ELSIF SELF.order.id %]
-            [% HTML.escape(SELF.order.ordnumber) %]
+            <span class="data wi-normal">[% HTML.escape(SELF.order.ordnumber) %]</span>
             [% L.hidden_tag("order.ordnumber", SELF.order.ordnumber) %]
           [% ELSE %]
-            [% LxERP.t8("will be set upon saving") %]
+            <span class="data wi-normal">[% LxERP.t8("will be set upon saving") %]</span>
           [%- END %]
         </td>
       </tr>
@@ -272,26 +272,14 @@
     [% IF SELF.type == "sales_order" %]
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
-        [%-
-          numbers = [];
-          FOREACH p = SELF.order.preceding_sales_order_intakes();
-            numbers.push(HTML.escape(p.ordnumber));
-          END;
-        %]
-        <td><span class="data wi-normal">[% numbers.join(', ') %]</span></td>
+        <td><span class="data wi-normal">[% HTML.escape(SELF.order.preceding_sales_order_intakes().join(', ')) %]</span></td>
       </tr>
     [% END %]
 
     [% IF SELF.type == "purchase_order_confirmation" %]
       <tr>
         <th>[% 'Order Number' | $T8 %]</th>
-        [%-
-          numbers = [];
-          FOREACH p = SELF.order.preceding_purchase_orders();
-            numbers.push(HTML.escape(p.ordnumber));
-          END;
-        %]
-        <td><span class="data wi-normal">[% numbers.join(', ') %]</span></td>
+        <td><span class="data wi-normal">[% HTML.escape(SELF.order.preceding_purchase.orders().join(', ')) %]</span></td>
       </tr>
     [% END %]
 
