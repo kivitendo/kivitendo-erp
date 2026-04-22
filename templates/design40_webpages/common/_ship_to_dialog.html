@@ -120,13 +120,7 @@ END ;
    </tr>
    <tr>
     <th>[% LxERP.t8('Country') %]</th>
-    <td>
-      [% IF MYCONFIG.countrycode == 'de' %]
-        [% HTML.escape(vc_obj.country.description_de) %]
-      [% ELSE %]
-        [% HTML.escape(vc_obj.country.description_en) %]
-      [% END %]
-    </td>
+    <td>[% HTML.escape(vc_obj.country.description_localized(MYCONFIG.countrycode)) %]</td>
     <td>[% P.country.picker('shiptocountry_id', shiptocountry_id, with_empty = 1, class="wi-wide") %]</td>
    </tr>
    <tr>
