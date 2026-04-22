@@ -30,9 +30,8 @@ sub address {
   croak("SL::DB::Default::address is a read-only accessor") if @_;
 
   my $zipcode_city = join ' ', grep { $_ } ($self->address_zipcode, $self->address_city);
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
 
-  return join "\n", grep { $_ } ($self->address_street1, $self->address_street2, $zipcode_city, $self->address_country->$country_description_key);
+  return join "\n", grep { $_ } ($self->address_street1, $self->address_street2, $zipcode_city, $self->address_country->description_localized($::myconfig{countrycode}));
 }
 
 1;
