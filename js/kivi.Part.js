@@ -620,6 +620,13 @@ namespace('kivi.Part', function(ns) {
           self.handle_changed_text();
         }, 1);
       });
+      this.$dummy.on('cut', function(){
+        setTimeout(function() {
+          if (self.$dummy.val() === '') {
+            self.set_item({});
+          }
+        }, 1);
+      });
       this.$dummy.blur(function(){
         window.clearTimeout(self.timer);
         self.timer = window.setTimeout(function() { self.annotate_state(); }, 100);
