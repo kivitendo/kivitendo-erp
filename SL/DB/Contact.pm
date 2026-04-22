@@ -11,6 +11,8 @@ use SL::DB::Helper::CustomVariables (
 
 __PACKAGE__->meta->initialize;
 
+sub country_id { goto &cp_country_id }
+
 sub used {
   my ($self) = @_;
 
