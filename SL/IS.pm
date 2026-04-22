@@ -2525,7 +2525,7 @@ sub get_customer {
     $where .= 'AND c.id = ?';
     push @values, $cid;
   }
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   $query =
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit,

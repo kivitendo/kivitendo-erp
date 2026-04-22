@@ -24,12 +24,19 @@ sub description_localized {
 
   croak "Method is not a setter" if @_;
 
-  my $country_description_key = 'description_' .
-    ($language_code =~ m/^de$/i ? 'de' :
-     $language_code =~ m/^en$/i ? 'en' : 'de');
+  my $column = $self->description_column_localized($language_code);
 
-  $self->$country_description_key;
+  return $self->$column();
 }
 
+sub description_column_localized {
+  my ($class, $language_code) = @_;
+
+  $language_code //= '';
+
+  return 'description_' .
+    ($language_code =~ m/^de$/i ? 'de' :
+     $language_code =~ m/^en$/i ? 'en' : 'de');
+}
 
 1;
