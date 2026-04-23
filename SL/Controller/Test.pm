@@ -11,6 +11,9 @@ use SL::ClientJS;
 use SL::OAuth;
 use REST::Client;
 
+__PACKAGE__->run_before(sub { $::auth->assert('developer') },
+                        only => [ qw(get_google_cal_list) ]);
+
 sub action_dump_form {
   my ($self) = @_;
 
