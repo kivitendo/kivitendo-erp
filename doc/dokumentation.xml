@@ -8966,7 +8966,7 @@ document_path = /var/local/kivi_documents
         <title>Atlassian Jira</title>
 
         <para>
-          Diese Implementierung funktioiert mit Atlassian Jira Cloud.
+          Diese Implementierung funktioniert mit Atlassian Jira Cloud.
           (Die on-premises Variante von Jira hat eine andere API.)
         </para>
 
