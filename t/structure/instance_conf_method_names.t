@@ -7,7 +7,7 @@ use File::Slurp;
 use Test::More;
 
 my %default_columns;
-my %compatibility_functions = map { ($_ => 1) } qw(address);
+my %compatibility_functions = map { ($_ => 1) } qw(address address_country);
 
 sub read_default_columns {
   my $content   =  read_file('SL/DB/MetaSetup/Default.pm');
