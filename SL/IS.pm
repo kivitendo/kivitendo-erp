@@ -802,6 +802,10 @@ sub _post_invoice {
 
   my $already_booked = !!$form->{id};
 
+  my $record_type = $form->{type} eq 'credit_note' ? 'credit_note'
+                  : $form->{storno}                ? 'invoice_storno'
+                  :                                  'invoice';
+
   if (!$payments_only) {
     if ($form->{storno}) {
       _delete_transfers($dbh, $form, $form->{storno_id});
@@ -817,8 +821,8 @@ sub _post_invoice {
       $query = qq|SELECT nextval('glid')|;
       ($form->{"id"}) = selectrow_query($form, $dbh, $query);
 
-      $query = qq|INSERT INTO ar (id, invnumber, currency_id, taxzone_id) VALUES (?, ?, (SELECT id FROM currencies WHERE name=?), ?)|;
-      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency}, $form->{taxzone_id});
+      $query = qq|INSERT INTO ar (id, invnumber, record_type, currency_id, taxzone_id) VALUES (?, ?, ?, (SELECT id FROM currencies WHERE name=?), ?)|;
+      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $record_type, $form->{currency}, $form->{taxzone_id});
 
       if (!$form->{invnumber}) {
         my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, id => $form->{id});
