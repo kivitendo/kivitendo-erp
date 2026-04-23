@@ -3,6 +3,7 @@ package SL::TicketSystem::Jira;
 use strict;
 use parent qw(SL::TicketSystem::Base);
 
+use DateTime::Format::Strptime;
 use SL::OAuth;
 use SL::JSON;
 use SL::Locale::String;

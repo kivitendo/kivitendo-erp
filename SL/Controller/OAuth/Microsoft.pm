@@ -2,13 +2,14 @@ package SL::Controller::OAuth::Microsoft;
 
 use strict;
 use parent qw(SL::Controller::OAuth::Base);
+use Crypt::PRNG qw(random_bytes_b64 random_bytes_b64u);
 
 
 # TODO: make real object with state:
 my $authorize_endpoint  = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize';
 my $devicecode_endpoint = 'https://login.microsoftonline.com/common/oauth2/v2.0/devicecode';
 my $token_endpoint      = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
-my $tenant              = 'common',
+my $tenant              = 'common';
 my $imap_endpoint       = 'outlook.office365.com';
 my $smtp_endpoint       = 'smtp.office365.com';
 my $sasl_method         = 'XOAUTH2';
