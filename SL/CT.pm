@@ -74,6 +74,8 @@ sub search {
       "phone"              => "ct.phone",
       "fax"                => "ct.fax",
       "email"              => "ct.email",
+      "invoice_mail"       => "ct.invoice_mail",
+      "delivery_order_mail" => "ct.delivery_order_mail",
       "street"             => "ct.street",
       "taxnumber"          => "ct.taxnumber",
       "business"           => "b.description",
