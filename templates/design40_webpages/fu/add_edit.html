@@ -35,7 +35,7 @@
       [% FOREACH row = LINKS %]
         <tr>
           <th>[% 'Reference' | $T8 %]</th>
-          <td>[% P.link_tag(row.url, row.title, target="_blank") %]</td>
+          <td>[% P.link_tag(row.url, HTML.escape(row.title), target="_blank") %]</td>
         </tr>
       [% END %]
       <tr>
