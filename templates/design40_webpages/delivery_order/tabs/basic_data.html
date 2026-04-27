@@ -59,7 +59,6 @@
       <tr>
         <th>[% 'Shipping Address' | $T8 %]</th>
         <td>
-          [% L.hidden_tag('order.billing_address_id', SELF.order.billing_address_id) %]
           <span id='shipto_selection' [%- IF !SELF.order.${SELF.cv}.shipto.size %]style='display:none'[%- END %]>
             [% shiptos = [ { shipto_id => "", displayable_id => LxERP.t8("No/individual shipping address") } ] ;
                FOREACH s = SELF.order.${SELF.cv}.shipto ;
@@ -321,6 +320,7 @@
 
 </div><!-- /#row_table_scroll_id /.wrapper -->
 
+[% L.hidden_tag('order.billing_address_id', SELF.order.billing_address_id) %]
 [% L.hidden_tag('order.currency_id', SELF.order.currency_id) %]
 [% L.hidden_tag('order.taxzone_id', SELF.order.taxzone_id) %]
 [% L.hidden_tag('order.taxincluded', SELF.order.taxincluded) %]
