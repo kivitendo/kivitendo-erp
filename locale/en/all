@@ -3569,6 +3569,7 @@ $self->{texts} = {
   'Selected'                    => '',
   'Selected items deleted'      => '',
   'Selection'                   => '',
+  'Selection (multiple)'        => '',
   'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' => '',
   'Sell Price'                  => '',
   'Sellprice'                   => '',
