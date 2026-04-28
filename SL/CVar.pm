@@ -175,6 +175,8 @@ sub get_custom_variables {
 
       } elsif ($cvar->{type} eq 'number') {
         $cvar->{value} = $cvar->{default_value} * 1 if ($cvar->{default_value} ne '');
+      } elsif ($cvar->{type} eq 'multiselect') {
+        $cvar->{value} = [ split /##/, ($cvar->{default_value} =~ s/^##|##$//gr) ];  # value is assumed serialized with leading and trailing ## for easier matching
 
       } else {
         $cvar->{value} = $cvar->{default_value};
@@ -279,7 +281,7 @@ sub _save_custom_variables {
     } elsif ($config->{type} eq 'multiselect') {
       # multiselect values are serialized with leading and trailing delimiter to make this match easier
       # for example with value '##B##C##BB##' searching for B will match against '##B##'
-      push @values, undef, undef, join('##', '', @$value, ''), undef;
+      push @values, undef, undef, join('##', '', @{$value // []}, ''), undef;
 
     } elsif (($config->{type} eq 'date') || ($config->{type} eq 'timestamp')) {
       push @values, undef, conv_date($value), undef, undef;

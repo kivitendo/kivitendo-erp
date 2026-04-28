@@ -39,7 +39,7 @@
 
     [% ELSIF cvar.var.type == 'select' %]
       [% render_cvar_tag_options.name=cvar_tag_name %]
-    
+
       <select [% P.stringify_attributes(render_cvar_tag_options) %]>
         [% IF LxERP.is_rdbo(cvar.var, 'CustomVariableConfig') %]
           [% FOREACH option = cvar.var.processed_options %]
@@ -55,6 +55,29 @@
                 value = option.value
                };
                render_cvar_opts.selected = 'selected' IF option.value == cvar.value;
+               L.html_tag('option', option.value, render_cvar_opts) %]
+          [% END %]
+        [% END %]
+      </select>
+
+    [% ELSIF cvar.var.type == 'multiselect' %]
+      [% render_cvar_tag_options.name=cvar_tag_name %]
+
+      <select [% P.stringify_attributes(render_cvar_tag_options) %] multiple>
+        [% IF LxERP.is_rdbo(cvar.var, 'CustomVariableConfig') %]
+          [% FOREACH option = cvar.var.processed_options %]
+            [% SET render_cvar_opts = {
+              value = option
+             };
+             render_cvar_opts.selected = 'selected' IF cvar.value.grep('^' _ option _ '$').size;
+             L.html_tag('option', option, render_cvar_opts) %]
+          [% END %]
+        [% ELSE %]
+          [% FOREACH option = cvar.var.OPTIONS %]
+            [% SET render_cvar_opts = {
+                value = option.value
+               };
+               render_cvar_opts.selected = 'selected' IF cvar.value.grep('^' _ option.value _ '$').size;
                L.html_tag('option', option.value, render_cvar_opts) %]
           [% END %]
         [% END %]
