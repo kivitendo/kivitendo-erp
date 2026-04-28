@@ -147,20 +147,23 @@
     // QUICK-SEARCH
     // --------------------------------------
 
-    div.frame-header-quicksearch{
-      display: block;
-      overflow: hidden;
+    div.frame-header-quicksearch {
       margin: 0.1em auto 0 auto;
-      text-align: center;
       width: auto;
+      display: flex;
+      flex-wrap: wrap;
+      column-gap: 0.75ex;
+      row-gap: 0.75ex;
+      justify-content: center;
 
-      span.frame-header-quicksearch input {
+      input {
+        flex: 1;
+        height: 1.8em;
+        min-width: 7em;
+        max-width: 220px;
+        font-size: @font-size-smaller;
         //font-family: @font-family-sans-serif ;
-        margin-top: 0.1em;
         background-color: @dashbrd_input_bg ;
-        width: auto !important;
-        min-width: 5em;
-        max-width: 7em;
         padding: 0 0.2em ;
         border-width: 1px ;
         //border-color: #bcbcbc;
