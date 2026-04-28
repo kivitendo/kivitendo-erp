@@ -288,39 +288,6 @@
   [% END   #IF is_payments %]
 </table>
 
-[% IF 0 # is_taxreport - formerly at end of table above in a separate row %]
-<div class="form-addition control-panel">
-  <h3>[% 'Include in Report' | $T8 %]</h3>
-  <table class="tbl-horizontal">
-    <tr>
-      <td><input name="l_id" type="checkbox" value="Y"></td>
-      <td>[% 'ID' | $T8 %]</td>
-      <td><input name="l_invnumber" type="checkbox" value="Y" checked></td>
-      <td>[% 'Invoice' | $T8 %]</td>
-      <td><input name="l_transdate" type="checkbox" value="Y" checked></td>
-      <td>[% 'Date' | $T8 %]</td>
-    </tr>
-    <tr>
-      <td><input name="l_name" type="checkbox" value="Y" checked></td>
-      <td>
-        [% LxERP.t8('Customer') IF db == 'ar' %]
-        [% LxERP.t8('Vendor')   IF db == 'ap' %]
-     </td>
-      <td><input name="l_netamount" type="checkbox" value="Y" checked></td>
-      <td>[% 'Amount' | $T8 %]</td>
-      <td><input name="l_tax" type="checkbox" value="Y" checked></td>
-      <td>[% 'Tax' | $T8 %]</td>
-      <td><input name="l_amount" type="checkbox" value="Y"></td>
-      <td>[% 'Total' | $T8 %]</td>
-    </tr>
-    <tr>
-      <td><input name="l_subtotal" type="checkbox" value="Y"></td>
-      <td>[% 'Subtotal' | $T8 %]</td>
-    </tr>
-  </table>
-</div><!-- /.form-addition -->
-[% END %]
-
 </form>
 </div><!-- /.wrapper -->
 
