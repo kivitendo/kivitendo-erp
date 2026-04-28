@@ -45,10 +45,9 @@
   </select>
 
 [% ELSIF var.type == 'multiselect' %]
-  <input type="hidden" name="[% var_name %]" value="">
-  <select name="[% var_name %]" multiple>
+  <select name="[% var_name %][]" multiple>
     [% FOREACH option = var.OPTIONS %]
-      <option value="[% option.value | html %]"[% IF option.value == var.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+      <option value="[% option.value | html %]"[% IF var.value.grep('^' _ option.value _ '$').size %] selected[% END %]>[% HTML.escape(option.value) %]</option>
     [% END %]
   </select>
 
