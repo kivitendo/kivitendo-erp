@@ -5,7 +5,14 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use Data::Dumper;
+use English qw(-no_match_vars);
 use SL::ClientJS;
+
+use SL::OAuth;
+use REST::Client;
+
+__PACKAGE__->run_before(sub { $::auth->assert('developer') },
+                        only => [ qw(get_google_cal_list) ]);
 
 sub action_dump_form {
   my ($self) = @_;
@@ -19,5 +26,30 @@ sub action_ckeditor_test_page {
 
   $self->render("test/ckeditor");
 }
+
+
+sub action_get_google_cal_list {
+  my ($self) = @_;
+
+  my $api_host = 'https://www.googleapis.com';
+
+  my $acctok;
+  eval {
+    $acctok = SL::OAuth::access_token_for('google_cal');
+  } or do {
+    die ref($EVAL_ERROR);
+  };
+
+  my $client = REST::Client->new(host => $api_host);
+  $client->addHeader('Accept',        'application/json');
+  $client->addHeader('Authorization', 'Bearer ' . $acctok);
+
+  my $ret = $client->GET('/calendar/v3/users/me/calendarList');
+
+  my $output = Dumper($ret);
+  $::lxdebug->message(LXDebug->DEBUG2(), "Test: get_google_cal_list:\n" . $output);
+  $self->render(\$output, { type => 'text' });
+}
+
 
 1;
