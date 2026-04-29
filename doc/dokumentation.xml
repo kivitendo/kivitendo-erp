@@ -5094,6 +5094,9 @@ insettings.tex</programlisting>
         Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten,
         siehe dazu <xref
         linkend="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"/>.</para>
+
+        <para>Ländernamen für Berichte und Belegdruck lassen sich einstellen im Menü
+        System → Sprachen und Übersetzungen → Ländernamen.</para>
       </sect2>
 
       <sect2 id="dokumentenvorlagen-und-variablen.allgemeine-variablen">
