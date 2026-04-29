@@ -16,7 +16,7 @@
     <tr>
       <th style="display:none"></th>
       [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
-        <th class="img"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]"></th>
+        <th class="img"><img src="image/close.png" alt="[% LxERP.t8('delete item') %]" class="close"></th>
       [% END %]
       <th>[% 'position' | $T8 %]</th>
       [% IF SELF.orphaned || AUTH.assert('assembly_edit', 1) %]
