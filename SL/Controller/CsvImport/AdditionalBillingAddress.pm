@@ -38,7 +38,7 @@ sub check_objects {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_vc($entry, 'customer_id');
-    $self->check_country_optional($entry);
+    $self->check_country_optional($entry, 'country_id', 'country');
 
     next if @{ $entry->{errors} };
 
@@ -77,6 +77,7 @@ sub setup_displayable_columns {
     { name => 'zipcode',         description => $::locale->text('Zipcode')              },
     { name => 'city',            description => $::locale->text('City')                 },
     { name => 'country',         description => $::locale->text('Country')              },
+    { name => 'country_id',      description => $::locale->text('Country (database ID)')},
     { name => 'contact',         description => $::locale->text('Contact')              },
     { name => 'email',           description => $::locale->text('E-mail')               },
     { name => 'fax',             description => $::locale->text('Fax')                  },

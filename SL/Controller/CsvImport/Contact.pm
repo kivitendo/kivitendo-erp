@@ -78,7 +78,7 @@ sub check_objects {
     $self->check_name($entry);
     $self->check_vc($entry, 'cp_cv_id');
     $self->check_gender($entry);
-    $self->check_country_optional($entry);
+    $self->check_country_optional($entry, 'cp_country_id', 'cp_country');
     $self->handle_cvars($entry);
 
     my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax
@@ -138,6 +138,8 @@ sub setup_displayable_columns {
 
   $self->add_displayable_columns({ name => 'cp_abteilung',   description => $::locale->text('Department')                    },
                                  { name => 'cp_birthday',    description => $::locale->text('Birthday')                      },
+                                 { name => 'cp_country',     description => $::locale->text('Country')                       },
+                                 { name => 'cp_country_id',  description => $::locale->text('Country (database ID)')         },
                                  { name => 'cp_cv_id',       description => $::locale->text('Customer/Vendor (database ID)') },
                                  { name => 'cp_email',       description => $::locale->text('E-mail')                        },
                                  { name => 'cp_fax',         description => $::locale->text('Fax')                           },
