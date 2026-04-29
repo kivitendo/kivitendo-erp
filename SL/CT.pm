@@ -309,6 +309,10 @@ sub search {
   my $pg_select = $form->{l_pricegroup} ? qq|, pg.pricegroup as pricegroup | : '';
   my $pg_join   = $form->{l_pricegroup} ? qq|LEFT JOIN pricegroup pg ON (ct.pricegroup_id = pg.id) | : '';
 
+  my $cvl_select = qq|, vc.name as linked_customer_vendor, vc.id as linked_customer_vendor_id |;
+  my $cvl_join   = qq|LEFT JOIN customer_vendor_links cvl ON (ct.id = cvl.${cv}_id) | .
+                   qq|LEFT JOIN $vc vc ON (vc.id = cvl.${vc}_id) |;
+
   my $main_cp_select = '';
   if ($form->{l_main_contact_person}) {
     $main_cp_select =  qq/, (SELECT concat(cp.cp_givenname, ' ', cp.cp_name, ' | ', cp.cp_email, ' | ', cp.cp_phone1)
@@ -317,7 +321,8 @@ sub search {
   }
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
-    qq|  pt.description as payment, tz.description as taxzone, vc.name as linked_customer_vendor, vc.id as linked_customer_vendor_id | .
+    qq|  pt.description as payment, tz.description as taxzone | .
+    $cvl_select .
     $pg_select .
     $main_cp_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
@@ -326,8 +331,7 @@ sub search {
     qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
     qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
-    qq|LEFT JOIN customer_vendor_links cvl ON (ct.id = cvl.${cv}_id) | .
-    qq|LEFT JOIN $vc vc ON (vc.id = cvl.${vc}_id) | .
+    $cvl_join .
     $pg_join .
     qq|WHERE $where|;
 
@@ -344,6 +348,7 @@ sub search {
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, tz.description as taxzone | .
+        $cvl_select .
         $pg_select .
         $main_cp_select .
         qq|, a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
@@ -355,6 +360,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        $cvl_join .
         $pg_join .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
@@ -365,6 +371,7 @@ sub search {
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, tz.description as taxzone | .
+        $cvl_select .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -375,6 +382,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        $cvl_join .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_order') OR (o.record_type = 'purchase_order'))|;
     }
@@ -385,6 +393,7 @@ sub search {
         qq| UNION | .
         qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
         qq|  pt.description as payment, tz.description as taxzone | .
+        $cvl_select .
         $pg_select .
         $main_cp_select .
         qq|, ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
@@ -395,6 +404,7 @@ sub search {
         qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
         qq|LEFT JOIN tax_zones tz ON (ct.taxzone_id = tz.id) | .
+        $cvl_join .
         $pg_join .
         qq|WHERE $where AND ((o.record_type = 'sales_quotation') OR (o.record_type = 'request_quotation'))|;
     }
