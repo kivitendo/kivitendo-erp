@@ -19,7 +19,6 @@ our @SHIPTO_VARIABLES = qw(shiptoname shiptostreet shiptozipcode shiptocity ship
 
 __PACKAGE__->meta->initialize;
 
-sub country_id { goto &shiptocountry_id }
 
 sub displayable_id {
   my $self = shift;
