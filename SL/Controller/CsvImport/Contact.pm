@@ -2,6 +2,7 @@ package SL::Controller::CsvImport::Contact;
 
 use strict;
 
+use List::MoreUtils qw(any);
 use SL::Helper::Csv;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
@@ -107,7 +108,7 @@ sub check_name {
 sub check_gender {
   my ($self, $entry) = @_;
 
-  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') if ($entry->{object}->cp_gender ne 'm') && ($entry->{object}->cp_gender ne 'f');
+  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') unless ($entry->{object}->cp_gender && (any { $_ eq $self->{object}->cp_gender } qw(f m)));
 }
 
 sub get_duplicate_check_fields {
