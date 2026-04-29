@@ -24,3 +24,35 @@ sub country_picker {
 sub picker { goto &country_picker }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Presenter::Country - Countries related presenter
+
+=head1 DESCRIPTION
+
+see L<SL::Presenter>
+
+=head1 FUNCTIONS
+
+=over 2
+
+=item C<picker $object, %params>
+
+Returns a rendered HTML select tag to choose one country from the
+collection of all available L<SL::DB::Country> objects.
+
+Remaining C<%params> are passed to the function
+C<SL::Presenter::Tag::select_tag>.
+
+=back
+
+=head1 AUTHOR
+
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
+
+=cut
