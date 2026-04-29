@@ -22,6 +22,11 @@ sub _sort_spec {
 sub find_by_name {
   my ($class, $country_name) = @_;
 
+  if ($country_name) {
+    my $by_db_description = SL::DB::Manager::Country->get_all(where => [ or => [ description_de => $country_name , description_en => $country_name ] ]);
+    return $by_db_description->[0] if scalar(@$by_db_description) == 1;
+  }
+
   my $country_code = map_name_to_alpha_2_code($country_name);
 
   return unless $country_code;
