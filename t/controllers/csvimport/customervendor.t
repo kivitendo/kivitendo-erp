@@ -1,4 +1,4 @@
-use Test::More tests => 41;
+use Test::More tests => 42;
 
 use strict;
 
@@ -93,8 +93,8 @@ my $customer_id = _obj_of($entries->[0])->id;
 $entries = undef;
 
 $file = \<<EOL;
-customernumber;name;street;
-10001;CustomerName;NewCustomerStreet
+customernumber;name;street;country
+10001;CustomerName;NewCustomerStreet;United Kingdom
 EOL
 
 $entries = do_import($file, {update_policy => 'update_existing'});
@@ -105,6 +105,7 @@ is _obj_of($entries->[0])->name,           'CustomerName',      'update entry - 
 is _obj_of($entries->[0])->street,         'NewCustomerStreet', 'update entry - street (customer)';
 is _obj_of($entries->[0]),                 $entries->[0]->{object_to_save}, 'update entry - object is object_to_save (customer)';
 is _obj_of($entries->[0])->id,             $customer_id,        'update entry - same id (customer)';
+is _obj_of($entries->[0])->country->iso2,  'GB',                'update entry - country (customer)';
 $default_customernumer = SL::DB::Default->get->load->customernumber;
 is $default_customernumer, '10001', 'update entry - defaults range of numbers (customer)';
 
