@@ -41,6 +41,7 @@ use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 use List::Util qw(sum);
 use List::UtilsBy qw(partition_by sort_by);
 use SL::DB;
+use SL::DB::Country;
 
 # use warnings;
 use strict;
@@ -1288,7 +1289,7 @@ sub aging {
     $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
     $where_dpt = qq| AND (${arap}.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
-  my $country_description_key = 'description_'.$::myconfig{countrycode};
+  my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
  my $q_details = qq|
 
     SELECT ${ct}.id AS ctid, ${ct}.name,

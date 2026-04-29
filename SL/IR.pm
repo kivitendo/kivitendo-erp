@@ -49,6 +49,7 @@ use SL::HTML::Restrict;
 use SL::IO;
 use SL::Locale::String qw(t8);
 use SL::MoreCommon;
+use SL::DB::Country;
 use SL::DB::Default;
 use SL::DB::TaxZone;
 use SL::DB::MakeModel;

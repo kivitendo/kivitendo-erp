@@ -675,9 +675,7 @@ sub customer_details {
 
   # get rest for the customer
   my $template_code = $language_id && SL::DB::Language->new(id => $language_id)->load->template_code;
-  my $country_description_key = 'description_' .
-    (($template_code =~ m/^de$/i) ? 'de' :
-     ($template_code =~ m/^en$/i) ? 'en' : 'de');
+  my $country_description_key = SL::DB::Country->description_column_localized($template_code);
 
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
