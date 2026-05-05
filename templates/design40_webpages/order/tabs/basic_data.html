@@ -339,7 +339,7 @@
     [% IF SELF.type == "sales_quotation" %]
       <tr>
         <th>[% 'Order probability' | $T8 %]</th>
-        <td>[% L.select_tag('order.order_probability', SELF.order_probabilities, title='title', default=SELF.order.order_probability) %]%</td>
+        <td>[% L.select_tag('order.order_probability', SELF.order_probabilities, value_key='id', title_key='title', default=SELF.order.order_probability) %]</td>
       </tr>
       <tr>
         <th>[% 'Expected billing date' | $T8 %]</th>
