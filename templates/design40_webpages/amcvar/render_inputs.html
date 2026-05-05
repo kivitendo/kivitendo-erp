@@ -17,7 +17,7 @@
   <input type="checkbox" name="[% var_name %]" value="1"[% IF var.value %] checked[% END %]>
 
 [% ELSIF var.type == 'textfield' %]
-  <textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
+  <textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]" class="wi-wide">[% HTML.escape(var.value) %]</textarea>
 
 [%- ELSIF var.type == 'htmlfield' %]
 <textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]" class="texteditor">[% HTML.escape(var.value) %]</textarea>
@@ -26,32 +26,32 @@
   [% L.date_tag(var_name, var.value) %]
 
 [% ELSIF var.type == 'timestamp' %]
-  <input type="text" name="[% var_name %]" value="[% HTML.escape(var.value) %]">
+  <input type="text" name="[% var_name %]" value="[% HTML.escape(var.value) %]" class="wi-wide">
 
 [% ELSIF var.type == 'customer' %]
-  [% P.customer_vendor.picker(var_name, var.value, type='customer') %]
+  [% P.customer_vendor.picker(var_name, var.value, type='customer', class='wi-wide') %]
 
 [% ELSIF var.type == 'vendor' %]
-  [% P.customer_vendor.picker(var_name, var.value, type='vendor') %]
+  [% P.customer_vendor.picker(var_name, var.value, type='vendor', class='wi-wide') %]
 
 [% ELSIF var.type == 'part' %]
-  [% P.part.picker(var_name, var.value) %]
+  [% P.part.picker(var_name, var.value, class='wi-wide') %]
 
 [% ELSIF var.type == 'select' %]
-  <select name="[% var_name %]">
+  <select name="[% var_name %]" class="wi-wide">
     [% FOREACH option = var.OPTIONS %]
       <option value="[% option.value | html %]"[% IF option.value == var.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
     [% END %]
   </select>
 
 [% ELSIF var.type == 'multiselect' %]
-  <select name="[% var_name %][]" multiple>
+  <select name="[% var_name %][]" multiple class="wi-wide">
     [% FOREACH option = var.OPTIONS %]
       <option value="[% option.value | html %]"[% IF var.value.grep('^' _ option.value _ '$').size %] selected[% END %]>[% HTML.escape(option.value) %]</option>
     [% END %]
   </select>
 
 [% ELSE %]
-  <input type="text" name="[% var_name %]" value="[% HTML.escape(var.value) %]"[% IF var.maxlength %] maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+  <input type="text" name="[% var_name %]" value="[% HTML.escape(var.value) %]"[% IF var.maxlength %] maxlength="[% HTML.escape(var.maxlength) %]"[% END %] class="wi-wide">
 
 [% END %]
