@@ -402,7 +402,7 @@ sub build_filter_query {
       # multiselect values are serialized with leading and trailing delimiter to make this match easier
       # for example with value '##B##C##BB##' searching for B will match against '##B##'
       push @sub_where,  qq|cvar.text_value like ?|;
-      push @sub_values, '##' . $params{filter}->{$name} . '##';
+      push @sub_values, like('##' . $params{filter}->{$name} . '##');
 
     } elsif (($config->{type} eq 'date') || ($config->{type} eq 'timestamp')) {
       my $name_from = "${name}_from";
