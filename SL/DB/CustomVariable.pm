@@ -95,7 +95,7 @@ sub value {
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
   } elsif ( $type eq 'multiselect' ) {
-    return $self->text_value ? split /##/, ($self->text_value =~ s/^##|##$//gr) : [];
+    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
   }
 
   goto &text_value; # text, textfield, htmlfield and select

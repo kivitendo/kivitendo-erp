@@ -104,7 +104,7 @@ sub type_dependent_default_value {
   }
 
   if ($self->type eq 'multiselect') {
-    return [ split /##/, $self->processed_options ];
+    return [ split /##/, $self->default_value ];
   }
 
   return $self->default_value;
