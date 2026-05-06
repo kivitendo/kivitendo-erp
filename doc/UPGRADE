@@ -7,7 +7,9 @@ Upgrade auf v4.0.1
 
 Wichtige Hinweise:
 
-- Ein interaktives Upgrade-Skript fragt für alle Werte in Länder-Feldern
+- Länderfelder sind keine Freitextfelder mehr.
+  Ein interaktives Upgrade-Skript fragt für alle Werte in Länder-Feldern,
+  die nicht automatisch eindeutig zugeordnet werden können,
   (betrifft Stammdaten, Liefer- und Rechnungsadressen, Ansprechpersonen,
   Webshopbestellungen und die eigene Adresse in der Mandantenkonfiguration)
   ab, durch welches Land aus der ISO-3166 Alpha-2 Liste der Wert des
