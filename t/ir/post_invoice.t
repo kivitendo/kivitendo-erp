@@ -41,6 +41,9 @@ my ($out, $err, @ret) = make_request('ir', 'add', type => 'invoice');
 is $ret[0], 1, "new purchase invoice";
 %form = form_from_html($out);
 
+# set vendor
+$form{vendor_id} = $vendor->id;
+
 # set invnumber and currency
 $form{invnumber} = $description;
 $form{currency}  = $currency;
