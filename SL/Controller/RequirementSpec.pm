@@ -159,7 +159,9 @@ sub action_ajax_save_time_and_cost_estimate {
 sub action_show {
   my ($self) = @_;
 
-  my $title  = $self->requirement_spec->is_template ? t8('Show requirement spec template') : t8('Show requirement spec');
+  my $title  = $self->requirement_spec->is_template
+             ? t8('Edit requirement spec template - #1', $self->requirement_spec->title)
+             : t8('Edit requirement spec - #1 for #2', $self->requirement_spec->title, $self->requirement_spec->customer->displayable_name);
   my $item   = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections_sorted }[0];
   $self->requirement_spec_item($item);
 

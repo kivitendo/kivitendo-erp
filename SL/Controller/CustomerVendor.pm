@@ -816,7 +816,7 @@ sub action_ajaj_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('customer_vendor/test_page');
+  $_[0]->render('customer_vendor/test_page', title => 'Customer Vendor Autocomplete Testpage');
 }
 
 sub action_ajax_list_prices {

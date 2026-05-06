@@ -4,11 +4,6 @@
 [% USE LxERP %]
 [% USE P %]
 
-<h1>
-  [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
-  [% title %]
-</h1>
-
 <form method="post" name="arledger" action="[% script %]" id="form">
 
 [% L.hidden_tag('id', id) %]

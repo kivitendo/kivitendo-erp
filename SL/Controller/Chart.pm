@@ -58,7 +58,7 @@ sub action_ajax_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('chart/test_page', pre_filled_chart => SL::DB::Manager::Chart->get_first);
+  $_[0]->render('chart/test_page', pre_filled_chart => SL::DB::Manager::Chart->get_first, title => 'Chart Picker Testpage');
 }
 
 sub action_chart_picker_search {
