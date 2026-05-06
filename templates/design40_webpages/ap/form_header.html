@@ -4,11 +4,6 @@
 [% USE T8 %]
 [% USE LxERP %]
 
-<h1>
-  [% IF workflow_email_journal_id; LxERP.t8("Email Journal Workflow") _ " - "; END; %]
-  [% title %]
-</h1>
-
 <form method="post" action="[% script | html %]" id="form">
 
 <input type="hidden" name="terms" value="[% terms | html %]">
