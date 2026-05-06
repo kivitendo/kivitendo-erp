@@ -286,7 +286,7 @@ sub get_warehouse_journal {
 
   # if of a property number or description is requested,
   # automatically check the matching id too.
-  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin);
+  map { $form->{"l_${_}id"} = "Y" if ($form->{"l_${_}"} || $form->{"l_${_}number"}); } qw(warehouse bin used_for);
 
   # customize shown entry for not available fields.
   $filter{na} = '-' unless $filter{na};
@@ -318,6 +318,7 @@ sub get_warehouse_journal {
     'trans_id'       => ['trans_id'],
     'bestbefore'     => ['bestbefore'],
     'direction'      => ['direction'],
+    'used_for'       => ['used_for'],
   );
 
   $sort_order    = $filter{order}  unless $sort_order;
@@ -364,13 +365,17 @@ sub get_warehouse_journal {
      "shippingdate"      => "i1.shippingdate",
      "employee"          => "e.name",
      "projectnumber"     => "COALESCE(pr.projectnumber, '$filter{na}')",
-     };
+     "used_for"          => "'$filter{na}'",
+     "used_forid"        => 0,
+  };
 
   $select_tokens{'in_out'} = {
     "bin_from"       => "(CASE WHEN tt.direction = 'out' THEN b1.description ELSE '$filter{na}' END)",
     "bin_to"         => "(CASE WHEN tt.direction = 'in'  THEN b1.description ELSE '$filter{na}' END)",
     "warehouse_from" => "(CASE WHEN tt.direction = 'out' THEN w1.description ELSE '$filter{na}' END)",
     "warehouse_to"   => "(CASE WHEN tt.direction = 'in'  THEN w1.description ELSE '$filter{na}' END)",
+    "used_for"       => "COALESCE(assembly_part.description, '$filter{na}')",
+    "used_forid"     => "assembly_part.id",
   };
 
   $form->{l_classification_id}  = 'Y';
@@ -401,6 +406,7 @@ sub get_warehouse_journal {
      FROM inventory i1
      LEFT JOIN inventory i2 ON i1.trans_id = i2.trans_id
      LEFT JOIN parts p ON i1.parts_id = p.id
+     LEFT JOIN parts assembly_part ON i1.used_for_assembly_id = assembly_part.id
      LEFT JOIN bin b1 ON i1.bin_id = b1.id
      LEFT JOIN bin b2 ON i2.bin_id = b2.id
      LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
@@ -416,6 +422,7 @@ sub get_warehouse_journal {
      SELECT DISTINCT $select{in_out}
      FROM inventory i1
      LEFT JOIN parts p ON i1.parts_id = p.id
+     LEFT JOIN parts assembly_part ON i1.used_for_assembly_id = assembly_part.id
      LEFT JOIN bin b1 ON i1.bin_id = b1.id
      LEFT JOIN bin b2 ON i1.bin_id = b2.id
      LEFT JOIN warehouse w1 ON i1.warehouse_id = w1.id
@@ -470,6 +477,7 @@ SQL
   }
 
   my @contents = ();
+
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     map { /^r_/; $ref->{"$'"} = $ref->{$_} } keys %$ref;
     my $qty = $ref->{"qty"} * 1;

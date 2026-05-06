@@ -3,6 +3,20 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v4.0.1
+
+- Das DB-Update Skript "sql/Pg-upgrade2/inventory_add_used_for.pl" kann
+  bei Datenbeständen mit vielen gefertigten Erzeugnissen zu lange
+  laufen. In dem Skript gibt es ein kommentiertes LIMIT 5500, das kann
+  der kivi Admin einkommentieren und einen Wert einsetzen, der für
+  seinen Datenbestand sinnvoll ist. Im entsprechenden Kundendatenbestand
+  entsprachen 5500 verbaute Waren einen Zeitraum von 9 Monaten, was für
+  Analysezwecke ausreichend war. Eintrag in der Datei sieht so aus:
+  ORDER by inventory.itime DESC
+        -- LIMIT 5500
+    |;
+
+
 Upgrade auf v4.0.0
 
 Ein neues Perl-Modul ist hinzugekommen, Hilfe zum Installieren bietet wie
