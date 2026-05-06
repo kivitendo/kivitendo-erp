@@ -53,8 +53,8 @@ sub setup_for_list {
 
   my %args = (
     parse_filter($self->{filter}),
-    sort_by => $self->set_sort_params(%params),
-    page    => $params{page},
+    sort_by      => $self->set_sort_params(%params),
+    page         => $params{page},
     with_objects => ['vendor', 'ap'],
   );
 
