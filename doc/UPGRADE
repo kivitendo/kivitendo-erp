@@ -3,6 +3,17 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v4.0.1
+
+Wichtige Hinweise:
+
+- Ein interaktives Upgrade-Skript fragt für alle Werte in Länder-Feldern
+  (betrifft Stammdaten, Liefer- und Rechnungsadressen, Ansprechpersonen,
+  Webshopbestellungen und die eigene Adresse in der Mandantenkonfiguration)
+  ab, durch welches Land aus der ISO-3166 Alpha-2 Liste der Wert des
+  Freitextfeldes ersetzt werden soll.
+
+
 Upgrade auf v4.0.0
 
 Ein neues Perl-Modul ist hinzugekommen, Hilfe zum Installieren bietet wie
