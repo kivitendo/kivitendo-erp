@@ -2,9 +2,8 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 
-<link rel="stylesheet" type="text/css" href="css/kivitendo/ustva.css">
+<div class="wrapper">
 
-<body>
 <h2>Zeitraum vom [%fromdate%] bis [%todate%] </h2>
 
 <!-- Diese HTML-Formular ist nicht selbstrechnend.
@@ -13,7 +12,7 @@ gelb hinterlegten Felder auszufüllen. Die anderen Felder werden dann
 automatisch berechnet.</small></p>
 -->
 
-<table width="100%">
+<table>
 <tr align="left">
   <td class="text">Steuernummer: [%steuernummer%]</td>
   <td class="text" width="100px">&nbsp</td>
@@ -408,3 +407,5 @@ Steuerberater:<br />
 [%FA_steuerberater_city%]<br />
 Tel:&nbsp;[%FA_steuerberater_tel%]</p>
 [%END%]
+
+</div>
