@@ -9,6 +9,7 @@ sub action_show {
 
   $self->render(
     'presenter/test_page',
+    title    => 'Generic-Presenter-Testpage',
     defaults => {
       from_date => '1.2.2022',
       to_date => '3.4.2022',

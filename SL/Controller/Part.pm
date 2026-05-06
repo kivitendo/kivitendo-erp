@@ -748,7 +748,7 @@ sub action_ajax_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('part/test_page', pre_filled_part => SL::DB::Manager::Part->get_first);
+  $_[0]->render('part/test_page', pre_filled_part => SL::DB::Manager::Part->get_first, title => 'Part Picker Testpage');
 }
 
 sub action_part_picker_search {
