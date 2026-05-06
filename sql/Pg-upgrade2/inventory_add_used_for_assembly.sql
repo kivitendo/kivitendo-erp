@@ -1,6 +1,6 @@
 -- @tag: inventory_add_used_for_assembly
 -- @description: parts_id für das erzeugnis, was mit der trans_id gefertigt worden ist
--- @depends: release_3_9_2
+-- @depends: release_4_0_0
 
 ALTER TABLE inventory ADD COLUMN used_for_assembly_id integer;
 
