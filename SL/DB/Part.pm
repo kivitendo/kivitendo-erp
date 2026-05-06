@@ -93,6 +93,11 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::PurchaseBasketItem',
     column_map   => { id => 'part_id' },
   },
+  price_histories  => {
+    type         => 'one to many',
+    class        => 'SL::DB::PartsPriceHistory',
+    column_map   => { id => 'part_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
