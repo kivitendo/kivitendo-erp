@@ -86,6 +86,8 @@ sub search {
 
   setup_bp_search_action_bar();
 
+  # NOTE: title must be set before header is called otherwise it does not show
+  $::form->{title} = $::locale->text('Print') . ' ' . $label{$::form->{type}}->{title};
   $::form->header;
   print $::form->parse_html_template('bp/search', {
     label         => \%label,

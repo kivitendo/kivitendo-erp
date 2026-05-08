@@ -113,10 +113,13 @@ sub action_add {
 sub action_edit {
   my ($self) = @_;
 
+  my $title = $self->is_vendor() ? $::locale->text('Edit Vendor') : $::locale->text('Edit Customer');
+  $title .= ' - ' . $self->{cv}->displayable_name;
+
   $self->_pre_render();
   $self->render(
     'customer_vendor/form',
-    title => ($self->is_vendor() ? $::locale->text('Edit Vendor') : $::locale->text('Edit Customer')),
+    title => $title,
     %{$self->{template_args}}
   );
 }
@@ -813,7 +816,7 @@ sub action_ajaj_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('customer_vendor/test_page');
+  $_[0]->render('customer_vendor/test_page', title => 'Customer Vendor Autocomplete Testpage');
 }
 
 sub action_ajax_list_prices {

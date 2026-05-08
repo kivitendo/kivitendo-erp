@@ -6,8 +6,6 @@
 
 [% SET style="width: 400px" %]
 [% SET size=34 %]
-
-<h1>[% HTML.escape(title) %]</h1>
 <form id="form" action="controller.pl" method="post">
 
 [% L.hidden_tag("id", SELF.shop.id) %]

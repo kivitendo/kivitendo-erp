@@ -139,7 +139,7 @@ sub action_ajax_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('project/test_page');
+  $_[0]->render('project/test_page', title => 'Projekt-Picker-Testpage');
 }
 
 sub action_project_picker_search {

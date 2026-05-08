@@ -84,9 +84,9 @@ sub action_list {
   foreach my $shop_order(@{ $shop_orders }){
     $shop_order->{open_invoices} = $shop_order->check_for_open_invoices;
   }
+  $::form->{title} = t8('ShopOrders') . ' (' . t8('Number of data sets') . ': ' . scalar(@$shop_orders) . ')';
   $self->_setup_list_action_bar;
   $self->render('shop_order/list',
-                title       => t8('ShopOrders'),
                 SHOPORDERS  => $shop_orders,
                 TOOK        => $transferred,
               );

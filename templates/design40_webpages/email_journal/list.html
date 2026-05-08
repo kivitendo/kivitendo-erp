@@ -3,8 +3,6 @@
 [% USE P %]
 [% USE LxERP %]
 
-<h1>[% FORM.title %]</h1>
-
 [% PROCESS 'email_journal/_filter.html' filter=SELF.models.filtered.laundered %]
 
 [% IF !ENTRIES.size %]

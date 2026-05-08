@@ -16,6 +16,7 @@ sub action_dump_form {
 
 sub action_ckeditor_test_page {
   my ($self) = @_;
+  $::form->{title} = 'CKeditor Test Page';
 
   $self->render("test/ckeditor");
 }

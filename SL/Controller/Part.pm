@@ -325,7 +325,7 @@ sub render_form {
 
   $self->render(
     'part/form',
-    title             => $title_hash{$self->part->part_type},
+    title             => $title_hash{$self->part->part_type} . ': ' . $self->part->displayable_name,
     %assortment_vars,
     %assembly_vars,
     translations_map  => { map { ($_->language_id   => $_) } @{$self->part->translations} },
@@ -748,7 +748,7 @@ sub action_ajax_autocomplete {
 }
 
 sub action_test_page {
-  $_[0]->render('part/test_page', pre_filled_part => SL::DB::Manager::Part->get_first);
+  $_[0]->render('part/test_page', pre_filled_part => SL::DB::Manager::Part->get_first, title => 'Part Picker Testpage');
 }
 
 sub action_part_picker_search {

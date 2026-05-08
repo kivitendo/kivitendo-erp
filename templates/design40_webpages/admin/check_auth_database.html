@@ -3,8 +3,6 @@
 [% USE L %]
 [% USE LxERP %]
 
-<h1>[% title %]</h1>
-
 <form method="post" action="controller.pl">
   [% L.hidden_tag("action", 'Admin/create_auth_db') %]
   [% L.hidden_tag("{AUTH}admin_password", LXCONFIG.authentication.admin_password) %]

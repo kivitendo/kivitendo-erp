@@ -4,9 +4,7 @@
 [%- USE P %]
 [%- USE LxERP %]
 
- <h1>[% HTML.escape(title) %]</h1>
-
- <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
+<form action="[% HTML.escape(script) %]" method="post" name="report_generator_form" id="report_generator_form">
 
   [%- FOREACH var = HIDDEN %]
   <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
