@@ -52,6 +52,10 @@ sub parse_value {
     return $self->timestamp_value(!defined($unparsed) ? undef : ref($unparsed) eq 'DateTime' ? $unparsed->clone : DateTime->from_kivitendo($unparsed));
   }
 
+  if ($type =~ m{^(?:multiselect)}) {
+    return $self->text_value(!defined($unparsed) || 'ARRAY' ne ref $unparsed ? undef : '##' . join('##', @$unparsed) . '##');
+  }
+
   # text, textfield, htmlfield and select
   $self->text_value($unparsed);
 }
@@ -90,6 +94,8 @@ sub value {
     return $id ? SL::DB::Part->new(id => $id)->load() : undef;
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
+  } elsif ( $type eq 'multiselect' ) {
+    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
   }
 
   goto &text_value; # text, textfield, htmlfield and select

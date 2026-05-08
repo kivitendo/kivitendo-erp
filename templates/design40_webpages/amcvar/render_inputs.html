@@ -44,6 +44,13 @@
     [% END %]
   </select>
 
+[% ELSIF var.type == 'multiselect' %]
+  <select name="[% var_name %][]" multiple>
+    [% FOREACH option = var.OPTIONS %]
+      <option value="[% option.value | html %]"[% IF var.value.grep('^' _ option.value _ '$').size %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+    [% END %]
+  </select>
+
 [% ELSE %]
   <input type="text" name="[% var_name %]" value="[% HTML.escape(var.value) %]"[% IF var.maxlength %] maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
 
