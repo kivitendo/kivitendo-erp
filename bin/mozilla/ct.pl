@@ -219,6 +219,7 @@ sub list_names {
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
     'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail', 'dunning_lock', 'linked_customer_vendor'
   );
+  my @sortable_columns = @columns;
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
@@ -287,7 +288,7 @@ sub list_names {
   my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_nondefault);
   $form->{callback}     = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
 
-  foreach (@columns) {
+  foreach (@sortable_columns) {
     my $sortdir              = $form->{sort} eq $_ ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$_}->{link} = "${callback}&sort=${_}&sortdir=${sortdir}";
   }
@@ -394,6 +395,7 @@ sub list_contacts {
     cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_country cp_phone1 cp_phone2 cp_privatphone
     cp_mobile1 cp_mobile2 cp_fax cp_email cp_privatemail cp_abteilung cp_position cp_birthday cp_gender
   );
+  my @sortable_columns = @columns;
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
@@ -443,7 +445,7 @@ sub list_contacts {
   my $callback          = build_std_url('action=list_contacts', join '&', map { E($_->[0]) . '=' . E($_->[1]) } @{ flatten($hide_vars) });
   $::form->{callback}     = "$callback&sort=" . E($::form->{sort});
 
-  map { $column_defs{$_}->{link} = "${callback}&sort=${_}&sortdir=" . ($::form->{sort} eq $_ ? 1 - $::form->{sortdir} : $::form->{sortdir}) } @columns;
+  map { $column_defs{$_}->{link} = "${callback}&sort=${_}&sortdir=" . ($::form->{sort} eq $_ ? 1 - $::form->{sortdir} : $::form->{sortdir}) } @sortable_columns;
 
   $::form->{title} = $::locale->text('Contacts');
 
