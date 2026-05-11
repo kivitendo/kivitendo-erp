@@ -5,6 +5,7 @@ use strict;
 use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Manager::OrderItem;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::AttrHTML;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::RecordItem;
 use SL::DB::Helper::CustomVariables (
@@ -23,6 +24,8 @@ use Rose::DB::Object::Helpers qw(as_tree strip);
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
+
+__PACKAGE__->attr_html('longdescription');
 
 sub is_price_update_available {
   my $self = shift;
