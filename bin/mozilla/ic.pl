@@ -444,6 +444,7 @@ sub generate_report {
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop price_factor_description);
+  push @sort_full,       map { "cvar_$_->{name}" } @includeable_custom_variables;
   my @sort_no_revers   = qw(partsgroup invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {
@@ -500,6 +501,17 @@ sub generate_report {
   my $same_item = @{ $form->{parts} } ? $form->{parts}[0]{ $form->{sort} } : undef;
 
   my $defaults  = AM->get_defaults();
+
+  my $cvar_sort = first { $form->{sort} eq $_ } map { +"cvar_$_->{name}" } @includeable_custom_variables;
+  if ($cvar_sort) {
+    if ($::form->{revers}) {
+      $form->{parts} = [sort { defined($a->{$cvar_sort}) <=> defined($b->{$cvar_sort}) ||
+                                   $a->{$cvar_sort}      cmp $b->{$cvar_sort}} @{$form->{parts}}];
+    } else {
+      $form->{parts} = [sort { defined($b->{$cvar_sort}) <=> defined($a->{$cvar_sort}) ||
+                                   $b->{$cvar_sort}      cmp $a->{$cvar_sort}} @{$form->{parts}}];
+    }
+  }
 
   # postprocess parts
   foreach my $ref (@{ $form->{parts} }) {

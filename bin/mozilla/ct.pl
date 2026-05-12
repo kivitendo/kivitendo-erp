@@ -48,6 +48,8 @@
 
 use POSIX qw(strftime);
 
+use List::Util qw(first);
+
 use SL::CT;
 use SL::CTI;
 use SL::CVar;
@@ -330,6 +332,18 @@ sub list_names {
                                        'column_defs'    => \%column_defs,
                                        'data'           => $form->{CT});
 
+
+  my $cvar_sort = first { $form->{sort} eq $_ } map { +"cvar_$_->{name}" } @includeable_custom_variables;
+  if ($cvar_sort) {
+    if ($form->{sortdir}) {
+      $form->{CT} = [sort { defined($a->{$cvar_sort}) <=> defined($b->{$cvar_sort}) ||
+                                $a->{$cvar_sort}      cmp $b->{$cvar_sort}} @{$form->{CT}}];
+    } else {
+      $form->{CT} = [sort { defined($b->{$cvar_sort}) <=> defined($a->{$cvar_sort}) ||
+                                $b->{$cvar_sort}      cmp $a->{$cvar_sort}} @{$form->{CT}}];
+    }
+  }
+
   my $previous_id;
 
   foreach my $ref (@{ $form->{CT} }) {
@@ -383,21 +397,21 @@ sub list_contacts {
 
   $::form->{sortdir} = 1 unless defined $::form->{sortdir};
 
+  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
   my @contacts     = CT->search_contacts(
     search_term => $::form->{search_term},
     filter      => $::form->{filter},
+    additional_sortcols => [map { "cvar_$_->{name}" } @includeable_custom_variables],
   );
-
-  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
 
   my @columns      = qw(
     cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_country cp_phone1 cp_phone2 cp_privatphone
     cp_mobile1 cp_mobile2 cp_fax cp_email cp_privatemail cp_abteilung cp_position cp_birthday cp_gender
   );
-
-  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
-  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
-  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
@@ -483,6 +497,17 @@ sub list_contacts {
                                        'column_defs'    => \%column_defs,
                                        'data'           => \@contacts);
 
+
+  my $cvar_sort = first { $::form->{sort} eq $_ } map { +"cvar_$_->{name}" } @includeable_custom_variables;
+  if ($cvar_sort) {
+    if ($::form->{sortdir}) {
+      @contacts = sort { defined($a->{$cvar_sort}) <=> defined($b->{$cvar_sort}) ||
+                             $a->{$cvar_sort}      cmp $b->{$cvar_sort}} @contacts;
+    } else {
+      @contacts = sort { defined($b->{$cvar_sort}) <=> defined($a->{$cvar_sort}) ||
+                             $b->{$cvar_sort}      cmp $a->{$cvar_sort}} @contacts;
+    }
+  }
 
   foreach my $ref (@contacts) {
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };

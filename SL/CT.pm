@@ -499,10 +499,14 @@ sub search_contacts {
     'vcnumber'  => 'vcnumber, cp_name, cp_givenname',
     );
 
-  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email cp_street cp_zipcode cp_city cp_country cp_position vcname vcnumber);
+  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_privatphone cp_mobile1 cp_mobile2 cp_email cp_street cp_zipcode cp_city cp_country cp_position vcname vcnumber);
+
+  my %allowed_sortcols  = %sortcols;
+  $allowed_sortcols{$_} = 1 for @{$params{additional_sortcols} || []};
+  $::form->{sort} = $allowed_sortcols{$::form->{sort}} ? $::form->{sort} : 'cp_name';
 
   my $order_by  = $sortcols{$::form->{sort}} ? $::form->{sort} : 'cp_name';
-  $::form->{sort} = $order_by;
+
   $order_by     = $sortspecs{$order_by} if ($sortspecs{$order_by});
 
   my $sortdir   = $::form->{sortdir} ? 'ASC' : 'DESC';
