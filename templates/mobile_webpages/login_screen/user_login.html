@@ -29,7 +29,7 @@
 
     <form method="post" name="loginscreen" action="controller.pl" target="_top" class="col s12">
       <div class="row">
-       [% P.M.input_tag('{AUTH}login', FORM.$auth_login, id='auth_login', class='initial_focus validate col s12', label=LxERP.t8('Login Name')) %]
+       [% P.M.input_tag('{AUTH}login', FORM.$auth_login, id='username', class='initial_focus validate col s12', label=LxERP.t8('Login Name')) %]
       </div>
       <div class="row">
         [% P.M.input_tag('{AUTH}password', '', type='password', id='auth_password', class='validate col s12', label=LxERP.t8('Password')) %]
