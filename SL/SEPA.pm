@@ -554,8 +554,6 @@ sub send_concatinated_sepa_pdfs {
   foreach my $item (@{$items}) {
 
     # check if there is already a file for the invoice
-    # File::get_all and converting to scalar is a tiny bit stupid, see Form.pm,
-    # but there is no get_latest_version (but sorts objects by itime!)
     # check if already resynced
     my @file_objects = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
                                          object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
