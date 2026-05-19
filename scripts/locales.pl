@@ -637,7 +637,7 @@ sub scanhtmlfile {
       $plugins{loaded}->{$1} = 1;
     }
 
-    while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
+    while ($line =~ m/\[\%[^\w]*(\w+)(?:\.\w+)+\(/g) {
       my $plugin = $1;
       $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript JSON L P));
     }
