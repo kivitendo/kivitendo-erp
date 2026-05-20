@@ -337,6 +337,7 @@ sub _setup_list_action_bar {
         submit  => [
           '#form', { action => "DispositionManager/add_to_purchase_basket" } ],
         tooltip => t8('Add selected items to purchase basket'),
+        checks  => [ [ 'kivi.check_if_entries_selected', '.check-for-basket' ] ],
       ],
     );
   }
