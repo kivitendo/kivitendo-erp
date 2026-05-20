@@ -41,10 +41,10 @@ sub prepare_report {
   $self->{report} = $report;
 
   my @columns  = qw(
-    partnumber description available onhand rop ordered
+    partnumber description available onhand rop ordered unit
     );
   my @visible  = qw(
-    partnumber description available onhand rop ordered
+    partnumber description available onhand rop ordered unit
     );
   my @sortable = qw(partnumber description);
 
@@ -79,6 +79,9 @@ sub prepare_report {
                      \%::myconfig,$_[0]->get_open_ordered_qty, 2); },
       text  => t8('Ordered purchase'),
       align => 'right',
+    },
+    unit        => {
+      text => t8('Unit'),
     },
   );
 
