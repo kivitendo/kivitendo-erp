@@ -28,7 +28,7 @@
         <td>
           [% IF part.makemodels.size %]
             [% L.checkbox_tag('ids[+]', 'data-checkall'=1,
-                 checked = '1', value=part.id) %]
+                 checked = '1', value=part.id, class='check-for-basket') %]
           [% ELSE %]
             [% 'No Vendor' | $T8 %]
           [% END %]
