@@ -1,0 +1,19 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE P %]
+[%- USE LxERP %]
+[%- USE HTML %]
+
+[% L.hidden_tag('sort_by',  FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+
+<table class="tbl-horizontal">
+  <tbody>
+    <tr>
+      <td>[% 'include closed' | $T8 %]</td>
+      <td>[% L.checkbox_tag('include_closed', checked = FORM.include_closed, class='ticket-filter wi-lightwide') %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="wrapper">

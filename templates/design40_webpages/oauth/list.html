@@ -1,0 +1,44 @@
+[%- USE HTML -%]
+[%- USE L -%]
+[%- USE P -%]
+[%- USE T8 -%]
+
+<h1>[% HTML.escape(title) %]</h1>
+<form id="form">
+<div class="wrapper">
+<table class="tbl-list">
+  <thead>
+    <tr>
+      <th>[% 'delete' | $T8 %]</th>
+      <th>ID</th>
+      <th>[% 'Provider' | $T8 %]</th>
+      [% IF (AUTH.assert('admin', 'may_fail')) %]
+        <th>[% 'Valid user' | $T8 %]</th>
+      [% END %]
+      <th>[% 'Email' | $T8 %] / scope</th>
+      <th>state</th>
+      <th>[% 'expires in (s)' | $T8 %]</th>
+      <th>access token</th>
+      <th>refresh token</th>
+    </tr>
+  </thead>
+  <tbody>
+    [%- FOREACH tok = TOKENS %]
+    <tr>
+      <td>[% L.hidden_tag('tok[+].id', tok.id) %][% L.checkbox_tag('tok[].delete', value = 1) %]</td>
+      <td class="right">[% HTML.escape(tok.id) %]</td>
+      <td>[% HTML.escape(tok.provider) %]</td>
+      [% IF (AUTH.assert('admin', 'may_fail')) %]
+        <td>[% IF tok.employee %][% HTML.escape(tok.employee) %][% ELSE %]<i>[% 'client-wide' | $T8 %]</i>[% END %]</td>
+      [% END %]
+      <td>[% HTML.escape(tok.email) %][% IF tok.scope %] [% P.context_help_tag(tok.scope) %][% END %]</td>
+      <td>[% HTML.escape(tok.tokenstate) %]</td>
+      <td class="right">[% HTML.escape(tok.expiration) %]</td>
+      <td class="right">[% HTML.escape(tok.access_token) %]</td>
+      <td class="right">[% HTML.escape(tok.refresh_token) %]</td>
+    </tr>
+    [%- END %]
+  </tbody>
+</table>
+</div>
+</form>

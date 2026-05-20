@@ -228,6 +228,7 @@ __PACKAGE__->meta->columns(
   sudonumber                                => { type => 'text' },
   taxnumber                                 => { type => 'text' },
   templates                                 => { type => 'text' },
+  ticket_system_provider                    => { type => 'text' },
   todo_oe_overdue_days                      => { type => 'integer', default => 1, not_null => 1 },
   transfer_default                          => { type => 'boolean', default => 'true' },
   transfer_default_ignore_onhand            => { type => 'boolean', default => 'false' },
