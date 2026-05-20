@@ -48,7 +48,7 @@
           [% L.checkbox_tag('ids[+]', "data-checkall"=1, checked = '1',  value=basket_item.id) %]
           [% L.hidden_tag('basket_ids[+]', basket_item.id) %]
         </td>
-        <td class="numeric"> [% basket_item.part.presenter.part(target = '_blank') %]
+        <td class="right">[% basket_item.part.presenter.part(target = '_blank') %]
           [% P.button_tag(
                "kivi.DispositionManager.show_detail_dialog("
                  _  basket_item.part.id _ ",'" _ basket_item.part.partnumber _
