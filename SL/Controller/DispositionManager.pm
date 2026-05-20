@@ -263,7 +263,7 @@ sub _get_parts {
 
    SELECT p.id, 0 as sum
    FROM parts p
-   WHERE p.id NOT IN ( SELECT distinct parts_id FROM inventory )
+   WHERE NOT EXISTS ( SELECT parts_id from inventory WHERE inventory.parts_id = p.id )
      AND NOT p.obsolete
      AND p.rop != 0
  )
@@ -272,7 +272,7 @@ sub _get_parts {
  FROM parts p
  LEFT JOIN available ava ON ava.parts_id = p.id
  WHERE ( ava.sum < p.rop )
-   AND p.id NOT IN ( SELECT part_id FROM purchase_basket_items )
+   AND NOT EXISTS ( SELECT part_id FROM purchase_basket_items WHERE purchase_basket_items.part_id = p.id )
    AND NOT p.obsolete
  ORDER BY p.partnumber
 SQL
