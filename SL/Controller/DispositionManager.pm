@@ -60,21 +60,25 @@ sub prepare_report {
       obj_link => sub { $_[0]->presenter->link_to },
     },
     available   => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->onhandqty, 2); },
-      text => t8('Available Stock'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->onhandqty, 2); },
+      text  => t8('Available Stock'),
+      align => 'right',
     },
     onhand      => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->stockqty, 2); },
-      text => t8('Total Stock'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->stockqty, 2); },
+      text  => t8('Total Stock'),
+      align => 'right',
     },
     rop         => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->rop, 2); },
-      text => t8('Rop'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->rop, 2); },
+      text  => t8('Rop'),
+      align => 'right',
     },
     ordered     => {
-      sub => sub { $::form->format_amount(
+      sub   => sub { $::form->format_amount(
                      \%::myconfig,$_[0]->get_open_ordered_qty, 2); },
-      text => t8('Ordered purchase'),
+      text  => t8('Ordered purchase'),
+      align => 'right',
     },
   );
 
