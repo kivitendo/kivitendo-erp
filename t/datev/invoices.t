@@ -380,7 +380,7 @@ my $invoice_rounding_test = create_sales_invoice(
   transdate    => $date,
   invoiceitems => [ create_invoice_item(part => $part1, qty => 3, sellprice => 2790, discount => 0.25) ]
 );
-my $datev = SL::DATEV->new(
+$datev = SL::DATEV->new(
   exporttype => SL::DATEV::DATEV_ET_BUCHUNGEN,
   format     => SL::DATEV::DATEV_FORMAT_KNE,
   trans_id   => $invoice_rounding_test->id,
