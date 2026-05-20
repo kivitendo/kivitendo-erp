@@ -24,7 +24,7 @@
       <tr>
         <td>[% L.checkbox_tag('vendor_part_ids[+]',
                  checked='0', value=makemodel_item.id) %]</td>
-        <td>[% makemodel_item.presenter.part(target = '_blank') %]
+        <td class="right">[% makemodel_item.presenter.part(target = '_blank') %]
           [% P.button_tag(
                "kivi.DispositionManager.show_detail_dialog("
                  _  makemodel_item.id _ "," _ makemodel_item.partnumber _
