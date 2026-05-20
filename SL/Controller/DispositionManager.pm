@@ -80,6 +80,7 @@ sub prepare_report {
 
   map { $column_defs{$_}->{visible} = 1 } @visible;
 
+  $::form->{title} = $title;    # title in browsers titlebar
   $report->set_options(
     controller_class     => 'DispositionManager',
     output_format        => 'HTML',
