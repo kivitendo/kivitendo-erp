@@ -1,4 +1,4 @@
-use Test::More tests => 173;
+use Test::More tests => 180;
 
 use lib 't';
 
@@ -134,3 +134,28 @@ is(_round_total('2.342'),'2.34');
 is(_round_total('1.2345'),'1.23');
 is(_round_total('8.2345'),'8.23');
 is(_round_total('8.2350'),'8.24');
+
+# known edge case: happens with 3x 2790, 25% discount, 19% tax
+# tax works out to .2249999999
+{
+  my $test = "edge case: 3x2790, 25% discount, 19% tax";
+
+  # literal rounds correcty
+  is(_round_total('7470.225'),7470.23, "$test - literal");
+
+  # amount computed directly
+  my $netamount = 6277.5;
+  my $amount = $netamount * 1.19;
+  is(_round_total($amount), 7470.23, "$test - amount direct total");
+  is(_round_number($amount, 2), 7470.23, "$test - amount direct number");
+
+  # tax computed separately
+  my $tax = $netamount * 0.19;
+  is(_round_total($tax), 1192.73, "$test - tax total");
+  is(_round_number($tax, 2), 1192.73, "$test - tax number");
+
+  # amount added from tax and netamount
+  $amount = $netamount + $tax;
+  is(_round_total($amount), 7470.23, "$test - amount computed total");
+  is(_round_number($amount, 2), 7470.23, "$test - amount computed number");
+}

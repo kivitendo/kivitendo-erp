@@ -72,7 +72,7 @@ sub _round_number {
   # before the decimal sign as well using integer arithmetic again.
 
   my $int_amount = int(abs $amount);
-  my $str_places = max(min(10, 16 - length("$int_amount") - $places), $places);
+  my $str_places = max(min(10, 15 - length("$int_amount") - $places), $places);
   my $amount_str = sprintf '%.*f', $places + $str_places, abs($amount);
 
   return $amount unless $amount_str =~ m{^(\d+)\.(\d+)$};
