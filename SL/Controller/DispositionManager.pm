@@ -329,10 +329,10 @@ sub _setup_list_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Purchasebasket'),
+        t8('Add to purchase basket'),
         submit  => [
           '#form', { action => "DispositionManager/add_to_purchase_basket" } ],
-        tooltip => t8('Add to purchase basket'),
+        tooltip => t8('Add selected items to purchase basket'),
       ],
     );
   }
