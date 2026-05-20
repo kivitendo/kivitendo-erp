@@ -652,6 +652,32 @@ sub test_default_order_two_items_19_one_optional() {
   }, "${title}: calculated data");
 }
 
+sub test_rounding_error_invoice_one_item_19_tax_not_included {
+  reset_state();
+
+  my $item          = new_item(qty => 3, sellprice => 2790, discount => 0.25);
+
+  my $invoice = new_invoice(
+    taxincluded  => 0,
+    items => [ $item ],
+  );
+
+  my $taxkey = $item->part->get_taxkey(date => $transdate, is_sales => 1, taxzone => $invoice->taxzone_id);
+
+  # sellprice 2790 * qty 3 * discount 0.75 = 6277.5
+  # 19%(6277.5) = 1192.725 rounded = 1192.73
+  # total rounded = 7470.23
+
+  my $title = 'rounding error invoice, one item, 19% tax not included';
+  my %data  = $invoice->calculate_prices_and_taxes;
+
+  # ... should not be calculated for the record sum
+  is($invoice->netamount,       6277.5,             "${title}: netamount");
+  is($invoice->amount,          7470.23,             "${title}: amount");
+  # diag explain $invoice->items->[0];
+  # diag explain \%data;
+}
+
 
 Support::TestSetup::login();
 
@@ -665,6 +691,7 @@ test_default_invoice_one_item_19_tax_not_included_rounding_discount();
 test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty();
 test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_low_sellprice();
 test_default_order_two_items_19_one_optional();
+test_rounding_error_invoice_one_item_19_tax_not_included();
 
 clear_up();
 done_testing();
