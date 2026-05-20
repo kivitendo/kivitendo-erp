@@ -808,10 +808,17 @@ sub generate_datev_data {
           $absumsatz               += -1 * $new_trans{'amount'};
 
         } else {
-          my $unrounded             = $trans->[$j]->{'amount'} * (1 + $tax_rate) * -1 + $rounding_error;
-          my $rounded               = $form->round_amount($unrounded, 2);
+          # emulate PTC rounding behaviour: first round taxes in isolation, then add up and round the entire sum
+          # makes a difference in the very rare case where tax ends on .0044444449 and tax + netmount ends on 0.00500001
+          # see "rounding error test" in t/datev/invoices.t
+          my $unrounded_tax         = $trans->[$j]->{'amount'} * ($tax_rate) * -1 + $rounding_error;
+          my $rounded_tax           = $form->round_amount($unrounded_tax, 2);
+          $rounding_error           = $unrounded_tax - $rounded_tax;
 
+          my $unrounded             = $trans->[$j]->{'amount'} * -1 + $rounding_error + $rounded_tax;
+          my $rounded               = $form->round_amount($unrounded, 2);
           $rounding_error           = $unrounded - $rounded;
+
           $new_trans{'amount'}      = $rounded;
           $new_trans{'umsatz'}      = abs($rounded) * $ml;
           $trans->[$j]->{'umsatz'}  = $new_trans{umsatz};

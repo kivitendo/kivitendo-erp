@@ -350,6 +350,48 @@ $::form->{gldatefrom} = DateTime->new(year => 2017, month => 5, day => 1)->to_ki
 $datev->generate_datev_data(from_to => $datev->fromto);
 cmp_deeply $datev->generate_datev_lines, [], "no bookings for January made after May 1st: ok";
 
+
+
+### rounding error test
+#
+# 3 units of 2790.00 each
+# 25% discount
+# 19% tax
+#
+# expected
+# => amount     7470.23
+# => net_amount 6577.50
+# => tax_amount 1192.73
+#
+# this is the rare case where order of operations matters:
+# 2790 * 3 * 0.75 * 0.19   = 1192.724999999999909   # tax
+# 2790 * 3 * 0.75          = 6277.500000000000000   # netamount
+# 2790 * 3 * 0.75 * 1.19   = 7470.224999999999454   # amount
+# tax + netamount          = 7470.225000000000364   # amount
+#
+# when calculated directly and rounded on 12th digit, there will be a cent difference
+my $invoice_rounding_test = create_sales_invoice(
+  invnumber    => "sales invoice rounding test",
+  customer     => $customer,
+  itime        => DateTime->now,
+  gldate       => DateTime->now,
+  intnotes     => 'booked in March',
+  taxincluded  => 0,
+  transdate    => $date,
+  invoiceitems => [ create_invoice_item(part => $part1, qty => 3, sellprice => 2790, discount => 0.25) ]
+);
+my $datev = SL::DATEV->new(
+  exporttype => SL::DATEV::DATEV_ET_BUCHUNGEN,
+  format     => SL::DATEV::DATEV_FORMAT_KNE,
+  trans_id   => $invoice_rounding_test->id,
+);
+$datev->generate_datev_data;
+#diag(Data::Dumper::Dumper($datev));
+
+cmp_ok $datev->{DATEV}[0][0]{umsatz}, '==', 7470.23, "amount is rounded correctly";
+cmp_ok $datev->{DATEV}[0][1]{umsatz}, '==', 7470.23, "amount is rounded correctly";
+
+
 done_testing();
 clear_up();
 
