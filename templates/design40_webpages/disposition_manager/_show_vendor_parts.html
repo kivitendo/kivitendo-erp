@@ -16,6 +16,7 @@
        <th>[% 'Ordered purchase'| $T8 %] </th>
        <th>[% 'Rop'             | $T8 %] </th>
        <th>[% 'Order quantity'  | $T8 %] </th>
+       <th>[% 'Unit'            | $T8 %] </th>
      </tr>
     </thead>
     <tbody>
@@ -42,6 +43,7 @@
         <td class="numeric">[% LxERP.format_amount(makemodel_item.get_open_ordered_qty, 2) %]</td>
         <td class="numeric">[% makemodel_item.rop_as_number %]</td>
         <td class="numeric">[% makemodel_item.order_qty_as_number %]</td>
+        <td>[% makemodel_item.unit %]</td>
       </tr>
     [% END %]
     </tbody>

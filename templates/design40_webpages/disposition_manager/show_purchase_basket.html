@@ -37,6 +37,7 @@
        <th>[% 'Onhand'                                          | $T8 %] </th>
        <th>[% 'Rop'                                             | $T8 %] </th>
        <th>[% 'Order quantity'                                  | $T8 %] </th>
+       <th>[% 'Unit'                                            | $T8 %] </th>
      </tr>
     </thead>
     <tbody id="basket_items">
@@ -65,6 +66,7 @@
         <td class="numeric">[% basket_item.part.onhand_as_number %]</td>
         <td class="numeric">[% basket_item.part.rop_as_number %]</td>
         <td class="numeric">[% basket_item.qty_as_number %]</td>
+        <td>[% basket_item.part.unit %]</td>
       </tr>
     [% END %]
     </tbody>
