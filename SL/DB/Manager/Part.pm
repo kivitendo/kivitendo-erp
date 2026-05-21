@@ -98,7 +98,7 @@ sub get_open_ordered_qty {
   my $query = <<SQL;
 WITH
 open_qty AS (
-  SELECT parts_id, sum(oi.qty) as sum
+  SELECT parts_id, sum(oi.base_qty) as sum
   FROM orderitems oi
   LEFT OUTER JOIN oe o ON (oi.trans_id = o.id)
   WHERE
@@ -123,7 +123,7 @@ open_orderitems_ids AS (
 ),
 
 delivered_qty AS (
-  SELECT parts_id, sum(qty) AS sum
+  SELECT parts_id, sum(base_qty) AS sum
   FROM delivery_order_items
   WHERE id IN (
     SELECT to_id from record_links
