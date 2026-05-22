@@ -136,11 +136,11 @@ is(_round_total('8.2345'),'8.23');
 is(_round_total('8.2350'),'8.24');
 
 # known edge case: happens with 3x 2790, 25% discount, 19% tax
-# tax works out to .2249999999
+# gross amount works out to about 7470.2249999999; separately computed tax to about 1192.7249999999
 {
   my $test = "edge case: 3x2790, 25% discount, 19% tax";
 
-  # literal rounds correcty
+  # literal rounds correctly
   is(_round_total('7470.225'),7470.23, "$test - literal");
 
   # amount computed directly
