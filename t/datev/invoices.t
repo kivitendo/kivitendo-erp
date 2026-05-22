@@ -360,7 +360,7 @@ cmp_deeply $datev->generate_datev_lines, [], "no bookings for January made after
 #
 # expected
 # => amount     7470.23
-# => net_amount 6577.50
+# => net_amount 6277.50
 # => tax_amount 1192.73
 #
 # this is the rare case where order of operations matters:
