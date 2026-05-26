@@ -809,7 +809,7 @@ sub generate_datev_data {
 
         } else {
           # emulate PTC rounding behaviour: first round taxes in isolation, then add up and round the entire sum
-          # makes a difference in the very rare case where tax ends on .0044444449 and tax + netmount ends on 0.00500001
+          # makes a difference in the very rare case where tax ends on .0044444449 and tax + netamount ends on 0.00500001
           # see "rounding error test" in t/datev/invoices.t
           my $unrounded_tax         = $trans->[$j]->{'amount'} * ($tax_rate) * -1 + $rounding_error;
           my $rounded_tax           = $form->round_amount($unrounded_tax, 2);
