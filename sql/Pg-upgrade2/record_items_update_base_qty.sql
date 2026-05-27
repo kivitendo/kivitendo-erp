@@ -19,7 +19,7 @@ INSERT INTO temp_unit_base_factors (
         SELECT u.name, u.base_unit,
           ( CASE WHEN u.base_unit IS NULL THEN 1.0 ELSE 1.0 * u.factor END ) AS base_factor,
           u.id FROM units u
-          WHERE u.name LIKE all_units.name
+          WHERE u.name = all_units.name
       UNION ALL
         SELECT bu.name, u.base_unit, u.factor * bu.base_factor AS base_factor, u.id FROM base_units bu, units u
           WHERE u.name = bu.base_unit AND u.base_unit IS NOT NULL
