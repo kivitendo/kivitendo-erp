@@ -49,7 +49,7 @@ UPDATE invoice i
    ABS(i.qty*(SELECT base_factor FROM temp_unit_base_factors WHERE name = i.unit) - i.base_qty*(SELECT base_factor FROM temp_unit_base_factors WHERE name = (SELECT unit FROM parts WHERE parts.id = i.parts_id))) > 1e-4;
 
 -- reclamation_items
--- there is no need to handle reclamation_items, because the used the PTC from
+-- there is no need to handle reclamation_items, because they used the PTC from
 -- the beginning on and the PTC sets the base_qty
 --
 -- UPDATE reclamation_items i
