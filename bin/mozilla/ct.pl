@@ -332,18 +332,6 @@ sub list_names {
                                        'column_defs'    => \%column_defs,
                                        'data'           => $form->{CT});
 
-
-  my $cvar_sort = first { $form->{sort} eq $_ } map { +"cvar_$_->{name}" } @includeable_custom_variables;
-  if ($cvar_sort) {
-    if ($form->{sortdir}) {
-      $form->{CT} = [sort { defined($a->{$cvar_sort}) <=> defined($b->{$cvar_sort}) ||
-                                $a->{$cvar_sort}      cmp $b->{$cvar_sort}} @{$form->{CT}}];
-    } else {
-      $form->{CT} = [sort { defined($b->{$cvar_sort}) <=> defined($a->{$cvar_sort}) ||
-                                $b->{$cvar_sort}      cmp $a->{$cvar_sort}} @{$form->{CT}}];
-    }
-  }
-
   my $previous_id;
 
   foreach my $ref (@{ $form->{CT} }) {
@@ -496,18 +484,6 @@ sub list_contacts {
                                        'configs'        => $cvar_configs,
                                        'column_defs'    => \%column_defs,
                                        'data'           => \@contacts);
-
-
-  my $cvar_sort = first { $::form->{sort} eq $_ } map { +"cvar_$_->{name}" } @includeable_custom_variables;
-  if ($cvar_sort) {
-    if ($::form->{sortdir}) {
-      @contacts = sort { defined($a->{$cvar_sort}) <=> defined($b->{$cvar_sort}) ||
-                             $a->{$cvar_sort}      cmp $b->{$cvar_sort}} @contacts;
-    } else {
-      @contacts = sort { defined($b->{$cvar_sort}) <=> defined($a->{$cvar_sort}) ||
-                             $b->{$cvar_sort}      cmp $a->{$cvar_sort}} @contacts;
-    }
-  }
 
   foreach my $ref (@contacts) {
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
