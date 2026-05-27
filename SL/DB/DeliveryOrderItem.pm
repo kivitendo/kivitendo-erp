@@ -38,6 +38,19 @@ __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(delivery_order_id)]);
 
+__PACKAGE__->before_save('_before_save_set_base_qty');
+
+
+# hooks
+
+sub _before_save_set_base_qty {
+  my ($self) = @_;
+
+  $self->base_qty($self->unit_obj->convert_to($self->qty, $self->part->unit_obj));
+
+  return 1;
+}
+
 # methods
 
 sub new_from {

@@ -1,4 +1,4 @@
-use Test::More tests => 34;
+use Test::More tests => 38;
 
 use strict;
 
@@ -315,12 +315,46 @@ ok($linked->[0]->position == 3, 'with source order: mixed qtys and fill up: orde
 
 ok(!!$orders[0]->delivered, 'with source order: mixed qtys and fill up: order completely delivered');
 
-#####
 $entries = undef;
+
+#####
+clear_up;
+
+@customers = (new_customer(name => 'TestCustomer1', discount => 0)->save);
+@parts = (
+  new_part(description => 'TestPart1', unit => 'Std')->save,
+  new_part(description => 'TestPart2', unit => 'mg', sellprice => 0.05)->save,
+  new_part(description => 'TestPart3', unit => 't')->save,
+);
+
+$file = \<<EOL;
+datatype;customer
+datatype;description;qty;unit
+datatype
+DeliveryOrder;TestCustomer1
+OrderItem;TestPart1;1;Tag
+OrderItem;TestPart2;1,5;t
+OrderItem;TestPart3;1500;kg
+EOL
+
+  1;                            # make emacs happy
+
+$entries = do_import($file);
+
+$entry = $entries->[1];
+is $entry->{object}->unit,       'Tag',      'unit "Tag" is imported correctly';
+is $entry->{object}->base_qty,   8,          'base_qty (Tag vs. Std) is set correctly';
+$entry = $entries->[2];
+is $entry->{object}->base_qty,   1500000000, 'base_qty (t vs. mg) is set correctly';
+$entry = $entries->[3];
+is $entry->{object}->base_qty,   1.5,        'base_qty (kg vs. t) is set correctly';
+
+$entries = undef;
+
+#####
 clear_up;
 
 #####
-
 $::myconfig{numberformat} = $old_numberformat;
 $::locale                 = $old_locale;
 
