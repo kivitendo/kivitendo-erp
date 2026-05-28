@@ -299,7 +299,7 @@ sub init_all_parts {
 sub init_parts_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( trim($_->$col) => $_ ) } @{ $self->all_parts } } ) } qw(id partnumber ean description) };
+  return { map { my $col = $_; ( $col => { map { ( trim($_->$col)//'' => $_ ) } @{ $self->all_parts } } ) } qw(id partnumber ean description) };
 }
 
 sub init_part_counts_by {
@@ -307,8 +307,8 @@ sub init_part_counts_by {
 
   my $part_counts_by;
 
-  $part_counts_by->{ean}->        {trim($_->ean)}++         for @{ $self->all_parts };
-  $part_counts_by->{description}->{trim($_->description)}++ for @{ $self->all_parts };
+  $part_counts_by->{ean}->        {trim($_->ean)//''}++         for @{ $self->all_parts };
+  $part_counts_by->{description}->{trim($_->description)//''}++ for @{ $self->all_parts };
 
   return $part_counts_by;
 }
