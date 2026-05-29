@@ -97,6 +97,8 @@ Kleinere neue Features und Detailverbesserungen:
   erweitert, falls die Preisaktualisierung über eine Einkaufsrechnung
   passiert ist.
 
+- Bankkonten: Einstellung von DATEV Export ausnehmen hinzugefügt
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
