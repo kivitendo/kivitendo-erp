@@ -41,6 +41,7 @@ my %supported_types = (
       {                                                        title => t8('Use with bank import'), formatter => sub { $_[0]->use_with_bank_import ? t8('yes') : t8('no') } },
       {                                                        title => t8('Use for Factur-X/ZUGFeRD'), formatter => sub { $_[0]->use_for_zugferd ? t8('yes') : t8('no') } },
       {                                                        title => t8('Use for Swiss QR-Bill'), formatter => sub { $_[0]->use_for_qrbill ? t8('yes') : t8('no') } },
+      {                                                        title => t8('Exempt from DATEV export'), formatter => sub { $_[0]->exempt_from_datev_export ? t8('yes') : t8('no') } },
       { method => 'reconciliation_starting_date_as_date',      title => t8('Date'),    align => 'right' },
       { method => 'reconciliation_starting_balance_as_number', title => t8('Balance'), align => 'right' },
     ],

@@ -15,6 +15,7 @@ __PACKAGE__->meta->columns(
   bank_code                       => { type => 'varchar', length => 100 },
   bic                             => { type => 'varchar', length => 100 },
   chart_id                        => { type => 'integer', not_null => 1 },
+  exempt_from_datev_export        => { type => 'boolean', default => 'false', not_null => 1 },
   iban                            => { type => 'varchar', length => 100 },
   id                              => { type => 'integer', not_null => 1, sequence => 'id' },
   name                            => { type => 'text' },
