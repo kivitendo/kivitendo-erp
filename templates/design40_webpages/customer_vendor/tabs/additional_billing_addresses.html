@@ -70,6 +70,14 @@
         <th>[% 'GLN' | $T8 %]</th>
         <td>[% L.input_tag_trim('additional_billing_address.gln', SELF.additional_billing_address.gln, class="wi-wide") %]</td>
       </tr>
+      <tr>
+        <th>[% 'Tax Number / SSN' | $T8 %]</th>
+        <td>[% L.input_tag_trim('additional_billing_address.taxnumber', SELF.additional_billing_address.taxnumber, class="wi-wide") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'sales tax identification number' | $T8 %]</th>
+        <td>[% L.input_tag_trim('additional_billing_address.ustid', SELF.additional_billing_address.ustid, class="wi-wide") %]</td>
+      </tr>
     </tbody>
   </table>
 
