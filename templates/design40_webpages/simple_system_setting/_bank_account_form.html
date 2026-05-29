@@ -63,6 +63,13 @@
       <td>[% L.checkbox_tag('object.use_for_qrbill', checked = SELF.object.use_for_qrbill, for_submit=1) %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('Exempt from DATEV export') %]</th>
+      <td>[% L.checkbox_tag('object.exempt_from_datev_export', checked = SELF.object.exempt_from_datev_export, for_submit=1) %]
+        <br>
+        [% LxERP.t8('If this option is enabled, the transactions of the corresponding chart are not included in DATEV exports. This is desirable if your tax consultant receives bank transactions directly via DATEV.') %]
+      </td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8('Obsolete') %]</th>
       <td>[% L.checkbox_tag('object.obsolete', checked = SELF.object.obsolete, for_submit=1) %]</td>
     </tr>

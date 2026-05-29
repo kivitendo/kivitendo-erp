@@ -33,6 +33,7 @@ use strict;
 use SL::DBUtils;
 use SL::DATEV::CSV;
 use SL::DB;
+use SL::DB::Manager::BankAccount;
 use Encode qw(encode);
 use SL::HTML::Util ();
 use SL::Iconv;
@@ -890,6 +891,8 @@ sub generate_datev_lines {
 
   my @datev_lines = ();
 
+  my @exempt_bank_accno = map { $_->chart->accno } @{ SL::DB::Manager::BankAccount->get_all(where => [ exempt_from_datev_export => 1 ]) || [] };
+
   foreach my $transaction ( @{ $self->{DATEV} } ) {
 
     # each $transaction entry contains data from several acc_trans entries
@@ -1029,6 +1032,8 @@ sub generate_datev_lines {
         # }
       }
     }
+
+    next if (any { $datev_data{konto} eq $_ || $datev_data{gegenkonto} eq $_ } @exempt_bank_accno);
 
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
