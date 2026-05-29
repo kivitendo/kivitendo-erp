@@ -1000,6 +1000,10 @@ sub generate_datev_lines {
     }
     # set lock for each transaction
     $datev_data{locked} = $self->locked;
+
+    # ignore transactions for bank accounts which have "exempt from DATEV export" set.
+    next if (any { $datev_data{konto} eq $_ || $datev_data{gegenkonto} eq $_ } @exempt_bank_accno);
+
     # add guids if datev export with documents is requested
     if ($self->documents) {
       # add all document links for the latest created/uploaded document
@@ -1032,8 +1036,6 @@ sub generate_datev_lines {
         # }
       }
     }
-
-    next if (any { $datev_data{konto} eq $_ || $datev_data{gegenkonto} eq $_ } @exempt_bank_accno);
 
     push(@datev_lines, \%datev_data) if $datev_data{umsatz};
   }
