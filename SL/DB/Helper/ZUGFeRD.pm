@@ -101,6 +101,26 @@ sub _parse_our_address {
   return @result;
 }
 
+sub _generate_register_note {
+  my $register_note = '';
+
+  if ($::instance_conf->get_managing_directors) {
+    $register_note .= 'Geschäftsführer/in: ' . $::instance_conf->get_managing_directors . "\n";
+  }
+
+  if ($::instance_conf->get_commercial_register_entry) {
+    $register_note .= 'HRB-Nr. ' . $::instance_conf->get_commercial_register_entry;
+    $register_note .= ' '        . $::instance_conf->get_commercial_register_place if $::instance_conf->get_commercial_register_place;
+    $register_note .= "\n";
+  }
+
+  if ($::instance_conf->get_registered_seat) {
+    $register_note .= 'Sitz der Gesellschaft: ' . $::instance_conf->get_registered_seat . "\n";
+  }
+
+  return $register_note;
+}
+
 sub _buyer_contact_information {
   my ($self, %params) = @_;
 
@@ -577,11 +597,13 @@ sub _exchanged_document {
   my $std_note = first { $_->language_id == $self->language_id } @{ $std_notes };
   $std_note  //= first { !defined $_->language_id }              @{ $std_notes };
 
-  my $notes = $self->notes_as_stripped_html;
+  my $notes         = $self->notes_as_stripped_html;
+  my $register_note = _generate_register_note();
 
-  _included_note($self, %params, note => $self->transaction_description) if $self->transaction_description;
-  _included_note($self, %params, note => $notes)                         if $notes;
-  _included_note($self, %params, note => $std_note->translation)         if $std_note;
+  _included_note($self, %params, note => $self->transaction_description)        if $self->transaction_description;
+  _included_note($self, %params, note => $notes)                                if $notes;
+  _included_note($self, %params, note => $std_note->translation)                if $std_note;
+  _included_note($self, %params, note => $register_note, subject_code => 'REG') if $register_note;
 
   $params{xml}->endTag;
   #   </rsm:ExchangedDocument>
