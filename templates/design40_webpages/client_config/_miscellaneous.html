@@ -43,6 +43,22 @@
       <td> [% L.textarea_tag('defaults.signature', SELF.defaults.signature, rows=4, class='wi-wide texteditor') %] </td>
     </tr>
     <tr>
+      <th> [% LxERP.t8("Managing directors") %] </th>
+      <td> [% L.input_tag('defaults.managing_directors', SELF.defaults.managing_directors, class='wi-wide') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Registered seat") %] </th>
+      <td> [% L.input_tag('defaults.registered_seat', SELF.defaults.registered_seat, class='wi-wide') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Commercial register entry") %] </th>
+      <td> [% L.input_tag('defaults.commercial_register_entry', SELF.defaults.commercial_register_entry, class='wi-wide') %] </td>
+    </tr>
+    <tr>
+      <th> [% LxERP.t8("Commercial register place") %] </th>
+      <td> [% L.input_tag('defaults.commercial_register_place', SELF.defaults.commercial_register_place, class='wi-wide') %] </td>
+    </tr>
+    <tr>
       <th> [% LxERP.t8("Tax number") %] </th>
       [% IF SELF.defaults.feature_ustva %]
       <td> [% SELF.defaults.taxnumber %]&nbsp;&nbsp; <a href="ustva.pl?action=config_step1"> ([% LxERP.t8("For changeing goto USTVA Config") %]) </a> </td>
