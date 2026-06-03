@@ -22,7 +22,7 @@
 
 <form method="post" action="controller.pl" id="reclamation_form">
   [% L.hidden_tag('callback',             FORM.callback) %]
-  [% L.hidden_tag('type',                 FORM.type) %]
+  [% L.hidden_tag('type',                 SELF.type) %]
   [% L.hidden_tag('id',                   SELF.reclamation.id) %]
   [% L.hidden_tag('converted_from_record_type_ref', SELF.reclamation.converted_from_record_type_ref) %]
   [% L.hidden_tag('converted_from_record_id',       SELF.reclamation.converted_from_record_id) %]
