@@ -102,6 +102,10 @@
         [% L.input_tag_trim('contact.cp_zipcode', SELF.contact.cp_zipcode, class="wi-verysmall") %][% L.input_tag_trim('contact.cp_city', SELF.contact.cp_city, class="wi-wide--verysmall") %]
       </td>
     </tr>
+    <tr>
+      <th>[% 'Country' | $T8 %]</th>
+      <td>[% P.country.picker('contact.cp_country_id', SELF.contact.cp_country_id, with_empty=1, class='wi-lightwide') %]</td>
+    </tr>
     [% contact_cvars = SELF.contact.cvars_by_config %]
     [% IF ( contact_cvars.size ) %]
       <!-- PENDENT: Horizontal Rule -->
