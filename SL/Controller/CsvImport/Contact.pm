@@ -115,19 +115,20 @@ sub check_linked_customer_vendor {
   # like check_vc, recognize customer_id, customernumber and customer_gln
 
   my @customer_candidates = grep { defined }
-     $self->vc_by->{id}->{ $entry->{raw_data}->{customer_id} },
-     $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} },
-     $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} },
-     $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} };
+     defined $entry->{raw_data}{customer_id}    ? $self->vc_by->{id}->{ $entry->{raw_data}{customer_id} }                     : undef,
+     defined $entry->{raw_data}{customer}       ? $self->vc_by->{name}->{customers}->{ $entry->{raw_data}{customer} }         : undef,
+     defined $entry->{raw_data}{customernumber} ? $self->vc_by->{number}->{customers}->{ $entry->{raw_data}{customernumber} } : undef,
+     defined $entry->{raw_data}{customer_gln}   ? $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}{customer_gln} }      : undef,
+     ;
 
   # sanity check:
   my %seen_customers;
   $seen_customers{$_->id}++ for @customer_candidates;
 
   if (
-    $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}->{customer} } > 1 ||
-    $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} } > 1 ||
-    $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}->{customer_gln} } > 1 ||
+    (defined $entry->{raw_data}{customer}       && $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}{customer} } > 1) ||
+    (defined $entry->{raw_data}{customernumber} && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}{customernumber} } > 1) ||
+    (defined $entry->{raw_data}{customer_gln}   && $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}{customer_gln} } > 1) ||
     grep { $_ > 1 } values %seen_customers
   ) {
     push @{ $entry->{errors} }, $::locale->text('Error: Customer is ambiguous');
@@ -143,19 +144,19 @@ sub check_linked_customer_vendor {
   }
 
   my @vendor_candidates = grep { defined }
-     $self->vc_by->{id}->{ $entry->{raw_data}->{vendor_id} },
-     $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} },
-     $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} },
-     $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} };
+     defined $entry->{raw_data}{vendor_id}    ? $self->vc_by->{id}->{ $entry->{raw_data}{vendor_id} }                   : undef,
+     defined $entry->{raw_data}{vendor}       ? $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}{vendor} }         : undef,
+     defined $entry->{raw_data}{vendornumber} ? $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}{vendornumber} } : undef,
+     defined $entry->{raw_data}{vendor_gln}   ? $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}{vendor_gln} }      : undef;
 
   # sanity check:
   my %seen_vendors;
   $seen_vendors{$_->id}++ for @vendor_candidates;
 
   if (
-    $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1 ||
-    $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1 ||
-    $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1 ||
+    (defined $entry->{raw_data}{vendor}       && $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1) ||
+    (defined $entry->{raw_data}{vendornumber} && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1) ||
+    (defined $entry->{raw_data}{vendor_gln}   && $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1) ||
     grep { $_ > 1 } values %seen_vendors
   ) {
     push @{ $entry->{errors} }, $::locale->text('Error: vendor is ambiguous');
