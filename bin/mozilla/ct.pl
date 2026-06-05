@@ -212,7 +212,7 @@ sub list_names {
 
   my @columns = (
     'ids',
-    'id',        'name',    "$form->{db}number",   'contact', 'main_contact_person',
+    'id',        'obsolete', 'name',    "$form->{db}number",   'contact', 'main_contact_person',
     'department_1',         'department_2',        'phone',   'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'taxzone', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
@@ -230,6 +230,7 @@ sub list_names {
     'ids'               => { raw_header_data => SL::Presenter::Tag::checkbox_tag("", id => "multi_all", checkall => "[data-checkall=1]"), align => 'center' },
     'id'                => { 'text' => $locale->text('ID'), },
     "$form->{db}number" => { 'text' => $locale->text('Number'), },
+    'obsolete'          => { 'text' => $locale->text('Validity'), },
     'name'              => { 'text' => $form->{IS_CUSTOMER} ? $::locale->text('Customer Name') : $::locale->text('Vendor Name'), },
     'contact'           => { 'text' => $locale->text('Contact'), },
     'main_contact_person'  => { 'text' => $locale->text('Main Contact Person'), },
@@ -351,6 +352,8 @@ sub list_names {
       $row->{name}->{link}  = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
       $row->{email}->{link} = 'mailto:' . E($ref->{email});
     }
+
+    $row->{obsolete}{data} = $ref->{obsolete} ? $locale->text('Obsolete') : $locale->text('Valid');
 
     my $base_url              = build_std_url("script=controller.pl", 'action=Order/edit', 'id=' . E($ref->{invid}), 'callback', @hidden_nondefault);
 

@@ -66,6 +66,7 @@ sub search {
   my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my %allowed_sort_columns = (
       "id"                 => "ct.id",
+      "obsolete"           => "ct.obsolete",
       "customernumber"     => "ct.customernumber",
       "vendornumber"       => "ct.vendornumber",
       "name"               => "ct.name",
@@ -111,7 +112,7 @@ sub search {
   }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|creditlimit|id|discount|itime|dunning_lock)/ && !$join_records) {
+  if ($sortorder !~ /(business|creditlimit|id|discount|itime|dunning_lock|obsolete)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
