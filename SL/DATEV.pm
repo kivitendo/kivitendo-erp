@@ -544,6 +544,17 @@ sub generate_datev_data {
     $gl_imported = " AND NOT imported";
   }
 
+  my $exempt_datev_skonto_filter =
+    qq| AND NOT EXISTS (SELECT
+          FROM bank_transaction_acc_trans btacc
+          JOIN acc_trans         acc ON btacc.acc_trans_id = acc.acc_trans_id
+          JOIN bank_transactions bt  ON btacc.bank_transaction_id = bt.id
+          JOIN bank_accounts     ba  ON bt.local_bank_account_id = ba.id AND ba.exempt_from_datev_export IS true
+          WHERE btacc.automatic IS true
+            AND btacc.type = 'skonto_charts_and_tax_correction'
+            AND btacc.gl_id = gl.id
+        )|;
+
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.gldate, ac.trans_id,ar.id, ac.amount, ac.taxkey, ac.memo,
          ar.invnumber, ar.duedate, ar.amount as umsatz, COALESCE(ar.tax_point, ar.deliverydate) AS deliverydate, ar.itime::date,
@@ -628,6 +639,7 @@ sub generate_datev_data {
          $gl_department_id_filter
          $gl_imported
          AND NOT EXISTS (SELECT gl_id from ap_gl where gl_id = gl.id)
+         $exempt_datev_skonto_filter
          $filter
 
        ORDER BY trans_id, acc_trans_id|;
