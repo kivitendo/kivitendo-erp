@@ -1,4 +1,4 @@
-use Test::More tests => 474;
+use Test::More tests => 478;
 
 use strict;
 
@@ -471,6 +471,35 @@ sub test_one_inv_and_two_invoices_with_skonto_exact {
   is($ar_transaction_3->closed , 1           , "$testname: salesinv 2 skonto is closed");
   is($bt->invoice_amount     , '345.10000' , "$testname: bt invoice amount was assigned");
 
+
+  # Integration test between skonto tax correction for payments, DATEV export and bank account settings
+
+  my $startdate = DateTime->new(year => $year, month =>  1, day =>  1);
+  my $enddate   = DateTime->new(year => $year, month => 12, day => 31);
+  my $datev1 = SL::DATEV->new(
+    dbh        => $ar_transaction_1->db->dbh,
+    from => $startdate,
+    to   => $enddate,
+  );
+  my @data_datev;
+
+  $bank_account->exempt_from_datev_export(1);
+  $bank_account->save;
+
+  $datev1->generate_datev_data(from_to => $datev1->fromto);
+  @data_datev = sort { $a->{umsatz} <=> $b->{umsatz} } @{ $datev1->generate_datev_lines() };
+
+  is((scalar grep { $_->{belegfeld1} =~ m/^Skonto-Steuerkorrektur für 19% salesinv [12] skonto$/ } @data_datev), 0, "$testname: Skonto-Steuerkorrekturen sind ausgenommen");
+  is((scalar grep { $_->{konto} eq $bank->accno || $_->{gegenkonto} eq $bank->accno } @data_datev),              0, "$testname: Bankbewegungen sind ausgenommen");
+
+  $bank_account->exempt_from_datev_export(0);
+  $bank_account->save;
+
+  $datev1->generate_datev_data(from_to => $datev1->fromto);
+  @data_datev = sort { $a->{umsatz} <=> $b->{umsatz} } @{ $datev1->generate_datev_lines() };
+
+  is((scalar grep { $_->{belegfeld1} =~ m/^Skonto-Steuerkorrektur für 19% salesinv [12] skonto$/ } @data_datev), 2, "$testname: Skonto-Steuerkorrekturen sind vorhanden");
+  is((scalar grep { $_->{konto} eq $bank->accno || $_->{gegenkonto} eq $bank->accno } @data_datev)          > 0, 1, "$testname: Bankbewegungen sind vorhanden");
 }
 
 sub test_overpayment {
