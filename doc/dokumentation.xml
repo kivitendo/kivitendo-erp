@@ -9230,6 +9230,90 @@ cloud_url = https://firma.atlassian.net
       </sect2>
     </sect1>
 
+    <sect1 id="features.cti">
+      <title>Computer Telephone Integration (CTI)</title>
+      <para>
+      Asterisk AMI-Konfiguration für kivitendo (Events mitlesen und Anrufe per Originate starten)
+
+Benutzereinstellungen → Anzeigeoptionen → Asynchrone Benachrichtigungen: ja
+
+       TLS-Konfig
+
+/etc/asterisk/manager.conf
+
+<programlisting>
+; By default asterisk will listen on localhost only.
+[general]
+tlsenable     = yes
+tlsbindaddr   = 0.0.0.0:5039 ; address and port to bind to, default to bindaddr and port 5039
+tlscertfile   = /tmp/asterisk.pem ; path to the certificate.
+tlsprivatekey = /tmp/private.pem ; path to the private key, if no tlsprivatekey is given, default is to
+searchtlscertfile for private key.
+; tlscipher   = &lt;cipher string&gt; ; if not set, defaults apply: https://github.com/asterisk/asterisk/blob/master/
+configs/samples/http.conf.sample#L99
+
+[kivitendo]
+secret = &lt;SICHERES PASSWORT&gt;
+write  = originate
+read   = originate,call,log,verbose,agent,user,reporting
+</programlisting>
+Test-Zertifikat kann man unter Debian/Ubtuntu mit dem Paket ssl-cert selbst-signiert generieren. Unter Alpine Linux zum Test:
+<programlisting>
+openssl req -x509 -newkey rsa:4096 -keyout /tmp/private.pem -out /tmp/asterisk.pem -days 365 -nodes
+</programlisting>
+Notwendig war, die Berechtigungen anzupassen:
+<programlisting>
+chown asterisk /tmp/*.pem
+</programlisting>
+Schlüssel final an geeignetem Ort statt /tmp speichern
+
+• /var/log/asterisk/messages nach Asterisk-Neustart: Fehlerfreiheit kontrollieren
+• sicher gehen, dass das AMI Modul geladen wird (sonst z.B. in /etc/asterisk/modules.conf schauen oder Niklas fragen)
+<programlisting>
+alpine:~$ asterisk -Rvvvvv
+alpine*CLI> manager show users
+username
+--------
+kivitendo
+-------------------
+1 manager users configured.
+</programlisting>
+
+Zum Test der Verbindung einen Anruf starten: (Hostname, Passwort, Channel tauschen)
+<programlisting>
+openssl s_client -connect alpine.lan:5039 &lt;&lt;EOF
+Action: Login
+Username: kivitendo
+Secret: kivi1234
+Action: Originate
+Channel: PJSIP/webtux14
+Context: toll
+Exten: 300
+Variable: PJSIP_HEADER(add,Alert-Info)=&lt;http://notused&gt;;info=alert-autoanswer;delay=0
+Priority: 1
+Callerid: 300
+EOF
+</programlisting>
+
+config/kivitendo.conf:
+<programlisting>
+[cti]
+dial_command = "notused"
+external_prefix =
+international_dialing_prefix = 00
+our_country_code = 49
+
+asterisk_manager_interface_host              = alpine.lab
+asterisk_manager_interface_port              = 5049
+# openssl x509 -in asterisk.pem -noout -sha256 -fingerprint | tr -d ':'
+asterisk_manager_interface_ssl_fingerprint   = 6E123BA7C3BBD8B0D03428FC099B9A3E9B67C8D76DD4341F0E7398673057552B
+asterisk_manager_interface_username          = kivitendo
+asterisk_manager_interface_secret            = kivi1234
+asterisk_manager_interface_originate_context = toll
+</programlisting>
+
+      </para>
+    </sect1>
   </chapter>
 
   <chapter>
