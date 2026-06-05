@@ -46,7 +46,7 @@ sub do_import {
 }
 
 sub clear_up {
-  foreach (qw(RecordLink Order Customer Part)) {
+  foreach (qw(RecordLink Order Contact Customer Part)) {
     "SL::DB::Manager::${_}"->delete_all(all => 1);
   }
   SL::DB::Manager::Employee->delete_all(where => [ '!login' => 'unittests' ]);
@@ -64,6 +64,7 @@ clear_up;
 my @customers;
 my @vendors;
 my @parts;
+my @contacts;
 my @orders;
 my $file;
 my $entries;
@@ -75,14 +76,15 @@ my $entry;
   new_part(description => 'TestPart1', ean => '')->save,
   new_part(description => 'TestPart2', ean => '')->save
 );
+@contacts = (SL::DB::Contact->new(cp_name => 'Lovelace', cp_givenname => 'Ada')->save);
 
 #####
 # simple import
 #####
 $file = \<<EOL;
-datatype;customer
+datatype;customer;contact
 datatype;description;qty
-Order;TestCustomer1
+Order;TestCustomer1;Lovelace, Ada
 OrderItem;TestPart1;5
 OrderItem;TestPart2;10
 EOL
@@ -91,6 +93,7 @@ $entries = do_import($file);
 
 $entry = $entries->[0];
 is $entry->{object}->customer_id, $customers[0]->id, 'simple import: customer_id';
+is $entry->{object}->cp_id,       $contacts[0]->cp_id, 'simple import: cp_id';
 
 $entry = $entries->[1];
 is $entry->{object}->parts_id,    $parts[0]->id,     'simple import: part 1: parts_id';
