@@ -319,10 +319,10 @@ sub init_contacts_by {
   my $all_contacts = SL::DB::Manager::Contact->get_all;
 
   my $cby;
-  # by customer/vendor id  _and_  contact person id
-  $cby->{'cp_cv_id+cp_id'}   = { map { ( $_->cp_cv_id . '+' . $_->cp_id   => $_ ) } @{ $all_contacts } };
-  # by customer/vendor id  _and_  contact person name
-  $cby->{'cp_cv_id+cp_name'} = { map { ( $_->cp_cv_id . '+' . $_->cp_name => $_ ) } @{ $all_contacts } };
+  # by contact person id
+  $cby->{cp_id}     = { map { ( $_->cp_id     => $_ ) } @{ $all_contacts } };
+  # by contact person name
+  $cby->{full_name} = { map { ( $_->full_name => $_ ) } @{ $all_contacts } };
 
   return $cby;
 }
@@ -879,14 +879,14 @@ sub check_contact {
   return 0 unless $cp_cv_id;
 
   # Check whether or not contact ID is valid.
-  if ($object->cp_id && !$self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }) {
+  if ($object->cp_id && !$self->contacts_by->{cp_id}->{ $object->cp_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact');
     return 0;
   }
 
   # Map name to ID if given.
   if (!$object->cp_id && $entry->{raw_data}->{contact}) {
-    my $cp = $self->contacts_by->{'cp_cv_id+cp_name'}->{ $cp_cv_id . '+' . $entry->{raw_data}->{contact} };
+    my $cp = $self->contacts_by->{full_name}->{ $entry->{raw_data}->{contact} };
     if (!$cp) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact');
       return 0;
@@ -896,7 +896,7 @@ sub check_contact {
   }
 
   if ($object->cp_id) {
-    $entry->{info_data}->{contact} = $self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }->cp_name;
+    $entry->{info_data}->{contact} = $self->contacts_by->{cp_id}->{ $object->cp_id }->full_name;
   }
 
   return 1;
