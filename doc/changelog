@@ -34,6 +34,14 @@ Mittelgroße neue Features:
   im Auswahlmenü auf Berichten und Belegen ist einstellbar, so dass bspw.
   die am häufigsten verwendeten Länder zuoberst angezeigt werden können.
 
+- Ansprechpartner sind mehreren Kunden und/oder Lieferanten zuordenbar
+  Das Editieren von Ansprechpersonen erfolgt nun auf einer eigenen Seite
+  unabhängig von Kunden und Lieferanten. In der Kunden/Lieferanten-Maske lassen
+  sich bestehende Ansprechpersonen veknüpfen oder bereits verknüpfte entfernen.
+  Über den Workflow "Speichern und Ansprechperson erfassen" wird eine neu
+  gespeicherte Ansprechperson automatisch mit einem Kunden/Lieferanten
+  verknüpft.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Anordnung der Elemente in der Maske für Wiedervorlagen verbessert
