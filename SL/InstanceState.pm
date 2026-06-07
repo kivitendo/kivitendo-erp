@@ -2,13 +2,28 @@ package SL::InstanceState;
 
 use strict;
 
-use SL::DB::Manager::Employee;
+use SL::DB;
+use SL::DBUtils;
 
 use parent qw(Rose::Object);
 
 
 sub has_employee_project_invoices {
-  SL::DB::Manager::Employee->current && @{SL::DB::Manager::Employee->current->project_invoice_permissions};
+  return !!0 unless $::myconfig{login};
+
+  # We can't use Rose here because this is used in the menu.
+  # The menu is set up before any DB upgrade scripts are running and
+  # if there is a DB upgrade affecting the employee table
+  # (adding/deleting rows), we will get an error because Rose metadata
+  # and the DB table are out of sync.
+  # So do this with an SQL query.
+  my $query = <<SQL;
+    SELECT COUNT(id) FROM employee_project_invoices LEFT JOIN employee ON (employee.id = employee_id) WHERE login = ?;
+SQL
+
+  my ($count) = selectrow_query($::form, SL::DB->client->dbh, $query, $::myconfig{login});
+
+  return !!$count;
 }
 
 
