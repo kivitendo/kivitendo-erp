@@ -303,7 +303,7 @@ sub render_count_error {
   if ($::request->is_mobile) {
     $self->render('stock_counting/count', errors => $errors);
   } else {
-    flash('error', @{$errors || [] });
+    flash('error', $_) for @{$errors};
     $self->render('stock_counting/count');
   }
 }
