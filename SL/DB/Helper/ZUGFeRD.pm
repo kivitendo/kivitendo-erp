@@ -266,7 +266,9 @@ sub _line_item {
   $params{xml}->startTag("ram:AssociatedDocumentLineDocument");
   $params{xml}->dataElement("ram:LineID", $params{line_number} + 1);
   $params{xml}->endTag;
+  #   </ram:AssociatedDocumentLineDocument>
 
+  #   <ram:SpecifiedTradeProduct>
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
   if ($params{item}->part->ean) {
     $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
@@ -277,7 +279,9 @@ sub _line_item {
   $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
     if $params{item}->longdescription_as_stripped_html;
   $params{xml}->endTag;
+  #   </ram:SpecifiedTradeProduct>
 
+  #   <ram:SpecifiedLineTradeAgreement>
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
   $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
@@ -739,7 +743,6 @@ sub _applicable_header_trade_delivery {
     #       <ram:DespatchAdviceReferencedDocument>
     $params{xml}->startTag("ram:DespatchAdviceReferencedDocument");
     $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->donumber));
-
     $params{xml}->endTag;
     #       </ram:DespatchAdviceReferencedDocument>
   }
