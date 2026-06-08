@@ -66,7 +66,7 @@
       <th>[% LxERP.t8('Exempt from DATEV export') %]</th>
       <td>[% L.checkbox_tag('object.exempt_from_datev_export', checked = SELF.object.exempt_from_datev_export, for_submit=1) %]
         <br>
-        [% LxERP.t8('If this option is enabled, the transactions of the corresponding chart are not included in DATEV exports. This is desirable if your tax consultant receives bank transactions directly via DATEV.') %]
+        [% LxERP.t8('If this option is enabled, the transactions of the corresponding chart and corresponding skonto tax corrections are not included in DATEV exports. This is desirable if your tax consultant receives bank transactions directly via DATEV.') %]
       </td>
     </tr>
     <tr>
