@@ -56,6 +56,7 @@ __PACKAGE__->run_before(
     'save_and_order',
     'save_and_quotation',
     'save_and_rfq',
+    'save_and_new_contact',
     'delete',
     'delete_shipto',
     'delete_additional_billing_address',
@@ -382,6 +383,9 @@ sub _transaction {
     type       => $::form->{type},
     callback   => $::form->{callback},
   );
+  if ('Contact' eq $script) {
+    $url = $self->url_for(controller => 'Contact', action => 'edit', link_with_cv_id => $self->{cv}->id, link_with_cv_db => $::form->{db});
+  }
 
   print $::form->redirect_header($url);
 }
@@ -444,6 +448,14 @@ sub action_save_and_quotation {
 
   $::form->{type} = 'sales_quotation';
   $self->_transaction('oe.pl');
+}
+
+sub action_save_and_new_contact {
+  my ($self) = @_;
+
+  $::auth->assert('sales_quotation_edit');
+
+  $self->_transaction('Contact');
 }
 
 sub action_delete {
@@ -1216,9 +1228,9 @@ sub _setup_form_action_bar {
         ]) x !$self->is_vendor,
         action => [
           t8('Save and create new Contact'),
-          submit => [ '#form', { action => "Contact/edit", link_with_cv_id => $self->{cv}->id, link_with_cv_db => $::form->{db} } ],
+          submit => [ '#form', { action => "CustomerVendor/save_and_new_contact" } ],
           checks => [ 'check_taxzone_and_ustid' ],
-          disabled => !$self->{cv}->id? t8('This object has not been saved yet.') : $no_rights,
+          disabled => $no_rights,
         ],
       ], # end of combobox "Workflow"
 
