@@ -581,6 +581,11 @@ sub _exchanged_document {
   _included_note($self, %params, note => $notes)                         if $notes;
   _included_note($self, %params, note => $std_note->translation)         if $std_note;
 
+  if (my $reduction_terms = $self->customer->reduction_terms) {
+    $reduction_terms =~ s{\r\n}{\n}g;
+    _included_note($self, %params, note => $reduction_terms);
+  }
+
   $params{xml}->endTag;
   #   </rsm:ExchangedDocument>
 }
