@@ -270,14 +270,25 @@ sub _line_item {
 
   #   <ram:SpecifiedTradeProduct>
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
-  if ($params{item}->part->ean) {
-    $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
-  } else {
+
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    if ($params{item}->part->ean) {
+      $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
+    } else {
+      $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
+    }
+
+  } else {                      # profile != XRechnung
+    if ($params{item}->part->ean) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($params{item}->part->ean), schemeID => '0160');
+    }
     $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
   }
+
   $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
   $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
     if $params{item}->longdescription_as_stripped_html;
+
   $params{xml}->endTag;
   #   </ram:SpecifiedTradeProduct>
 
