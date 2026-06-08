@@ -571,7 +571,9 @@ sub _included_note {
   my ($self, %params) = @_;
 
   $params{xml}->startTag("ram:IncludedNote");
-  $params{xml}->dataElement("ram:Content", _u8($params{note}));
+  $params{xml}->dataElement("ram:Content",     _u8($params{note}));
+  $params{xml}->dataElement("ram:SubjectCode", _u8($params{subject_code})) if $params{subject_code};
+
   $params{xml}->endTag;
 }
 
