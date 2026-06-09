@@ -385,6 +385,7 @@ sub _specified_trade_settlement_payment_means {
   #     <ram:SpecifiedTradeSettlementPaymentMeans>
   $params{xml}->startTag('ram:SpecifiedTradeSettlementPaymentMeans');
   $params{xml}->dataElement('ram:TypeCode', $self->direct_debit ? 59 : 58); # 59 = SEPA direct debit, 58 = SEPA credit transfer
+  $params{xml}->dataElement('ram:Information', $self->direct_debit ? _u8(t8('Bank collection via SEPA')): _u8(t8('Bank transfer via SEPA')));
 
   if ($self->direct_debit) {
     $params{xml}->startTag('ram:PayerPartyDebtorFinancialAccount');
@@ -394,7 +395,14 @@ sub _specified_trade_settlement_payment_means {
   } else {
     $params{xml}->startTag('ram:PayeePartyCreditorFinancialAccount');
     $params{xml}->dataElement('ram:IBANID', $params{bank_account}->iban);
+    $params{xml}->dataElement('ram:AccountName', $params{bank_account}->name) if $params{bank_account}->name;
     $params{xml}->endTag;
+
+    if ($params{bank_account}->bic) {
+      $params{xml}->startTag('ram:PayeeSpecifiedCreditorFinancialInstitution');
+      $params{xml}->dataElement('ram:BICID', $params{bank_account}->bic);
+      $params{xml}->endTag;
+    }
   }
 
   $params{xml}->endTag;
