@@ -3377,7 +3377,6 @@ $self->{texts} = {
   'Risk'                        => '',
   'Risk levels'                 => '',
   'Risks'                       => '',
-  'Rop'                         => '',
   'Rounding'                    => '',
   'Rounding Gain'               => '',
   'Rounding Loss'               => '',

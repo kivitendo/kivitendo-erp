@@ -71,7 +71,7 @@ sub prepare_report {
     },
     rop         => {
       sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->rop, 2); },
-      text  => t8('Rop'),
+      text  => t8('ROP'),
       align => 'right',
     },
     ordered     => {
