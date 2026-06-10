@@ -9,7 +9,7 @@ CREATE TEMPORARY TABLE temp_unit_base_factors (
   base_factor numeric(20,5)
 );
 
-INSERT INTO temp_unit_base_factors (
+INSERT INTO temp_unit_base_factors
   SELECT
     all_units.name,
     b.base_factor
@@ -25,8 +25,7 @@ INSERT INTO temp_unit_base_factors (
           WHERE u.name = bu.base_unit AND u.base_unit IS NOT NULL
     ) SEARCH DEPTH FIRST BY id SET ordercol
     SELECT base_factor FROM base_units ORDER BY ordercol DESC LIMIT 1
-  ) b
-);
+  ) b;
 
 -- update base_qty where not set or wrong
 
