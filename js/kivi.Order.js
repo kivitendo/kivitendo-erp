@@ -195,10 +195,6 @@ namespace('kivi.Order', function(ns) {
     $filename_elt.val(filename.replace(/[^.]+$/, new_ext));
   };
 
-  ns.set_number_in_title = function(elt) {
-    $('#nr_in_title').html($(elt).val());
-  };
-
   ns.reload_cv_dependent_selections = function() {
     $('#order_shipto_id').val('');
     var data = $('#order_form').serializeArray();
@@ -1072,4 +1068,6 @@ $(function() {
   });
 
   $('.reformat_number_as_null_number').change(kivi.Order.reformat_number_as_null_number);
+
+  kivi.SalesPurchase.setup_number_in_title('.number-for-title');
 });

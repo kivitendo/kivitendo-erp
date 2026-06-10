@@ -397,4 +397,19 @@ namespace('kivi.SalesPurchase', function(ns) {
 
     $('#update_button').click();
   };
+
+  this.set_title = (selector_for_number_input) => {
+    const number     = $(selector_for_number_input).val();
+    const base_title = $('#title-headline').data('base-title');
+    let title =
+        (base_title === undefined ? '' : base_title) +
+        (number     === undefined ? '' : ' ' + number);
+    $('#title-headline').text(title);
+    document.title = title;
+  };
+
+  this.setup_number_in_title = (selector_for_number_input) => {
+    $(selector_for_number_input).change(() => { kivi.SalesPurchase.set_title(selector_for_number_input); });
+    this.set_title(selector_for_number_input);
+  };
 });

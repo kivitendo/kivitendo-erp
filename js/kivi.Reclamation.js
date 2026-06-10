@@ -189,10 +189,6 @@ namespace('kivi.Reclamation', function(ns) {
     email_dialog.dialog("close");
   };
 
-  ns.set_number_in_title = function(elt) {
-    $('#nr_in_title').html($(elt).val());
-  };
-
   ns.reload_cv_dependent_selections = function() {
     $('#reclamation_shipto_id').val('');
     var data = $('#reclamation_form').serializeArray();
@@ -929,4 +925,5 @@ $(function() {
 
   $('.reformat_number_as_null_number').change(kivi.Reclamation.reformat_number_as_null_number);
 
+  kivi.SalesPurchase.setup_number_in_title('#reclamation_record_number');
 });
