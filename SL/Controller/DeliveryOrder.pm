@@ -5,8 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_number _parse_number);
-use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(select_tag hidden_tag div_tag span_tag);
+use SL::Presenter::Tag qw(select_tag div_tag);
 use SL::Presenter::DeliveryOrder qw(delivery_order_status_line);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
@@ -110,7 +109,7 @@ sub action_add {
 
   $self->render(
     'delivery_order/form',
-    title => $self->get_title_for('add'),
+    title => $self->type_data->text('add'),
     %{$self->{template_args}}
   );
 }
@@ -183,7 +182,7 @@ sub action_edit {
   $self->pre_render();
   $self->render(
     'delivery_order/form',
-    title => is_escaped($self->type_data->text('edit') . " " . $self->build_record_number_title()),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -992,7 +991,7 @@ sub action_return_from_create_part {
     $self->pre_render();
     $self->render(
       'delivery_order/form',
-      title => $self->get_title_for('edit'),
+      title => $self->type_data->text('edit'),
       %{$self->{template_args}}
     );
   } else {
@@ -1677,15 +1676,6 @@ sub build_shipto_inputs {
                                  id_selector => '#order_shipto_id');
 
   div_tag($content, id => 'shipto_inputs');
-}
-
-# build the span tag for record number in title
-#
-# Needed, for edit.
-sub build_record_number_title {
-  my ($self) = @_;
-
-  span_tag(escape($self->order->number), id => 'nr_in_title');
 }
 
 # render the info line for business
@@ -2410,13 +2400,6 @@ sub get_files_for_email_dialog {
   }
 
   return %files;
-}
-
-sub get_title_for {
-  my ($self, $action) = @_;
-
-  return '' if none { lc($action)} qw(add edit);
-  return $self->type_data->text($action);
 }
 
 sub get_item_cvpartnumber {

@@ -6,8 +6,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash flash_later);
 use SL::HTML::Util;
-use SL::Presenter::EscapedText qw(escape is_escaped);
-use SL::Presenter::Tag qw(select_tag hidden_tag div_tag span_tag);
+use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
 use SL::SessionFile::Random;
 use SL::IMAPClient;
@@ -188,7 +187,7 @@ sub action_edit {
   $self->pre_render();
   $self->render(
     'order/form',
-    title => is_escaped($self->type_data->text('edit') . " " . $self->build_record_number_title()),
+    title => $self->type_data->text('edit'),
     %{$self->{template_args}}
   );
 }
@@ -1785,15 +1784,6 @@ sub build_shipto_inputs {
                                  id_selector => '#order_shipto_id');
 
   div_tag($content, id => 'shipto_inputs');
-}
-
-# build the span tag for record number in title
-#
-# Needed, for edit.
-sub build_record_number_title {
-  my ($self) = @_;
-
-  span_tag(escape($self->order->number), id => 'nr_in_title');
 }
 
 # render the info line for business
