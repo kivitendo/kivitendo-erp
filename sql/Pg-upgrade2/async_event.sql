@@ -4,7 +4,7 @@
 
 CREATE TABLE async_events (
   id              SERIAL    NOT NULL,
-  redact_msg_id   INTEGER   references async_events(id),
+  redact_msg_id   INTEGER,
   user_id         INTEGER,
   subject         TEXT,
   body            TEXT,
