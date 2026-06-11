@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use SL::DBUtils;
 use SL::DB::AsyncEvent;
 use SL::DB::Employee;
+use DateTime;
 
 
 sub action_poll_events {
@@ -18,6 +19,11 @@ sub action_poll_events {
 
   my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM get_async_event_poll(?, ?, ?, ?);|;
   my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $seqno_min, $user_id, $max_poll_seconds, $poll_interval_ms);
+
+  foreach my $e (@$events) {
+    $e->{ts_fmt} = DateTime->from_epoch(epoch => $e->{timestamp})
+                           ->to_kivitendo(precision => 'minute') if $e->{timestamp};
+  }
 
   my %ret = (
     next_seqno         => @$events ? ($events->[-1]{id} + 1) : $seqno_min,

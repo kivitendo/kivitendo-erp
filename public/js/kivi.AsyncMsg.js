@@ -12,7 +12,7 @@ namespace("kivi.AsyncMsg", function(ns) {
       for (let ev of data.events) {
         const message = ev.subject;
         const details = ev.body;
-        const timestamp = ev.timestamp;
+        const timestamp = ev.ts_fmt;
         kivi.Flash.display_flash('info', message, details, timestamp, ev.id);
       }
 

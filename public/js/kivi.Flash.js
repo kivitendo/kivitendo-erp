@@ -36,7 +36,7 @@ namespace("kivi.Flash", function(ns) {
 
     let $time = $('<span>');
     $time.addClass('layout-flash-timestamp');
-    $time.text(kivi.format_time(timestamp));
+    $time.text((typeof timestamp === 'string') ? timestamp : kivi.format_time(timestamp));
     $header.append($time);
 
     let $type = $('<span>');
