@@ -66,7 +66,7 @@
         <td class="numeric">[% basket_item.part.onhand_as_number %]</td>
         <td class="numeric">[% basket_item.part.rop_as_number %]</td>
         <td class="numeric">[% basket_item.qty_as_number %]</td>
-        <td>[% basket_item.part.unit %]</td>
+        <td>[% basket_item.part.unit | html %]</td>
       </tr>
     [% END %]
     </tbody>
