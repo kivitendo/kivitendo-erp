@@ -19,7 +19,7 @@
         <td>
           <select name="new_base_unit" class="wi-normal">
             [% FOREACH row = NEW_BASE_UNIT_DDBOX %]
-              <option [% row.selected %]>[% row.name %]</option>
+              <option [% row.selected %]>[% row.name | html %]</option>
             [% END %]
           </select>
         </td>

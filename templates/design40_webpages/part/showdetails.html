@@ -80,24 +80,24 @@
     <tbody>
       <tr>
         <td><b>[%  LxERP.t8('Sum Amount') %]</b></td>
-        <td>[% LxERP.format_amount(sum, 2) %] [% part.unit %]</td>
+        <td>[% LxERP.format_amount(sum, 2) %] [% part.unit | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Not delivered amount') %]</b></td>
-        <td>[% LxERP.format_amount(not_delivered, 2) %] [% part.unit %]
+        <td>[% LxERP.format_amount(not_delivered, 2) %] [% part.unit | html %]
         </td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Ordered, but not delivered (purchase)') %]</b></td>
-        <td>[% LxERP.format_amount(ordered, 2) %] [% part.unit %]</td>
+        <td>[% LxERP.format_amount(ordered, 2) %] [% part.unit | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Available amount') %]</b></td>
-        <td>[% LxERP.format_amount(part.onhandqty, 2) %] [% part.unit %]</td>
+        <td>[% LxERP.format_amount(part.onhandqty, 2) %] [% part.unit | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Consume average') %]</b></td>
-        <td>[% LxERP.format_amount(average, 2) %] [% part.unit %] [% LxERP.t8('per month') %]</td>
+        <td>[% LxERP.format_amount(average, 2) %] [% part.unit | html %] [% LxERP.t8('per month') %]</td>
       </tr>
       <tr>
         <td colspan="2" nowrap>([%  LxERP.t8('in the time between') %] [% fromdate.to_kivitendo %] - [% todate.to_kivitendo %])</td>

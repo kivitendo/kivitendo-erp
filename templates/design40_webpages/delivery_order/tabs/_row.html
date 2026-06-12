@@ -77,7 +77,7 @@
     </td>
     [%- IF (SELF.type == "sales_order" || SELF.type == "purchase_order") -%]
     <td nowrap>
-      [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ ITEM.unit, name="shipped_qty", class="numeric") %]
+      [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ HTML.escape(ITEM.unit), name="shipped_qty", class="numeric") %]
     </td>
     [%- END -%]
     <td nowrap>
@@ -100,7 +100,7 @@
     </td>
 
     <td>
-      <span id="stock_[% ID %]" class="data-stock-qty">[% SELF.calculate_stock_in_out(ITEM) %] [% ITEM.unit %]</span>
+      <span id="stock_[% ID %]" class="data-stock-qty">[% SELF.calculate_stock_in_out(ITEM) %] [% ITEM.unit | html %]</span>
       [% P.button_tag("kivi.DeliveryOrder.open_stock_in_out_dialog(this, '" _ in_out _"')", "?") %]
     </td>
   </tr>

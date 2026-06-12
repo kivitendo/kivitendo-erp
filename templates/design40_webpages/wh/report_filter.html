@@ -134,7 +134,7 @@
       <input type="text" name="qty" class="wi-verysmall">
       <select name="qty_unit" class="wi-small">
         [% FOREACH unit = UNITS %]
-          <option>[% unit.name %]</option>
+          <option>[% unit.name | html %]</option>
         [% END %]
       </select>
       </td>

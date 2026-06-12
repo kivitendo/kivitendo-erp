@@ -27,7 +27,7 @@
           <tr>
             <td>[% bin.warehouse.description %]</td>
             <td>[% bin.description %]</td>
-            <td class='numeric'>[% LxERP.format_amount(stock__set.sum, 2) %]&nbsp;[% SELF.part.unit %]</td>
+            <td class='numeric'>[% LxERP.format_amount(stock__set.sum, 2) %]&nbsp;[% SELF.part.unit | html %]</td>
           </tr>
         [% END %]
       [% END %]
