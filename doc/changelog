@@ -34,7 +34,7 @@ Mittelgroße neue Features:
   im Auswahlmenü auf Berichten und Belegen ist einstellbar, so dass bspw.
   die am häufigsten verwendeten Länder zuoberst angezeigt werden können.
 
-- Überarbeitung des CSS Layout und der Titelzeilen. Dies Verbessert die Anzeige
+- Überarbeitung des CSS-Layouts und der Titelzeilen. Dies verbessert die Anzeige
   der Schnellsuchleisten, ermöglicht das Scrollen in Fällen in denen das
   Top-Hauptmenü nicht auf dem Bildschirm passt und bietet eine bessere Grundlage
   für zukünftige Weiterentwicklungen.
