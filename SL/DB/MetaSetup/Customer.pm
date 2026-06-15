@@ -60,6 +60,7 @@ __PACKAGE__->meta->columns(
   phone                     => { type => 'text' },
   postal_invoice            => { type => 'boolean', default => 'false' },
   pricegroup_id             => { type => 'integer' },
+  reduction_terms           => { type => 'text' },
   salesman_id               => { type => 'integer' },
   street                    => { type => 'text' },
   taxincluded               => { type => 'boolean' },
