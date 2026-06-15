@@ -3307,6 +3307,7 @@ $self->{texts} = {
   'Recurring'                   => '',
   'Recurring billing'           => '',
   'Reduced Master Data'         => '',
+  'Reduction Terms'             => '',
   'Reference'                   => '',
   'Reference / Invoice Number'  => '',
   'Reference day'               => '',

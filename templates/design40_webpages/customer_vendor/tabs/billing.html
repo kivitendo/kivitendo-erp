@@ -354,6 +354,14 @@
         <span class="label above">[% 'Delivery Terms' | $T8 %]</span>
         [% L.select_tag('cv.delivery_term_id', SELF.all_delivery_terms, default = SELF.cv.delivery_term_id, value_key = 'id', title_key = 'description', with_empty = 1, class='wi-small-lightwide') %]</td>
     </tr>
+    [% IF ( SELF.is_customer() ) %]
+    <tr>
+      <th colspan="2">
+        <span class="label above">[% 'Reduction Terms' | $T8 %]</span>
+        [% L.textarea_tag('cv.reduction_terms', SELF.cv.reduction_terms, rows=4, class='wi-small-lightwide') %]
+      </th>
+    </tr>
+    [% END %]
   </tbody>
 </table>
 
