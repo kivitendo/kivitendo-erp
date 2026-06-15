@@ -98,6 +98,7 @@ sub search {
       "creditlimit"        => "ct.creditlimit",
       "commercial_court"   => "ct.commercial_court",
       "dunning_lock"       => "ct.dunning_lock",
+      "reduction_terms"    => "ct.reduction_terms",
     );
 
   $form->{sort} ||= "name";
