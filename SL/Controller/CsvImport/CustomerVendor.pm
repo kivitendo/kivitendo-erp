@@ -321,6 +321,7 @@ sub setup_displayable_columns {
                                  { name => 'payment_id',        description => $::locale->text('Payment terms (database ID)')     },
                                  { name => 'payment',           description => $::locale->text('Payment terms (name)')            },
                                  { name => 'phone',             description => $::locale->text('Phone')                           },
+                                 { name => 'reduction_terms',   description => $::locale->text('Reduction Terms')                 },
                                  { name => 'salesman',          description => $::locale->text('Salesman')                        },
                                  { name => 'salesman_id',       description => $::locale->text('Salesman (database ID)')          },
                                  { name => 'salesman_login',    description => $::locale->text('Salesman (login)')                },
