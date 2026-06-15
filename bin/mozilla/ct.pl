@@ -217,7 +217,8 @@ sub list_names {
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'taxzone', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
     'country',   'gln',     'insertdate',           'pricegroup', 'contact_origin', 'invoice_mail',
-    'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail', 'dunning_lock', 'linked_customer_vendor'
+    'creditlimit', 'ustid', 'commercial_court', 'delivery_order_mail', 'dunning_lock', 'linked_customer_vendor',
+    'reduction_terms',
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -265,6 +266,7 @@ sub list_names {
     create_zugferd_invoices => { text => $locale->text('Factur-X/ZUGFeRD settings'), },
     'dunning_lock'      => { 'text' => $locale->text('Dunning lock'), },
     'linked_customer_vendor' => { 'text' => $form->{IS_CUSTOMER} ? $locale->text('Linked Vendor') : $locale->text('Linked Customer') },
+    'reduction_terms'   => { 'text' => $locale->text('Reduction Terms'), },
     %column_defs_cvars,
   );
 
