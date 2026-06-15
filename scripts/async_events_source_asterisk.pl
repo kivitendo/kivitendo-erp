@@ -12,7 +12,6 @@ BEGIN {
   push    @INC, $FindBin::Bin . '/..';
 }
 
-
 use strict;
 use warnings;
 use feature qw(say);
@@ -43,6 +42,15 @@ use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor;
 use SL::Controller::PhoneNumber;
+use sigtrap 'handler' => \&sig_handler, qw(INT TERM KILL QUIT);
+
+my $running = 1;
+
+sub sig_handler {
+  my $sig_name = shift;
+  $running = 0;
+  print "received $sig_name, shutting down\n";
+}
 
 my %config;
 
@@ -101,7 +109,7 @@ sub main_loop {
     },
   );
 
-  while (1) {
+  while ($running) {
     my $ev = $ami->event_get_next();
     return if !$ev->{Event};
     #print $main::lxdebug->dump(0, 'Event', $ev);

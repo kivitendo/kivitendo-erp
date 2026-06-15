@@ -43,6 +43,11 @@ sub init_connector {
   $cl;
 }
 
+sub DESTROY {
+  my ($self) = @_;
+  $self->connector->close;
+}
+
 sub originate {
   my ($self, %params) = @_;
 
