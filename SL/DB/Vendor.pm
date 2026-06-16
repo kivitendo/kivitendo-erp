@@ -41,6 +41,11 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ module  => 'CT' ],
   },
+  vendor_contacts => {
+    type => 'one to many',
+    class => 'SL::DB::VendorContact',
+    column_map => { id => 'vendor_id' },
+  },
   linked_customer_vendor_rel => {
     type       => 'many to many',
     map_class  => 'SL::DB::CustomerVendorLink',
