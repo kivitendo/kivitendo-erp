@@ -639,11 +639,11 @@ sub find_customer_vendor_from_email {
   $customer_vendor ||= $manager->get_first(
     where => [
       or => [
-        'contacts.cp_email' => $email_address,
-        'contacts.cp_privatemail' => $email_address,
+        "${cv_type}_contacts.contact.cp_email"       => $email_address,
+        "${cv_type}_contacts.contact.cp_privatemail" => $email_address,
       ],
     ],
-    with_objects => [ 'contacts'],
+    with_objects => ["${cv_type}_contacts", "${cv_type}_contacts.contact"],
   );
   $customer_vendor ||= $manager->get_first(
     where => [
@@ -682,11 +682,11 @@ sub find_customer_vendor_from_email {
     push @domain_hits, @{$manager->get_all(
       where => [
         or => [
-          'contacts.cp_email'       => {ilike => "%$email_domain"},
-          'contacts.cp_privatemail' => {ilike => "%$email_domain"},
+          "${cv_type}_contacts.contact.cp_email"       => {ilike => "%$email_domain"},
+          "${cv_type}_contacts.contact.cp_privatemail" => {ilike => "%$email_domain"},
         ],
       ],
-      with_objects => [ 'contacts'],
+      with_objects => ["${cv_type}_contacts", "${cv_type}_contacts.contact"],
     )};
     push @domain_hits, @{$manager->get_all(
       where => [
