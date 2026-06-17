@@ -79,10 +79,11 @@ sub prepare_report {
 
   map { $column_defs{$_}->{visible} = 1 } @visible;
 
+  $::form->{title} = $title;
   $report->set_options(
     controller_class     => 'DispositionManager',
     output_format        => 'HTML',
-    title                => t8($title),
+    title                => $title,
     allow_pdf_export     => 0,
     allow_csv_export     => 0,
     allow_chart_export   => 0,
