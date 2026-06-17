@@ -59,6 +59,7 @@ use SL::Controller::Order;
 use SL::DB::Customer;
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
+use SL::DB::DeliveryTerm;
 use SL::DB::ValidityToken;
 use SL::DB::Vendor;
 
