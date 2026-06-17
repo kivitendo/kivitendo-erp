@@ -351,6 +351,8 @@ sub search {
   $form->{ALL_EMPLOYEES}      = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $form->{ALL_DEPARTMENTS}    = SL::DB::Manager::Department->get_all;
   $form->{ALL_ORDER_STATUSES} = SL::DB::Manager::OrderStatus->get_all_sorted;
+  $form->{ALL_PAYMENT_TERMS}  = SL::DB::Manager::PaymentTerm->get_all_sorted;
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted;
 
   $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
   ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
@@ -495,7 +497,7 @@ sub orders {
     quonumber cusordnumber transaction_description transdatefrom transdateto
     type vc employee_id salesman_id reqdatefrom reqdateto projectnumber
     project_id periodic_invoices_active periodic_invoices_inactive
-    business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom
+    business_id shippingpoint taxzone_id payment_term_id delivery_term_id reqdate_unset_or_old insertdatefrom
     insertdateto order_probability_op order_probability_value
     expected_billing_date_from expected_billing_date_to parts_partnumber
     parts_description all department_id intnotes phone_notes fulltext
@@ -651,6 +653,14 @@ sub orders {
   }
   if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
     push @options, $locale->text('Steuersatz') . " : " . SL::DB::TaxZone->new(id => $form->{taxzone_id})->load->description;
+  }
+
+  if ($form->{payment_term_id}) {
+    push @options, $locale->text('Payment Terms') . " : " . SL::DB::PaymentTerm->new(id => $form->{payment_term_id})->load->description;
+  }
+
+  if ($form->{delivery_term_id}) {
+    push @options, $locale->text('Delivery Terms') . " : " . SL::DB::DeliveryTerm->new(id => $form->{delivery_term_id})->load->description;
   }
 
   if ($form->{department_id}) {

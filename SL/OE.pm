@@ -320,6 +320,16 @@ SQL
     push(@values, $form->{taxzone_id});
   }
 
+  if ($form->{payment_term_id}) {
+    $query .= qq| AND o.payment_id = ?|;
+    push(@values, $form->{payment_term_id});
+  }
+
+  if ($form->{delivery_term_id}) {
+    $query .= qq| AND o.delivery_term_id = ?|;
+    push(@values, $form->{delivery_term_id});
+  }
+
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
     push(@values, like($form->{transaction_description}));
