@@ -156,6 +156,7 @@ SQL
     qq|  department.description as department, | .
     qq|  ex.$rate AS daily_exchangerate, | .
     qq|  pt.description AS payment_terms, | .
+    qq|  dt.description AS delivery_terms, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
     qq|  ct.${vc}number AS vcnumber, countries.$country_description_key AS country, ct.ustid, ct.business_id,  | .
@@ -176,6 +177,7 @@ SQL
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
     qq|LEFT JOIN payment_terms pt ON (pt.id = o.payment_id)| .
+    qq|LEFT JOIN delivery_terms dt ON (dt.id = o.delivery_term_id)| .
     qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|LEFT JOIN countries ON (ct.country_id = countries.id) | .
     qq|LEFT JOIN department   ON (o.department_id = department.id) | .
@@ -501,6 +503,7 @@ SQL
     "insertdate"              => "o.itime",
     "taxzone"                 => "tz.description",
     "payment_terms"           => "pt.description",
+    "delivery_terms"          => "dt.description",
     "department"              => "department.description",
     "intnotes"                => "o.intnotes",
     "order_status"            => "order_statuses.name",

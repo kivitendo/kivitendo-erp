@@ -392,6 +392,10 @@
     <label for="l_payment_terms">[% 'Payment Terms' | $T8 %]</label>
   </div>
   <div>
+    <input name="l_delivery_terms" id="l_delivery_terms" type="checkbox" value="Y">
+    <label for="l_delivery_terms">[% 'Delivery Terms' | $T8 %]</label>
+  </div>
+  <div>
     <input name="l_transaction_description" id="l_transaction_description" type="checkbox" value="Y" [% IF INSTANCE_CONF.get_require_transaction_description_ps %] checked[% END %]>
     <label for="l_transaction_description">[% 'Transaction description' | $T8 %]</label>
   </div>
