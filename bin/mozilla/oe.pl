@@ -437,7 +437,8 @@ sub orders {
     "country",                 "shippingpoint",
     "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
-    "payment_terms", "delivery_terms",          "intnotes",              "order_status",
+    "payment_terms",           "delivery_terms",
+    "intnotes",                "order_status",
     "items",
     "shiptoname", "shiptodepartment_1", "shiptodepartment_2", "shiptostreet",
     "shiptozipcode", "shiptocity", "shiptocountry",
@@ -567,8 +568,8 @@ sub orders {
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber
                        name employee salesman shipvia transaction_description
-                       shippingpoint taxzone insertdate payment_terms delivery_terms department
-                       intnotes order_status vendor_confirmation_number)) {
+                       shippingpoint taxzone insertdate payment_terms delivery_terms
+                       department intnotes order_status vendor_confirmation_number)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
