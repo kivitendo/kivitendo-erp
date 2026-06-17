@@ -338,7 +338,7 @@ sub _specified_trade_settlement_payment_means {
   } else {
     $params{xml}->startTag('ram:PayeePartyCreditorFinancialAccount');
     $params{xml}->dataElement('ram:IBANID', $params{bank_account}->iban);
-    $params{xml}->dataElement('ram:AccountName', $params{bank_account}->name) if $params{bank_account}->name;
+    $params{xml}->dataElement('ram:AccountName', _u8($params{bank_account}->name)) if $params{bank_account}->name;
     $params{xml}->endTag;
 
     if ($params{bank_account}->bic) {
