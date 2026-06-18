@@ -13,6 +13,7 @@ use SL::DB::Employee;
 use SL::DB::Inventory;
 use SL::DB::StockCounting;
 use SL::DB::StockCountingItem;
+use SL::DB::PartsGroup;
 use SL::Helper::Flash qw(flash_later);
 use SL::Helper::Number qw(_format_total);
 use SL::Helper::Inventory qw(:ALL);
@@ -25,7 +26,7 @@ use SL::WH;
 
 use Rose::Object::MakeMethods::Generic(
   #scalar => [ qw() ],
-  'scalar --get_set_init' => [ qw(countings models) ],
+  'scalar --get_set_init' => [ qw(countings partsgroups models) ],
 );
 
 # check permissions
@@ -175,6 +176,9 @@ sub init_countings {
   return $countings;
 }
 
+sub init_partsgroups {
+  SL::DB::Manager::PartsGroup->get_all_sorted;
+}
 
 sub prepare_report {
   my ($self) = @_;
