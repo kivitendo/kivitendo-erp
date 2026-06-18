@@ -8,6 +8,7 @@ use strict;
 use parent qw(SL::DB::Helper::Manager);
 
 use SL::DB::Helper::Sorted;
+use SL::DB::Helper::Paginated;
 
 sub object_class { 'SL::DB::StockCountingItem' }
 

@@ -164,7 +164,7 @@ sub init_models {
     controller     => $_[0],
     model          => 'StockCountingItem',
     sorted         => \%sort_columns,
-    disable_plugin => 'paginated',
+    paginated      => { per_page => 1000 },
     with_objects   => [ 'counting', 'employee', 'part' ],
   );
 }
