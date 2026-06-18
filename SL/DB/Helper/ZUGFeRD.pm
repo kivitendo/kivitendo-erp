@@ -835,12 +835,14 @@ sub _applicable_header_trade_delivery {
   $params{xml}->endTag;
   #       </ram:ActualDeliverySupplyChainEvent>
 
-  if ($self->donumber) {
-    #       <ram:DeliveryNoteReferencedDocument>
-    $params{xml}->startTag("ram:DeliveryNoteReferencedDocument");
-    $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->donumber));
-    $params{xml}->endTag;
-    #       </ram:DeliveryNoteReferencedDocument>
+  if (_is_profile($self, PROFILE_FACTURX_EXTENDED())) {
+    if ($self->donumber) {
+      #       <ram:DeliveryNoteReferencedDocument>
+      $params{xml}->startTag("ram:DeliveryNoteReferencedDocument");
+      $params{xml}->dataElement("ram:IssuerAssignedID", _u8($self->donumber));
+      $params{xml}->endTag;
+      #       </ram:DeliveryNoteReferencedDocument>
+    }
   }
 
   $params{xml}->endTag;
