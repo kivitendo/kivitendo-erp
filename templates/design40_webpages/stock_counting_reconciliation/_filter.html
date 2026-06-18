@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE L %]
 [%- USE LxERP %]
+[%- USE P %]
 
 <form action='controller.pl' method='post' id='filter_form'>
  <div class="wrapper">
@@ -20,6 +21,35 @@
                        'data-validate' => 'required',
                        onchange        =>'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
       </td>
+     </tr>
+     <tr>
+       <th>[% 'Part' | $T8 %]</th>
+       <td>
+         [% P.part.picker('filter.part_id',
+                          filter.part_id,
+                          class = 'wi-lightwide') %]
+       </td>
+     </tr>
+     <tr>
+       <th>[% 'Partsgroup' | $T8 %]</th>
+       <td>
+         [% L.select_tag('filter.part.partsgroup_id', SELF.partsgroups,
+                         default    = filter.part.partsgroup_id,
+                         title_key  = 'partsgroup',
+                         value_key  = 'id',
+                         with_empty = 1,
+                         class      = 'wi-lightwide') %]
+       </td>
+     </tr>
+     <tr>
+       <th>[% 'Warehouse' | $T8 %]</th>
+       <td>
+         [% P.warehouse.wh_bin_select('dummy_wh',
+                                      bin_name    = 'filter.bin_id',
+                                      with_empty  = 1,
+                                      bin_default = filter.bin_id,
+                                      class       = 'wi-lightwide') %]
+       </td>
      </tr>
     </body>
    </table>
