@@ -350,6 +350,7 @@ my %supported_types = (
     list_attributes => [
       { title => t8('Name'),        method => 'name',       },
       { title => t8('Description'), method => 'description' },
+      { title => t8('Reconciliated'), formatter => sub { $_[0]->reconciliated ? t8('Yes') : t8('No') } },
       { title => t8('Employee'),    formatter => sub { $_[0]->employee->safe_name } },
     ],
   },

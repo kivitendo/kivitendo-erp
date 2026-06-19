@@ -74,7 +74,7 @@ sub action_reconcile {
   my $counting = SL::DB::StockCounting->new(id => $::form->{counting_id})->load;
 
   # Sanity checks.
-  if ($counting->is_reconciliated) {
+  if ($counting->reconciliated) {
     flash_later('error', t8('Stock counting is already reconciliated'));
     return $self->redirect_to($::form->{callback});
   }
@@ -99,14 +99,11 @@ sub action_reconcile {
           my $inbetween_qty = $group_item->{inbetweens};
           my $transfer_qty  = $counted_qty - $stocked_qty + $inbetween_qty;
 
-          my $src_or_dst = $transfer_qty < 0? 'src' : 'dst';
+          my $src_or_dst = $transfer_qty < 0 ? 'src' : 'dst';
           $transfer_qty  = abs($transfer_qty);
 
-            if ( $transfer_qty == 0) {
-              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
-                                                             where => [id => $group_item->{ids}]);
-              next;
-            }
+          next if ($transfer_qty == 0);
+
           # Do stock.
           # todo: run in transaction and record the inventory id in the counting items
           my %transfer_params = (
@@ -126,19 +123,16 @@ sub action_reconcile {
           # Get inventory entries via trans_ids-
           my $inventories = SL::DB::Manager::Inventory->get_all(where => [trans_id => $trans_ids[0]]);
           if (scalar(@$inventories) != 1) {
-            if ( scalar(@$inventories) == 0 && $transfer_qty == 0) {
-              SL::DB::Manager::StockCountingItem->update_all(set   => {cleared => 'T'},
-                                                             where => [id => $group_item->{ids}]);
-              next;
-            }
             die "Program logic error: no error, but no inventory entry" if scalar(@$inventories) == 0;
             die "Program logic error: too many inventory entries"       if scalar(@$inventories) >  1;
           }
 
-
-          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id, cleared => 'T'},
+          SL::DB::Manager::StockCountingItem->update_all(set   => {correction_inventory_id => $inventories->[0]->id},
                                                          where => [id => $group_item->{ids}]);
         }
+
+        $counting->reconciliated(1);
+        $counting->save;
 
         1;
       }) or do { die SL::DB->client->error; }; # end of with_transaction
@@ -170,8 +164,8 @@ sub init_models {
 }
 
 sub init_countings {
-  my $countings = SL::DB::Manager::StockCounting->get_all_sorted;
-  $countings    = [ grep { !$_->is_cleared } @$countings ];
+  my $countings = SL::DB::Manager::StockCounting->get_all_sorted(where => [ reconciliated => 0 ]);
+  #$countings    = [ grep { !$_->is_reconciliated } @$countings ];
 
   return $countings;
 }
