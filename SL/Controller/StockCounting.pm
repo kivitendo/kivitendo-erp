@@ -233,7 +233,7 @@ sub prepare_report {
   $report->{title} = $title;    # for browser titlebar (title-tag)
 
   $report->set_options(
-    controller_class      => 'StockCountingItem',
+    controller_class      => 'StockCounting',
     std_column_visibility => 1,
     output_format         => 'HTML',
     title                 => $title, # for heading
