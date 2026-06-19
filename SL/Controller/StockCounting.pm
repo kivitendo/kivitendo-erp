@@ -69,28 +69,30 @@ sub action_start_counting {
 sub action_count {
   my ($self) = @_;
 
+  my @errors;
+  my $parts;
+  my $qty;
+
   $self->js->clear_flash('info');
 
-  my @errors;
-  my $qty = $::form->{qty} || 1;
-  if (!$::request->is_mobile) {
+  if ($::request->is_mobile) {
+    $qty = 1;
+  } else {
     $qty = $::form->{qty} == 0 ? 0 : $::form->{qty} || 1;
     $self->setup_count_action_bar;
   }
 
-    if (!$::form->{ean} && !$::form->{part_id} ) {
+  if (!$::form->{ean} && !$::form->{part_id} ) {
     push @errors, t8('EAN or Partnumber is missing') ;
-  } #if !$::form->{ean};
+  }
 
   return $self->render_count_error(\@errors) if @errors;
-  my $parts;
+
   if ($::form->{ean}) {
-   $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean},
-                                                       or  => [obsolete => 0, obsolete => undef]]);
+   $parts = SL::DB::Manager::Part->get_all(where => [ean => $::form->{ean}, obsolete => 0]);
   }
   if ($::form->{part_id}) {
-   $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{part_id},
-                                                       or  => [obsolete => 0, obsolete => undef]]);
+   $parts = SL::DB::Manager::Part->get_all(where => [id => $::form->{part_id}, obsolete => 0]);
   }
   push @errors, t8 ('Part not found')    if scalar(@{$parts}) == 0;
   push @errors, t8 ('Part is ambiguous') if scalar(@{$parts}) >  1;
@@ -157,15 +159,19 @@ sub action_list {
 
 sub action_show_parts_in_bin {
   my ($self) = @_;
+
   $::form->{filter}{counting_id} = $::form->{stock_counting_item}{counting_id};
   $::form->{sort_by} = 'counted_at';
   $::form->{sort_dir} = 0;
+
   my $objects = $self->models->get;
-  my $html = $self->render('stock_counting/list_parts', { output => 0 }, OBJECTS => $objects);
+  my $html    = $self->render('stock_counting/list_parts', { output => 0 }, OBJECTS => $objects);
+
   $self->js->html('#list_data', $html)
            ->reinit_widgets
            ->render;
 }
+
 sub init_is_developer {
   !!$::auth->assert('developer', 'may_fail')
 }
@@ -205,7 +211,7 @@ sub prepare_report {
     counted_at    => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
     qty           => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
     part          => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
-    chargenumber      => { text => t8('Chargenumber'), sub => sub { $_[0]->chargenumber }, },
+    chargenumber  => { text => t8('Chargenumber'),   sub => sub { $_[0]->chargenumber }, },
     bin           => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
     employee      => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
     stocked       => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
@@ -291,13 +297,8 @@ sub get_stocked {
 sub render_count_error {
   my ($self, $errors) = @_;
 
-  #if ($::request->is_mobile) {
-  #  $self->render('stock_counting/count', errors => $errors);
-  #} else {
-    $self->js->flash('error', $_) for @{$errors};
-    $self->js->render;
-    #$self->render('stock_counting/count');
-  #}
+  $self->js->flash('error', $_) for @{$errors};
+  $self->js->render;
 }
 
 sub setup_select_counting_action_bar {
