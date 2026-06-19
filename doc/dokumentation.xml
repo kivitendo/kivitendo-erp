@@ -8653,6 +8653,36 @@ document_path = /var/local/kivi_documents
       </sect2>
     </sect1>
 
+    <sect1 id="features.inventurzaehlung">
+      <title>Inventur-Zählung anlegen und abgleichen</title>
+
+      <para> Im Gegensatz zum Anlegen von Inventurbuchungen über
+      Lager->Inventur eigenen sich Inventur-Zählungen für die
+      Datenerfassung per Code-Scanner, da zuerst alle Zählergebnisse
+      gesammelt und dann alle gemeinsam in einem Schritt per
+      Lagertransaktion abgeglichen werden.  </para>
+
+      <para> Das Erfassen einer Inventurzählung erfolgt im Menü System
+      → Inventur-Zählungen.  Inventur-Zählungen lassen sich auch auf
+      einzelne Lagerplätze einschränken.  </para>
+
+      <para> Das eigentliche Zählen erfolgt per Desktop- oder
+      Mobilgerät über den Menüpunkt Lager → Inventur-Zählung.
+      In der Deskop-Variante werden Lagerplatz, wahlweise Artikel oder
+      EAN, Menge und optional die Chargennummer eingegeben.  In der
+      Mobil-Variante ist aktuell nur die Eingabe einer EAN als Barcode
+      per Scanner möglich.  </para>
+
+      <para> Sobald alle Lagerposten für die Inventur-Zählung gezählt
+      wurden, lässt sich diese abgeglichen.  Dabei wird zunächst
+      ein Bericht über Ist- und Soll-Werte der Zählung zur Kontrolle
+      angezeigt.  Ebenfalls im Bericht enthalten ist der Lagerabgang oder
+      -zufluss seit dem Erfassen der Inventur-Zählung.  Bei erfolgter
+      Bestätigung erfolgen die notwendigen Lager-Korrekturbuchungen,
+      um die Soll-Werte in kivitendos Lagerbestand den Ist-Werten der
+      physisch gezählten Posten anzugleichen.  </para>
+    </sect1>
+
     <sect1 id="features.timerecording">
       <title>Zeiterfassung</title>
       <para>
