@@ -3579,7 +3579,6 @@ $self->{texts} = {
   'Select Deliveries'           => '',
   'Select Mulit-Item Options'   => '',
   'Select Shipping Address'     => '',
-  'Select Stock Counting'       => '',
   'Select a Customer'           => '',
   'Select a Stock Counting'     => '',
   'Select a period'             => '',
