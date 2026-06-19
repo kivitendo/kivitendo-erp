@@ -17,7 +17,7 @@
       </tr>
     </thead>
     <tbody>
-      [%  FOREACH row = OBJECTS %]
+      [%  FOREACH row = SELF.last_counting_operations %]
       <tr>
         <td>[% HTML.escape(row.counted_at.to_kivitendo) %] [% HTML.escape(row.counted_at.to_kivitendo_time) %]</td>
         <td>[% HTML.escape(row.bin.description) %]</td>

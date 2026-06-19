@@ -161,16 +161,21 @@ sub action_list {
 sub action_show_parts_in_bin {
   my ($self) = @_;
 
-  $::form->{filter}{counting_id} = $::form->{stock_counting_item}{counting_id};
-  $::form->{sort_by} = 'counted_at';
-  $::form->{sort_dir} = 0;
-
-  my $objects = $self->models->get;
-  my $html    = $self->render('stock_counting/list_parts', { output => 0 }, OBJECTS => $objects);
+  my $html    = $self->render('stock_counting/list_parts', { output => 0 });
 
   $self->js->html('#list_data', $html)
            ->reinit_widgets
            ->render;
+}
+
+sub last_counting_operations {
+  my ($self) = @_;
+
+  $::form->{filter}{counting_id} = $::form->{stock_counting_item}{counting_id};
+  $::form->{sort_by} = 'counted_at';
+  $::form->{sort_dir} = 0;
+
+  return $self->models->get;
 }
 
 sub init_is_developer {
