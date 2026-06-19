@@ -6,6 +6,16 @@
 
 Größere neue Features:
 
+- Inventur-Zählungen erfassen und abgleichen: Zwischeninventur
+  Inventur-Zählungen lassen sich, auch eingeschränkt auf einzelne Lagerplätze,
+  zwischenspeichern. Erfasste Zählungen können Abgeglichen werden, wobei
+  zunächst ein Bericht über Ist- und Soll-Werte der Zählung zur Kontrolle
+  gezeigt wird und bei erfolgter Bestätigung Lager-Korrekturbuchungen erfolgen.
+  Im Gegensatz zum Anlegen von Inventurbuchungen über Lager->Inventur eigenen
+  sich Inventur-Zählungen für die Datenerfassung per Code-Scanner, da zuerst
+  alle Zählergebnisse gesammelt und dann alle gemeinsam in einem Schritt per
+  Lagertransaktion abgeglichen werden.
+
 Mittelgroße neue Features:
 
 - Verbundene Kunden/Lieferanten
