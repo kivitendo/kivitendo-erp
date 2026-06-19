@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   counted_at              => { type => 'timestamp', default => 'now()', not_null => 1 },
   counting_id             => { type => 'integer', not_null => 1 },
   employee_id             => { type => 'integer', not_null => 1 },
+  encountered             => { type => 'boolean', default => 'true' },
   id                      => { type => 'integer', not_null => 1, sequence => 'id' },
   itime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime                   => { type => 'timestamp' },

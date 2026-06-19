@@ -27,7 +27,8 @@
        <td>
          [% P.part.picker('filter.part_id',
                           filter.part_id,
-                          class = 'wi-lightwide') %]
+                          class    = 'wi-lightwide',
+                          onchange = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
        </td>
      </tr>
      <tr>
@@ -38,7 +39,8 @@
                          title_key  = 'partsgroup',
                          value_key  = 'id',
                          with_empty = 1,
-                         class      = 'wi-lightwide') %]
+                         class      = 'wi-lightwide',
+                         onchange   = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
        </td>
      </tr>
      <tr>
@@ -48,7 +50,15 @@
                                       bin_name    = 'filter.bin_id',
                                       with_empty  = 1,
                                       bin_default = filter.bin_id,
-                                      class       = 'wi-lightwide') %]
+                                      class       = 'wi-lightwide',
+                                      onchange    = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
+       </td>
+     </tr>
+     <tr>
+       <th>[% 'Include not encountered' | $T8 %]</th>
+       <td>[% P.checkbox_tag('custom_filter.include_not_encountered',
+                             checked  = FORM.custom_filter.include_not_encountered,
+                             onchange = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
        </td>
      </tr>
     </tbody>
