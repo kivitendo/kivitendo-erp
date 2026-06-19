@@ -29,7 +29,7 @@ sub wh_bin_select {
   my $wh_default  = delete $attributes{wh_default} || ($bin_default && SL::DB::Bin->new(id => $bin_default)->load->warehouse_id);
   my $with_empty  = delete $attributes{with_empty};
 
-  my %wh_additional_condition = $wh_default ? (id => $wh_default) : undef;
+  my %wh_additional_condition = $wh_default ? (id => $wh_default) : ();
   my $all_warehouses = SL::DB::Manager::Warehouse->get_all_sorted( where => [or => [invalid  => undef, invalid  => 0, %wh_additional_condition]]);
   my $all_bins       = $wh_default          ? SL::DB::Warehouse->new(id => $wh_default)->load->bins_sorted_naturally
                      : $with_empty          ? undef
