@@ -291,7 +291,7 @@ sub get_inbetweens {
 
   my $correction_inventory_ids = SL::DB::Manager::StockCountingItem->get_all(where    => ['!correction_inventory_id' => undef],
                                                                              select   => ['correction_inventory_id'],
-                                                                             distcint => 1);
+                                                                             distinct => 1);
   my %filter_corrections = @$correction_inventory_ids ? ('!id' => [map { $_->correction_inventory_id } @$correction_inventory_ids])
                                                       : undef;
   foreach my $object (@$objects) {
