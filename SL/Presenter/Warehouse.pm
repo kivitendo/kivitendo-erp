@@ -117,7 +117,7 @@ By default, the two select tags are separated by a linebreak, but see the
 parameter C<one_row>.
 
 The presenter takes care of updating the bin selection (via js) when the
-warehose selection is changed (see also
+warehouse selection is changed (see also
 L<SL::Controller::Warehouse::action_wh_bin_select_update_bins> and
 L<js/kivi.Warehouse.js>).
 
