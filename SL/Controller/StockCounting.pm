@@ -74,6 +74,7 @@ sub action_count {
   my $qty;
 
   $self->js->clear_flash('info');
+  $self->js->val('[name="ean"]', '');
 
   if ($::request->is_mobile) {
     $qty = 1;
