@@ -32,7 +32,7 @@
 </div>
 
 <div class="wrapper">
-  <form method="post" name="count_form" id="count_form" action="controller.pl">
+  <form name="count_form" id="count_form" onSubmit="return false">
     [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
     <table class='tbl-horizontal'>
       <tbody>
