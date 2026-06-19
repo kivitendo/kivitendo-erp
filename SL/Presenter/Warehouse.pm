@@ -31,9 +31,10 @@ sub wh_bin_select {
 
   my %wh_additional_condition = $wh_default ? (id => $wh_default) : undef;
   my $all_warehouses = SL::DB::Manager::Warehouse->get_all_sorted( where => [or => [invalid  => undef, invalid  => 0, %wh_additional_condition]]);
-  my $all_bins       = $wh_default ? SL::DB::Warehouse->new(id => $wh_default)->load->bins_sorted_naturally
-                     : $with_empty ? undef
-                     : $all_warehouses->[0]->bins_sorted_naturally;
+  my $all_bins       = $wh_default          ? SL::DB::Warehouse->new(id => $wh_default)->load->bins_sorted_naturally
+                     : $with_empty          ? undef
+                     : $all_warehouses->[0] ? $all_warehouses->[0]->bins_sorted_naturally
+                     : [];
 
   my $show_if_empty = delete $attributes{show_if_empty};
   my $one_row       = delete $attributes{one_row};
