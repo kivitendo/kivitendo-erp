@@ -127,15 +127,15 @@ sub action_list {
     my @grouped_objects;
     foreach my $object (@$objects) {
       my $group_object;
-      if (!$grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}) {
+      if (!$grouped_objects_by->{$object->counting_id}{$object->part_id}{$object->bin_id}{$object->chargenumber}) {
         $group_object = SL::DB::StockCountingItem->new(
           counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
         $group_object->{reconciliated} = 1;
         push @grouped_objects, $group_object;
-        $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber} = $group_object;
+        $grouped_objects_by->{$object->counting_id}{$object->part_id}{$object->bin_id}{$object->chargenumber} = $group_object;
 
       } else {
-        $group_object = $grouped_objects_by->{$object->counting_id}->{$object->part_id}->{$object->bin_id}->{$object->chargenumber};
+        $group_object = $grouped_objects_by->{$object->counting_id}{$object->part_id}{$object->bin_id}{$object->chargenumber};
       }
 
       $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
@@ -157,9 +157,9 @@ sub action_list {
 
 sub action_show_parts_in_bin {
   my ($self) = @_;
-  $::form->{'filter'}->{'counting_id'} = $::form->{'stock_counting_item'}->{'counting_id'};
-  $::form->{'sort_by'} = 'counted_at';
-  $::form->{'sort_dir'} = 0;
+  $::form->{filter}{counting_id} = $::form->{stock_counting_item}{counting_id};
+  $::form->{sort_by} = 'counted_at';
+  $::form->{sort_dir} = 0;
   my $objects = $self->models->get;
   my $html = $self->render('stock_counting/list_parts', { output => 0 }, OBJECTS => $objects);
   $self->js->html('#list_data', $html)
