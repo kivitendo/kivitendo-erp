@@ -536,7 +536,7 @@ sub setup_stock_counting {
 
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 
-  my %pg_additional_condition = ($::form->{id} && $self->object->partsgroup_id) ? (id => $self->object->partsgroup_id) : undef;
+  my %pg_additional_condition = ($::form->{id} && $self->object->partsgroup_id) ? (id => $self->object->partsgroup_id) : ();
   $self->{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all_sorted(where => [or => [obsolete => undef, obsolete => 0, %pg_additional_condition]]);
 }
 
