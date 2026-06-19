@@ -108,16 +108,10 @@ sub action_count {
   $self->stock_counting_item->chargenumber($::form->{chargenumber});
   $self->stock_counting_item->save;
 
-  #if ($::request->is_mobile) {
-  #  $self->render('stock_counting/count', successfully_counted => 1);
-  #} else {
-    $self->js->flash('info', t8('Part successfully counted #1 == #2',$::form->{'stock_counting_item.bin_id'}, warehouse_id => $::form->{warehouse_id} ));
-    #$self->render('stock_counting/count', stock_counting_item_bin_id => $::form->{'stock_counting_item'}->{'bin_id'}, warehouse_id => $::form->{warehouse_id} );
-  if (!$::request->is_mobile) {
-    return $self->action_show_parts_in_bin();
-  }
-    $self->js->render;
-  #}
+  $self->js->flash('info', t8('Part successfully counted'));
+
+  $::request->is_mobile ? $self->js->render
+                        : $self->action_show_parts_in_bin();
 }
 
 sub action_list {
