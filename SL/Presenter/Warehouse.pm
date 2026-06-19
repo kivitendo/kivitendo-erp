@@ -122,7 +122,7 @@ L<SL::Controller::Warehouse::action_wh_bin_select_update_bins> and
 L<js/kivi.Warehouse.js>).
 
 All valid warehouses are presented for selection. If no valid warehouses
-are present, nothing is rendered (undef is returned). But see the paramerter
+are present, nothing is rendered (undef is returned). But see the parameter
 C<show_if_empty>.
 
 Remaining C<%attributes> not listed here are passed to the
