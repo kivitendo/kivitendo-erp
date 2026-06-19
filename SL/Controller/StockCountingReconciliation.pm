@@ -58,11 +58,60 @@ sub action_list {
 
   # group always
   $objects = $self->group_items_by_part_and_bin($objects);
+
+  if ($::form->{custom_filter}{include_not_encountered} && $::form->{filter}{counting_id}) {
+    my $counting        = SL::DB::StockCounting->new(id => $::form->{filter}{counting_id})->load;
+    my $not_encountered = $self->stocked_but_not_encountered_items($counting);
+    push @$objects, @$not_encountered;
+  }
+
   $self->get_stocked($objects);
   $self->get_inbetweens($objects);
 
   $self->setup_list_action_bar;
   $self->report_generator_list_objects(report => $self->{report}, objects => $objects);
+}
+
+sub stocked_but_not_encountered_items {
+  my ($self, $counting) = @_;
+
+  my $believed_stock = get_onhand(
+    (bin         => $counting->bin) x !! $counting->bin,
+    by           => [ qw(part chargenumber bin) ],
+    with_objects => [ qw(bin part) ],
+  );
+  my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
+  $self->get_stocked($grouped_counting_items);
+  $self->get_inbetweens($grouped_counting_items);
+  my $actual_stock = $grouped_counting_items;
+
+  my %missing_stock_by_bpc = ();
+  foreach my $s (@$believed_stock) {
+    $missing_stock_by_bpc{$s->{bin_id}}{$s->{parts_id}}{$s->{chargenumber}} = $s;
+  }
+
+  foreach my $s (@$actual_stock) {
+    delete $missing_stock_by_bpc{$s->{bin_id}}{$s->{part_id}}{$s->{chargenumber}};
+  }
+
+  my $employee_id = SL::DB::Manager::Employee->current->id;
+  my @missing_stock = ();
+  foreach my $bin_id (sort keys %missing_stock_by_bpc) {
+    foreach my $part_id (sort keys %{$missing_stock_by_bpc{$bin_id}}) {
+      foreach my $chargenumber (sort keys %{$missing_stock_by_bpc{$bin_id}{$part_id}}) {
+        push @missing_stock, SL::DB::StockCountingItem->new(
+          bin_id       => $bin_id,
+          chargenumber => $chargenumber,
+          counting_id  => $counting->id,
+          employee_id  => $employee_id,
+          part_id      => $part_id,
+          qty          => 0,
+          encountered  => 0,
+        );
+      }
+    }
+  }
+  \@missing_stock;
 }
 
 sub action_reconcile {
@@ -79,17 +128,22 @@ sub action_reconcile {
     flash_later('error', t8('Stock counting does not contain any counted items'));
     return $self->redirect_to($::form->{callback});
   }
-
-  my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
-  $self->get_stocked($grouped_counting_items);
-  $self->get_inbetweens($grouped_counting_items);
-
+  
   my $comment = t8('correction from stock counting (counting "#1")', $counting->name);
 
   my $transfer_error;
   $::form->throw_on_error(sub {
     eval {
       SL::DB->client->with_transaction(sub {
+        my $not_encountered_items = $self->stocked_but_not_encountered_items($counting);
+        foreach my $ne_item (@$not_encountered_items) {
+          $ne_item->save;
+        }
+
+        my $grouped_counting_items = $self->group_items_by_part_and_bin([@{$counting->items}, @$not_encountered_items]);
+        $self->get_stocked($grouped_counting_items);
+        $self->get_inbetweens($grouped_counting_items);
+
         foreach my $group_item (@$grouped_counting_items) {
           my $counted_qty   = $group_item->qty;
           my $stocked_qty   = $group_item->{stocked};
@@ -177,18 +231,20 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = qw(counting part chargenumber bin qty stocked inbetweens);
+  my @columns = qw(counting encountered part chargenumber bin qty stocked inbetweens unit);
 
   my %column_defs = (
-    counting   => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
-    counted_at => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
-    qty        => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
-    part       => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
-    chargenumber      => { text => t8('Chargenumber'), sub => sub { $_[0]->chargenumber }, },
-    bin        => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
-    employee   => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
-    stocked    => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
-    inbetweens => { text => t8('Inbetweens Qty'), sub => sub { _format_total($_[0]->{inbetweens}) }, align => 'right'},
+    counting     => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
+    counted_at   => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
+    qty          => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
+    encountered  => { text => t8('Encountered'),    sub => sub { $_[0]->encountered ? t8('Yes') : t8('No') }, },
+    part         => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
+    chargenumber => { text => t8('Chargenumber'),   sub => sub { $_[0]->chargenumber }, },
+    bin          => { text => t8('Bin'),            sub => sub { $_[0]->bin->full_description } },
+    employee     => { text => t8('Employee'),       sub => sub { $_[0]->employee ? $_[0]->employee->safe_name : '---'} },
+    stocked      => { text => t8('Stocked Qty'),    sub => sub { _format_total($_[0]->{stocked}) }, align => 'right'},
+    unit         => { text => t8('Unit'),           sub => sub { $_[0]->part->unit } },
+    inbetweens   => { text => t8('Inbetweens Qty'), sub => sub { _format_total($_[0]->{inbetweens}) }, align => 'right'},
   );
 
   # remove columns from defs which are not in @columns
@@ -260,7 +316,7 @@ sub group_items_by_part_and_bin {
     my $group_object;
     if (!$grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber}) {
       $group_object = SL::DB::StockCountingItem->new(
-        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
+        counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber, encountered => 0);
       push @grouped_objects, $group_object;
       $grouped_objects_by->{$object->part_id}->{$object->bin_id}->{$object->chargenumber} = $group_object;
 
@@ -270,6 +326,7 @@ sub group_items_by_part_and_bin {
 
     push @{$group_object->{ids}}, $object->id;
     $group_object->qty($group_object->qty + $object->qty);
+    $group_object->encountered($group_object->encountered || $object->encountered);
   }
 
   return \@grouped_objects;

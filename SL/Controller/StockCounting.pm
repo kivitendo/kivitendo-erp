@@ -132,7 +132,7 @@ sub action_list {
       my $group_object;
       if (!$grouped_objects_by->{$object->counting_id}{$object->part_id}{$object->bin_id}{$object->chargenumber}) {
         $group_object = SL::DB::StockCountingItem->new(
-          counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber);
+          counting => $object->counting, part => $object->part, bin => $object->bin, qty => 0, chargenumber => $object->chargenumber, encountered => 0);
         $group_object->{reconciliated} = 1;
         push @grouped_objects, $group_object;
         $grouped_objects_by->{$object->counting_id}{$object->part_id}{$object->bin_id}{$object->chargenumber} = $group_object;
@@ -143,6 +143,7 @@ sub action_list {
 
       $group_object->id($group_object->id ? ($group_object->id . ',' . $object->id) : $object->id);
       $group_object->qty($group_object->qty + $object->qty);
+      $group_object->encountered($group_object->encountered || $object->encountered);
       $group_object->{reconciliated} &&= !!$object->correction_inventory_id;
     }
 
@@ -209,12 +210,13 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns = $::form->{group_counting_items} ? qw(counting part chargenumber bin qty stocked reconciliated)
-              : qw(counting counted_at part chargenumber bin qty stocked employee reconciliated);
+  my @columns = $::form->{group_counting_items} ? qw(counting encountered part chargenumber bin qty stocked reconciliated)
+              : qw(counting encountered counted_at part chargenumber bin qty stocked employee reconciliated);
 
   my %column_defs = (
     counting      => { text => t8('Stock Counting'), sub => sub { $_[0]->counting->name }, },
     counted_at    => { text => t8('Counted At'),     sub => sub { $_[0]->counted_at_as_timestamp }, },
+    encountered   => { text => t8('Encountered'),    sub => sub { $_[0]->encountered ? t8('Yes') : t8('No') }, },
     qty           => { text => t8('Qty'),            sub => sub { $_[0]->qty_as_number }, align => 'right' },
     part          => { text => t8('Article'),        sub => sub { $_[0]->part && $_[0]->part->displayable_name } },
     chargenumber  => { text => t8('Chargenumber'),   sub => sub { $_[0]->chargenumber }, },
