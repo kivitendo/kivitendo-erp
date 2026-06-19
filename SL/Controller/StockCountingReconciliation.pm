@@ -21,9 +21,6 @@ use SL::Locale::String qw(t8);
 use SL::ReportGenerator;
 use SL::WH;
 
-
-            use Data::Dumper;
-
 use Rose::Object::MakeMethods::Generic(
   #scalar => [ qw() ],
   'scalar --get_set_init' => [ qw(countings partsgroups models) ],
