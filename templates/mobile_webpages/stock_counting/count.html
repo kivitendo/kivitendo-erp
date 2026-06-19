@@ -11,7 +11,7 @@
       <div class="row">[% SELF.stock_counting_item.counting.part.displayable_name %]</div>
       <div class="row">[% SELF.stock_counting_item.counting.partsgroup.displayable_name %]</div>
       <div class="row">[% SELF.stock_counting_item.counting.vendor.displayable_name %]</div>
-      <form method="post" name="count_form" id="count_form" action="controller.pl" target="_top" class="col s12">
+      <form name="count_form" id="count_form" onSubmit="kivi.StockCounting.submit_count(); return false" target="_top" class="col s12">
         [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
         [% IF SELF.stock_counting_item.counting.bin_id %]
           <div class="row">[% SELF.stock_counting_item.counting.bin.full_description %]</div>
