@@ -8,7 +8,8 @@ use SL::DB::Bin;
 use SL::DB::Warehouse;
 use SL::Presenter::Tag qw(select_tag);
 
-__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('check_auth',
+                        only => [ 'reorder' ]);
 __PACKAGE__->run_before(sub { $::auth->assert('developer') },
                         only => [ qw(test_page test_result) ]);
 
