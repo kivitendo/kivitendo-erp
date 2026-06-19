@@ -18,6 +18,7 @@ __PACKAGE__->meta->columns(
   name          => { type => 'text', not_null => 1 },
   part_id       => { type => 'integer' },
   partsgroup_id => { type => 'integer' },
+  reconciliated => { type => 'boolean', default => 'false' },
   vendor_id     => { type => 'integer' },
 );
 
