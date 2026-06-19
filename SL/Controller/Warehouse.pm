@@ -6,7 +6,6 @@ use parent qw(SL::Controller::Base);
 
 use SL::DB::Bin;
 use SL::DB::Warehouse;
-use SL::Presenter::Tag qw(select_tag);
 
 __PACKAGE__->run_before('check_auth',
                         only => [ 'reorder' ]);
