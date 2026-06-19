@@ -10,21 +10,23 @@
   <table>
     <tbody>
       <tr>
-        <td>wh1<td>
+        <td>wh1</td>
         <td>[% P.warehouse.wh_bin_select('wh1') %]</td>
       </tr>
       <tr>
-        <td>wh2 (with_empty)<td>
+        <td>wh2 (with_empty)</td>
         <td>[% P.warehouse.wh_bin_select('wh2', with_empty=1) %]</td>
       </tr>
-      <tr>
-        <td>wh3 (with_empty, pre_filled_bin)<td>
-        <td>[% P.warehouse.wh_bin_select('wh3', bin_default=pre_filled_bin.id, with_empty=1) %]</td>
-      </tr>
-      <tr>
-        <td>wh4 (with_empty, pre_filled_wh)<td>
-        <td>[% P.warehouse.wh_bin_select('wh4', wh_default=pre_filled_wh.id, with_empty=1) %]</td>
-      </tr>
+      [% IF pre_filled_bin %]
+       <tr>
+         <td>wh3 (with_empty, pre_filled_bin)</td>
+         <td>[% P.warehouse.wh_bin_select('wh3', bin_default=pre_filled_bin.id, with_empty=1) %]</td>
+       </tr>
+       <tr>
+         <td>wh4 (with_empty, pre_filled_wh)</td>
+         <td>[% P.warehouse.wh_bin_select('wh4', wh_default=pre_filled_wh.id, with_empty=1) %]</td>
+       </tr>
+      [% END %]
     </tbody>
   </table>
 
