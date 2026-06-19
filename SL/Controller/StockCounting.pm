@@ -161,7 +161,7 @@ sub action_list {
 sub action_show_parts_in_bin {
   my ($self) = @_;
 
-  my $html    = $self->render('stock_counting/list_parts', { output => 0 });
+  my $html    = $self->render('stock_counting/last_counting_operations', { output => 0 });
 
   $self->js->html('#list_data', $html)
            ->reinit_widgets
