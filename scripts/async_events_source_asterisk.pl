@@ -101,11 +101,14 @@ sub main_loop {
 
   my %ev_dispatch = (
     DialBegin => sub {
-    print $main::lxdebug->dump(0, 'Event', $_[0]->{Event});
+      #print $main::lxdebug->dump(0, 'Event', $_[0]->{Event});
       my $num_from = $_[0]->{CallerIDNum};
       #my $num_to   = $_[0]->{Exten};
       my $exten_to = $_[0]->{DestChannel}; $exten_to =~ s/-[a-z0-9]*$//;
       handle_incoming_call($num_from, $exten_to);
+    },
+    ExtensionStatus => sub {
+      #print $main::lxdebug->dump(0, 'Event', $_[0]->{Event});
     },
   );
 
@@ -113,6 +116,7 @@ sub main_loop {
     my $ev = $ami->event_get_next();
     return if !$ev->{Event};
     #print $main::lxdebug->dump(0, 'Event', $ev);
+    #print "Event: $ev->{Event}\n";
     my $func = $ev_dispatch{$ev->{Event}};
     $func->($ev) if defined $func;
   }
@@ -178,7 +182,17 @@ sub handle_incoming_call {
 
   my $contact = $phone_number->find_contact_for_number($number);
   if ($contact) {
-    $msg .= "(".$contact->{full_name}.")";
+    $msg .= "(".$contact->{full_name};
+    #$main::lxdebug->dump(0, '', $contact);
+
+    my $c = SL::DB::Contact->new(cp_id => $contact->{id})->load;
+    my $cv = SL::DB::Manager::Customer->get_first(where => [id => $c->cp_cv_id]) //
+             SL::DB::Manager::Vendor->get_first(where => [id => $c->cp_cv_id]);
+    $msg .= ' ';
+    $msg .= $cv->is_customer
+           ? SL::DB::Customer->new(id => $cv->{id})->load->presenter->customer(target => '_blank')
+           : SL::DB::Vendor  ->new(id => $cv->{id})->load->presenter->vendor  (target => '_blank');
+    $msg .= ')';
   }
 
   my $cv = $phone_number->find_customer_vendor_for_number($number);
@@ -212,10 +226,12 @@ sub handle_incoming_call {
 
 parse_args(\%config);
 setup();
-while (1) {
+while ($running) {
   main_loop();
-  print "reconnect\n";
-  sleep(2);
+  if ($running) {
+    print "reconnect\n";
+    sleep(2);
+  }
 }
 
 1;
