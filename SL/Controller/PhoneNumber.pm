@@ -35,7 +35,7 @@ sub action_look_up {
 sub find_contact_for_number {
   my ($self, $number) = @_;
 
-  my @number_fields = qw(cp_phone1 cp_phone2 cp_mobile1 cp_mobile2 cp_fax);
+  my @number_fields = qw(cp_phone1 cp_phone2 cp_mobile1 cp_mobile2 cp_fax cp_privatphone);
 
   my $contacts = SL::DB::Manager::Contact->get_all(
     inject_results => 1,
