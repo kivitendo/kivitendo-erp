@@ -166,10 +166,10 @@ C<49> (Germany) respectively.
 
 Next the function will look up a contact whose normalized numbers
 equals the requested number. The fields C<phone1>, C<phone2>,
-C<mobile1>, C<mobile2> and C<fax> are considered. Active contacts are
-given preference over inactive ones (inactive meaning that they don't
-belong to a customer/vendor anymore or that the customer/vendor itself
-is flagged as obsolete).
+C<mobile1>, C<mobile2>, C<fax> and C<privatphone> are considered.
+Active contacts are given preference over inactive ones (inactive
+meaning that they don't belong to a customer/vendor anymore or that the
+customer/vendor itself is flagged as obsolete).
 
 If no contact is found, customers & vendors are searched. Their fields
 C<phone> and C<fax> are considered. The first customer/vendor who
