@@ -38,8 +38,6 @@ sub init_connector {
   die 'cant login' unless $data =~ m/Response: Success/;
   die 'cant login' unless $data =~ m/Message: Authentication accepted/;
 
-  #$cl->close();
-
   $cl;
 }
 
@@ -54,13 +52,14 @@ sub originate {
   my $config         = $::lx_office_conf{cti} || {};
   my $auto_answer    = 0;
   my $number_to_call = $params{number};
-  my $channel        = $params{phone_extension};
+  my $channel        = $params{ami_channel};
+  my $caller_id      = $params{ami_outbound_caller_id};
   my $context        = $config->{asterisk_manager_interface_originate_context};
 
   syswrite($self->connector, _build_request_str({
     Action   => 'Originate',
     Async    => 'true',      # Asterisk shall not wait for phone pickup before responding
-    Callerid => $number_to_call,
+    Callerid => $caller_id,
     Channel  => $channel,
     Context  => $context,
     Exten    => $number_to_call,
@@ -74,6 +73,7 @@ sub originate {
   unless ( ($data =~ m/Response: Error/   && $data =~ m/Message: Originate failed/) ||
            ($data =~ m/Response: Success/ && $data =~ m/Message: Originate successfully queued/) )
   {
+    $self->connector->close;
     die 'AMI originate: ' . $data;
   }
 
@@ -93,7 +93,7 @@ sub event_start_listen {
 
   unless ( ($data =~ m/Response: Success/ && $data =~ m/Message: Waiting for Event completed\./) )
   {
-    die 'AMI: ' . $data;
+    die 'die AMI: ' . $data . "\n";
   }
 }
 

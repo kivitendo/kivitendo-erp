@@ -9236,8 +9236,8 @@ cloud_url = https://firma.atlassian.net
         Asterisk AMI-Konfiguration für kivitendo (Events mitlesen und Anrufe per Originate starten) - folgendes ist nötig:
         <itemizedlist>
           <listitem><para>Benutzereinstellungen → Anzeigeoptionen → Asynchrone Benachrichtigungen: ja</para></listitem>
-          <listitem><para>unter Admin-Interface → Nutzer → CTI-Einstellungen bei Durchwahl die Asterisk-Extension des Apparates einstellen. Z.B. PJSIP/201</para></listitem>
-          <listitem><para>unter Admin-Interface → Nutzer → CTI-Einstellungen bei Telefonpasswort einen beliebigen nicht-leeren String einstellen. Z.B. notused</para></listitem>
+          <listitem><para>unter Admin-Interface → Nutzer → CTI-Einstellungen bei Asterisk AMI Channel die Asterisk-Extension des Apparates einstellen. Z.B. PJSIP/201</para></listitem>
+          <listitem><para>unter Admin-Interface → Nutzer → CTI-Einstellungen bei Asterisk AMI outbound caller ID die Telefonnummer angeben, welche für ausgehende Anrufe als Caller ID gesetzt wird</para></listitem>
           <listitem><para>scripts/async_events_source_asterisk.pl muss als gleicher Nutzer wie der Webserver (unter Debian: www-data) laufen, damit Eingehende Anrufe erkannt und angezeigt werden. Das Ausführen dieses Skriptes kann per systemd bewerkstelligt werden, siehe dazu scripts/boot/systemd/kivitendo-asterisk-ami.service</para></listitem>
         </itemizedlist>
       Wenn bei Kunden, Lieferanten oder Ansprechpersonen in den für Telefonnummern vorgesehen Feldern (Telefon, Mobil, Sat, ...) Werte eingetragen sind, erscheint nach dem Speichern ein grünes Hörer-Symbol. Klick auf dieses Symbol bewirkt, dass kivitendo über AMI das entsprechende Telefon anwählt. Wird abgehoben, dann wählt die Telefonanlage auf dieser Leitung die entsprechende Telefonnummer des Gesprächspartners an. (D.h. wer versehentlich darauf geclickt hat, hat noch die Möglichkeit, das eigene Telefon nicht abzuheben.)

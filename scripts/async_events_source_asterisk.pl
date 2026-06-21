@@ -162,7 +162,7 @@ sub handle_incoming_call {
 
   my $user_configs = $exten_to ? SL::DB::Manager::AuthUserConfig->get_all(
     where => [
-      cfg_key      => 'phone_extension',
+      cfg_key      => 'ami_channel',
       cfg_value => $exten_to,
     ],
     with_objects => [ qw(user) ],
