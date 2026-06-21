@@ -15,8 +15,12 @@ sub call {
   my $external_prefix  = $params{internal} ? '' : ($config->{external_prefix} // '');
 
   my %command_args     = (
-    phone_extension    => $::myconfig{phone_extension} || die($::locale->text('Phone extension missing in user configuration')),
-    phone_password     => $::myconfig{phone_password}  || die($::locale->text('Phone password missing in user configuration')),
+    #phone_extension    => $::myconfig{phone_extension} || die($::locale->text('Phone extension missing in user configuration')),
+    #phone_password     => $::myconfig{phone_password}  || die($::locale->text('Phone password missing in user configuration')),
+    ami_channel            => $::myconfig{ami_channel}
+                           || die($::locale->text('Asterisk AMI channel missing in user configuration')),
+    ami_outbound_caller_id => $::myconfig{ami_outbound_caller_id}
+                           || die($::locale->text('Asterisk AMI outbound caller ID missing in user configuration')),
     number             => $external_prefix . $class->sanitize_number(%params),
   );
   my $ami;

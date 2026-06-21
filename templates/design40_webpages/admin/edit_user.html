@@ -90,6 +90,14 @@
   <caption>[% LxERP.t8("CTI settings") %]</caption>
   <tbody>
   <tr>
+    <th>[% LxERP.t8("Asterisk AMI channel") %]</th>
+    <td>[% L.input_tag("user.config_values.ami_channel", props.ami_channel, class="wi-normal") %]</td>
+  </tr>
+  <tr>
+    <th>[% LxERP.t8("Asterisk AMI outbound caller ID") %]</th>
+    <td>[% L.input_tag("user.config_values.ami_outbound_caller_id", props.ami_outbound_caller_id, class="wi-normal") %]</td>
+  </tr>
+  <tr>
     <th>[% LxERP.t8("Phone extension") %]</th>
     <td>[% L.input_tag("user.config_values.phone_extension", props.phone_extension, class="wi-normal") %]</td>
   </tr>
