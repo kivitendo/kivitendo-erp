@@ -9254,6 +9254,11 @@ Einstellung in Asterisks /etc/asterisk/manager.conf exemplarisch:
 <programlisting>
 ; By default asterisk will listen on localhost only.
 [general]
+
+enabled  = yes
+port     = 5038
+bindaddr = 127.0.0.1
+
 tlsenable     = yes
 tlsbindaddr   = 0.0.0.0:5039
 tlscertfile   = /etc/asterisk/asterisk.pem
@@ -9264,6 +9269,9 @@ secret = &lt;SICHERES PASSWORT&gt;
 write  = originate
 read   = originate,call,log,verbose,agent,user,reporting
 </programlisting>
+Wichtig ist, dass neben tlsenable ebenfalls enable = yes gesetzt wird. Andernfalls sendet Asterisk nur ExtensionStatus Events, aber nicht die unbedingt benötigten DialBegin Events!
+</para>
+<para>
 Test-Zertifikate kann man unter Debian/Ubtuntu mit dem Paket ssl-cert selbst-signiert generieren.
 Alternativ unter Alpine Linux getestet:
 <programlisting>
