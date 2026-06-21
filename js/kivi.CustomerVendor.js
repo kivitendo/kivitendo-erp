@@ -485,7 +485,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         $(elt).data('customer_vendor_picker', new kivi.CustomerVendor.Picker($(elt)));
     });
 
-    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2').each(function(idx, elt) {
+    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2,#contact_cp_privatphone').each(function(idx, elt) {
       kivi.CustomerVendor.init_dial_action($(elt));
     });
   }
