@@ -19,6 +19,7 @@ use utf8;
 use English '-no_match_vars';
 use POSIX qw(setuid setgid);
 use Text::CSV_XS;
+use Try::Tiny;
 
 use Config::Std;
 use DBI;
@@ -45,11 +46,13 @@ use SL::Controller::PhoneNumber;
 use sigtrap 'handler' => \&sig_handler, qw(INT TERM KILL QUIT);
 
 my $running = 1;
+my $cancellation_socket;
 
 sub sig_handler {
   my $sig_name = shift;
   $running = 0;
   print "received $sig_name, shutting down\n";
+  $cancellation_socket->close if $cancellation_socket;
 }
 
 my %config;
@@ -96,29 +99,42 @@ sub usage {
 }
 
 sub main_loop {
-  my $ami = SL::CTI::AsteriskManagerInterface->new();
-  $ami->event_start_listen();
+  while (1) {
+    try {
+      my $ami = SL::CTI::AsteriskManagerInterface->new();
 
-  my %ev_dispatch = (
-    DialBegin => sub {
-      #print $main::lxdebug->dump(0, 'Event', $_[0]->{Event});
-      my $num_from = $_[0]->{CallerIDNum};
-      #my $num_to   = $_[0]->{Exten};
-      my $exten_to = $_[0]->{DestChannel}; $exten_to =~ s/-[a-z0-9]*$//;
-      handle_incoming_call($num_from, $exten_to);
-    },
-    ExtensionStatus => sub {
-      #print $main::lxdebug->dump(0, 'Event', $_[0]->{Event});
-    },
-  );
+      #print $main::lxdebug->dump(0, '', $ami->list_pjsip_endpoints());
 
-  while ($running) {
-    my $ev = $ami->event_get_next();
-    return if !$ev->{Event};
-    #print $main::lxdebug->dump(0, 'Event', $ev);
-    #print "Event: $ev->{Event}\n";
-    my $func = $ev_dispatch{$ev->{Event}};
-    $func->($ev) if defined $func;
+      my %ev_dispatch = (
+        DialBegin => sub {
+          my $num_from = $_[0]->{CallerIDNum};
+          my $exten_to = $_[0]->{DestChannel}; $exten_to =~ s/-[a-z0-9]*$//;
+          handle_incoming_call($num_from, $exten_to);
+        },
+        #ExtensionStatus => sub { print $main::lxdebug->dump(0, 'Event', $_[0]->{Event}); },
+      );
+
+      $cancellation_socket = $ami->event_start_listen();
+
+      while ($running) {
+        for my $ev (@{ $ami->event_get_next() }) {
+          #print $main::lxdebug->dump(0, 'Event', $ev);
+          #print "Event: $ev->{Event}\n";
+          my $func = $ev_dispatch{$ev->{Event}};
+          $func->($ev) if defined $func;
+        }
+      }
+
+      $ami->event_stop_listen();
+      $cancellation_socket = undef;
+    } catch {
+      print $_;
+    };
+
+    return if (!$running);
+
+    print "reconnect\n";
+    sleep(2);
   }
 }
 
@@ -226,12 +242,6 @@ sub handle_incoming_call {
 
 parse_args(\%config);
 setup();
-while ($running) {
-  main_loop();
-  if ($running) {
-    print "reconnect\n";
-    sleep(2);
-  }
-}
+main_loop();
 
 1;

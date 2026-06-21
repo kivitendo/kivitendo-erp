@@ -1,0 +1,31 @@
+[% USE L %]
+[% USE HTML %]
+
+<div class="wrapper">
+
+<p>PJSIP Endpoints:</p>
+
+<table class="tbl-list">
+  <tr>
+    <th>ObjectName     </th>
+    <th>DeviceState    </th>
+    <th>ObjectType     </th>
+    <th>Transport      </th>
+    <th>Contacts       </th>
+    <th>ActiveChannels </th>
+    <th>OutboundAuths  </th>
+  </tr>
+  [% FOR EP = EPS %]
+    <tr>
+      <td>[% EP.ObjectName     | html %]</td>
+      <td>[% EP.DeviceState    | html %]</td>
+      <td>[% EP.ObjectType     | html %]</td>
+      <td>[% EP.Transport      | html %]</td>
+      <td>[% EP.Contacts       | html %]</td>
+      <td>[% EP.ActiveChannels | html %]</td>
+      <td>[% EP.OutboundAuths  | html %]</td>
+    </tr>
+  [% END %]
+</table>
+
+</div>

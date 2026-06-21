@@ -3,11 +3,13 @@ package SL::CTI::AsteriskManagerInterface;
 use strict;
 
 use IO::Socket::SSL;
+use List::MoreUtils qw(any);
+use Crypt::PRNG;
 
 use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
- #scalar => [ qw(item_ids_to_delete is_custom_shipto_to_delete) ],
+ scalar => [ qw(event_listen_actionid) ],
  'scalar --get_set_init' => [ qw(connector) ],
 );
 
@@ -80,30 +82,87 @@ sub originate {
   $data;
 }
 
+sub list_pjsip_endpoints {
+  my ($self, %params) = @_;
+
+  my $unique_id = Crypt::PRNG::random_string(12);
+
+  syswrite($self->connector, _build_request_str({
+    Action   => 'PJSIPShowEndpoints',
+    ActionID => $unique_id,
+  }));
+
+  [ grep { $_->{Event} ne 'EndpointListComplete' } @{ $self->wait_for_event('EndpointListComplete', $unique_id) } ];
+}
+
+sub wait_for_event {
+  my ($self, $event, $action_id, $return_with_empty_id) = @_;
+
+
+  my $data = '';
+  while (1) {
+
+    if (any { $_->{Event} eq $event } @{ $self->{events_by_actionid}{$action_id} // [] }) {
+      return delete $self->{events_by_actionid}{$action_id};
+    }
+    if ($return_with_empty_id && @{ $self->{events_by_actionid}{''} // [] }) {
+      return delete $self->{events_by_actionid}{''};
+    }
+
+    die "no connection" unless $self->connector->connected;
+
+    my $rbuf = '';
+    sysread($self->connector, $rbuf, 1024);
+    $data .= $rbuf;
+    next unless ($data =~ m/\r\n\r\n/);
+
+    my $ev_txt;
+    ($ev_txt, $data) = split(m/\r\n\r\n/, $data, 2);
+    my %kv = map { +( split(/: /, $_, 2) ) } split(/\r\n/, $ev_txt);
+
+    if (!defined $kv{Event} && $kv{Response} eq 'Success') {
+      next;
+    }
+    if (!defined $kv{Event} && $kv{Response} eq 'Error') {
+      die $main::lxdebug->dump(0, 'AMI Error', \%kv);
+      return;
+    }
+
+    push @{ $self->{events_by_actionid}{$kv{ActionID} // ''} }, \%kv if $kv{Event};
+
+    $main::lxdebug->dump(0, 'AMI trow away: Event missing', \%kv) # ".join(", ", map { "$_: $kv{$_}" } keys %kv)."\n"
+    if !$kv{Event};
+  }
+}
+
+sub event_stop_listen {
+  my ($self) = @_;
+  $self->event_listen_actionid(undef);
+}
+
 sub event_start_listen {
   my ($self) = @_;
 
+  $self->event_stop_listen if $self->event_listen_actionid;
+
+  my $unique_id = Crypt::PRNG::random_string(12);
+  $self->event_listen_actionid($unique_id);
+
   syswrite($self->connector, _build_request_str({
     Action    => 'WaitEvent',
+    ActionID  => $unique_id,
     EventMask => 'call'
   }));
 
-  my $data = '';
-  sysread($self->connector, $data, 1024);
-
-  unless ( ($data =~ m/Response: Success/ && $data =~ m/Message: Waiting for Event completed\./) )
-  {
-    die 'die AMI: ' . $data . "\n";
-  }
+  $self->connector;
 }
 
 sub event_get_next {
   my ($self) = @_;
 
-  my $data = '';
-  sysread($self->connector, $data, 1024);
-  my %kv = map { +( split(/: /, $_, 2) ) } split(/\r\n/, $data);
-  \%kv;
+  return [] unless $self->event_listen_actionid;
+
+  [ grep { $_->{Event} ne 'WaitEventComplete' } @{ $self->wait_for_event('WaitEventComplete', $self->event_listen_actionid, 1) } ];
 }
 
 sub _encode {
