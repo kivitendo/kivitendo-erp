@@ -151,7 +151,7 @@ sub action_delete {
   return $self->js->flash('error', t8('This object is used in records.'))->render if $self->contact->used;
 
   $self->contact->delete;
-  $self->js->redirect_to($::form->{callback})->render;
+  $self->js->redirect_to($self->url_for(action => 'search_contact', controller => 'ct.pl'))->render;
 }
 
 sub action_add_cv {
