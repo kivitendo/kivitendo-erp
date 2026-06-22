@@ -7,11 +7,11 @@ namespace('kivi.Contact', function(ns) {
   ns.on_add_cv_customer = function() { ns.on_add_cv('customer'); };
 
   ns.on_add_cv = function(db) {
-    let cv_id = $('#add_' + db + '_id').val();
+    const cv_id = $('#add_' + db + '_id').val();
     if (!cv_id)
       return;
 
-    var data = $('#form').serializeArray();
+    let data = $('#form').serializeArray();
     data.push({ name: 'action', value: 'Contact/add_cv' },
               { name: 'cv_db', value: db },
               { name: 'cv_id', value: cv_id });
@@ -22,7 +22,7 @@ namespace('kivi.Contact', function(ns) {
   ns.on_add_contact = function(db) {
     if (!$('#add_contact_id').val())
       return;
-    var data = [];
+    let data = [];
     data.push({ name: 'action', value: 'Contact/add_contact' },
               { name: 'cv_db',  value: $('[name=db]').val() },
               { name: 'cv_id',  value: $('#cv_id').val() },
@@ -32,12 +32,12 @@ namespace('kivi.Contact', function(ns) {
   };
 
   ns.detach_contact_or_cv = function(clicked) {
-    var row = $(clicked).parents('tr').first();
+    const row = $(clicked).parents('tr').first();
     $(row).remove();
   };
 
   ns.set_main_contact = function(clicked) {
-    let inputs = $(clicked).parents('table').first().find('[name="linked_contacts[].main"]');
+    const inputs = $(clicked).parents('table').first().find('[name="linked_contacts[].main"]');
     inputs.map((index, el) => {
       if (el != clicked)
         $(el).val(0);
@@ -47,14 +47,14 @@ namespace('kivi.Contact', function(ns) {
   ns.save = function() {
     if (!ns.check_contact()) return;
 
-    var data = $('#form').serializeArray();
+    let data = $('#form').serializeArray();
     data.push({ name: 'action', value: 'Contact/save' });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.delete_contact = function() {
-    var data = $('#form').serializeArray();
+    let data = $('#form').serializeArray();
     data.push({ name: 'action', value: 'Contact/delete' });
 
     $.post("controller.pl", data, kivi.eval_json_result);

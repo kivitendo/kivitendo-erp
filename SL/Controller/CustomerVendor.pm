@@ -1173,7 +1173,7 @@ sub _pre_render {
 
   $self->{template_args} ||= {};
 
-  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File chart kivi.CustomerVendorTurnover follow_up jquery.selectboxes jquery.multiselect2side);
+  $::request->{layout}->add_javascripts("$_.js") for qw (kivi.CustomerVendor kivi.File chart kivi.CustomerVendorTurnover follow_up);
 
   $self->_setup_form_action_bar;
 }
