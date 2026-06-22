@@ -426,6 +426,7 @@ sub test_two_invoices {
 }
 
 sub test_one_inv_and_two_invoices_with_skonto_exact {
+  local $::locale = Locale->new('de');
 
   my $testname = 'test_two_invoices_with_skonto_exact';
 
