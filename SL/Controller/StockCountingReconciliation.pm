@@ -75,11 +75,14 @@ sub action_list {
 sub stocked_but_not_encountered_items {
   my ($self, $counting) = @_;
 
-  my $believed_stock = get_onhand(
-    (bin         => $counting->bin) x !! $counting->bin,
-    by           => [ qw(part chargenumber bin) ],
-    with_objects => [ qw(bin part) ],
-  );
+  my $believed_stock = [
+    grep { $_->{qty} != 0 }
+    @{get_stock(
+        (bin         => $counting->bin) x !! $counting->bin,
+        by           => [ qw(part chargenumber bin) ],
+        with_objects => [ qw(bin part) ],
+    )}
+  ];
   my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
   $self->get_stocked($grouped_counting_items);
   $self->get_inbetweens($grouped_counting_items);
