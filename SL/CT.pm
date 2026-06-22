@@ -549,32 +549,53 @@ sub search_contacts {
       add_token(\@where_tokens, \@values, col =>  "cp.cp_$_", val => $filter->{"cp_$_"}, method => 'ILIKE', esc => 'substr');
     }
     add_token(\@where_tokens, \@values, col => "COALESCE(c.name, v.name)", val => $filter->{vcname}, method => 'ILIKE', esc => 'substr') if $filter->{vcname};
-
-    push @where_tokens, '
-      (cc.id IS NOT NULL OR vc.id IS NOT NULL)
-    ' if $filter->{status} eq 'active';
-    push @where_tokens, '
-      (cc.id IS NULL AND vc.id IS NULL)
-    ' if $filter->{status} eq 'orphaned';
   }
 
   my $where = @where_tokens ? 'WHERE ' . join ' AND ', @where_tokens : '';
 
   my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
 
-  my $query     = qq|SELECT cp.*,
-                       COALESCE(c.id,             v.id)           AS vcid,
-                       COALESCE(c.name,           v.name)         AS vcname,
-                       COALESCE(c.customernumber, v.vendornumber) AS vcnumber,
-                       CASE WHEN c.name IS NULL THEN 'vendor' ELSE 'customer' END AS db,
+  my @customer_where_tokens = @where_tokens;
+  my @vendor_where_tokens = @where_tokens;
+
+  if ($params{filter}{status} eq 'active') {
+    push @customer_where_tokens, 'cc.id IS NOT NULL';
+    push @vendor_where_tokens,   'vc.id IS NOT NULL';
+  } elsif ($params{filter}{status} eq 'orphaned') {
+    # avoid duplicate entries by deactivating the vendor side
+    push @customer_where_tokens, '(cc.id IS NULL AND vc.id IS NULL)';
+    push @vendor_where_tokens,   'false';
+  } else {
+    # avoid dublicate entries having no customer and no vendor assigned
+    push @customer_where_tokens, '(cc.id IS NOT NULL OR vc.id IS NULL)';
+    push @vendor_where_tokens,   '(vc.id IS NOT NULL)';
+  }
+
+  my $customer_where = @customer_where_tokens ? 'WHERE ' . join ' AND ', @customer_where_tokens : '';
+  my $vendor_where   = @vendor_where_tokens   ? 'WHERE ' . join ' AND ', @vendor_where_tokens : '';
+
+  my $query     = qq|SELECT cp.*, cv.id AS vcid, cv.name AS vcname,
+                       cv.customernumber AS vcnumber, 'customer' AS db,
                        countries.$country_description_key AS cp_country
                      FROM contacts cp
                      LEFT JOIN countries            ON (cp.cp_country_id = countries.id)
                      LEFT JOIN customer_contacts cc ON (cc.contact_id = cp.cp_id)
-                     LEFT JOIN customer c           ON (cc.customer_id = c.id)
                      LEFT JOIN vendor_contacts vc   ON (vc.contact_id = cp.cp_id)
-                     LEFT JOIN vendor v             ON (vc.vendor_id = v.id)
-                     $where
+                     LEFT JOIN customer cv          ON (cc.customer_id = cv.id)
+                     $customer_where
+
+                     UNION
+
+                     SELECT cp.*, cv.id AS vcid, cv.name AS vcname,
+                       cv.vendornumber AS vcnumber, 'vendor' AS db,
+                       countries.$country_description_key AS cp_country
+                     FROM contacts cp
+                     LEFT JOIN countries            ON (cp.cp_country_id = countries.id)
+                     LEFT JOIN customer_contacts cc ON (cc.contact_id = cp.cp_id)
+                     LEFT JOIN vendor_contacts vc   ON (vc.contact_id = cp.cp_id)
+                     LEFT JOIN vendor cv            ON (vc.vendor_id = cv.id)
+                     $vendor_where
+
                      ORDER BY $order_by|;
 
   my $contacts  = selectall_hashref_query($::form, $dbh, $query, @values);
