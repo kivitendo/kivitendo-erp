@@ -147,6 +147,9 @@ sub action_save {
 
 sub action_delete {
   my ($self) = @_;
+
+  return $self->js->flash('error', t8('This object is used in records.'))->render if $self->contact->used;
+
   $self->contact->delete;
   $self->js->redirect_to($::form->{callback})->render;
 }
@@ -250,7 +253,8 @@ sub _setup_form_action_bar {
         t8('Delete'),
         call     => [ 'kivi.Contact.delete_contact' ],
         confirm  => t8('Delete the contact? This will also remove the contact from all other customers and vendors.'),
-        disabled => !$self->contact->cp_id ? t8('This object has not been saved yet.') : undef,
+        disabled => $self->contact->used ? t8('This object is used in records.') :
+                   !$self->contact->cp_id ? t8('This object has not been saved yet.') : undef,
       ],
     );
   }
