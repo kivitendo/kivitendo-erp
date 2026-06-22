@@ -505,11 +505,13 @@ sub form_header {
   $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_valid($::form->{delivery_term_id});
   $TMPL_VAR->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
   $TMPL_VAR->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(
-    require_objects => ["$::form->{vc}s"],
+    with_objects => ['vendors'],
     query => [
       or => [
-        "$::form->{vc}s.id" => $::form->{"$::form->{vc}_id"} * 1,
-        cp_id               => $::form->{cp_id} * 1
+        # 1. all linked contacts for the selected vendor
+          'vendors.id' => $form->{vendor_id} * 1,
+        # 2. the currently selected contact, if the vendor was not changed
+          (cp_id       => $form->{cp_id} * 1) x !!(!$form->{previous_vendor_id} || $form->{previous_vendor_id} == $form->{vendor_id}),
       ]
     ]
   );

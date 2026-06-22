@@ -684,11 +684,13 @@ sub form_header {
     or => [ and => [ trans_id  => $::form->{"$::form->{vc}_id"} * 1, module => 'CT' ], and => [ shipto_id => $::form->{shipto_id} * 1, trans_id => undef ] ]
   ]);
   $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(
-    require_objects => ["$::form->{vc}s"],
+    with_objects => ['customers'],
     query => [
       or => [
-        "$::form->{vc}s.id" => $::form->{"$::form->{vc}_id"} * 1,
-        cp_id               => $::form->{cp_id} * 1
+        # 1. all linked contacts for the selected customer
+          'customers.id' => $form->{customer_id} * 1,
+        # 2. the currently selected contact, if the customer was not changed
+          (cp_id         => $form->{cp_id} * 1) x !!(!$form->{previous_customer_id} || $form->{previous_customer_id} == $form->{customer_id}),
       ]
     ]
   );
