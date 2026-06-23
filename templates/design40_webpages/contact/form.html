@@ -4,9 +4,6 @@
 [% USE L %]
 [% USE P %]
 
-<h1>[% FORM.title | html %]</h1>
-
-
 <form id='form' method="post" action="controller.pl">
 
 [% L.hidden_tag('callback', FORM.callback) %]
