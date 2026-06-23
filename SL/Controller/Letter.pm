@@ -116,19 +116,12 @@ sub action_update_contacts {
 
   my $contacts = $letter->customer_vendor->contacts;
 
-  my $default;
-  if (   $letter->contact
-      && $letter->contact->vendors
-      && any { $_->id == $letter->customer_vendor_id } $letter->contact->vendors) {
-    $default = (first { $_->id == $letter->customer_vendor_id } $letter->contact->vendors)->cp_id;
-  } else {
-    $default = '';
-  }
+  my $default = ($letter->contact && any { $_->cp_id == $letter->contact->cp_id } @{$contacts // []}) ? $letter->contact->cp_id : '';
 
   $self->js
     ->replaceWith(
       '#letter_cp_id',
-      select_tag('letter.cp_id', $contacts, default => $default, value_key => 'cp_id', title_key => 'full_name')
+      select_tag('letter.cp_id', $contacts, default => $default, with_empty => 1, value_key => 'cp_id', title_key => 'full_name')
     )
     ->render;
 }
