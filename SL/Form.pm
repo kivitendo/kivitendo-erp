@@ -1877,30 +1877,6 @@ sub get_employee_data {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_contacts {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $id, $key) = @_;
-
-  $key = "all_contacts" unless ($key);
-
-  if (!$id) {
-    $self->{$key} = [];
-    $main::lxdebug->leave_sub();
-    return;
-  }
-
-  my $query =
-    qq|SELECT cp_id, cp_name, cp_givenname, cp_abteilung | .
-    qq|FROM contacts | .
-    qq|WHERE EXISTS(SELECT * FROM customer_contacts WHERE customer_id = ?) OR EXISTS(SELECT * FROM vendor_contacts WHERE vendor_id = ?) | .
-    qq|ORDER BY lower(cp_name)|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query, $id, $id);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _get_projects {
   $main::lxdebug->enter_sub();
 
@@ -2213,18 +2189,6 @@ sub get_lists {
 
   my $dbh = $self->get_standard_dbh(\%main::myconfig);
   my ($sth, $query, $ref);
-
-  my ($vc, $vc_id);
-  if ($params{contacts}) {
-    $vc = 'customer' if $self->{"vc"} eq "customer";
-    $vc = 'vendor'   if $self->{"vc"} eq "vendor";
-    die "invalid use of get_lists, need 'vc'" unless $vc;
-    $vc_id = $self->{"${vc}_id"};
-  }
-
-  if ($params{"contacts"}) {
-    $self->_get_contacts($dbh, $vc_id, $params{"contacts"});
-  }
 
   if ($params{"projects"} || $params{"all_projects"}) {
     $self->_get_projects($dbh, $params{"all_projects"} ?
