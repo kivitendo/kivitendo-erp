@@ -1527,12 +1527,13 @@ sub vendor_details {
   my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
-         cu.name AS currency, countries.$country_description_key AS country
+         cu.name AS currency, ctc.$country_description_key AS country, cpc.$country_description_key AS cp_country
        FROM vendor ct
-       LEFT JOIN vendor_contacts vc on ct.id = vc.vendor_id
-       LEFT JOIN contacts cp ON (vc.contact_id = cp.cp_id)
-       LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
-       LEFT JOIN countries ON (ct.country_id = countries.id)
+       LEFT JOIN currencies      cu  ON (ct.currency_id = cu.id)
+       LEFT JOIN vendor_contacts vc  ON (ct.id = vc.vendor_id)
+       LEFT JOIN contacts        cp  ON (vc.contact_id = cp.cp_id)
+       LEFT JOIN countries       ctc ON (ct.country_id = ctc.id)
+       LEFT JOIN countries       cpc ON (cp.cp_country_id = cpc.id)
        WHERE (ct.id = ?) $contact
        ORDER BY cp.cp_id
        LIMIT 1|;
