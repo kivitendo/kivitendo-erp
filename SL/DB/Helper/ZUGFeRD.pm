@@ -270,14 +270,25 @@ sub _line_item {
 
   #   <ram:SpecifiedTradeProduct>
   $params{xml}->startTag("ram:SpecifiedTradeProduct");
-  if ($params{item}->part->ean) {
-    $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
-  } else {
+
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    if ($params{item}->part->ean) {
+      $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->ean), schemeID => '0160');
+    } else {
+      $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
+    }
+
+  } else {                      # profile != XRechnung
+    if ($params{item}->part->ean) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($params{item}->part->ean), schemeID => '0160');
+    }
     $params{xml}->dataElement("ram:SellerAssignedID", _u8($params{item}->part->partnumber));
   }
+
   $params{xml}->dataElement("ram:Name",             _u8($params{item}->description));
   $params{xml}->dataElement("ram:Description",      _u8($params{item}->longdescription_as_stripped_html))
     if $params{item}->longdescription_as_stripped_html;
+
   $params{xml}->endTag;
   #   </ram:SpecifiedTradeProduct>
 
@@ -608,16 +619,36 @@ sub _seller_trade_party {
 
   #       <ram:SellerTradeParty>
   $params{xml}->startTag("ram:SellerTradeParty");
-  # 0088 = GLN, 0060 = D-U-N-S, only one ID is allowed
-  if ($self->customer->c_vendor_id) {
-    $params{xml}->dataElement("ram:ID", _u8($self->customer->c_vendor_id));
-  } elsif($::instance_conf->get_gln) {
-    $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_gln), schemeID => '0088');
-  } elsif($::instance_conf->get_duns) {
-    $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_duns), schemeID => '0060');
-  } else {
-    # no sensible default yet
+
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    # 0088 = GLN, 0060 = D-U-N-S, only one ID is allowed
+    if ($self->customer->c_vendor_id) {
+      $params{xml}->dataElement("ram:ID", _u8($self->customer->c_vendor_id));
+
+    } elsif ($::instance_conf->get_gln) {
+      $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_gln),  schemeID => '0088');
+
+    } elsif ($::instance_conf->get_duns) {
+      $params{xml}->dataElement("ram:ID", _u8($::instance_conf->get_duns), schemeID => '0060')
+
+    } else {
+      # no sensible default yet
+    }
+
+  } else {                      # profile != XRechnung
+    if ($self->customer->c_vendor_id) {
+      $params{xml}->dataElement("ram:ID", _u8($self->customer->c_vendor_id));
+    }
+
+    if ($::instance_conf->get_gln) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($::instance_conf->get_gln),  schemeID => '0088');
+    }
+
+    if ($::instance_conf->get_duns) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($::instance_conf->get_duns), schemeID => '0060');
+    }
   }
+
   $params{xml}->dataElement("ram:Name", _u8($::instance_conf->get_company));
 
   #         <ram:DefinedTradeContact>
@@ -666,11 +697,21 @@ sub _buyer_trade_party {
 
   #       <ram:BuyerTradeParty>
   $params{xml}->startTag("ram:BuyerTradeParty");
-  if ($self->customer->gln) {
-    $params{xml}->dataElement("ram:ID", _u8($self->customer->gln), schemeID => '0088');
+
+  if (_is_profile($self, PROFILE_XRECHNUNG())) {
+    if ($self->customer->gln) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($self->customer->gln), schemeID => '0088');
+    } else {
+      $params{xml}->dataElement("ram:ID", _u8($self->customer->customernumber));
+    }
+
   } else {
     $params{xml}->dataElement("ram:ID", _u8($self->customer->customernumber));
+    if ($self->customer->gln) {
+      $params{xml}->dataElement("ram:GlobalID", _u8($self->customer->gln), schemeID => '0088');
+    }
   }
+
   $params{xml}->dataElement("ram:Name", _u8($self->customer->name));
 
   _buyer_contact_information($self, %params, contact => $self->contact) if ($self->cp_id);
