@@ -53,7 +53,7 @@ is undef, $customers[0]->main_contact, "customer has no main contact";
 $customers[0]->link_contact($contacts[0], main => 1);
 
 # veryfy that the saved element has the main flag
-ok !!SL::DB::Manager::CustomerContact->get_first(query => [ customer_id => $customers[0]->id, contact_id => $contacts[0]->cp_id ]), "customer 1 now has 20 contacts";
+ok !!SL::DB::Manager::CustomerContact->get_first(query => [ customer_id => $customers[0]->id, contact_id => $contacts[0]->cp_id, main => 1 ]), "customer 1 now has 20 contacts";
 
 ok !!SL::DB::Customer->new(id => $customers[0]->id)->load->main_contact, "customer object now has one main contact";
 
