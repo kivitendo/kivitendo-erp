@@ -211,7 +211,7 @@ sub save_additions {
   # linked customers
   if (exists $contact->{_link_customer}) {
     if (exists $contact->{_main_contact}) {
-      $contact->{_link_customer}->link_contact($contact, $contact->{_main_contact});
+      $contact->{_link_customer}->link_contact($contact, main => $contact->{_main_contact});
     } else {
       $contact->{_link_customer}->link_contact($contact);
     }
@@ -220,7 +220,7 @@ sub save_additions {
   # linked vendors
   if (exists $contact->{_link_vendor}) {
     if (exists $contact->{_main_contact}) {
-      $contact->{_link_vendor}->link_contact($contact, $contact->{_main_contact});
+      $contact->{_link_vendor}->link_contact($contact, main => $contact->{_main_contact});
     } else {
       $contact->{_link_vendor}->link_contact($contact);
     }
