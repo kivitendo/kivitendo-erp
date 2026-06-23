@@ -131,7 +131,7 @@ sub search {
   }
 
   if ($form->{cp_name}) {
-    $where .= " AND ct.id IN (SELECT cc.customer_id FROM customer_contacts cc inner join contacts cp on cc.contact_id = cp.cp_id WHERE lower(cp.cp_name) LIKE lower(?))";
+    $where .= " AND ct.id IN (SELECT cc.${cv}_id FROM ${cv}_contacts cc inner join contacts cp on cc.contact_id = cp.cp_id WHERE lower(cp.cp_name) LIKE lower(?))";
     push @values, like($form->{cp_name});
   }
 
