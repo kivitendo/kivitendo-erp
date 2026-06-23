@@ -1,5 +1,5 @@
 -- @tag: shared_contacts
--- @description: Mehrfachzuordnung on Ansprechpartnern zu Kunden und Lieferanten
+-- @description: Mehrfachzuordnung von Ansprechpersonen zu Kunden und Lieferanten
 -- @depends: release_4_0_0
 
 
