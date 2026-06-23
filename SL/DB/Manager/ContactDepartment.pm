@@ -26,9 +26,14 @@ sub delete_unused {
 
   my $dbh  = $::form->get_standard_dbh();
 
-  my $sql_str = "DELETE FROM contact_departments WHERE description NOT IN (SELECT distinct(cp_abteilung) FROM contacts)";
+  my $sql_str = qq|DELETE FROM contact_departments cd
+                   WHERE NOT EXISTS (
+                     SELECT
+                     FROM contacts c
+                     WHERE c.cp_abteilung IS NOT NULL AND c.cp_abteilung = cd.description
+                   )|;
 
-  selectall_hashref_query($::form, $dbh, $sql_str);
+  do_query($::form, $dbh, $sql_str);
 }
 
 1;
