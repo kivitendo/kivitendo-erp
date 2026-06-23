@@ -1182,7 +1182,7 @@ a2ensite default-ssl</programlisting>
         <para>Folgender Konfigurationsschnipsel funktioniert mit
         mod_fcgid:</para>
 
-        <programlisting>AddHandler         fcgid-script .fpl
+        <programlisting>AddHandler         fcgid-script .fcgi
 FcgidMaxRequestLen 104857600
 FcgidIOTimeout     32000
 
@@ -1191,6 +1191,7 @@ AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /path/to/kivitendo-erp/fcgi/dispat
 
 &lt;Directory /path/to/kivitendo-erp/fcgi&gt;
   Options ExecCGI Includes FollowSymlinks
+  Require all granted
 &lt;/Directory&gt;</programlisting>
 
         <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
