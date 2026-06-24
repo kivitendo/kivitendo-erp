@@ -444,6 +444,7 @@ sub generate_report {
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate insertdate shop price_factor_description);
+  push @sort_full,       map { "cvar_$_->{name}" } @includeable_custom_variables;
   my @sort_no_revers   = qw(partsgroup invnumber ordnumber quonumber name image drawing serialnumber);
 
   foreach my $col (@sort_full) {

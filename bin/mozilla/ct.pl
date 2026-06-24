@@ -48,6 +48,8 @@
 
 use POSIX qw(strftime);
 
+use List::Util qw(first);
+
 use SL::CT;
 use SL::CTI;
 use SL::CVar;
@@ -386,21 +388,21 @@ sub list_contacts {
 
   $::form->{sortdir} = 1 unless defined $::form->{sortdir};
 
+  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
   my @contacts     = CT->search_contacts(
     search_term => $::form->{search_term},
     filter      => $::form->{filter},
+    additional_sortcols => [map { "cvar_$_->{name}" } @includeable_custom_variables],
   );
-
-  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
 
   my @columns      = qw(
     cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_country cp_phone1 cp_phone2 cp_privatphone
     cp_mobile1 cp_mobile2 cp_fax cp_email cp_privatemail cp_abteilung cp_position cp_birthday cp_gender
   );
-
-  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
-  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
-  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
@@ -485,7 +487,6 @@ sub list_contacts {
                                        'configs'        => $cvar_configs,
                                        'column_defs'    => \%column_defs,
                                        'data'           => \@contacts);
-
 
   foreach my $ref (@contacts) {
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };

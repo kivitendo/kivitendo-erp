@@ -3,7 +3,7 @@ package CVar;
 use strict;
 
 use Carp;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any zip);
 use List::Util qw(first);
 use Scalar::Util qw(blessed);
 use Data::Dumper;
@@ -503,6 +503,38 @@ sub add_custom_variables_to_report {
 
   my %cfg_map   = map { $_->{id} => $_ } @{ $configs };
   my @cfg_ids   = keys %cfg_map;
+
+  my $cvar_sort = first { $form->{sort} eq "cvar_$_->{name}" } @$configs;
+  if ($cvar_sort) {
+    my $cfg = $cvar_sort;
+    my @trans_ids = map { conv_i($_->{$params{trans_id_field}}) } (@{$params{data}});
+
+    my $descending = (defined $form->{sortdir} && !$form->{sortdir}) || (defined $form->{revers} && $form->{revers});
+    my $sort_by =
+          $cfg->{type} eq 'date'      ? 'date_value'
+        : $cfg->{type} eq 'timestamp' ? 'timestamp_value'
+        : $cfg->{type} eq 'number'    ? 'number_value'
+        #: $cfg->{type} eq 'customer'  ? 'number_value' # TODO
+        #: $cfg->{type} eq 'vendor'    ? 'number_value'
+        #: $cfg->{type} eq 'part'      ? 'number_value'
+        : $cfg->{type} eq 'bool'      ? 'bool_value'
+        : $cfg->{type} eq 'htmlfield' ? 'text_value'
+        :                               'text_value';
+    my $sort_order_query =
+      "SELECT t.index FROM (VALUES " . join(', ', ("(?, ?)") x scalar @trans_ids) . ") AS t (index, trans_id)
+       LEFT JOIN custom_variables cv ON CAST(t.trans_id AS INT) = cv.trans_id AND (config_id = ?) AND (sub_module = ?)
+       ORDER BY cv.$sort_by " . ($descending ? 'DESC' : 'ASC');
+    my $sth       = prepare_query($form, $dbh, $sort_order_query);
+    my @indexes = (0 .. (scalar(@trans_ids)-1));
+    my @merged = zip(@indexes, @trans_ids);
+
+    do_statement($form, $sth, $sort_order_query, @merged, $cvar_sort->{id}, $params{sub_module}->());
+
+    my $res = $sth->fetchall_arrayref();
+    my @sorted_indexes = map { $_->[0] } @$res;
+
+    @{$params{data}} = @{$params{data}}[ @sorted_indexes ];
+  }
 
   my $query     =
     qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value, config_id
