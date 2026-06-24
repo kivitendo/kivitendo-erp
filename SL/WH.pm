@@ -650,6 +650,8 @@ sub get_warehouse_report {
      "part_type"            => "p.part_type",
      "bin"                  => "b.description",
      "binid"                => "b.id",
+     "default_bin"          => "default_bin.description",
+     "default_warehouse"    => "default_wh.description",
      "chargenumber"         => "i.chargenumber",
      "bestbefore"           => "i.bestbefore",
      "ean"                  => "p.ean",
@@ -678,6 +680,8 @@ sub get_warehouse_report {
     "stock_value"  => "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)",
   );
   $join_tokens{price_factor} = "LEFT JOIN price_factors pfac ON (p.price_factor_id = pfac.id)" if !$form->{l_stock_value};
+  $join_tokens{default_bin}  = "LEFT JOIN bin default_bin ON (p.bin_id = default_bin.id)" if $form->{l_default_bin};
+  $join_tokens{default_warehouse} = "LEFT JOIN warehouse default_wh ON (p.warehouse_id = default_wh.id)" if $form->{l_default_warehouse};
 
   my $joins = join ' ', grep { $_ } map { +/^l_/; $join_tokens{"$'"} }
         ( grep( { !/qty/ and !/^l_cvar/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form),

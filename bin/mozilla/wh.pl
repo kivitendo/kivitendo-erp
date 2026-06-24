@@ -1014,7 +1014,7 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehouse bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price price_factor stock_value);
+  my @columns = qw(warehouse bin default_warehouse default_bin partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price price_factor stock_value);
 
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description partsgroup_id chargenumber bestbefore date include_invalid_warehouses);
@@ -1092,7 +1092,7 @@ sub generate_report {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description partsgroup_id chargenumber bestbefore qty_op qty qty_unit partunit l_warehouse l_bin);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description partsgroup_id chargenumber bestbefore qty_op qty qty_unit partunit l_warehouse l_bin l_default_warehouse l_default_bin);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
   push @hidden_variables, qw(classification_id stock_value_basis allrows);
   push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);
@@ -1103,6 +1103,8 @@ sub generate_report {
   my %column_defs = (
     'warehouse'            => { 'text' => $locale->text('Warehouse'), },
     'bin'                  => { 'text' => $locale->text('Bin'), },
+    'default_warehouse'    => { 'text' => $locale->text('Default Warehouse'), },
+    'default_bin'          => { 'text' => $locale->text('Default Bin'), },
     'partnumber'           => { 'text' => $locale->text('Part Number'), },
     'type_and_classific'   => { 'text' => $locale->text('Type'), },
     'partdescription'      => { 'text' => $locale->text('Part Description'), },
