@@ -1394,7 +1394,7 @@ sub ar_transactions {
       $ar->{type} =
         $has_storno       ? $locale->text("Invoice with Storno (abbreviation)") :
         $is_storno        ? $locale->text("Storno (one letter abbreviation)") :
-        $ar->{amount} < 0 ? $locale->text("Credit note (one letter abbreviation)") :
+        $ar->{amount} < 0 ? $locale->text("Credit Note (one letter abbreviation)") :
         $ar->{invoice}    ? $locale->text("Invoice (one letter abbreviation)") :
                             $locale->text("AR Transaction (abbreviation)");
     }
@@ -1414,8 +1414,13 @@ sub ar_transactions {
       };
     }
 
-    $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
-      . "&id=" . E($ar->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    if ($::instance_conf->get_feature_experimental_invoice) {
+      $row->{invnumber}->{link} = build_std_url('script=controller.pl', 'action=Invoice/edit', 'id=' . E($ar->{id}) . '&type=' . ($ar->{invoice} ? 'invoice' : 'purchase_invoice'))
+         . "&callback=${callback}" unless $params{want_binary_pdf};
+    } else {
+      $row->{invnumber}->{link} = build_std_url("script=" . ($ar->{invoice} ? 'is.pl' : 'ar.pl'), 'action=edit')
+        . "&id=" . E($ar->{id}) . "&callback=${callback}" unless $params{want_binary_pdf};
+    }
 
     $row->{ids} = {
       raw_data =>  SL::Presenter::Tag::checkbox_tag("id[]", value => $ar->{id}, "data-checkall" => 1),

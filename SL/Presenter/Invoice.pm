@@ -63,8 +63,9 @@ sub _is_ir_record {
 
   my $text = escape($invoice->invnumber);
   if (! delete $params{no_link}) {
-    my $href = $controller . '.pl?action=edit&type=invoice'
-               . '&id=' . escape($invoice->id);
+    my $href = $::instance_conf->get_feature_experimental_invoice
+             ? 'controller.pl?action=Invoice/edit&type=' . ($controller eq 'is' ? 'invoice' : 'purchase_invoice') . '&id=' . escape($invoice->id)
+             : $controller . '.pl?action=edit&type=invoice' . '&id=' . escape($invoice->id);
     $text = link_tag($href, $text, %params);
   }
 
