@@ -19,6 +19,7 @@
     <a class="price_rule_remove_line interact cursor-pointer button">✘</a><!-- PENDENT: das Loeschzeichen sollte einheitlich angewendet werden. -->
     [% L.hidden_tag('price_rule.items[+].id', item.id) %]
     [% L.hidden_tag('price_rule.items[].type', item.type) %]
+    [% L.hidden_tag('price_rule.items[].custom_variable_configs_id', item.custom_variable_configs_id) %]
   </td>
 
   [% SWITCH item.type %]
@@ -58,6 +59,43 @@
       <td>[% 'Pricegroup' | $T8 %]</td>
       <th>[% 'is' | $T8 %]</th>
       <td>[% L.select_tag('price_rule.items[].value_int', SELF.pricegroups, title_key='pricegroup', default=item.value_int, class='wi-wide') %]</td>
+    [% CASE 'cvar' %]
+      [% SET cvar_config = item.cvar_config %]
+      [% SET description = cvar_config.description %]
+      [% SWITCH cvar_config.type %]
+        [% CASE 'timestamp' %]
+          <td>[% description | html %]</td>
+          <th>[% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %]</th>
+          <td>[% L.date_tag('price_rule.items[].value_date', item.value_date) %]</td>
+        [% CASE 'date' %]
+          <td>[% description | html %]</td>
+          <th>[% L.select_tag('price_rule.items[].op', date_compare_ops, default=item.op) %]</th>
+          <td>[% L.date_tag('price_rule.items[].value_date', item.value_date) %]</td>
+        [% CASE 'number' %]
+          <td>[% description | html %]</td>
+          <th>[% L.select_tag('price_rule.items[].op', num_compare_ops, default=item.op) %]</th>
+          <td>[% L.input_tag('price_rule.items[].value_num_as_number', item.value_num_as_number) %]</td>
+        [% CASE 'integer' %]
+          <td>[% description | html %]</td>
+          <th>[% L.select_tag('price_rule.items[].op', num_compare_ops, default=item.op) %]</th>
+          <td>[% L.input_tag('price_rule.items[].value_num_as_number', item.value_num_as_number) %]</td>
+        [% CASE 'customer' %]
+          <td>[% description | html %]</td>
+          <th>[% 'is' | $T8 %]</th>
+          <td>[% P.customer_vendor.picker('price_rule.items[].value_int', item.customer, type='customer') %]</td>
+        [% CASE 'vendor' %]
+          <td>[% description | html %]</td>
+          <th>[% 'is' | $T8 %]</th>
+          <td>[% P.customer_vendor.picker('price_rule.items[].value_int', item.vendor, type='vendor') %]</td>
+        [% CASE 'part' %]
+          <td>[% description | html %]</td>
+          <th>[% 'is' | $T8 %]</th>
+          <td>[% P.part.picker('price_rule.items[].value_int', item.part) %]</td>
+        [% CASE 'select' %]
+          <td>[% description | html %]</td>
+          <th>[% 'is' | $T8 %]</th>
+          <td>[% L.select_tag('price_rule.items[].value_text', cvar_config.processed_options, title_key='options', default=item.value_text ) %]</td>
+      [% END %]
     [% CASE %]
   [% END %]
 
