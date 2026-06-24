@@ -37,6 +37,7 @@ my @types = (
 # text, textfield, htmlfield, bool are not supported
 our %price_rule_type_by_cvar_type = (
   select    => 'text',
+  multiselect => 'text',
   customer  => 'int',
   vendor    => 'int',
   part      => 'int',
@@ -185,6 +186,7 @@ sub raw_value {
   return if !defined $value;
   return $value->id if (ref $value) =~ /Part|Customer|Contact|Vendor|Project/;
   return $value if (ref $value) =~ /DateTime/;
+  return join '##', @$value if 'ARRAY' eq ref $value;
   die "reference value unsupported for binding to price_rules, got ref " . ref $value if ref $value;
   $value;
 }

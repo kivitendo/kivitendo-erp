@@ -32,12 +32,13 @@ our %translations = (
   timestamp => t8('Timestamp'),
   bool      => t8('Yes/No (Checkbox)'),
   select    => t8('Selection'),
+  multiselect => t8('Selection (multiple)'),
   customer  => t8('Customer'),
   vendor    => t8('Vendor'),
   part      => t8('Part'),
 );
 
-our @types = qw(text textfield htmlfield number date bool select customer vendor part); # timestamp
+our @types = qw(text textfield htmlfield number date bool select multiselect customer vendor part); # timestamp
 
 our @modules = qw(CT Contacts IC Projects RequirementSpecs ShipTo);
 

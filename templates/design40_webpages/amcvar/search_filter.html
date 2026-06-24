@@ -35,7 +35,7 @@
       [% ELSIF var.type == 'customer' %]
       <input type="text" name="[% filter_prefix %]cvar_[% var.name | html %]">
 
-      [% ELSIF var.type == 'select' %]
+      [% ELSIF var.type == 'select' || var.type == 'multiselect' %]
       <select name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]">
        <option value="" selected>---</option>
        [% FOREACH option = var.OPTIONS %]
