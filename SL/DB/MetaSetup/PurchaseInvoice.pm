@@ -39,6 +39,7 @@ __PACKAGE__->meta->columns(
   qrbill_data             => { type => 'text' },
   quodate                 => { type => 'date' },
   quonumber               => { type => 'text' },
+  record_type             => { type => 'enum', check_in => [ 'ap_transaction', 'ap_transaction_storno', 'purchase_invoice', 'purchase_invoice_storno', 'purchase_credit_note', 'purchase_credit_note_storno' ], db_type => 'purchase_invoice_types' },
   shipvia                 => { type => 'text' },
   storno                  => { type => 'boolean', default => 'false' },
   storno_id               => { type => 'integer' },
