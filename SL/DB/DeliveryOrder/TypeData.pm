@@ -83,7 +83,7 @@ my %type_data = (
     },
     defaults => {
       reqdate => sub {
-        DateTime->today_local->next_workday(extra_days => 1);
+        DateTime->today_local;
       },
     },
     part_classification_query => [ "used_for_purchase" => 1 ],
