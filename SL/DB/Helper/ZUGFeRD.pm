@@ -283,12 +283,17 @@ sub _line_item {
 
   #   <ram:SpecifiedLineTradeAgreement>
   $params{xml}->startTag("ram:SpecifiedLineTradeAgreement");
+
+  # GrossPrice is the not discounted price per unit. This is stored in the
+  # items sellprice. In the PTC-data, the sellprice is already discounted.
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
+  $params{xml}->dataElement("ram:ChargeAmount", $params{item}->sellprice);
   $params{xml}->endTag;
+
   $params{xml}->startTag("ram:NetPriceProductTradePrice");
   $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice});
   $params{xml}->endTag;
+
   $params{xml}->endTag;
   #   </ram:SpecifiedLineTradeAgreement>
 
