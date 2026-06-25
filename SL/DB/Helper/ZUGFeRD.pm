@@ -156,7 +156,7 @@ sub _customer_postal_trade_address {
   #       <ram:PostalTradeAddress>
   $params{xml}->startTag("ram:PostalTradeAddress");
 
-  my @parts = grep { $_ } map { $params{customer}->$_ } qw(department_1 department_2 street);
+  my @parts = grep { $_ } map { $params{customer}->$_ } qw(street department_1 department_2);
 
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{customer}->zipcode));
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
@@ -172,7 +172,7 @@ sub _shipto_postal_trade_address {
   #       <ram:PostalTradeAddress>
   $params{xml}->startTag("ram:PostalTradeAddress");
 
-  my @parts = grep { $_ } map { $params{shipto}->$_ } qw(shiptodepartment_1 shiptodepartment_2 shiptostreet);
+  my @parts = grep { $_ } map { $params{shipto}->$_ } qw(shiptostreet shiptodepartment_1 shiptodepartment_2);
 
   $params{xml}->dataElement("ram:PostcodeCode", _u8($params{shipto}->shiptozipcode));
   $params{xml}->dataElement("ram:" . $_->[0],   _u8($_->[1])) for _parts_to_lines(@parts);
