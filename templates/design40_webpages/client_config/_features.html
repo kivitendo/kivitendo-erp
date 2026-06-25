@@ -564,6 +564,13 @@
       </td>
     </tr>
     <tr>
+      <td>[% 'Prices of new items are always free' | $T8 %]</td>
+      <td>[% L.yes_no_tag("defaults.prices_always_free", SELF.defaults.prices_always_free) %]</td>
+      <td class="long-desc">
+        [% 'When items are added to records, their price is always set to be free (an editable input field), no matter which price source applies to the item.' | $T8 %]
+      </td>
+    </tr>
+    <tr>
       <th class="caption" colspan="3">[% LxERP.t8("Enabled Quick Searched") %]</th>
     </tr>
     <tr>

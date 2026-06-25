@@ -161,6 +161,7 @@ __PACKAGE__->meta->columns(
   ponumber                                  => { type => 'text' },
   pqinumber                                 => { type => 'text' },
   precision                                 => { type => 'numeric', default => '0.01', not_null => 1, precision => 15, scale => 5 },
+  prices_always_free                        => { type => 'boolean', default => 'false' },
   print_interpolate_variables_in_positions  => { type => 'boolean', default => 'true', not_null => 1 },
   produce_assembly_allow_empty_items        => { type => 'boolean', default => 'false' },
   produce_assembly_same_warehouse           => { type => 'boolean', default => 'true' },
