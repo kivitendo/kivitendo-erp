@@ -440,7 +440,7 @@ sub header {
 
   $layout->use_javascript("$_.js") for @{ $params{use_javascripts} // [] };
 
-  $self->{favicon} ||= "favicon.ico";
+  $self->{favicon} ||= "image/favicon.ico";
   $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->read_version if $self->{title} || !$self->{titlebar};
 
   # build includes
@@ -454,7 +454,7 @@ sub header {
 
   push @header, map { qq|<link rel="stylesheet" href="${_}${auto_reload_resources_param}" type="text/css" title="Stylesheet">| } $layout->stylesheets;
   push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
-  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
+  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f "public/$self->{favicon}";
   push @header, map { qq|<script type="text/javascript" src="${_}${auto_reload_resources_param}"></script>| }                    $layout->javascripts;
   push @header, '<meta name="viewport" content="width=device-width, initial-scale=1">';
   push @header, $self->{javascript} if $self->{javascript};
