@@ -9681,6 +9681,25 @@ file_name = users/kivitendo-debug.log</programlisting>
       </sect2>
     </sect1>
 
+    <sect1 id="devel.cgi" xreflabel="Entwicklung unter CGI">
+      <title>Entwicklung unter CGI</title>
+
+      <para>Der Einsatz von CGI (in Abgrezung zu FastCGI) ist in aller Regel
+      performancetechnisch nachteilig. Er kann allerdings für Debugging-Zwecke
+      sinnvoll sein. Folgender Konfigurationsschnippsel funktioniert mit Apache:
+      </para>
+
+<programlisting>AddHandler  cgi-script .pl
+DocumentRoot  /var/www/kivitendo-erp/public
+AliasMatch   ^/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
+
+&lt;Directory "/var/www/kivitendo-erp/cgi"&gt;
+  Options +ExecCGI +FollowSymlinks
+  Require all granted
+&lt;/Directory&gt;</programlisting>
+
+    </sect1>
+
     <sect1 id="dev-programmatic-api-calls" xreflabel="Programmatische API-Aufrufe">
       <title>Programmatische API-Aufrufe</title>
 
