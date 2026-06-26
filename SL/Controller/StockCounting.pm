@@ -79,6 +79,7 @@ sub action_count {
 
   $self->js->clear_flash('info');
   $self->js->val('[name="ean"]', '');
+  $self->js->run('kivi.StockCounting.clear_part_picker');
 
   if ($::request->is_mobile) {
     $qty = 1;
