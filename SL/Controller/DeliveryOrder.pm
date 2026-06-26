@@ -1628,6 +1628,17 @@ sub check_auth_for_edit {
   $::auth->assert($self->type_data->rights('edit') || 'DOES_NOT_EXIST');
 }
 
+sub cv_assigned_contacts {
+  my ($self) = @_;
+
+  my $contacts = $self->order->customervendor ? $self->order->customervendor->contacts() : [];
+  if ($self->order->contact && none { $_->cp_id == $self->order->contact->cp_id } @$contacts) {
+    push @$contacts, $self->order->contact;
+  }
+
+  $contacts;
+}
+
 # build the selection box for contacts
 #
 # Needed, if customer/vendor changed.

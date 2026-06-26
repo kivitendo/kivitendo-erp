@@ -26,7 +26,7 @@ use SL::ReportGenerator;
 use SL::Webdav;
 use SL::Webdav::File;
 use List::Util qw(first);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(letter all_employees models webdav_objects is_sales) ],
@@ -582,6 +582,17 @@ sub check_auth_edit {
 sub check_auth_report {
   $::form->{is_sales} ? $::auth->assert('sales_letter_report')
                       : $::auth->assert('purchase_letter_report');
+}
+
+sub cv_assigned_contacts {
+  my ($self) = @_;
+
+  my $contacts = $self->letter->customer_vendor ? $self->letter->customer_vendor->contacts() : [];
+  if ($self->letter->contact && none { $_->cp_id == $self->letter->contact->cp_id } @$contacts) {
+    push @$contacts, $self->letter->contact;
+  }
+
+  $contacts;
 }
 
 sub setup_load_letter_draft_action_bar {
