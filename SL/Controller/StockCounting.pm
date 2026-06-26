@@ -47,7 +47,11 @@ my %sort_columns = (
 sub action_select_counting {
   my ($self) = @_;
 
+  $::form->error(t8('There are no stock countings yet. You can create one via the menu "System -> Stock Countings"')) if !@{$self->countings};
+
   $self->countings([ grep { !$_->reconciliated } @{$self->countings} ]);
+
+  $::form->error(t8('There are no stock countings that are not reconciled')) if !@{$self->countings};
 
   if (!$::request->is_mobile) {
     $self->setup_select_counting_action_bar;
