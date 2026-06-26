@@ -61,7 +61,9 @@ sub action_list {
 
   if ($::form->{custom_filter}{include_not_encountered} && $::form->{filter}{counting_id}) {
     my $counting        = SL::DB::StockCounting->new(id => $::form->{filter}{counting_id})->load;
-    my $not_encountered = $self->stocked_but_not_encountered_items($counting);
+    my $not_encountered = $self->stocked_but_not_encountered_items($counting, part_id       => $::form->{filter}{part_id},
+                                                                              partsgroup_id => $::form->{filter}{part}{partsgroup_id},
+                                                                              bin_id        => $::form->{filter}{bin_id});
     push @$objects, @$not_encountered;
   }
 
@@ -73,16 +75,30 @@ sub action_list {
 }
 
 sub stocked_but_not_encountered_items {
-  my ($self, $counting) = @_;
+  my ($self, $counting, %filter_params) = @_;
+
+  my $filter_bin           = delete $filter_params{bin_id}        || $counting->bin;
+  my $filter_partsgroup_id = delete $filter_params{partsgroup_id} || $counting->partsgroup_id;
+  my $filter_part_id       = delete $filter_params{part_id}       || $counting->part_id;
+
+  die "unknown entry in %filter_params" if scalar %filter_params;
 
   my $believed_stock = [
     grep { $_->{qty} != 0 }
     @{get_stock(
-        (bin         => $counting->bin) x !! $counting->bin,
+        (bin         => $filter_bin) x !! $filter_bin,
         by           => [ qw(part chargenumber bin) ],
         with_objects => [ qw(bin part) ],
     )}
   ];
+
+  if ($filter_partsgroup_id) {
+    $believed_stock = [ grep { $_->{part}->partsgroup_id == $filter_partsgroup_id } @$believed_stock ];
+  }
+  if ($filter_part_id) {
+    $believed_stock = [ grep { $_->{part}->id == $filter_part_id } @$believed_stock ];
+  }
+
   my $grouped_counting_items = $self->group_items_by_part_and_bin(\@{$counting->items});
   $self->get_stocked($grouped_counting_items);
   $self->get_inbetweens($grouped_counting_items);
@@ -213,7 +229,7 @@ sub init_models {
     model          => 'StockCountingItem',
     sorted         => \%sort_columns,
     paginated      => { per_page => 1000 },
-    with_objects   => [ 'counting', 'employee', 'part' ],
+    with_objects   => [ 'counting', 'employee', 'part', 'bin' ],
   );
 }
 
@@ -282,6 +298,11 @@ sub prepare_report {
     raw_bottom_info_text => $self->render('stock_counting_reconciliation/report_bottom', { output => 0 }, models => $self->models, counting_id => $::form->{filter}->{counting_id}),
     attachment_basename  => t8('stock_countings') . strftime('_%Y%m%d', localtime time),
   );
+}
+
+sub counting {
+  my $filter = $::form->{filter} || {};
+  my $counting = $filter->{counting_id} ? SL::DB::StockCounting->new(id => $filter->{counting_id})->load : undef;
 }
 
 sub make_filter_summary {

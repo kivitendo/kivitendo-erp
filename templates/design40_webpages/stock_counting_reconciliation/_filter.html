@@ -25,15 +25,24 @@
      <tr>
        <th>[% 'Part' | $T8 %]</th>
        <td>
+         [% IF SELF.counting.part_id %]
+           <span class="data wi-lightwide">[% SELF.counting.part.displayable_name %]</span>
+           [% P.hidden_tag('filter.part_id', SELF.counting.part_id) %]
+         [% ELSE %]
          [% P.part.picker('filter.part_id',
                           filter.part_id,
                           class    = 'wi-lightwide',
                           onchange = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
+         [% END %]
        </td>
      </tr>
      <tr>
        <th>[% 'Partsgroup' | $T8 %]</th>
        <td>
+         [% IF SELF.counting.partsgroup_id %]
+           <span class="data wi-lightwide">[% SELF.counting.partsgroup.partsgroup %]</span>
+           [% P.hidden_tag('filter.part.partsgroup_id', SELF.counting.partsgroup_id) %]
+         [% ELSE %]
          [% L.select_tag('filter.part.partsgroup_id', SELF.partsgroups,
                          default    = filter.part.partsgroup_id,
                          title_key  = 'partsgroup',
@@ -41,17 +50,23 @@
                          with_empty = 1,
                          class      = 'wi-lightwide',
                          onchange   = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
+         [% END %]
        </td>
      </tr>
      <tr>
        <th>[% 'Warehouse' | $T8 %]</th>
        <td>
+         [% IF SELF.counting.bin_id %]
+           <span class="data wi-lightwide">[% SELF.counting.bin.full_description %]</span>
+           [% P.hidden_tag('filter.bin_id', SELF.counting.bin_id) %]
+         [% ELSE %]
          [% P.warehouse.wh_bin_select('dummy_wh',
                                       bin_name    = 'filter.bin_id',
                                       with_empty  = 1,
                                       bin_default = filter.bin_id,
                                       class       = 'wi-lightwide',
                                       onchange    = 'kivi.validate_form("#filter_form") && kivi.submit_form_with_action($("#filter_form"), "StockCountingReconciliation/list")') %]
+         [% END %]
        </td>
      </tr>
      <tr>
