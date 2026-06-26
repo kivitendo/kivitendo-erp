@@ -1175,7 +1175,7 @@ a2ensite default-ssl</programlisting>
         erfolgt durch Einfügen von <function>Alias</function>-
         und <function>Directory</function>-Direktiven. Dabei wird zwischen
         dem Installationspfad von kivitendo im Dateisystem
-        ("<filename>/path/to/kivitendo-erp</filename>") und der URL
+        ("<filename>/var/www/kivitendo-erp</filename>") und der URL
         unterschieden, unter der kivitendo im Webbrowser erreichbar ist
         ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
@@ -1186,11 +1186,22 @@ a2ensite default-ssl</programlisting>
 FcgidMaxRequestLen 104857600
 FcgidIOTimeout     32000
 
-DocumentRoot                                  /path/to/kivitendo-erp/public
-AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /path/to/kivitendo-erp/fcgi/dispatcher.fcgi
+DocumentRoot                                  /var/www/kivitendo-erp/public
+AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
 
-&lt;Directory /path/to/kivitendo-erp/fcgi&gt;
-  Options ExecCGI Includes FollowSymlinks
+&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
+  Options +ExecCGI +FollowSymlinks
+  Require all granted
+&lt;/Directory&gt;
+
+#
+# Der folgende Abschnitt wird nur bei Verwendung des veralteten WebDAV
+# Dateien-Backends benötigt, um die Links zu den Dokumenten in der Oberfläche
+# aufrufen zu können.
+#
+Alias         /webdav                           /var/www/kivitendo-erp/webdav/
+&lt;Directory "/var/www/kivitendo-erp/webdav"&gt;
+  Options -ExecCGI -FollowSymlinks
   Require all granted
 &lt;/Directory&gt;</programlisting>
 
@@ -2020,9 +2031,8 @@ years: 1
             übermitteln. Dies könnte beispielhaft wie folgt aussehen:
           </para>
 
-          <programlisting>&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
+          <programlisting>&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
+  Options +ExecCGI +FollowSymlinks
 
   # Require authentication from local user file:
   AuthType Basic
@@ -2032,7 +2042,16 @@ years: 1
 
   # Pass name of authorized user to kivitendo:
   SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-&lt;/Directory&gt;</programlisting>
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch "^/var/www/kivitendo-erp/(public|webdav)"&gt;
+  AuthType Basic
+  AuthName "kivitendo"
+  AuthUserFile htpasswd.kivitendo
+  Require valid-user
+
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+&lt;/DirectoryMatch&gt;</programlisting>
 
            <para>
              Um diese Methode zu aktivieren, muss das Authentifizierungsmodul auf <literal>HTTPHeaders</literal> gestellt werden. Zusätzlich
