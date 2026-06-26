@@ -1190,7 +1190,7 @@ DocumentRoot                                  /var/www/kivitendo-erp/public
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
 
 &lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
-  Options +ExecCGI +FollowSymlinks
+  Options +ExecCGI
   Require all granted
 &lt;/Directory&gt;
 
@@ -2032,7 +2032,7 @@ years: 1
           </para>
 
           <programlisting>&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
-  Options +ExecCGI +FollowSymlinks
+  Options +ExecCGI
 
   # Require authentication from local user file:
   AuthType Basic
@@ -9694,7 +9694,7 @@ DocumentRoot  /var/www/kivitendo-erp/public
 AliasMatch   ^/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
 
 &lt;Directory "/var/www/kivitendo-erp/cgi"&gt;
-  Options +ExecCGI +FollowSymlinks
+  Options +ExecCGI
   Require all granted
 &lt;/Directory&gt;</programlisting>
 
