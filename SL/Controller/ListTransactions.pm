@@ -194,6 +194,7 @@ sub set_title {
   my ($self) = @_;
   my $account = first { $_->{accno} eq $::form->{accno} } @{ $self->accounts_list };
   $self->title(escape(join(" ", t8('List Transactions'), t8('Account'), $account->{text})));
+  $::form->{title} = $self->title;
 }
 
 sub set_dates {
