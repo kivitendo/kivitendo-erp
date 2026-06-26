@@ -221,7 +221,7 @@ namespace('kivi.CustomerVendor', function(ns) {
     var action_id = $input.prop('id') + '-dial-action';
 
     if (!$('#' + action_id).size()) {
-      var $action = $('<a href="" id="' + action_id + '" class="cti_call_action" target="_blank" tabindex="-1"></a>');
+      var $action = $('<a href="" id="' + action_id + '" target="_blank" tabindex="-1"><img src="image/icons/16x16/phone.png"></a>');
       $input.wrap('<span nobr></span>').after($action);
 
       $input.change(function() { kivi.CustomerVendor.update_dial_action($input); });
@@ -485,7 +485,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         $(elt).data('customer_vendor_picker', new kivi.CustomerVendor.Picker($(elt)));
     });
 
-    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2').each(function(idx, elt) {
+    $('#cv_phone,#shipto_shiptophone,#additional_billing_address_phone,#contact_cp_phone1,#contact_cp_phone2,#contact_cp_mobile1,#contact_cp_mobile2,#contact_cp_privatphone').each(function(idx, elt) {
       kivi.CustomerVendor.init_dial_action($(elt));
     });
   }
