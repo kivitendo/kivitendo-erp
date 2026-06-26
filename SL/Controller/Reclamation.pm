@@ -1510,7 +1510,8 @@ sub new_item {
   $new_attr{price_factor_id}        = $item->part->price_factor_id if ! $item->price_factor_id;
   $new_attr{sellprice}              = $price_src->price;
   $new_attr{discount}               = $discount_src->discount;
-  $new_attr{active_price_source}    = $price_src;
+  $new_attr{active_price_source}    = $::instance_conf->get_prices_always_free ? SL::PriceSource->new()->price_from_source("")
+                                                                               : $price_src;
   $new_attr{active_discount_source} = $discount_src;
   $new_attr{longdescription}        = $texts->{longdescription}    if ! defined $attr->{longdescription};
   $new_attr{project_id}             = $record->globalproject_id;
