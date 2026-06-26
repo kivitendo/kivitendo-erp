@@ -2049,8 +2049,6 @@ years: 1
   AuthName "kivitendo"
   AuthUserFile htpasswd.kivitendo
   Require valid-user
-
-  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
 &lt;/DirectoryMatch&gt;</programlisting>
 
            <para>
