@@ -1,6 +1,6 @@
 <div align="center">
 <h1> kivitendo-erp </h1>
-<img src="image/kivitendo.png"><br>
+<img src="public/image/kivitendo.png"><br>
 A Web-based ERP system for the German market.<br><br>
 </div>
 
