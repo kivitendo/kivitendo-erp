@@ -1490,29 +1490,6 @@
     action: CsvImport/new
     profile.type: ap_transactions
 - parent: system
-  id: system_templates
-  name: Templates
-  order: 2500
-  access: admin
-- parent: system_templates
-  id: system_templates_html_templates
-  name: HTML Templates
-  order: 100
-  module: amtemplates.pl
-  params:
-    action: display_template_form
-    type: templates
-    format: html
-- parent: system_templates
-  id: system_templates_latex_templates
-  name: LaTeX Templates
-  order: 200
-  module: amtemplates.pl
-  params:
-    action: display_template_form
-    format: tex
-    type: templates
-- parent: system
   id: system_general_ledger_corrections
   name: General Ledger Corrections
   order: 2600
