@@ -1723,6 +1723,13 @@
   params:
     action: Warehouse/test_page
 - parent: develop
+  id: async_event_test
+  name: Async Events Test
+  access: developer
+  order: 440
+  params:
+    action: AsyncEvent/test_page
+- parent: develop
   id: ckeditor_test
   name: CKEditor5 Test
   access: developer

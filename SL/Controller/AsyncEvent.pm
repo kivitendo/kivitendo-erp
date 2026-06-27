@@ -8,31 +8,8 @@ use SL::DB::AsyncEvent;
 use SL::DB::Employee;
 use DateTime;
 
-
-#sub action_poll_events {
-#  my ($self) = @_;
-#
-#  my $seqno_min          = conv_i($::form->{seqno});
-#  my $max_poll_seconds   = 20;
-#  my $poll_interval_ms   = 100;
-#  my $user_id            = SL::DB::Manager::Employee->current->auth_user->id;
-#
-#  my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM get_async_event_poll(?, ?, ?, ?);|;
-#  my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $seqno_min, $user_id, $max_poll_seconds, $poll_interval_ms);
-#
-#  foreach my $e (@$events) {
-#    $e->{ts_fmt} = DateTime->from_epoch(epoch => $e->{timestamp})
-#                           ->to_kivitendo(precision => 'minute') if $e->{timestamp};
-#  }
-#
-#  my %ret = (
-#    next_seqno         => @$events ? ($events->[-1]{id} + 1) : $seqno_min,
-#    events             => [ grep { !defined $_->{redact_msg_id} } @$events ],
-#    redacted_event_ids => [ map { $_->{redact_msg_id} } grep { $_->{redact_msg_id} } @$events ],
-#  );
-#
-#  $self->render(\ SL::JSON::to_json(\%ret), { layout => 0, type => 'json', process => 0 });
-#}
+__PACKAGE__->run_before(sub { $::auth->assert('developer') },
+                        only => [ qw(test_page) ]);
 
 sub action_delete_msg {
   my ($self) = @_;
@@ -45,6 +22,27 @@ sub action_delete_msg {
   $original_event->delete;
 
   $self->js->render;
+}
+
+sub action_test_page {
+  my ($self) = @_;
+
+  my $to   = $::form->{msg}{receiver_employee_id};
+  my $text = $::form->{msg}{text};
+  if ($to && $text) {
+    my $e = SL::DB::Employee->new(id => $to)->load;
+    SL::DB::AsyncEvent->new(
+      user_id => $e->auth_user->id,
+      body    => $text,
+      subject => 'Async Events Developer Test Page',
+    )->save;
+  }
+
+  $self->render('async_event/test_page',
+    title            => 'Async Events Test Page',
+    all_employees    => SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]),
+    default_employee => SL::DB::Manager::Employee->current,
+  );
 }
 
 

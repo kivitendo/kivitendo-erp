@@ -542,6 +542,7 @@ sub get_default_myconfig {
     numberformat => $defaults->numberformat('1.000,00'),
     stylesheet   => $defaults->stylesheet($::lx_office_conf{system}{stylesheet}),
     timeformat   => $defaults->timeformat('hh:mm'),
+    frontend_websocket_location => $::lx_office_conf{async_events}{frontend_websocket_location},
     %user_config,
   );
 }

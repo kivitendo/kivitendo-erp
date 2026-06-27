@@ -1,0 +1,25 @@
+[% USE L %]
+[% USE P %]
+
+<h1>Async Events Testpage</h1>
+
+<div class="wrapper">
+
+
+  <h2>Send async flash message</h2>
+
+  <form id="test_msg_form" action="controller.pl" method="post">
+  [% L.hidden_tag('action', 'AsyncEvent/test_page') %]
+  <table>
+  <tr>
+    <th>Message text</th>
+    <th>[% L.input_tag('msg.text', '', class='wi-wide') %]</th>
+  </tr>
+  <tr>
+    <td>Message receiver</td>
+    <td>[% L.select_tag('msg.receiver_employee_id', all_employees, title_key='safe_name', default=default_employee.id) %]</td>
+  </tr>
+  </table>
+  </form>
+
+</div>
