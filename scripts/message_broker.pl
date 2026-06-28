@@ -440,7 +440,9 @@ sub handle_incoming_call {
   my ($num, $exten_to) = @_;
 
   return unless $num;
-  $::auth->set_client(4); # TODO FIXME
+  my $client_id = $::lx_office_conf{async_events}{client_id_for_phone_lookup};
+  return unless $client_id;
+  $::auth->set_client($client_id);
 
   my $user_configs = $exten_to ? SL::DB::Manager::AuthUserConfig->get_all(
     where => [
