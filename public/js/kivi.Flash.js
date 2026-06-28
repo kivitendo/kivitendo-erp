@@ -5,7 +5,11 @@ namespace("kivi.Flash", function(ns) {
     error:   kivi.t8('Error'),
     warning: kivi.t8('Warning'),
     info:    kivi.t8('Information'),
-    ok:      kivi.t8('Ok')
+    ok:      kivi.t8('Ok'),
+    call:       kivi.t8('Phone call'),
+    callanswer: kivi.t8('Answered call'),
+    callmiss:   kivi.t8('Missed call'),
+    callreject: kivi.t8('Rejected call')
   };
 
   ns.display_flash = function(type, message, details, timestamp, close_msg_id) {

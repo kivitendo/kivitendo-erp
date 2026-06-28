@@ -13,7 +13,7 @@ namespace("kivi.AsyncMsg", function(ns) {
         const message = ev.subject;
         const details = ev.body;
         const timestamp = ev.ts_fmt;
-        kivi.Flash.display_flash('info', message, details, timestamp, ev.id);
+        kivi.Flash.display_flash(ev.msg_type, message, details, timestamp, ev.id);
       }
     });
     socket.addEventListener("open", (event) => {

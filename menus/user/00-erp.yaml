@@ -1751,12 +1751,6 @@
   params:
     action: JSTests/run
 - parent: develop
-  id: asterisk_ami_test
-  name: Asterisk AMI Test
-  order: 550
-  params:
-    action: AsteriskAMI/test_page
-- parent: develop
   id: css_documentation_in_german_html
   name: CSS-Documentation
   order: 600

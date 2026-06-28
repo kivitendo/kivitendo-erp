@@ -2,16 +2,17 @@ package SL::CTI;
 
 use strict;
 
-use SL::CTI::AsteriskManagerInterface;
 use String::ShellQuote;
+use REST::Client;
+use SL::JSON;
 
 use SL::MoreCommon qw(uri_encode);
 
 sub call {
   my ($class, %params) = @_;
 
-  my $config           = $::lx_office_conf{cti}  || {};
-  my $command          = $config->{dial_command} || die $::locale->text('Dial command missing in kivitendo configuration\'s [cti] section');
+  my $config           = $::lx_office_conf{async_events} || {};
+  #my $command          = $config->{dial_command} || die $::locale->text('Dial command missing in kivitendo configuration\'s [cti] section');
   my $external_prefix  = $params{internal} ? '' : ($config->{external_prefix} // '');
 
   my %command_args     = (
@@ -23,9 +24,17 @@ sub call {
                            || die($::locale->text('Asterisk AMI outbound caller ID missing in user configuration')),
     number             => $external_prefix . $class->sanitize_number(%params),
   );
-  my $ami;
-  $ami = SL::CTI::AsteriskManagerInterface->new();
-  $ami->originate(%command_args);
+
+  my $client   = REST::Client->new(host => $config->{fcgi_backend_api_location});
+  $client->addHeader('Content-Type',  'application/json');
+  $client->addHeader('charset',       'UTF-8'           );
+  $client->addHeader('Accept',        'application/json');
+  $client->addHeader('Authorization', 'Bearer ' . $config->{api_bearer_token});
+  my %req      = (
+    %command_args,
+  );
+  my $resp     = $client->POST('call', encode_json(\%req));
+  die $resp->responseContent() unless (200 == $resp->responseCode());
 
   #foreach my $key (keys %command_args) {
   #  my $value = shell_quote($command_args{$key});

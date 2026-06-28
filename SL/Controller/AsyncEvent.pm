@@ -32,6 +32,7 @@ sub action_test_page {
   if ($to && $text) {
     my $e = SL::DB::Employee->new(id => $to)->load;
     SL::DB::AsyncEvent->new(
+      msg_type => 'info',
       user_id => $e->auth_user->id,
       body    => $text,
       subject => 'Async Events Developer Test Page',

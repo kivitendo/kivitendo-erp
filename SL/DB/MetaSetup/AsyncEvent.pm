@@ -12,10 +12,11 @@ __PACKAGE__->meta->columns(
   body          => { type => 'text' },
   id            => { type => 'serial', not_null => 1 },
   itime         => { type => 'timestamp', default => 'now()', not_null => 1 },
+  msg_type      => { type => 'text', default => 'call', not_null => 1 },
   mtime         => { type => 'timestamp', default => 'now()', not_null => 1 },
   redact_msg_id => { type => 'integer' },
   subject       => { type => 'text' },
-  user_id       => { type => 'integer' },
+  user_id       => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
