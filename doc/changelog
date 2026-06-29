@@ -16,6 +16,9 @@ Größere neue Features:
   alle Zählergebnisse gesammelt und dann alle gemeinsam in einem Schritt per
   Lagertransaktion abgeglichen werden.
 
+- Statische Dateien befinden sich nun im Unterverzeichnis public/.
+  Dies erfordert eine Änderung der Webserver-Konfiguration.
+
 Mittelgroße neue Features:
 
 - Verbundene Kunden/Lieferanten

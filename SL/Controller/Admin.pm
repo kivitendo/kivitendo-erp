@@ -579,7 +579,6 @@ sub setup_layout {
 
   my $defaults = SL::DefaultManager->new($::lx_office_conf{system}->{default_manager});
   $::request->layout(SL::Layout::Dispatcher->new(style => 'admin'));
-  $::form->{favicon} = "favicon.ico";
   %::myconfig        = (
     countrycode      => $defaults->language('de'),
     numberformat     => $defaults->numberformat('1.000,00'),

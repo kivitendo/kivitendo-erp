@@ -1175,32 +1175,46 @@ a2ensite default-ssl</programlisting>
         erfolgt durch Einfügen von <function>Alias</function>-
         und <function>Directory</function>-Direktiven. Dabei wird zwischen
         dem Installationspfad von kivitendo im Dateisystem
-        ("<filename>/path/to/kivitendo-erp</filename>") und der URL
+        ("<filename>/var/www/kivitendo-erp</filename>") und der URL
         unterschieden, unter der kivitendo im Webbrowser erreichbar ist
         ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
         <para>Folgender Konfigurationsschnipsel funktioniert mit
         mod_fcgid:</para>
 
-        <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
-Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
-FcgidMaxRequestLen 10485760
-FcgidIOTimeout 300
+        <programlisting>AddHandler         fcgid-script .fcgi
+FcgidMaxRequestLen 104857600
+FcgidIOTimeout     32000
 
-&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
+DocumentRoot                                  /var/www/kivitendo-erp/public
+AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
+
+&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
+  Options +ExecCGI
   Require all granted
 &lt;/Directory&gt;
 
-&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
-  Require all denied
-&lt;/DirectoryMatch&gt;</programlisting>
+#
+# Der folgende Abschnitt wird nur bei Verwendung des veralteten WebDAV
+# Dateien-Backends benötigt, um die Links zu den Dokumenten in der Oberfläche
+# aufrufen zu können.
+#
+Alias         /webdav                           /var/www/kivitendo-erp/webdav/
+&lt;Directory "/var/www/kivitendo-erp/webdav"&gt;
+  Options -ExecCGI -FollowSymlinks
+  Require all granted
+&lt;/Directory&gt;</programlisting>
 
         <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
         Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
         Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
         gibt es hier kleine Performance-Einbußen.</para>
+
+        <para>Es ist durch die Webserver-Konfiguration sicherzustellen, dass
+        insbesondere die Verzeichnisse config/, .git/ sowie die Verzeichnisse
+        für DMS und Webdav nicht ausgeliefert werden, damit keine vertraulichen
+        Daten (ohne Authentifizierung) preisgegeben werden. Es genügt, das
+        Verzeichnis public/ per Webserver auszuliefern.</para>
 
         <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
         die maximale Größe eines Requests. Mit folgender Zeile wird diese
@@ -2017,9 +2031,8 @@ years: 1
             übermitteln. Dies könnte beispielhaft wie folgt aussehen:
           </para>
 
-          <programlisting>&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
+          <programlisting>&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
+  Options +ExecCGI
 
   # Require authentication from local user file:
   AuthType Basic
@@ -2029,7 +2042,14 @@ years: 1
 
   # Pass name of authorized user to kivitendo:
   SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-&lt;/Directory&gt;</programlisting>
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch "^/var/www/kivitendo-erp/(public|webdav)"&gt;
+  AuthType Basic
+  AuthName "kivitendo"
+  AuthUserFile htpasswd.kivitendo
+  Require valid-user
+&lt;/DirectoryMatch&gt;</programlisting>
 
            <para>
              Um diese Methode zu aktivieren, muss das Authentifizierungsmodul auf <literal>HTTPHeaders</literal> gestellt werden. Zusätzlich
@@ -9659,6 +9679,25 @@ file_name = users/kivitendo-debug.log</programlisting>
         <para>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
         den kritischen Pfaden, unter 0,15 sonst.</para>
       </sect2>
+    </sect1>
+
+    <sect1 id="devel.cgi" xreflabel="Entwicklung unter CGI">
+      <title>Entwicklung unter CGI</title>
+
+      <para>Der Einsatz von CGI (in Abgrezung zu FastCGI) ist in aller Regel
+      performancetechnisch nachteilig. Er kann allerdings für Debugging-Zwecke
+      sinnvoll sein. Folgender Konfigurationsschnippsel funktioniert mit Apache:
+      </para>
+
+<programlisting>AddHandler  cgi-script .pl
+DocumentRoot  /var/www/kivitendo-erp/public
+AliasMatch   ^/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
+
+&lt;Directory "/var/www/kivitendo-erp/cgi"&gt;
+  Options +ExecCGI
+  Require all granted
+&lt;/Directory&gt;</programlisting>
+
     </sect1>
 
     <sect1 id="dev-programmatic-api-calls" xreflabel="Programmatische API-Aufrufe">

@@ -7,6 +7,14 @@ Upgrade auf v4.0.1
 
 Wichtige Hinweise:
 
+- Die Webserver-Konfiguration muss, wie im Abschnitt "Konfiguration für
+  FastCGI/FCGI" in der Dokumentation beschrieben, angepasst werden.
+  Grund dafür ist, dass Dateien aus den Verzeichnissen doc/, css/, image/
+  und js/ in Unterverzeichnise von public/ verschoben wurden.
+  Von nun an sollen nur das Verzeichnis public/ und der FastCGI Dispatcher
+  fcgi/dispatcher.fcgi vom Webserver ausgeliefert werden. Dies vereinfacht
+  Zugriffsbeschränkungen für sensible Daten in allen anderen Verzeichnissen.
+
 - Länderfelder sind keine Freitextfelder mehr.
   Ein interaktives Upgrade-Skript fragt für alle Werte in Länder-Feldern,
   die nicht automatisch eindeutig zugeordnet werden können,

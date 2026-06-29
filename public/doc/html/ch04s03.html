@@ -1,0 +1,13 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>4.3. Entwicklung unter CGI</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 4.0.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Programmatische API-Aufrufe"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. Entwicklung unter CGI</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. Entwicklung unter CGI"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.cgi"></a>4.3. Entwicklung unter CGI</h2></div></div></div><p>Der Einsatz von CGI (in Abgrezung zu FastCGI) ist in aller Regel
+      performancetechnisch nachteilig. Er kann allerdings für Debugging-Zwecke
+      sinnvoll sein. Folgender Konfigurationsschnippsel funktioniert mit Apache:
+      </p><pre class="programlisting">AddHandler  cgi-script .pl
+DocumentRoot  /var/www/kivitendo-erp/public
+AliasMatch   ^/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
+
+&lt;Directory "/var/www/kivitendo-erp/cgi"&gt;
+  Options +ExecCGI
+  Require all granted
+&lt;/Directory&gt;</pre></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. Entwicklung unter FastCGI&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.4. Programmatische API-Aufrufe</td></tr></table></div></body></html>
