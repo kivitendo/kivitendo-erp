@@ -43,10 +43,10 @@
         </td>
       </tr>
 
-      <tr id='contact_row' [%- IF !SELF.reclamation.${SELF.cv}.contacts.size %]style='display:none'[%- END %]>
+      <tr id='contact_row' [%- IF !SELF.cv_assigned_contacts.size %]style='display:none'[%- END %]>
         <th>[% 'Contact Person' | $T8 %]</th>
         <td>[% L.select_tag('reclamation.contact_id',
-                            SELF.reclamation.${SELF.cv}.contacts,
+                            SELF.cv_assigned_contacts,
                             default=SELF.reclamation.contact_id,
                             title_key='full_name_dep',
                             value_key='cp_id',
