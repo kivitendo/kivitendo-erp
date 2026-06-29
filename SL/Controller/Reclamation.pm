@@ -1313,7 +1313,7 @@ sub build_shipto_select {
              title_key  => 'displayable_id',
              default    => $self->reclamation->shipto_id,
              with_empty => 0,
-             style      => 'width: 300px',
+             class      => 'wi-lightwide',
   );
 }
 

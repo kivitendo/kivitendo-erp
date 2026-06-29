@@ -1744,7 +1744,7 @@ sub build_contact_select {
     title_key  => 'full_name_dep',
     default    => $self->order->cp_id,
     with_empty => 1,
-    style      => 'width: 300px',
+    class      => 'wi-lightwide',
   );
 }
 
@@ -1762,7 +1762,7 @@ sub build_billing_address_select {
              title_key  => 'displayable_id',
              default    => $self->order->billing_address_id,
              with_empty => 0,
-             style      => 'width: 300px',
+             class      => 'wi-lightwide',
   );
 }
 
@@ -1778,7 +1778,7 @@ sub build_shipto_select {
              title_key  => 'displayable_id',
              default    => $self->order->shipto_id,
              with_empty => 0,
-             style      => 'width: 300px',
+             class      => 'wi-lightwide',
   );
 }
 
