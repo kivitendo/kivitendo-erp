@@ -2037,20 +2037,6 @@ sub _get_languages {
   $main::lxdebug->leave_sub();
 }
 
-sub _get_dunning_configs {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $dbh, $key) = @_;
-
-  $key = "all_dunning_configs" unless ($key);
-
-  my $query = qq|SELECT * FROM dunning_config ORDER BY dunning_level|;
-
-  $self->{$key} = selectall_hashref_query($self, $dbh, $query);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _get_currencies {
 $main::lxdebug->enter_sub();
 
@@ -2222,10 +2208,6 @@ sub get_lists {
 
   if ($params{"business_types"}) {
     $self->_get_business_types($dbh, $params{"business_types"});
-  }
-
-  if ($params{"dunning_configs"}) {
-    $self->_get_dunning_configs($dbh, $params{"dunning_configs"});
   }
 
   if($params{"currencies"}) {
