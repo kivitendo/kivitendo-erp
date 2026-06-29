@@ -2,6 +2,7 @@ package SL::Auth;
 
 use DBI;
 
+use Crypt::PRNG;
 use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
@@ -773,12 +774,7 @@ sub expire_sessions {
 }
 
 sub _create_session_id {
-  my @data;
-  map { push @data, int(rand() * 255); } (1..32);
-
-  my $id = md5_hex(pack 'C*', @data);
-
-  return $id;
+  return Crypt::PRNG::random_bytes_hex(16);
 }
 
 sub create_or_refresh_session {
