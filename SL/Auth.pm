@@ -774,7 +774,7 @@ sub expire_sessions {
 }
 
 sub _create_session_id {
-  return Crypt::PRNG::random_bytes_hex(32);
+  return Crypt::PRNG::random_bytes_hex(16);
 }
 
 sub create_or_refresh_session {
