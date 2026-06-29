@@ -10,7 +10,6 @@ __PACKAGE__->meta->table('session');
 __PACKAGE__->meta->schema('auth');
 
 __PACKAGE__->meta->columns(
-  api_token  => { type => 'text' },
   id         => { type => 'text', not_null => 1 },
   ip_address => { type => 'scalar' },
   mtime      => { type => 'timestamp' },

@@ -47,8 +47,7 @@ sub handle {
     ? SL::Layout::Dispatcher->new(style => 'mobile')
     : SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
-  my $ok   =  $::auth->is_api_token_cookie_valid;
-  $ok    ||=  SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $password);
+  my $ok   =  SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $password);
 
   return $self->_error(%param) if !$ok;
 
