@@ -638,7 +638,7 @@ sub action_customer_vendor_changed {
   $self->js->val( '#reclamation_salesman_id', $self->reclamation->salesman_id) if $self->reclamation->is_sales;
 
   $self->js
-    ->replaceWith('#reclamation_cp_id',            $self->build_contact_select)
+    ->replaceWith('#reclamation_contact_id',       $self->build_contact_select)
     ->replaceWith('#reclamation_shipto_id',        $self->build_shipto_select)
     ->replaceWith('#shipto_inputs  ',              $self->build_shipto_inputs)
     ->replaceWith('#business_info_row',            $self->build_business_info_row)
@@ -1271,6 +1271,17 @@ sub check_auth {
   $::auth->assert($self->type_data->rights('edit'));
 }
 
+sub cv_assigned_contacts {
+  my ($self) = @_;
+
+  my $contacts = $self->reclamation->customervendor ? $self->reclamation->customervendor->contacts() : [];
+  if ($self->reclamation->contact && none { $_->cp_id == $self->reclamation->contact->cp_id } @$contacts) {
+    push @$contacts, $self->reclamation->contact;
+  }
+
+  $contacts;
+}
+
 # build the selection box for contacts
 #
 # Needed, if customer/vendor changed.
@@ -1282,7 +1293,7 @@ sub build_contact_select {
     title_key  => 'full_name_dep',
     default    => $self->reclamation->contact_id,
     with_empty => 1,
-    style      => 'width: 300px',
+    class      => 'wi-lightwide',
   );
 }
 
