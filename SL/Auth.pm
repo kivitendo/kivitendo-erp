@@ -2,6 +2,7 @@ package SL::Auth;
 
 use DBI;
 
+use Crypt::PRNG;
 use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
@@ -629,11 +630,7 @@ sub restore_session {
   # The session ID provided is valid in the following cases:
   #  1. session ID exists in the database
   #  2. hasn't expired yet
-  #  3. if cookie for the API token is given: the cookie's value equal database column 'auth.session.api_token' for the session ID
-  $self->{api_token}   = $cookie->{api_token} if $cookie;
-  my $api_token_cookie = $self->get_api_token_cookie;
   my $cookie_is_bad    = !$cookie || $cookie->{is_expired};
-  $cookie_is_bad     ||= $api_token_cookie && ($api_token_cookie ne $cookie->{api_token}) if  $api_token_cookie;
   if ($cookie_is_bad) {
     $self->destroy_session();
     return $self->session_restore_result($cookie ? SESSION_EXPIRED() : SESSION_NONE());
@@ -777,12 +774,7 @@ sub expire_sessions {
 }
 
 sub _create_session_id {
-  my @data;
-  map { push @data, int(rand() * 255); } (1..32);
-
-  my $id = md5_hex(pack 'C*', @data);
-
-  return $id;
+  return Crypt::PRNG::random_bytes_hex(16);
 }
 
 sub create_or_refresh_session {
@@ -812,11 +804,6 @@ sub save_session {
     do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
   } else {
     do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
-  }
-
-  if ($self->{column_information}->has('api_token', 'session')) {
-    my ($stored_api_token) = $dbh->selectrow_array(qq|SELECT api_token FROM auth.session WHERE id = ?|, undef, $session_id);
-    do_query($::form, $dbh, qq|UPDATE auth.session SET api_token = ? WHERE id = ?|, $self->_create_session_id, $session_id) unless $stored_api_token;
   }
 
   my @values_to_save = grep    { $_->{modified} }
@@ -957,29 +944,15 @@ sub set_cookie_environment_variable {
 }
 
 sub get_session_cookie_name {
-  my ($self, %params) = @_;
+  my ($self) = @_;
 
-  $params{type}     ||= 'id';
-  my $name            = $self->{cookie_name} || 'lx_office_erp_session_id';
-  $name              .= '_api_token' if $params{type} eq 'api_token';
+  my $name = $self->{cookie_name} || 'lx_office_erp_session_id';
 
   return $name;
 }
 
 sub get_session_id {
   return $session_id;
-}
-
-sub get_api_token_cookie {
-  my ($self) = @_;
-
-  $::request->{cgi}->cookie($self->get_session_cookie_name(type => 'api_token'));
-}
-
-sub is_api_token_cookie_valid {
-  my ($self)             = @_;
-  my $provided_api_token = $self->get_api_token_cookie;
-  return $self->{api_token} && $provided_api_token && ($self->{api_token} eq $provided_api_token);
 }
 
 sub _tables_present {
