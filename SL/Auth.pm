@@ -948,10 +948,9 @@ sub set_cookie_environment_variable {
 }
 
 sub get_session_cookie_name {
-  my ($self, %params) = @_;
+  my ($self) = @_;
 
-  $params{type}     ||= 'id';
-  my $name            = $self->{cookie_name} || 'lx_office_erp_session_id';
+  my $name = $self->{cookie_name} || 'lx_office_erp_session_id';
 
   return $name;
 }
