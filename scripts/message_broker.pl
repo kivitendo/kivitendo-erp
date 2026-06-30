@@ -596,7 +596,7 @@ __DATA__
     <title>kivitendo Message Broker Statistics</title>
   </head>
   <body>
-    <form action="/" method="post">
+    <form action="." method="post">
       Login required: <input type="password" name="password" />
     </form>
   </body>
