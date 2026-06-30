@@ -16,6 +16,7 @@ use Mojolicious::Lite;
 #use Mojo::Transaction::WebSocket;
 use Mojo::IOLoop::Client;
 
+use Crypt::Misc qw(slow_eq);
 use DateTime;
 use List::Util qw(first);
 use Data::Dumper;
@@ -29,6 +30,7 @@ use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Form;
 use SL::Auth::Constants qw(:all);
+use SL::Auth::Password;
 
 use SL::DBUtils;
 use SL::DB::AsyncEvent;
@@ -70,6 +72,21 @@ sub unique_dt_string {
 
 get '/' => sub {
   my $c = shift;
+
+  $c->render(template => 'login');
+};
+
+post '/' => sub {
+  my $c = shift;
+
+  my $password = $c->param('password');
+
+  my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $::lx_office_conf{async_events}{message_broker_ui_password});
+  $password             = SL::Auth::Password->hash(login => 'root', password => $password, stored_password => $admin_password);
+
+  if (1 != Crypt::Misc::slow_eq($admin_password, $password)) {
+    return $c->render(template => 'login');
+  }
 
   my @rows = ();
   for my $client_id (sort keys %ws_cons) {
@@ -572,13 +589,26 @@ __DATA__
   <body>An error occurred</body>
 </html>
 
+@@ login.html.ep
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>kivitendo Message Broker Statistics</title>
+  </head>
+  <body>
+    <form action="/" method="post">
+      Login required: <input type="password" name="password" />
+    </form>
+  </body>
+</html>
+
+
 
 @@ index.html.ep
 <!DOCTYPE html>
 <html>
   <head>
     <title>kivitendo Message Broker Statistics</title>
-    <meta http-equiv="refresh" content="5">
     <style>
 body { font-family: Verdana,"Helvetica Neue",Helvetica,Arial,sans-serif; margin: 50px; }
 table, th, td { border: 1px solid; }
