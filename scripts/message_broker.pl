@@ -136,6 +136,15 @@ websocket '/ws' => sub {
   my $cookie_name    = $::lx_office_conf{authentication}{cookie_name} || 'kivitendo_session_id';
   my $session_cookie = first { $_->name eq $cookie_name } @{$ws->req->cookies};
 
+  $::request       = SL::Request->new(
+    cgi            => CGI->new({}),
+    layout         => SL::Layout::None->new,
+  );
+
+  #my $session_result = $::auth->restore_session;
+  #$::auth->create_or_refresh_session;
+
+
   $totals{ws_con_errors}++;
 
   if (!$session_cookie) {
@@ -144,6 +153,7 @@ websocket '/ws' => sub {
 
   $::auth->init;
   my $session_result = $::auth->restore_session($session_cookie->value);
+  $::auth->create_or_refresh_session;
 
   if ($session_result == SESSION_EXPIRED) {
     return $ws->reply->exception('SESSION_EXPIRED');
@@ -157,10 +167,17 @@ websocket '/ws' => sub {
   my $client_id = $::auth->get_session_value('client_id');
   my $login     = $::auth->get_session_value('login');
 
-  $::auth->reset;
-  $::auth->set_client($client_id);
-
   return $ws->reply->exception('!client_id') if (!$client_id);
+
+  #$::auth->reset;
+  #$::auth->set_client($client_id);
+  if (!$::auth->set_client($client_id)) {
+    #$::auth->punish_wrong_login;
+    $::auth->destroy_session;
+    $::auth->create_or_refresh_session;
+    return $ws->reply->exception('wrong login');
+  }
+
   return $ws->reply->exception('!login') if (!$login);
 
   $totals{ws_con_errors}--;
@@ -236,7 +253,7 @@ chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
 }
 
 
-sub pong {
+sub dispatch_events_for_all_clients {
   for my $client_id (keys %ws_cons) {
 
     $::auth->set_client($client_id);
@@ -270,7 +287,7 @@ sub pong {
   }
 }
 
-Mojo::IOLoop->recurring(0.1 => sub { pong; });
+Mojo::IOLoop->recurring(0.1 => sub { dispatch_events_for_all_clients; });
 
 #
 # Asterisk Manager Interface for CTI
@@ -296,6 +313,10 @@ sub ami_spawn_connect {
       $ami{stream} = $stream;
       $ami{calls} = [];
 
+      if ($err) {
+        print STDERR "AMI: $err\n";
+        return;
+      }
       # timeout must be larger than timeout for Action: Pong below!
       $stream->timeout(3600);
 
