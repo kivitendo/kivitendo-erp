@@ -129,6 +129,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Ein HTML formatiert Feld "Interne Bemerkungen" wurde zu Artikeln hinzugefügt
   und das Feld "Bemerkungen" wurde umbenannt zu "Langtext".
 
+- Artikelstamm: standardmäßig wird geprüft, dass jede EAN eindeutig ist
+  und ihre Prüfziffer stimmt.  Dies lässt sich in der Mandantenkonfig unter
+  Nummernkreise abschalten.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der

@@ -109,5 +109,16 @@
   </tbody>
 </table>
 
+<table class="tbl-horizontal">
+  <caption>[% 'Article' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-normal"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% LxERP.t8('Check EAN codes') %]</th>
+      <td>[% L.yes_no_tag("defaults.parts_check_ean", SELF.defaults.parts_check_ean, class="wi-normal") %]</td>
+    </tr>
+  </tbody>
+</table>
+
 </div><!-- /.wrapper -->
 </div><!-- /#ranges_of_numbers -->
