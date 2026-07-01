@@ -117,6 +117,9 @@ Kleinere neue Features und Detailverbesserungen:
 
 - Bankkonten: Einstellung von DATEV Export ausnehmen hinzugefügt
 
+- Artikelstamm: standardmäßig wird geprüft, dass jede EAN eindeutig ist.
+  Dies lässt sich in der Mandantenkonfig unter Nummernkreise abschalten.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
