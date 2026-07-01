@@ -131,6 +131,17 @@ sub action_save {
     return $self->js->error(t8('The partnumber is already being used'))->render;
   }
 
+  if ($::instance_conf->get_parts_check_ean_unique && $::form->{part}{ean}) {
+    my @duplicates = @{ SL::DB::Manager::Part->get_all(where => [ ean => $::form->{part}{ean}, obsolete => 0 ]) };
+    @duplicates    = grep { $_->id != $self->part->id } @duplicates if $self->part->id;
+
+    if (@duplicates) {
+      return $self->js->error(t8('The EAN-code is already being used in other parts: #1',
+                                 join(', ', map { $_->presenter->part . ' ' . $_->description } @duplicates))
+                             )->render;
+    }
+  }
+
   $self->parse_form;
 
   my @errors = $self->part->validate;
