@@ -26,6 +26,8 @@ __PACKAGE__->meta->columns(
   name            => { type => 'text' },
   phone           => { type => 'text' },
   street          => { type => 'text' },
+  taxnumber       => { type => 'text' },
+  ustid           => { type => 'text' },
   zipcode         => { type => 'text' },
 );
 

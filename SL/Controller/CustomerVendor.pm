@@ -86,7 +86,7 @@ __PACKAGE__->run_before(
 
 __PACKAGE__->run_before('normalize_name');
 
-my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country_id gln email phone fax default_address);
+my @ADDITIONAL_BILLING_ADDRESS_COLUMNS = qw(name department_1 department_2 contact street zipcode city country_id gln email phone fax taxnumber ustid default_address);
 
 sub action_add {
   my ($self) = @_;
