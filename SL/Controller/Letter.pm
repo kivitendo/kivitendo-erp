@@ -172,6 +172,11 @@ sub action_print_letter {
 
   my $letter = $self->_update;
 
+  my %print_form                 = %$::form;
+  my $language_code              = SL::DB::Manager::Language->find_by_or_create(id => $::form->{language_id}*1)->template_code;
+  $print_form{customer}          = $self->letter->customer;
+  $print_form{customer}{country} = $self->letter->customer->country->description_localized($language_code);
+
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
     name        => 'letter',
     printer_id  => $::form->{printer_id},
@@ -189,7 +194,7 @@ sub action_print_letter {
     %result = SL::Template::LaTeX->parse_and_create_pdf(
       $template_file,
       SELF          => $self,
-      FORM          => $::form,
+      FORM          => \%print_form,
       letter        => $letter,
       template_meta => {
         formname  => 'letter',
