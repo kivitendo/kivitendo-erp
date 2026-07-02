@@ -24,6 +24,7 @@ use Rose::Object::MakeMethods::Generic (
 
 sub action_list_parts {
   my ($self) = @_;
+
   $self->prepare_report(t8('Reorder Level List'), $::form->{noshow} ? 1 : 0 );
 
   my $objects = $::form->{noshow} ? [] : $self->models->get;
@@ -34,16 +35,16 @@ sub action_list_parts {
 }
 
 sub prepare_report {
-  my ($self, $title, $noshow ) = @_;
+  my ($self, $title, $noshow) = @_;
 
   my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
   my @columns  = qw(
-    partnumber description available onhand rop ordered
+    partnumber description available onhand rop ordered unit
     );
   my @visible  = qw(
-    partnumber description available onhand rop ordered
+    partnumber description available onhand rop ordered unit
     );
   my @sortable = qw(partnumber description);
 
@@ -59,26 +60,34 @@ sub prepare_report {
       obj_link => sub { $_[0]->presenter->link_to },
     },
     available   => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->onhandqty,2); },
-      text => t8('Available Stock'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->onhandqty, 2); },
+      text  => t8('Available Stock'),
+      align => 'right',
     },
     onhand      => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->stockqty,2); },
-      text => t8('Total Stock'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->stockqty, 2); },
+      text  => t8('Total Stock'),
+      align => 'right',
     },
     rop         => {
-      sub  => sub { $::form->format_amount(\%::myconfig,$_[0]->rop,2); },
-      text => t8('Rop'),
+      sub   => sub { $::form->format_amount(\%::myconfig,$_[0]->rop, 2); },
+      text  => t8('ROP'),
+      align => 'right',
     },
     ordered     => {
-      sub => sub { $::form->format_amount(
-                     \%::myconfig,$_[0]->get_open_ordered_qty,2); },
-      text => t8('Ordered purchase'),
+      sub   => sub { $::form->format_amount(
+                     \%::myconfig,$_[0]->get_open_ordered_qty, 2); },
+      text  => t8('Ordered purchase'),
+      align => 'right',
+    },
+    unit        => {
+      text => t8('Unit'),
     },
   );
 
   map { $column_defs{$_}->{visible} = 1 } @visible;
 
+  $::form->{title} = $title;    # title in browsers titlebar
   $report->set_options(
     controller_class     => 'DispositionManager',
     output_format        => 'HTML',
@@ -100,15 +109,16 @@ sub prepare_report {
       report => $report, sortable_columns => \@sortable
     );
   }
-  my $parts = $self->_get_parts(0);
+  my $parts  = $self->_get_parts(0);
   my $top    = $self->render('disposition_manager/list_parts', { output => 0 },
                              noshow => $noshow,
                              PARTS => $parts,
                              title => t8('Short onhand Ordered'),
-                           );
+  );
   my $bottom = $noshow ? undef : $self->render(
     'disposition_manager/reorder_level_list/report_bottom',
-    { output => 0}, models => $self->models );
+    {output => 0}, models => $self->models
+  );
   $report->set_options(
     raw_top_info_text    => $top,
     raw_bottom_info_text => $bottom,
@@ -124,9 +134,11 @@ sub action_add_to_purchase_basket{
   foreach my $id (@{ $parts_to_add }) {
     my $part = SL::DB::Manager::Part->find_by(id => $id)
       or die "Can't find part with id: $id\n";
-    my $needed_qty = $part->order_qty < ($part->rop - $part->onhandqty) ?
-                       $part->rop - $part->onhandqty
-                     : $part->order_qty;
+
+    my $needed_qty = $part->order_qty < ($part->rop - $part->onhandqty)
+                   ? $part->rop - $part->onhandqty
+                   : $part->order_qty;
+
     my $basket_part = SL::DB::PurchaseBasketItem->new(
       part_id    => $part->id,
       qty        => $needed_qty,
@@ -183,6 +195,7 @@ sub action_show_vendor_items {
 
 sub action_transfer_to_purchase_order {
   my ($self) = @_;
+
   my @error_report;
 
   my $basket_item_ids = $::form->{ids};
@@ -211,9 +224,9 @@ sub action_transfer_to_purchase_order {
   }
 
   $self->redirect_to(
-    controller => 'Order',
-    action     => 'add_from_purchase_basket',
-    type       => 'purchase_order',
+    controller      => 'Order',
+    action          => 'add_from_purchase_basket',
+    type            => 'purchase_order',
     basket_item_ids => $basket_item_ids || [],
     vendor_item_ids => $vendor_item_ids || [],
     vendor_id       => $vendor_id,
@@ -221,8 +234,8 @@ sub action_transfer_to_purchase_order {
 }
 
 sub action_delete_purchase_basket_items {
-
   my ($self) = @_;
+
   my @error_report;
 
   my $basket_item_ids = $::form->{ids};
@@ -258,7 +271,7 @@ sub _get_parts {
 
    SELECT p.id, 0 as sum
    FROM parts p
-   WHERE p.id NOT IN ( SELECT distinct parts_id from inventory)
+   WHERE NOT EXISTS ( SELECT parts_id from inventory WHERE inventory.parts_id = p.id )
      AND NOT p.obsolete
      AND p.rop != 0
  )
@@ -267,15 +280,19 @@ sub _get_parts {
  FROM parts p
  LEFT JOIN available ava ON ava.parts_id = p.id
  WHERE ( ava.sum < p.rop )
-   AND p.id NOT IN ( SELECT part_id FROM purchase_basket_items )
+   AND NOT EXISTS ( SELECT part_id FROM purchase_basket_items WHERE purchase_basket_items.part_id = p.id )
    AND NOT p.obsolete
  ORDER BY p.partnumber
 SQL
+
   my @ids = selectall_array_query($::form, $::form->get_standard_dbh, $query);
   return unless scalar @ids;
+
   my $parts = SL::DB::Manager::Part->get_all( query => [ id => \@ids ] );
+
   my $parts_to_order = [ grep { !$_->get_open_ordered_qty } @{$parts} ];
   return $parts_to_order if !$ordered;
+
   my $parts_ordered = [
     map { $_->id } grep { $_->get_open_ordered_qty } @{$parts}
   ];
@@ -284,6 +301,7 @@ SQL
 
 sub init_models {
   my ($self) = @_;
+
   my $parts1 = $self->_get_parts(1) || [];
   my @parts = @{$parts1};
   my $get_models =  SL::Controller::Helper::GetModels->new(
@@ -306,6 +324,7 @@ sub init_models {
       per_page    => 35,
     }
   );
+
   return $get_models;
 }
 
@@ -313,13 +332,15 @@ sub init_models {
 
 sub _setup_list_action_bar {
   my ($self) = @_;
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
-        t8('Purchasebasket'),
+        t8('Add to purchase basket'),
         submit  => [
           '#form', { action => "DispositionManager/add_to_purchase_basket" } ],
-        tooltip => t8('Add to purchase basket'),
+        tooltip => t8('Add selected items to purchase basket'),
+        checks  => [ [ 'kivi.check_if_entries_selected', '.check-for-basket' ] ],
       ],
     );
   }
@@ -327,6 +348,7 @@ sub _setup_list_action_bar {
 
 sub _setup_show_basket_action_bar {
   my ($self) = @_;
+
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [

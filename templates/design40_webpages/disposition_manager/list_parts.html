@@ -11,15 +11,16 @@
     <thead>
      <tr>
        <th>
-         [% L.checkbox_tag('check_all', checkall='[data-checkall=1]') %]
+         [% L.checkbox_tag('check_all', checkall='[data-checkall=1]', checked='1') %]
          [% 'Purchase basket' | $T8 %]
        </th>
        <th>[% 'Partnumber'                                      | $T8 %] </th>
        <th>[% 'Description'                                     | $T8 %] </th>
        <th>[% 'Vendor'                                          | $T8 %] </th>
        <th>[% 'Onhand'                                          | $T8 %] </th>
-       <th>[% 'Rop'                                             | $T8 %] </th>
+       <th>[% 'ROP'                                             | $T8 %] </th>
        <th>[% 'Minimum order quantity'                          | $T8 %] </th>
+       <th>[% 'Unit'                                            | $T8 %] </th>
      </tr>
     </thead>
     [% FOREACH part = PARTS %]
@@ -28,7 +29,7 @@
         <td>
           [% IF part.makemodels.size %]
             [% L.checkbox_tag('ids[+]', 'data-checkall'=1,
-                 checked = '1', value=part.id) %]
+                 checked = '1', value=part.id, class='check-for-basket') %]
           [% ELSE %]
             [% 'No Vendor' | $T8 %]
           [% END %]
@@ -44,6 +45,7 @@
         <td class="numeric">[% LxERP.format_amount(part.onhandqty, 2) %]</td>
         <td class="numeric">[% part.rop_as_number %]</td>
         <td class="numeric">[% part.order_qty_as_number %]</td>
+        <td>[% part.unit | html %]</td>
       </tr>
       [% END %]
     [% END %]

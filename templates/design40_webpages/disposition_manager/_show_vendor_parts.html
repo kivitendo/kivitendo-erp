@@ -11,11 +11,12 @@
        <th>[% 'Purchase basket' | $T8 %] </th>
        <th>[% 'Partnumber'      | $T8 %] </th>
        <th>[% 'Description'     | $T8 %] </th>
+       <th>[% 'Vendor'          | $T8 %] </th>
        <th>[% 'Onhand'          | $T8 %] </th>
        <th>[% 'Ordered purchase'| $T8 %] </th>
-       <th>[% 'Rop'             | $T8 %] </th>
+       <th>[% 'ROP'             | $T8 %] </th>
        <th>[% 'Order quantity'  | $T8 %] </th>
-       <th>[% 'Vendor'          | $T8 %] </th>
+       <th>[% 'Unit'            | $T8 %] </th>
      </tr>
     </thead>
     <tbody>
@@ -23,7 +24,7 @@
       <tr>
         <td>[% L.checkbox_tag('vendor_part_ids[+]',
                  checked='0', value=makemodel_item.id) %]</td>
-        <td>[% makemodel_item.presenter.part(target = '_blank') %]
+        <td class="right">[% makemodel_item.presenter.part(target = '_blank') %]
           [% P.button_tag(
                "kivi.DispositionManager.show_detail_dialog("
                  _  makemodel_item.id _ "," _ makemodel_item.partnumber _
@@ -32,16 +33,17 @@
                title=LxERP.t8('Article details'), class="button") %]
         </td>
         <td>[% HTML.escape(makemodel_item.description) %]</td>
-        <td class="numeric">[% makemodel_item.onhand_as_number %]</td>
-        <td class="numeric">[% LxERP.format_amount(makemodel_item.get_open_ordered_qty, 2) %]</td>
-        <td class="numeric">[% makemodel_item.rop_as_number %]</td>
-        <td class="numeric">[% makemodel_item.order_qty_as_number %]</td>
         <td>[% P.part.vendor_price_dropdown(
                  'vendor_ids[]', makemodel_item,
                  default=makemodel_item.makemodels.item(0).make,
                  style='width: 350px;'
                  ) %]
         </td>
+        <td class="numeric">[% makemodel_item.onhand_as_number %]</td>
+        <td class="numeric">[% LxERP.format_amount(makemodel_item.get_open_ordered_qty, 2) %]</td>
+        <td class="numeric">[% makemodel_item.rop_as_number %]</td>
+        <td class="numeric">[% makemodel_item.order_qty_as_number %]</td>
+        <td>[% makemodel_item.unit | html %]</td>
       </tr>
     [% END %]
     </tbody>
