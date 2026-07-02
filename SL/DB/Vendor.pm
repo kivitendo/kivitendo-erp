@@ -24,7 +24,8 @@ use SL::DB::Helper::DisplayableNamePreferences (
                {name => 'city',           title => t8('City') },
                {name => 'zipcode',        title => t8('Zipcode')},
                {name => 'email',          title => t8('E-Mail') },
-               {name => 'phone',          title => t8('Phone')  }, ]
+               {name => 'phone',          title => t8('Phone')  },
+               {name => 'country',        title => t8('Country'), sub => sub { $_[0]->country->description_localized($::myconfig{countrycode}) } }, ]
 );
 use SL::DB::Helper::CustomerVendorContacts (
   join_package  => 'SL::DB::VendorContact',
