@@ -456,6 +456,19 @@ auto_reload_resources = 0
 # If set to 1 each exception will include a full stack backtrace.
 backtrace_on_die = 0
 
+
+[async_events]
+
+message_broker_ui_password     = broker123
+message_broker_listen_location = http://127.0.0.1:8081
+fcgi_backend_api_location      = http://localhost:8081/api
+# Use wss:// for TLS or ws:// for unencrypted connections
+frontend_websocket_location    = wss://meine-kivi.tld:8081/kivitendo-erp/ws
+api_bearer_token               = bearer123
+client_id_for_phone_lookup     = 1
+
+
+
 [cti]
 # If you want phone numbers to be clickable then this must be set to a
 # command that does the actually dialing. Within this command three
@@ -478,6 +491,13 @@ external_prefix = 0
 international_dialing_prefix = 00
 # Our own country code
 our_country_code = 49
+
+asterisk_manager_interface_host              = asteriskhost.nodomain
+asterisk_manager_interface_port              = 5039
+asterisk_manager_interface_ssl_fingerprint   = 11:22:33:44:55:66:77:88:99:00:AA:BB:CC:DD:EE:FF:11:22:33:44:55:66:77:88:99:00:AA:BB:CC:DD:EE:FF
+asterisk_manager_interface_username          = kivitendo
+asterisk_manager_interface_secret            = kivitendo123
+asterisk_manager_interface_originate_context = toll
 
 
 ## Atlassian Jira Ticket System Integration: OAuth and Cloud config
