@@ -1186,11 +1186,16 @@ a2ensite default-ssl</programlisting>
 FcgidMaxRequestLen 104857600
 FcgidIOTimeout     32000
 
-DocumentRoot                                  /var/www/kivitendo-erp/public
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
+Alias       /url/for/kivitendo-erp            /var/www/kivitendo-erp/public
 
 &lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
   Options +ExecCGI
+  Require all granted
+&lt;/Directory&gt;
+
+&lt;Directory "/var/www/kivitendo-erp/public"&gt;
+  Options -ExecCGI +FollowSymlinks
   Require all granted
 &lt;/Directory&gt;
 
