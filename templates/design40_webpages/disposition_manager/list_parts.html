@@ -39,7 +39,7 @@
         <td>[% P.part.vendor_price_dropdown(
                  'vendor_ids[]', part,
                  default=part.makemodels.item(0).make,
-                 style='width: 350px;'
+                 class='vi-verywide',
                  ) %]
         </td>
         <td class="numeric">[% LxERP.format_amount(part.onhandqty, 2) %]</td>
