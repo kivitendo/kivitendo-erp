@@ -58,7 +58,7 @@
         <td>[% P.part.vendor_price_dropdown(
                  'vendor_ids[]', basket_item.part,
                  default=basket_item.part.makemodels.item(0).make,
-                 style='width: 350px;'
+                 class='vi-verywide',
                  ) %]
         </td>
         <td class="numeric">[% basket_item.part.onhand_as_number %]</td>
