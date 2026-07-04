@@ -9696,11 +9696,17 @@ file_name = users/kivitendo-debug.log</programlisting>
       </para>
 
 <programlisting>AddHandler  cgi-script .pl
-DocumentRoot  /var/www/kivitendo-erp/public
-AliasMatch   ^/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
+AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/cgi/dispatcher.pl
+# Alias     /url/for/kivitendo-erp/webdav     /var/www/kivitendo-erp/webdav
+Alias       /url/for/kivitendo-erp            /var/www/kivitendo-erp/public
 
 &lt;Directory "/var/www/kivitendo-erp/cgi"&gt;
   Options +ExecCGI
+  Require all granted
+&lt;/Directory&gt;
+
+&lt;Directory "/var/www/kivitendo-erp/public"&gt;
+  Options -ExecCGI +FollowSymlinks
   Require all granted
 &lt;/Directory&gt;</programlisting>
 
