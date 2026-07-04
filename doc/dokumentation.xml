@@ -1187,6 +1187,7 @@ FcgidMaxRequestLen 104857600
 FcgidIOTimeout     32000
 
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
+Alias       /url/for/kivitendo-erp/webdav     /var/www/kivitendo-erp/webdav
 Alias       /url/for/kivitendo-erp            /var/www/kivitendo-erp/public
 
 &lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
