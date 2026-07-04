@@ -53,7 +53,7 @@
     -moz-user-select:      none;
     -ms-user-select:       none;
     user-select:           none;
-    height: 25px;
+    height: 33px;
     
     &.layout-actionbar-action-disabled{
       color: @actionbar-font-color-disabled !important;
@@ -98,7 +98,8 @@
     border-width: 1px;
     border-style: solid;
     text-align: center;
-    padding: 4px 10px;
+    padding: 0px 10px;
+    line-height: 33px;
     cursor: default;
     &:focus{
       border-color: darkgray; // PENDENT: Button Border
@@ -134,7 +135,7 @@
       >div {
         //width: 5.4em;
         min-width: 90px;
-        height: 25px;
+        height: 33px;
         border-top-left-radius: @actionbar-border-radius ;
         border-bottom-left-radius: @actionbar-border-radius ;
         border: 1px @actionbar-border-color solid;
@@ -149,7 +150,7 @@
         top: 0;
         right: 0;
         width: 24px !important;
-        height: 25px !important;
+        height: 33px !important;
         border: 1px @actionbar-border-color solid;
         border-left: none;
         border-top-right-radius: @actionbar-border-radius ;
@@ -159,7 +160,7 @@
         //background-image: url("../../image/select-down.png") no-repeat;
         background-image: url("../../image/select-down.png") ;
         background-repeat: no-repeat;
-        background-position: 5px 5px;
+        background-position: 5px 8px;
       }
     } // /.layout-actionbar-combobox-head
 
@@ -184,7 +185,7 @@
         position: relative;
         width: 100%;
         text-align: left;
-        padding: 0.6em 0.6em 0.6em 1.0em;
+        padding: 0 0.6em 0 1.0em;
         border-bottom: none !important;
         background-color: @actionbar-bg ;
         color: @actionbar-font-color;
@@ -201,20 +202,20 @@
     // Combobox active
     &.active {
       div.layout-actionbar-combobox-head{
-        height: 29px;
+        height: 38px;
         border-bottom: none !important ;
 
         div {
           //background-color: @actionbar-bg-active !important ;
           border-bottom-left-radius: 0 !important;
           border-bottom: none;
-          height: 30px ;
+          height: 39px;
         }
         span {
           //background-color: @actionbar-bg-active !important ;
           border-bottom-right-radius: 0 !important;
           border-bottom: none;
-          height: 30px !important ;
+          height: 39px !important;
         }
       } // /div.layout-actionbar-combobox-head
       div.layout-actionbar-combobox-list {
