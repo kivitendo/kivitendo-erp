@@ -122,9 +122,8 @@
             HTTP Basic Authentication (RFC 7617). Dazu muss der Webserver so konfiguriert werden, dass er für alle kivitendo-Requests vom
             Webbrowser Authentifizierung verlangt. Zusätzlich muss er veranlasst werden, den angegebenen Usernamen auch an kivitendo zu
             übermitteln. Dies könnte beispielhaft wie folgt aussehen:
-          </p><pre class="programlisting">&lt;Directory /path/to/kivitendo-erp&gt;
-  AllowOverride All
-  Options ExecCGI Includes FollowSymlinks
+          </p><pre class="programlisting">&lt;Directory "/var/www/kivitendo-erp/fcgi"&gt;
+  Options +ExecCGI
 
   # Require authentication from local user file:
   AuthType Basic
@@ -134,7 +133,14 @@
 
   # Pass name of authorized user to kivitendo:
   SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-&lt;/Directory&gt;</pre><p>
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch "^/var/www/kivitendo-erp/(public|webdav)"&gt;
+  AuthType Basic
+  AuthName "kivitendo"
+  AuthUserFile htpasswd.kivitendo
+  Require valid-user
+&lt;/DirectoryMatch&gt;</pre><p>
              Um diese Methode zu aktivieren, muss das Authentifizierungsmodul auf <code class="literal">HTTPHeaders</code> gestellt werden. Zusätzlich
              muss im Abschnitt <code class="literal">authentication/http_basic</code> der Parameter <code class="literal">enabled=1</code> und im Abschnitt
              <code class="literal">authentication/http_headers</code> der Parameter <code class="literal">enabled=0</code> gesetzt werden.

@@ -148,9 +148,9 @@
     Da man heutzutage nur noch moderne Schriftformate Verwenden sollte, wird hier lediglich die Variante für |lualatex| aufgelistet.</p><p>Die Konfiguration läuft hierbei über das \pck{fontspec} Paket (Doku siehe \cite{fontspec}).
     Dann hängt es davon ab, ob die Basisschriftart eine Serifenschriftart ist oder nicht.
     In jedem Fall wird die Änderung entweder in der <code class="filename">insettings.tex</code>, sofern sie für alle
-    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3129"></a>2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
-        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</p></div><div class="sect5" title="2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3134"></a>2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
-      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3139"></a>2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
+    Mandant*innen gelten soll oder in der Mantant*innenspezifischen Konfigurationsdatei gsesetzt.</p><div class="sect5" title="2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3131"></a>2.14.2.10.1.1. Änderung, falls es ein Schriftpaket gibt</h6></div></div></div><p>Wenn möglich sollte die Schriftart über ein entsprechendes Konfigurationspaket gesetzt werden.
+        Ob ein solches existiert kann man sehr leicht über eine Suche nach dem Namen unter \url{ctan.org} herausfinden.</p></div><div class="sect5" title="2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3136"></a>2.14.2.10.1.2. Änderung der Basisschriftart auf eine Schriftart mit Serifen</h6></div></div></div><pre class="programlisting">
+      \setmainfont{|\meta{Name der Schriftart, z.B. SourceSerifPro}|}    </pre></div><div class="sect5" title="2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen"><div class="titlepage"><div><div><h6 class="title"><a name="d0e3141"></a>2.14.2.10.1.3. Änderung der Basisschriftart auf eine Schriftart ohne Serifen</h6></div></div></div><pre class="programlisting">
       \setsansfont{|\meta{Name der Schriftart, z.B. SourceSansPro}|}
       \renewcommand*{\familydefault}{\sfdefault}    </pre></div></div><div class="sect4" title="2.14.2.10.2. Unterscheidungen durch String-Vergleich"><div class="titlepage"><div><div><h5 class="title"><a name="Unterscheidungen durch String-Vergleich"></a>2.14.2.10.2. Unterscheidungen durch String-Vergleich</h5></div></div></div><pre class="programlisting">
     \Ifstr{\lxmedia}{printer}{Falls gedruckt werden soll} {sonst}    </pre></div></div></div><div class="sect2" title="2.14.3. Der Druckvorlagensatz mersiha"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-mersiha"></a>2.14.3. Der Druckvorlagensatz mersiha</h3></div></div></div><p>Hierbei handelt es sich um einen auf Industriekunden zugeschnitten LaTeX
@@ -158,11 +158,11 @@
             flexibel anpassen</p></li><li class="listitem"><p>Belegtitel (Überschriften) sind linksbündig und kleiner als im
             LaTeX KOMA-script Standard</p></li><li class="listitem"><p>Als optional markierten Positionen sind auf den Belegen als solche
             gekennzeichnet</p></li></ul></div><p>Die Dokumentenklasse kiviletter.sty wird nicht modifiziert, um die
-        Wartung zu erleichtern.</p><div class="simplesect" title="2.14.3.1. Struktur der Belegtypen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3166"></a>2.14.3.1. Struktur der Belegtypen</h4></div></div></div><p>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
+        Wartung zu erleichtern.</p><div class="simplesect" title="2.14.3.1. Struktur der Belegtypen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3168"></a>2.14.3.1. Struktur der Belegtypen</h4></div></div></div><p>Der Druckvorlagensatz ist so strukturiert, dass für jeden Belegtyp in kivitendo eine zugehörige LaTeX-Quelltextdatei existiert, welche beim Drucken automatisch in ein PDF umgewandelt wird.
           Grundsätzlich werden Doppelungen im LaTeX-Code vermieden, um die Wartung zu vereinfachen.
           Belegtypen, die sich nur minimal voneinander unterscheiden, verweisen auf dieselbe LaTeX-Quelltextdatei, welche dann Fallunterscheidungen, z.B. für die Überschrift, enthält.
           Eine Übersicht aller Belegtypen und zugehöriger LaTeX-Quelltextdateien liefert folgende Tabelle.
-          Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</p><table id="d0e3171">Dateinamen der Belegtypen<thead><tr>
+          Dateinamen innerhalb derselben Tabellenzelle verweisen mittels symbolischer Links auf dieselbe Datei.</p><table id="d0e3173">Dateinamen der Belegtypen<thead><tr>
     
                         <th colspan="2"> Einkauf </th>
                         <th colspan="2"> Verkauf </th>
@@ -288,7 +288,7 @@ firma/usd_account.tex
 firma/ident.tex
 insettings.tex</pre><p>
           
-               </p></div><div class="simplesect" title="2.14.3.2. Infobox"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3382"></a>2.14.3.2. Infobox</h4></div></div></div><p>
+               </p></div><div class="simplesect" title="2.14.3.2. Infobox"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3384"></a>2.14.3.2. Infobox</h4></div></div></div><p>
             Die Infobox oben rechts auf den Belegen (auch genannt Absenderergänzung) wird über LaTeX KOMA-script Variablen befüllt.
             Dies ist flexibler als im Druckvorlagensatz marei gestaltet.
             In der Datei <code class="literal">insettings.tex</code> sind die KOMA-script Variablen <code class="literal">info0</code> bis <code class="literal">info9</code> definiert.
@@ -310,7 +310,7 @@ insettings.tex</pre><p>
             Dieser Kunde möchte die Vorgangsbezeichnung nicht mit ausgeben, weshalb die erste Zeile auskommentiert ist. Weiterhin ist exemplarisch der Verkäufer anstelle des Bearbeiters der Ansprechpartner. Daher wird mit <code class="literal">&lt;%salesman_name%&gt;</code> anstelle von <code class="literal">&lt;%employee_name%&gt;</code> gearbeitet. Telefon und E-Mail verhalten sich analog dazu.
           </p><p>Weil <code class="literal">info0</code> bis <code class="literal">info11</code> in aufsteigender Reihenfolge ausgegeben werden, lässt sich über die Ziffern 0 bis 11 die Reihenfolge der Felder in der Infobox steuern.
           Bei vielen Industriekunden benötigen bestimmte Belegtypen abweichende Informationen oder andere Übersetzungstexte in der Infobox; all dies lässt sich durch Anpassung obigen LaTeX-Codes erreichen.
-          </p></div><div class="simplesect" title="2.14.3.3. Tipps für Kundenanpassungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3416"></a>2.14.3.3. Tipps für Kundenanpassungen</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+          </p></div><div class="simplesect" title="2.14.3.3. Tipps für Kundenanpassungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3418"></a>2.14.3.3. Tipps für Kundenanpassungen</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
               Logo mit absoluter Positionierung als Briefbogen einfügen: In <code class="literal">insettings.tex</code> einfügen:
               </p><pre class="programlisting">\DeclareNewLayer[page,background,hoffset=125mm,voffset=12mm,
   contents={\includegraphics[width=75mm]{logo-mit-text}}
