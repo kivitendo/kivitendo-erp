@@ -174,8 +174,8 @@ sub action_print_letter {
 
   my %print_form                 = %$::form;
   my $language_code              = SL::DB::Manager::Language->find_by_or_create(id => $::form->{language_id}*1)->template_code;
-  $print_form{customer}          = $self->letter->customer;
-  $print_form{customer}{country} = $self->letter->customer->country->description_localized($language_code);
+  $print_form{customer}          = $self->letter->customer_vendor;
+  $print_form{customer}{country} = $self->letter->customer_vendor->country->description_localized($language_code) if $self->letter->customer_vendor;
 
   my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
     name        => 'letter',
