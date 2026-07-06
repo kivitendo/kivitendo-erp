@@ -23,6 +23,9 @@ Wichtige Hinweise:
   ab, durch welches Land aus der ISO-3166 Alpha-2 Liste der Wert des
   Freitextfeldes ersetzt werden soll.
 
+- Die Authentifizierung über Cookies mit API-Token für das alte CRM-Menü wurde
+  entfernt.
+
 
 Upgrade auf v4.0.0
 
