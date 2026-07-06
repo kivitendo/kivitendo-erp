@@ -133,6 +133,11 @@ Kleinere neue Features und Detailverbesserungen:
   und ihre Prüfziffer stimmt.  Dies lässt sich in der Mandantenkonfig unter
   Nummernkreise abschalten.
 
+- freie Preise: In der Mandantenkonfiguration lässt sich einstellen, ob Preise
+  als freie Preise beim Hinzufügen von Positionen in Belegen übernommen werden
+  sollen. Damit kommen die Preise nach wie vor aus der Preisquelle, aber der
+  Preis ist frei editierbar.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
