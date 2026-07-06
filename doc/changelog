@@ -126,6 +126,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Das Bearbeiten von LaTeX/HTML Templates in der Oberfläche wurde aus
   Sicherheitsgründen entfernt
 
+- Ein HTML formatiert Feld "Interne Bemerkungen" wurde zu Artikeln hinzugefügt
+  und das Feld "Bemerkungen" wurde umbenannt zu "Langtext".
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
