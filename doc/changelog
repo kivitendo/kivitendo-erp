@@ -123,6 +123,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Die Authentifizierung über Cookies mit API-Token für das alte CRM-Menü wurde
   entfernt.
 
+- Das Bearbeiten von LaTeX/HTML Templates in der Oberfläche wurde aus
+  Sicherheitsgründen entfernt
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
