@@ -233,7 +233,10 @@ sub handle_all_requests {
     $request->LastCall              if $self->restart_after_request;
   }
 
-  exec $0 if $self->restart_after_request;
+  if ($self->restart_after_request) {
+    chdir('public');
+    exec $0;
+  }
 }
 
 sub handle_request {
