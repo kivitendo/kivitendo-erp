@@ -592,7 +592,7 @@ sub all_parts {
   if ($form->{l_assembly} && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS assembly_qty,
-           p.unit, p.notes, p.itime::DATE as insertdate,
+           p.unit, p.notes, p.intnotes, p.itime::DATE as insertdate,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight,
            p.image, p.drawing, p.microfiche,
