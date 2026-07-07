@@ -32,7 +32,8 @@
 </div><!-- /.select-item -->
 </div><!-- /.wrapper -->
 
-<table class="tbl-list">
+<div class="wrapper">
+ <table class="tbl-list">
   <thead>
     <tr>
       <th><input type="checkbox" id="select_all"></th>
@@ -132,7 +133,8 @@
       </tr>
     [% END %]
   </tbody>
-</table>
+ </table>
+</div><!-- /.wrapper -->
 
 [% IF show_vc_bank_info_footnote || show_is_sepa_blocked_footnote || show_is_not_approved_footnote %]
 <div class="long-desc wrapper">
