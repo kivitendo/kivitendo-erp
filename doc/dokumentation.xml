@@ -1184,7 +1184,7 @@ a2ensite default-ssl</programlisting>
 
         <programlisting>AddHandler         fcgid-script .fcgi
 FcgidMaxRequestLen 104857600
-FcgidIOTimeout     32000
+FcgidIOTimeout     300
 
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/webdav     /var/www/kivitendo-erp/webdav
