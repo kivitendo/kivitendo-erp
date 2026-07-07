@@ -57,11 +57,11 @@ sub update_after_customer_vendor_change {
       my $address = $new_customer->default_billing_address;;
       $record->billing_address_id($address ? $address->id : undef);
     }
-  } elsif (!$record->is_sales) {
+  } else {
     my $new_vendor = $new_customervendor;
     $record->buyer_id($new_vendor->buyer_id
       || SL::DB::Manager::Employee->current->id);
-  } else { die "invalid state"; }
+  }
 
   return $record;
 }
