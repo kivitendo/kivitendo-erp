@@ -143,6 +143,7 @@
       <th>[% IF ( SELF.is_vendor() ) %][% 'Type of Vendor' | $T8 %][% ELSE %][% 'Type of Customer' | $T8 %][% END %]</th>
       <td>[% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty=1, class='wi-lightwide') %]</td>
     </tr>
+    <tr>
     [% IF ( SELF.is_customer() ) %]
       <th>[% 'Salesman' | $T8 %]</th>
       <td>
@@ -154,6 +155,7 @@
         [% L.select_tag('cv.buyer_id', SELF.all_buyer, default = SELF.cv.buyer_id, value_key = 'id', title_key = 'safe_name', with_empty = 1, class='wi-lightwide') %]
       </td>
     [%- END %]
+    </tr>
     <tr>
       <th>[% 'Language' | $T8 %]</th>
       <td>[% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key='description', with_empty=1, class='wi-lightwide') %]</td>
