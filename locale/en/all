@@ -4279,6 +4279,7 @@ $self->{texts} = {
   'The password is weak (e.g. it can be found in a dictionary).' => '',
   'The path is missing.'        => '',
   'The payable chart isn\'t a valid chart.' => '',
+  'The payment for this invoice should be approved.' => '',
   'The payment term has been created.' => '',
   'The payment term has been deleted.' => '',
   'The payment term has been saved.' => '',
