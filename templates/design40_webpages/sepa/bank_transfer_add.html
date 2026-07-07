@@ -49,7 +49,9 @@
       <th>[% 'Payment type' | $T8 %]</th>
       <th>[% 'Skonto information' | $T8 %]</th>
       <th>[% 'Currency of record' | $T8 %]</th>
-      <th>[% 'Payment Approved' | $T8 %]</th>
+      [% IF is_vendor && INSTANCE_CONF.get_payment_approval %]
+        <th>[% 'Payment Approved' | $T8 %]</th>
+      [% END %]
     </tr>
   </thead>
   <tbody>
@@ -125,11 +127,13 @@
         <td>
           [% invoice.currency %][% IF invoice.currency_not_eur %] <sup>[% L.link('#currency_not_euro', '(°)')%]</sup>[% END %]
         </td>
-        <td[% IF invoice.payment_approval %] class="highlight"[% END %]>
-          [% IF invoice.payment_approval %]
-            [% invoice.payment_approval.itime_as_date | html %] [% invoice.payment_approval.employee.name | html %]
-          [% END %]
-        </td>
+        [% IF is_vendor && INSTANCE_CONF.get_payment_approval %]
+          <td[% IF invoice.payment_approval %] class="highlight"[% END %]>
+            [% IF invoice.payment_approval %]
+              [% invoice.payment_approval.itime_as_date | html %] [% invoice.payment_approval.employee.name | html %]
+            [% END %]
+          </td>
+        [% END %]
       </tr>
     [% END %]
   </tbody>
