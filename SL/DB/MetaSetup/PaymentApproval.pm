@@ -17,12 +17,15 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'ap_id', 'employee_id' ]);
 
+__PACKAGE__->meta->unique_keys([ 'ap_id' ]);
+
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
   ap => {
     class       => 'SL::DB::PurchaseInvoice',
     key_columns => { ap_id => 'id' },
+    rel_type    => 'one to one',
   },
 
   employee => {

@@ -307,7 +307,7 @@ sub setup_ir_action_bar {
   if ($form->{id}) {
     my $invoice = SL::DB::Manager::PurchaseInvoice->find_by(id => $form->{id});
     $has_sepa_exports = 1 if ($invoice->find_sepa_export_items()->[0]);
-    $is_payment_approved = 1 if ($invoice->find_payment_approvals()->[0]);
+    $is_payment_approved = 1 if ($invoice->payment_approval);
     $is_sepa_blocked  = !!$invoice->is_sepa_blocked;
   }
 

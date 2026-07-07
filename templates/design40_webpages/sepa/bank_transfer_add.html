@@ -120,9 +120,9 @@
         <td>
           [% invoice.currency %][% IF invoice.currency_not_eur %] <sup>[% L.link('#currency_not_euro', '(°)')%]</sup>[% END %]
         </td>
-        <td[% IF invoice.payment_approvals %] class="highlight"[% END %]>
-          [% IF invoice.payment_approvals %]
-            [% invoice.payment_approvals.itime_as_date | html %] [% invoice.payment_approvals.employee.name | html %]
+        <td[% IF invoice.payment_approval %] class="highlight"[% END %]>
+          [% IF invoice.payment_approval %]
+            [% invoice.payment_approval.itime_as_date | html %] [% invoice.payment_approval.employee.name | html %]
           [% END %]
         </td>
       </tr>
