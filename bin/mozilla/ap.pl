@@ -490,6 +490,7 @@ sub form_header {
   $::form->{buyer_id}    ||= $current_employee->id;
 
   $form->{ALL_EMPLOYEES}  = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id}, deleted => 0 ] ]);
+  $form->{ALL_BUYERS}     = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{buyer_id},    deleted => 0 ] ]);
 
   my %project_labels = map { $_->id => $_->projectnumber }  @{ SL::DB::Manager::Project->get_all };
 

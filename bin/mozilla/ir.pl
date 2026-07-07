@@ -514,6 +514,7 @@ sub form_header {
   $TMPL_VAR->{ALL_DEPARTMENTS}       = SL::DB::Manager::Department->get_all_sorted;
   $TMPL_VAR->{ALL_DELIVERY_TERMS}    = SL::DB::Manager::DeliveryTerm->get_valid($::form->{delivery_term_id});
   $TMPL_VAR->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $TMPL_VAR->{ALL_BUYERS}            = SL::DB::Manager::Employee->get_all_sorted(query => [ or => [ id => $::form->{buyer_id},     deleted => 0 ] ]);
   $TMPL_VAR->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all_sorted(
     with_objects => ['vendors'],
     query => [
