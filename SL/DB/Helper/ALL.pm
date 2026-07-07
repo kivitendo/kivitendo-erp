@@ -97,7 +97,7 @@ use SL::DB::PartClassification;
 use SL::DB::PartCustomerPrice;
 use SL::DB::PartsGroup;
 use SL::DB::PartsPriceHistory;
-use SL::DB::PaymentApprovals;
+use SL::DB::PaymentApproval;
 use SL::DB::PaymentTerm;
 use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;

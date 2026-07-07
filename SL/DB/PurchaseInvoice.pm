@@ -56,7 +56,7 @@ __PACKAGE__->meta->add_relationship(
   },
   payment_approvals => {
     type            => 'one to many',
-    class           => 'SL::DB::PaymentApprovals',
+    class           => 'SL::DB::PaymentApproval',
     column_map      => { id => 'ap_id' },
   },
 

@@ -718,7 +718,7 @@ sub block_or_unblock_sepa_transfer {
 sub approve_payment {
   $::auth->assert('ap_transactions');
 
-  SL::DB::PaymentApprovals->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
+  SL::DB::PaymentApproval->new(ap_id => $::form->{id}, employee_id => SL::DB::Manager::Employee->current->id)->save;
 
   $::form->redirect(t8('Payment Approved'));
 }
