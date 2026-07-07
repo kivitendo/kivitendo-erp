@@ -17,6 +17,15 @@
 
 */
 
+-- Before this change, the uniqueness of the main flag among one customer's
+-- contacts was not enforced and cannot be relied upon.
+-- We enforce the uniqueness first, to avoid conflicts with the unique index
+-- below.
+
+update contacts c1 set cp_main = false
+where c1.cp_main and exists ( select 1 FROM contacts c2 where (c1.cp_id != c2.cp_id) and (c1.cp_cv_id = c2.cp_cv_id) and c2.cp_main );
+
+
 create table customer_contacts (
   id serial primary key,
   customer_id integer not null references customer(id)    on delete cascade,
