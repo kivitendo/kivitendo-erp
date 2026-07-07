@@ -45,11 +45,15 @@ sub used {
   require SL::DB::Invoice;
   require SL::DB::PurchaseInvoice;
   require SL::DB::DeliveryOrder;
+  require SL::DB::Letter;
+  require SL::DB::LetterDraft;
 
   return SL::DB::Manager::Order->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::Invoice->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::PurchaseInvoice->get_all_count(query => [ cp_id => $self->cp_id ])
-       + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ]);
+       + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::Letter->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::LetterDraft->get_all_count(query => [ cp_id => $self->cp_id ]);
 }
 
 sub full_name {
