@@ -199,7 +199,7 @@
       [% P.checkbox_tag('l_intnotes', label=LxERP.t8('Internal Notes'), value='Y', checked=l_intnotes, for_submit=1) %]
     </div>
     <div>
-      <input name="l_payment_approved" id="l_payment_approved" type="checkbox" value="Y"><label for="l_payment_approved">[% 'Payment Approved' | $T8 %]</label>
+      [% P.checkbox_tag('l_payment_approved', label=LxERP.t8('Payment Approved'), value='Y', checked=l_payment_approved, for_submit=1) %]
     </div>
   </div>
 

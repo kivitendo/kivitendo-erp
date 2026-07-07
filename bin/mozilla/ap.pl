@@ -1770,7 +1770,7 @@ sub setup_search_profile_manager {
       { type   => 'boolean',
         fields => [ qw(open closed l_transdate l_duedate l_datepaid l_insertdate l_id l_invnumber l_ordnumber l_globalprojectnumber l_globalprojectdescription l_transaction_description
                        l_netamount l_tax l_subtotal l_amount l_paid l_due l_employee l_notes l_intnotes l_department l_charts l_taxzone l_payment_terms l_direct_debit l_debit_chart l_items
-                       l_name l_vendornumber l_country l_ustid) ] },
+                       l_name l_vendornumber l_country l_ustid l_payment_approved) ] },
       { type   => 'date',
         fields => [ qw(datepaidfrom datepaidto duedatefrom duedateto insertdatefrom insertdateto transdatefrom transdateto) ] },
       { type   => 'integer',
