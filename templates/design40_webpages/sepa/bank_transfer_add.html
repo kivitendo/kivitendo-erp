@@ -90,6 +90,10 @@
                 GET ' <sup>(°)</sup>';
                 SET show_is_sepa_blocked_footnote = '1';
               END;
+              IF !invoice.approved;
+                GET ' <sup>(x)</sup>';
+                SET show_is_not_approved_footnote = '1';
+              END;
           -%]
          </a>
         </td>
@@ -130,7 +134,7 @@
   </tbody>
 </table>
 
-[% IF show_vc_bank_info_footnote || show_is_sepa_blocked_footnote %]
+[% IF show_vc_bank_info_footnote || show_is_sepa_blocked_footnote || show_is_not_approved_footnote %]
 <div class="long-desc wrapper">
   [% IF show_vc_bank_info_footnote %]
   <p><sup>(1)</sup>
@@ -157,6 +161,12 @@
     <br>
     <sup id="currency_not_euro">(°)</sup>
     [%- 'The currency of this invoice is not "EUR".' | $T8 %]
+  </p>
+  [%- END %]
+  [%- IF show_is_not_approved_footnote %]
+  <p>
+    <sup>(x)</sup>
+    [%- 'The payment for this invoice should be approved.' | $T8 %]
   </p>
   [%- END %]
 </div><!-- /.long-desc -->
