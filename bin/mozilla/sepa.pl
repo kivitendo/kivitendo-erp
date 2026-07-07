@@ -61,9 +61,9 @@ sub bank_transfer_add {
     $invoice->{reference_prefix}  = $prefix;
 
     # add PaymentApproval info for ap. set approved for strict approved payments only
-    $invoice->{payment_approved} = $vc eq 'vendor' ? SL::DB::Manager::PaymentApproval->find_by(ap_id => $invoice->{id}) : undef;
+    $invoice->{payment_approval} = $vc eq 'vendor' ? SL::DB::Manager::PaymentApproval->find_by(ap_id => $invoice->{id}) : undef;
     $invoice->{approved}         =   !$only_approved ? 1
-                                   :  $only_approved && ref $invoice->{payment_approved} eq 'SL::DB::PaymentApproval' ? 1
+                                   :  $only_approved && ref $invoice->{payment_approval} eq 'SL::DB::PaymentApproval' ? 1
                                    :  undef;
 
     # add c_vendor_id or v_vendor_id as a prefix if a entry exists
