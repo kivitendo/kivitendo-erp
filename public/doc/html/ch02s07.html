@@ -26,7 +26,7 @@ a2ensite default-ssl</pre><p>Unter Fedora und openSUSE müssen weiterhin in der 
         ("<code class="filename">/url/for/kivitendo-erp</code>").</p><p>Folgender Konfigurationsschnipsel funktioniert mit
         mod_fcgid:</p><pre class="programlisting">AddHandler         fcgid-script .fcgi
 FcgidMaxRequestLen 104857600
-FcgidIOTimeout     32000
+FcgidIOTimeout     600
 
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
 Alias       /url/for/kivitendo-erp/webdav     /var/www/kivitendo-erp/webdav
@@ -60,9 +60,9 @@ Alias         /webdav                           /var/www/kivitendo-erp/webdav/
         Daten (ohne Authentifizierung) preisgegeben werden. Es genügt, das
         Verzeichnis public/ per Webserver auszuliefern.</p><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
         die maximale Größe eines Requests. Mit folgender Zeile wird diese
-        Grenze hochgesetzt:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Standardmäßig wartet der Apache 40 Sekunden bevor es bei einer Anfrage zu einem Timeout und somit
+        Grenze auf 100 MiB hochgesetzt:</p><pre class="programlisting">FcgidMaxRequestLen 104857600</pre><p>Standardmäßig wartet der Apache 40 Sekunden bevor es bei einer Anfrage zu einem Timeout und somit
         einenm 'Internal Server Error' kommt. Das ist für einige Berichte/Datenmenge etwas knapp und der Eintrag:
-        </p><pre class="programlisting">FcgidIOTimeout 300</pre><p> setzt dieses Timeout auf 5 Minuten. Weitere Parameter sind in der
+        </p><pre class="programlisting">FcgidIOTimeout 600</pre><p> setzt dieses Timeout auf 10 Minuten. Weitere Parameter sind in der
         <a class="ulink" href="https://httpd.apache.org/mod_fcgid/mod/mod_fcgid.html" target="_top">Apache Dokumentation</a> einsehbar.</p></div><div class="sect2" title="2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e1369"></a>2.7.2. Aktivierung von mod_rewrite/directory_match für git basierte Installationen</h3></div></div></div><p>
         Aufgrund von aktuellen (Mitte 2020) Sicherheitswarnungen für git basierte Webanwendungen ist die mitausgelieferte .htaccess
         restriktiver geworden und verhindert somit das Auslesen von git basierten Daten.
