@@ -1,6 +1,6 @@
 -- @tag: sepa_export_items_vc_id
 -- @description: Verknüpfe SEPA EXPORT ITEMS direkt mit vc
--- @depends: release_3_9_1
+-- @depends: release_4_0_0
 
 ALTER TABLE sepa_export_items  ADD COLUMN vendor_id   INTEGER REFERENCES vendor(id);
 ALTER TABLE sepa_export_items  ADD COLUMN customer_id INTEGER REFERENCES customer(id);

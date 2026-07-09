@@ -1,6 +1,6 @@
 -- @tag: sepa_exports_add_acc_trans
 -- @description: Gutschriften können mit Zahlungen verrechnet werden und lösen Buchungen aus - referentielle Integrität
--- @depends: release_3_9_1
+-- @depends: release_4_0_0
 CREATE TABLE sepa_exports_acc_trans (
         sepa_exports_id  INTEGER NOT NULL REFERENCES sepa_export(id),
         acc_trans_id     INTEGER NOT NULL REFERENCES acc_trans(acc_trans_id),
