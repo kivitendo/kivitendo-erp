@@ -1149,6 +1149,7 @@ $self->{texts} = {
   'Debit Tax'                   => 'Vorsteuer',
   'Debit Tax (lit)'             => 'Sollsteuer',
   'Debit Tax Account'           => 'Vorsteuerkonto',
+  'Debit and Credit have been switched.' => 'Die freundliche kivi hat die Soll- und Habenseite automatisch gewechselt.',
   'Debit and credit out of balance!' => 'Soll und Haben müssen gleich sein.',
   'Debit/Credit Label'          => 'Soll-/Haben-Kennzeichen',
   'Dec'                         => 'Dez',
