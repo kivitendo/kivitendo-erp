@@ -754,8 +754,8 @@ sub action_show_periodic_invoices_config_dialog {
   $::form->{AR} = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
 
   if ($::form->{customer_id}) {
-    my $customer_object = SL::DB::Manager::Customer->find_by(id => $::form->{customer_id});
-    $::form->{ALL_CONTACTS} = $customer_object->contacts;
+    my $customer_object                        = $self->order->customervendor;
+    $::form->{ALL_CONTACTS}                    = $customer_object->contacts;
     $::form->{postal_invoice}                  = $customer_object->postal_invoice;
     $::form->{email_recipient_invoice_address} = $::form->{postal_invoice} ? '' : $customer_object->invoice_mail;
     $config->send_email(0) if $::form->{postal_invoice};
@@ -2134,7 +2134,7 @@ sub check_if_periodic_invoices_contact_matches_customer {
   my $contact = SL::DB::Manager::Contact->find_by(cp_id => $cfg->email_recipient_contact_id);
   return if !$contact;
 
-  if (none { $_->cp_id == $contact->cp_id } $self->order->contacts) {
+  if (none { $_->cp_id == $contact->cp_id } $self->order->customervendor->contacts) {
     $cfg->update_attributes(email_recipient_contact_id => undef);
   }
 }
