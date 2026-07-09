@@ -222,7 +222,7 @@ CODE
   my $full_definition = <<CODE;
 # This file has been auto-generated. Do not modify it; it will be overwritten
 # by $::script automatically.
-$definition;
+$definition
 CODE
 
   my $meta_definition = <<CODE;
