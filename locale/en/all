@@ -1157,7 +1157,6 @@ $self->{texts} = {
   'Debit Tax'                   => '',
   'Debit Tax (lit)'             => '',
   'Debit Tax Account'           => '',
-  'Debit and Credit have been switched.' => '',
   'Debit and credit out of balance!' => '',
   'Debit/Credit Label'          => '',
   'Dec'                         => '',
