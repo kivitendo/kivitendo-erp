@@ -53,7 +53,9 @@ sub used {
        + SL::DB::Manager::PurchaseInvoice->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::Letter->get_all_count(query => [ cp_id => $self->cp_id ])
-       + SL::DB::Manager::LetterDraft->get_all_count(query => [ cp_id => $self->cp_id ]);
+       + SL::DB::Manager::LetterDraft->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::PeriodicInvoicesConfig->get_all_count(query => [ email_recipient_contact_id => $self->cp_id ])
+       + SL::DB::Manager::Reclamation->get_all_count(query => [ contact_id => $self->cp_id ]);
 }
 
 sub full_name {
