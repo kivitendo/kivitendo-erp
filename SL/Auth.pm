@@ -593,9 +593,9 @@ sub delete_user {
 # --------------------------------------
 
 sub restore_session {
-  my ($self, $session_id) = @_;
+  my ($self, $param_session_id) = @_;
 
-  my $session_id     =  $::request->{cgi}->cookie($self->get_session_cookie_name());
+  my $session_id     = (defined $param_session_id) ? $param_session_id : $::request->{cgi}->cookie($self->get_session_cookie_name());
   $session_id        =~ s|[^0-9a-f]||g if $session_id;
   $self->session_id($session_id);
 
