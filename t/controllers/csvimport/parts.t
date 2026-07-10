@@ -13,6 +13,7 @@ use List::MoreUtils qw(pairwise);
 use SL::Controller::CsvImport;
 
 my $DEBUG = 0;
+my @test_cvar_config_ids = ();
 
 use_ok 'SL::Controller::CsvImport::Part';
 
@@ -80,6 +81,7 @@ sub reset_state {
     includeable => 0,
     included_by_default => 0,
   )->save;
+  push @test_cvar_config_ids, $cvarconfig->id;
 
   foreach ( { id => 1, pricegroup => 'A', sortkey => 1 },
             { id => 2, pricegroup => 'B', sortkey => 2 },
@@ -277,7 +279,7 @@ $entries = test_import($file,$settings2);
 $entry = $entries->[0];
 is $entry->{object}->partnumber, 'P1000', 'P1000 set';
 is $entry->{raw_data}->{cvar_mycvar},'das ist der Ring','CVAR set';
-is @{$entry->{object}->custom_variables}[0]->text_value,'das ist der Ring','Cvar mit richtigem Wert';
+is $entry->{object}->cvar_by_name('mycvar')->text_value,'das ist der Ring','Cvar mit richtigem Wert';
 
 # set locale to de so we can match abbreviations
 $::locale = $old_locale;
@@ -317,7 +319,11 @@ sub clear_up {
   SL::DB::Manager::Language   ->delete_all(all => 1);
   SL::DB::Manager::Bin        ->delete_all(all => 1);
   SL::DB::Manager::Warehouse  ->delete_all(all => 1);
-  SL::DB::Manager::CustomVariableConfig->delete_all(all => 1);
+  if (@test_cvar_config_ids) {
+    SL::DB::Manager::CustomVariable->delete_all(where => [ config_id => \@test_cvar_config_ids ]);
+    SL::DB::Manager::CustomVariableConfig->delete_all(where => [ id => \@test_cvar_config_ids ]);
+    @test_cvar_config_ids = ();
+  }
 }
 
 

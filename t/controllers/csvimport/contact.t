@@ -16,6 +16,8 @@ use_ok 'SL::Controller::CsvImport::Contact';
 
 Support::TestSetup::login();
 
+my @test_cvar_config_ids = ();
+
 #####
 sub do_import {
   my ($file, $settings) = @_;
@@ -51,7 +53,11 @@ sub _obj_of {
 
 sub clear_up {
   SL::DB::Manager::Contact->delete_all(all => 1);
-  SL::DB::Manager::CustomVariableConfig->delete_all(all => 1);
+  if (@test_cvar_config_ids) {
+    SL::DB::Manager::CustomVariable->delete_all(where => [ config_id => \@test_cvar_config_ids ]);
+    SL::DB::Manager::CustomVariableConfig->delete_all(where => [ id => \@test_cvar_config_ids ]);
+    @test_cvar_config_ids = ();
+  }
 
   # Reset request to clear caches. Here especially for cvar-configs.
   $::request = Support::TestSetup->create_new_request;
