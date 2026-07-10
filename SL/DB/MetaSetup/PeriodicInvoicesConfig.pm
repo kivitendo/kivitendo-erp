@@ -57,4 +57,4 @@ __PACKAGE__->meta->foreign_keys(
 );
 
 1;
-;
+
