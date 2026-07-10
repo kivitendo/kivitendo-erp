@@ -16,6 +16,8 @@ use_ok 'SL::Controller::CsvImport::CustomerVendor';
 
 Support::TestSetup::login();
 
+my @test_cvar_config_ids = ();
+
 #####
 sub do_import {
   my ($file, $settings) = @_;
@@ -51,7 +53,11 @@ sub _obj_of {
 
 sub clear_up {
   SL::DB::Manager::Customer->delete_all(all => 1);
-  SL::DB::Manager::CustomVariableConfig->delete_all(all => 1);
+  if (@test_cvar_config_ids) {
+    SL::DB::Manager::CustomVariable->delete_all(where => [ config_id => \@test_cvar_config_ids ]);
+    SL::DB::Manager::CustomVariableConfig->delete_all(where => [ id => \@test_cvar_config_ids ]);
+    @test_cvar_config_ids = ();
+  }
 
   SL::DB::Default->get->update_attributes(customernumber => '10000');
 
@@ -189,7 +195,7 @@ clear_up;
 # leave it untouched?)
 
 # create cvars
-SL::DB::CustomVariableConfig->new(
+my $cvar_config1 = SL::DB::CustomVariableConfig->new(
   module              => 'CT',
   name                => 'no_default',
   description         => 'no default',
@@ -199,8 +205,9 @@ SL::DB::CustomVariableConfig->new(
   includeable         => 0,
   included_by_default => 0,
 )->save;
+push @test_cvar_config_ids, $cvar_config1->id;
 
-SL::DB::CustomVariableConfig->new(
+my $cvar_config2 = SL::DB::CustomVariableConfig->new(
   module              => 'CT',
   name                => 'with_default',
   description         => 'with default',
@@ -211,6 +218,7 @@ SL::DB::CustomVariableConfig->new(
   includeable         => 0,
   included_by_default => 0,
 )->save;
+push @test_cvar_config_ids, $cvar_config2->id;
 
 # - new customer in csv - no cvars given -> one should be unset, the other one
 #   should have the default value

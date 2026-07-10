@@ -19,10 +19,15 @@ use SL::DB::CustomVariableConfig;
 
 Support::TestSetup::login();
 
+my @test_cvar_config_ids = ();
+
 sub reset_db {
   SL::DB::Manager::PriceRule->delete_all(all => 1);
-  SL::DB::Manager::CustomVariable->delete_all(all => 1);
-  SL::DB::Manager::CustomVariableConfig->delete_all(all => 1);
+  if (@test_cvar_config_ids) {
+    SL::DB::Manager::CustomVariable->delete_all(where => [ config_id => \@test_cvar_config_ids ]);
+    SL::DB::Manager::CustomVariableConfig->delete_all(where => [ id => \@test_cvar_config_ids ]);
+    @test_cvar_config_ids = ();
+  }
   SL::DB::Manager::Order->delete_all(all => 1);
   SL::DB::Manager::Shipto->delete_all(all => 1);
 
@@ -48,6 +53,7 @@ sub reset_db {
     includeable => 0,
     included_by_default => 0,
   )->save->load;
+  push @test_cvar_config_ids, $cvar_config->id;
 
   my $name = "price for test A";
 
@@ -94,6 +100,7 @@ sub reset_db {
     includeable => 0,
     included_by_default => 0,
   )->save->load;
+  push @test_cvar_config_ids, $cvar_config->id;
 
   my $name = "price for test A";
 
@@ -191,6 +198,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       includeable => 0,
       included_by_default => 0,
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -234,6 +242,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       includeable => 0,
       included_by_default => 0,
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -281,6 +290,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       includeable => 0,
       included_by_default => 0,
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $part = new_part()->save;
 
@@ -352,6 +362,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $customer = new_customer()->save->load;
 
@@ -398,6 +409,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -442,6 +454,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -489,6 +502,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -536,6 +550,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config->id;
 
     my $price_rule = SL::DB::PriceRule->new(
       name  => $name,
@@ -592,6 +607,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config1->id;
 
     my $config2 = SL::DB::CustomVariableConfig->new(
       module => 'Customer',
@@ -603,6 +619,7 @@ for (@SL::Controller::CustomVariableConfig::types) {
       included_by_default => 0,
       flags => '',
     )->save->load;
+    push @test_cvar_config_ids, $config2->id;
 
     my $order = create_sales_order()->save->load;
     my $item = $order->items_sorted->[0];
