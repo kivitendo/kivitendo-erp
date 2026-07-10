@@ -54,7 +54,9 @@
       <td class="numeric">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
       <td class="numeric">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
       <td>
-        [% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]
+        [% UNLESS bank_transfer.collective_transfer %]
+          [% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]
+        [% END %]
       </td>
       <td class="numeric">
         [% L.hidden_tag("bank_transfers[].amount", LxERP.format_amount(bank_transfer.amount, -2), id=loop.count) %]
