@@ -9,11 +9,35 @@ Wichtige Hinweise:
 
 - Die Webserver-Konfiguration muss, wie im Abschnitt "Konfiguration für
   FastCGI/FCGI" in der Dokumentation beschrieben, angepasst werden.
-  Grund dafür ist, dass Dateien aus den Verzeichnissen doc/, css/, image/
-  und js/ in Unterverzeichnise von public/ verschoben wurden.
+  Folgender Konfigurationsschnipsel funktioniert mit Apache nach der Umstellung:
+
+   AddHandler         fcgid-script .fcgi
+   FcgidMaxRequestLen 104857600
+   FcgidIOTimeout     600
+
+   AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
+   Alias       /url/for/kivitendo-erp/webdav     /var/www/kivitendo-erp/webdav
+   Alias       /url/for/kivitendo-erp            /var/www/kivitendo-erp/public
+
+   <Directory "/var/www/kivitendo-erp/fcgi">
+     Options +ExecCGI
+     Require all granted
+   </Directory>
+
+   <Directory "/var/www/kivitendo-erp/public">
+     Options -ExecCGI +FollowSymlinks
+     Require all granted
+   </Directory>
+
+  Nach dieser Umstellung ist die Dokumentation wieder aus der Oberfläche
+  abrufbar.
+  Grund für die Umstellung ist, dass Dateien aus den Verzeichnissen doc/, css/,
+  image/ und js/ in Unterverzeichnisse von public/ verschoben wurden.
   Von nun an sollen nur das Verzeichnis public/ und der FastCGI Dispatcher
   fcgi/dispatcher.fcgi vom Webserver ausgeliefert werden. Dies vereinfacht
   Zugriffsbeschränkungen für sensible Daten in allen anderen Verzeichnissen.
+  Die Dokumentation als PDF findet sich nun unter
+  public/doc/kivitendo-Dokumentation.pdf
 
 - Länderfelder sind keine Freitextfelder mehr.
   Ein interaktives Upgrade-Skript fragt für alle Werte in Länder-Feldern,
