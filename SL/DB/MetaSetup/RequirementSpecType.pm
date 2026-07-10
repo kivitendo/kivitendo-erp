@@ -26,4 +26,4 @@ __PACKAGE__->meta->unique_keys([ 'description' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
-;
+

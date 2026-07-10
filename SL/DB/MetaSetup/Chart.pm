@@ -35,4 +35,4 @@ __PACKAGE__->meta->unique_keys([ 'accno' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
-;
+

@@ -20,4 +20,4 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->unique_keys([ 'name' ]);
 
 1;
-;
+
