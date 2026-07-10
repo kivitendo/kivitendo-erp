@@ -111,10 +111,10 @@
           [% END %]
         </td>
         <td><a href="[% IF bank_transfer.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(bank_transfer.id) %]"> [% HTML.escape(bank_transfer.invnumber) %]</a></td>
-        <td>[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
-        <td>[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
+        <td class="numeric">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
+        <td class="numeric">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
         <td><input type="text" name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference.substr(0, 140)) %]" size="40" maxlength="140"></td>
-        <td><input type="text" id="[% loop.count %]" name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
+        <td class="numeric"><input type="text" id="[% loop.count %]" name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
         <td>[% L.select_tag('bank_transfers[].payment_type', bank_transfer.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target' ) %]</td>
         <td[% IF bank_transfer.within_skonto_period %] style="background-color:LightGreen"[% END %]>
           [% IF bank_transfer.skonto_amount %]
@@ -131,17 +131,15 @@
       <td><b>[% 'Totals' | $T8 %]</b> </td>
       <td></td>
       <td></td>
-      <td><b>[% LxERP.format_amount(total_trans, -2) %]</b></td>
+      <td class="numeric"><b>[% LxERP.format_amount(total_trans, -2) %]</b></td>
       <td></td>
-      <td><b>[% LxERP.format_amount(total_trans_skonto, -2) %]</b></td>
+      <td class="numeric"><b>[% LxERP.format_amount(total_trans_skonto, -2) %]</b></td>
       <td></td>
       <td></td>
       <td></td>
     </tr>
   </tbody>
 </table>
-
-<p>[% 'Sum open amount' | $T8 %]: [% LxERP.format_amount(total_trans, -2) %]</p>
 
 <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
 <input type="hidden" name="confirmation" value="1">
