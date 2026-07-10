@@ -300,7 +300,7 @@ is($ap_transaction_2020_2_with_delivery_date_2020_1->amount,   226, 'ap transact
               {
                 'belegfeld1' => 'test ap_transaction 2020_2 with delivery date 2020_1',
                 'buchungsschluessel' => 8,
-                'buchungstext' => 'Testvendor',
+                'buchungstext' => 'test ap_transaction',
                 'datum' => '15.07.2020',
                 'gegenkonto' => $ap_accno,
                 'konto' => $chart_reisekosten_accno,
@@ -314,7 +314,7 @@ is($ap_transaction_2020_2_with_delivery_date_2020_1->amount,   226, 'ap transact
               {
                 'belegfeld1' => 'test ap_transaction 2020_2 with delivery date 2020_1',
                 'buchungsschluessel' => 9,
-                'buchungstext' => 'Testvendor',
+                'buchungstext' => 'test ap_transaction',
                 'datum' => '15.07.2020',
                 'gegenkonto' => $ap_accno,
                 'konto' => $chart_reisekosten_accno,
