@@ -16,14 +16,20 @@
       <tr>
         <th>[% LxERP.t8('SEPA Combine Payments') %]</th>
         <td>[% L.yes_no_tag('defaults.sepa_combine_payments', SELF.defaults.sepa_combine_payments) %]</td>
-        <td class="longdesc">[% LxERP.t8('If enabled combining multiple payments for a single vendor will be the default.') %]</td>
+        <td class="longdesc">
+          [% LxERP.t8('If enabled combining multiple payments for a single vendor will be the default.') %]
+          <br>
+          [% LxERP.t8('When multiple payments for a single vendor are combined, it is impossible to change the total amount of the payment. This rule ensures that the bank reconciliation process will be able to mark all corresponding records as payed automatically, later on.') %]
+        </td>
       </tr>
       <tr>
         <th>[% LxERP.t8('SEPA Subtract Vendor Credit Notes') %]</th>
         <td>[% L.yes_no_tag('defaults.sepa_subtract_credit_notes', SELF.defaults.sepa_subtract_credit_notes) %]</td>
         <td class="longdesc">[% LxERP.t8('If enabled and Payments cannot be edited manually (see Tab Posting Configuration) and a default transit chart is defined (see Tab Default Accounts) Purchase Credit Notes will be also fetched for the SEPA Export and can be subtracted from other open invoices for the vendor.') %]</td>
       </tr>
-    [% 'Bank' | $T8 %]
+      <tr>
+        <th class="caption" colspan="3">[% LxERP.t8('Bank') %]</th>
+      </tr>
       <tr>
         <th>[% LxERP.t8('Ignore Proposals for Bank Transactions') %]</th>
         <td>[% L.yes_no_tag('defaults.no_bank_proposals', SELF.defaults.no_bank_proposals) %]</td>
