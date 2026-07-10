@@ -36,6 +36,11 @@ Mittelgroße neue Features:
   Einstellungen bei jedem Aufruf der Einkaufsrechnungssuche
   standardmäßig gesetzt werden.
 
+- SEPA Überweisungen für Lieferantenrechnungen können zusammengefasst und
+  mit Gutschriften verrechnet werden. Zusätzlich wird beim Rückimport von der
+  Bank über das MT940 Verfahren diese Überweisung direkt beim Import verbucht
+  (falls SEPA EndToEndID und Überweisungssumme identisch ist).
+
 - Das Land in den Stammdaten, Liefer- und Rechnungsadressen, bei Ansprechpersonen,
   Webshopbestellungen und in der Mandantenkonfig ist per Auswahlmenü aus einer
   vordefinierten Liste wählbar, anstatt wie zuvor, ein Freitextfeld. Ein
@@ -175,11 +180,6 @@ Größere neue Features:
 - Die Stilvorlagen kivitendo.css und lx-office-erp.css wurden komplett entfernt.
 
 Mittelgroße neue Features:
-
-- SEPA Überweisungen für Lieferantenrechnungen können zusammengefasst und
-  mit Gutschriften verrechnet werden. Zusätzlich wird beim Rückimport von der
-  Bank über das MT940 Verfahren diese Überweisung direkt beim Import verbucht
-  (falls SEPA EndToEndID und Überweisungssumme identisch ist).
 
 Kleinere neue Features und Detailverbesserungen:
 
