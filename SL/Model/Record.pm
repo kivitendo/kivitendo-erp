@@ -115,7 +115,7 @@ sub get_best_price_and_discount_source {
   my $price_source = SL::PriceSource->new(record_item => $item, record => $record);
 
   my $price_src;
-  if ( $item->part->is_assortment ) {
+  if ( $item->part->is_assortment && !$::instance_conf->get_inherit_assortment_price_from_master_data ) {
     # add assortment items with price 0, as the components carry the price
     $price_src = $price_source->price_from_source("");
     $price_src->price(0);

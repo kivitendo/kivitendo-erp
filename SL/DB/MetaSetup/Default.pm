@@ -124,6 +124,7 @@ __PACKAGE__->meta->columns(
   global_bcc                                => { type => 'text', default => '' },
   id                                        => { type => 'serial', not_null => 1 },
   income_accno_id                           => { type => 'integer' },
+  inherit_assortment_price_from_master_data => { type => 'boolean', default => 'false', not_null => 1 },
   inventory_accno_id                        => { type => 'integer' },
   inventory_system                          => { type => 'text' },
   invnumber                                 => { type => 'text' },
