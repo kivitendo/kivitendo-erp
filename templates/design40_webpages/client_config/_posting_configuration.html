@@ -159,12 +159,12 @@
     <tr>
       <th>[% LxERP.t8('Allow fuzzy skonto for payment bookings') %]</th>
       <td>[% L.yes_no_tag('defaults.fuzzy_skonto', SELF.defaults.fuzzy_skonto) %]</td>
-      <td>[% LxERP.t8("If set to yes a percentage deviation will be allowed for otherwise strict skonto bookings. The deviation will booked to the skonto chart and the allowed deviation is also configurable.") %]</td>
+      <td class="longdesc">[% LxERP.t8("If set to yes a percentage deviation will be allowed for otherwise strict skonto bookings. The deviation will booked to the skonto chart and the allowed deviation is also configurable.") %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8('Allowed skonto percentage deviation') %]</th>
       <td>[% L.input_tag('defaults.fuzzy_skonto_percentage_as_number', SELF.defaults.fuzzy_skonto_percentage_as_number, size=5, class="numeric") %]%</td>
-      <td>[% LxERP.t8("The allowed Skonto Percentage Deivation defaults to 0.5% of the invoice amount") %]</td>
+      <td class="longdesc">[% LxERP.t8("The allowed Skonto Percentage Deivation defaults to 0.5% of the invoice amount") %]</td>
     </tr>
   </tbody>
 </table>
