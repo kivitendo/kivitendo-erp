@@ -28,6 +28,11 @@
         <td class="longdesc">[% LxERP.t8('If enabled and Payments cannot be edited manually (see Tab Posting Configuration) and a default transit chart is defined (see Tab Default Accounts) Purchase Credit Notes will be also fetched for the SEPA Export and can be subtracted from other open invoices for the vendor.') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('Approve SEPA Transfer for AR') %]</th>
+        <td>[% L.yes_no_tag('defaults.payment_approval', SELF.defaults.payment_approval) %]</td>
+        <td class="longdesc">[% LxERP.t8("If set to yes all SEPA Transfers for AR needs to be approved first.") %]</td>
+      </tr>
+      <tr>
         <th class="caption" colspan="3">[% LxERP.t8('Bank') %]</th>
       </tr>
       <tr>
@@ -37,6 +42,11 @@
           [% LxERP.t8('If enabled the tab Proposals will not be the default view for bank transaction bookings') %]<br>
           [% LxERP.t8('This is helpful if you prefer a chronologic order of bank transactions, i.e. the tab all transactions meanwhile you are still able to use the quick add link for the suggested proposals') %]
         </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Use END-TO-END-ID to detect duplicates in bank import transactions') %]</th>
+        <td>[% L.yes_no_tag('defaults.check_bt_duplicates_endtoend', SELF.defaults.check_bt_duplicates_endtoend) %]</td>
+        <td class="longdesc">[% LxERP.t8("If set to yes and an end-to-end id can be extracted from the transaction this will be used to detect duplicates instead of the transaction purpose.") %]</td>
       </tr>
     </tbody>
   </table>
