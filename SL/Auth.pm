@@ -30,7 +30,7 @@ use constant SESSION_KEY_ROOT_AUTH => 'session_auth_status_root';
 use constant SESSION_KEY_USER_AUTH => 'session_auth_status_user';
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(client) ],
+  scalar => [ qw(client session_id) ],
 );
 
 
@@ -592,13 +592,12 @@ sub delete_user {
 
 # --------------------------------------
 
-my $session_id;
-
 sub restore_session {
   my $self = shift;
 
-  $session_id        =  $::request->{cgi}->cookie($self->get_session_cookie_name());
+  my $session_id     =  $::request->{cgi}->cookie($self->get_session_cookie_name());
   $session_id        =~ s|[^0-9a-f]||g if $session_id;
+  $self->session_id($session_id);
 
   $self->{SESSION}   = { };
 
@@ -619,7 +618,7 @@ sub restore_session {
   # admin is creating the session tables at the moment.
   $query  = qq|SELECT *, (mtime < (now() - '$self->{session_timeout}m'::interval)) AS is_expired FROM auth.session WHERE id = ?|;
 
-  if (!($sth = $dbh->prepare($query)) || !$sth->execute($session_id)) {
+  if (!($sth = $dbh->prepare($query)) || !$sth->execute($self->session_id)) {
     $sth->finish if $sth;
     return $self->session_restore_result(SESSION_NONE());
   }
@@ -637,9 +636,9 @@ sub restore_session {
   }
 
   if ($self->{column_information}->has('auto_restore')) {
-    $self->_load_with_auto_restore_column($dbh, $session_id);
+    $self->_load_with_auto_restore_column($dbh, $self->session_id);
   } else {
-    $self->_load_without_auto_restore_column($dbh, $session_id);
+    $self->_load_without_auto_restore_column($dbh, $self->session_id);
   }
 
   return $self->session_restore_result(SESSION_OK());
@@ -715,19 +714,19 @@ SQL
 sub destroy_session {
   my $self = shift;
 
-  if ($session_id) {
+  if ($self->session_id) {
     my $dbh = $self->dbconnect();
 
     $dbh->begin_work;
 
-    do_query($main::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
-    do_query($main::form, $dbh, qq|DELETE FROM auth.session WHERE id = ?|, $session_id);
+    do_query($main::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $self->session_id);
+    do_query($main::form, $dbh, qq|DELETE FROM auth.session WHERE id = ?|, $self->session_id);
 
     $dbh->commit();
 
-    SL::SessionFile->destroy_session($session_id);
+    SL::SessionFile->destroy_session($self->session_id);
 
-    $session_id      = undef;
+    $self->session_id(undef);
     $self->{SESSION} = { };
   }
 }
@@ -778,7 +777,11 @@ sub _create_session_id {
 }
 
 sub create_or_refresh_session {
-  $session_id ||= shift->_create_session_id;
+  my ($self) = @_;
+
+  $self->session_id($self->_create_session_id) unless $self->session_id;
+
+  return $self->session_id;
 }
 
 sub save_session {
@@ -787,7 +790,7 @@ sub save_session {
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-  return unless $dbh && $session_id;
+  return unless $dbh && $self->session_id;
 
   $dbh->begin_work unless $provided_dbh;
 
@@ -798,19 +801,19 @@ sub save_session {
     return;
   }
 
-  my ($id) = selectrow_query($::form, $dbh, qq|SELECT id FROM auth.session WHERE id = ?|, $session_id);
+  my ($id) = selectrow_query($::form, $dbh, qq|SELECT id FROM auth.session WHERE id = ?|, $self->session_id);
 
   if ($id) {
-    do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
+    do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $self->session_id);
   } else {
-    do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
+    do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $self->session_id, $ENV{REMOTE_ADDR});
   }
 
   my @values_to_save = grep    { $_->{modified} }
                        values %{ $self->{SESSION} };
   if (@values_to_save) {
     my %known_keys = map { $_ => 1 }
-      selectall_ids($::form, $dbh, qq|SELECT sess_key FROM auth.session_content WHERE session_id = ?|, 'sess_key', $session_id);
+      selectall_ids($::form, $dbh, qq|SELECT sess_key FROM auth.session_content WHERE session_id = ?|, 'sess_key', $self->session_id);
     my $auto_restore             = $self->{column_information}->has('auto_restore');
 
     my $insert_query  = $auto_restore
@@ -829,11 +832,11 @@ sub save_session {
 
       if ($known_keys{$value->{key}}) {
         do_statement($::form, $update_sth, $update_query,
-          $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore, $session_id, $value->{key}
+          $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore, $self->session_id, $value->{key}
         );
       } else {
         do_statement($::form, $insert_sth, $insert_query,
-          $session_id, $value->{key}, $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore
+          $self->session_id, $value->{key}, $value->get_dumped, ( $value->{auto_restore} )x!!$auto_restore
         );
       }
     }
@@ -940,7 +943,7 @@ sub restore_form_from_session {
 
 sub set_cookie_environment_variable {
   my $self = shift;
-  $ENV{HTTP_COOKIE} = $self->get_session_cookie_name() . "=${session_id}";
+  $ENV{HTTP_COOKIE} = $self->get_session_cookie_name() . "=" . $self->session_id;
 }
 
 sub get_session_cookie_name {
@@ -952,7 +955,9 @@ sub get_session_cookie_name {
 }
 
 sub get_session_id {
-  return $session_id;
+  my ($self) = @_;
+
+  return $self->session_id;
 }
 
 sub _tables_present {
