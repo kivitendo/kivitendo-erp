@@ -277,7 +277,7 @@ $datev1->generate_datev_data;
 cmp_deeply $datev1->generate_datev_lines, [
                                         {
                                           'belegfeld1'             => 'ap1',
-                                          'buchungstext'           => 'Testvendor',
+                                          'buchungstext'           => 'test ap_transaction',
                                           'datum'                  => '01.01.2017',
                                           'gegenkonto'             => '1600',
                                           'konto'                  => '3400',
@@ -289,7 +289,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                         },
                                         {
                                           'belegfeld1'             => 'ap1',
-                                          'buchungstext'           => 'Testvendor',
+                                          'buchungstext'           => 'test ap_transaction',
                                           'datum'                  => '01.01.2017',
                                           'gegenkonto'             => '1600',
                                           'konto'                  => '3300',
@@ -305,7 +305,7 @@ $datev1->generate_datev_data;
 cmp_deeply $datev1->generate_datev_lines, [
                                         {
                                           'belegfeld1'             => 'ap1',
-                                          'buchungstext'           => 'Testvendor',
+                                          'buchungstext'           => 'test ap_transaction',
                                           'datum'                  => '01.01.2017',
                                           'gegenkonto'             => $vendor->vendornumber,
                                           'konto'                  => '3400',
@@ -317,7 +317,7 @@ cmp_deeply $datev1->generate_datev_lines, [
                                         },
                                         {
                                           'belegfeld1'             => 'ap1',
-                                          'buchungstext'           => 'Testvendor',
+                                          'buchungstext'           => 'test ap_transaction',
                                           'datum'                  => '01.01.2017',
                                           'gegenkonto'             => $vendor->vendornumber,
                                           'konto'                  => '3300',
