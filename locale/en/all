@@ -3953,7 +3953,6 @@ $self->{texts} = {
   'Sum for section'             => '',
   'Sum of all amounts'          => '',
   'Sum of bank #1 and sum of bookings #2' => '',
-  'Sum open amount'             => '',
   'Sum per'                     => '',
   'Sun'                         => '',
   'Sunday'                      => '',
