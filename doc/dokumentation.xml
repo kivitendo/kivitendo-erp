@@ -4816,7 +4816,15 @@ insettings.tex</programlisting>
     </sect1>
 
     <sect1 id="features.bank" xreflabel="bankerweiterung">
-      <title>Bankerweiterung</title>
+      <title>Zahlungsverkehr über Bankkonten</title>
+
+      <para>kivitendo kann Banküberweisungen in den Formaten
+      MT940, camt.053 und CSV einlesen, um offene Verkaufs- wie
+      Einkaufsrechungen automatisch als bezahlt zu markieren. Ferner
+      kann kivitendo Anweisungen an die Bank für SEPA-Überweisungen
+      und SEPA-Bankeinzüge erzeugen, welche in Form von SEPA XML
+      Dateien im Onlinebanking oder Bankingprogramm eingespielt werden
+      können.</para>
 
       <sect2 id="features.bank.introduction"
              xreflabel="Einführung in die Bankerweiterung">
@@ -4829,6 +4837,43 @@ insettings.tex</programlisting>
         url="https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung">
         https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung
         </ulink></para>
+      </sect2>
+
+      <sect2 id="features.bank.sepa-ueberweisung">
+        <title>SEPA-Überweisungen</title>
+        <para>Sowohl einzelne Überweisungen pro Beleg als auch
+        Sammelüberweisungen gruppiert nach Lieferant werden unterstützt.
+ Beim Rückimport von der Bank über das camt.053, MT940 oder CSV
+ Verfahren werden diese Überweisung direkt beim Import automatisch
+ verbucht, falls die SEPA EndToEndID und die Überweisungssumme identisch
+ zu einer per SEPA-Export erzeugen Überweisung sind. Damit entfällt
+ in diesem Fall das manuelle Zuordnen und Verbuchen der Bankbewegung.
+        </para>
+
+        <para>Lieferantenrechnungen können mit Gutschriften verrechnet
+        werden. Dabei ist mit Gutschrift eine Kreditorenbuchung mit
+        negativem Betrag gemeint.  Damit Gutschriften in der Oberfläche
+        unter <emphasis>Überweisung via SEPA XML vorbereiten</emphasis>
+        angezeigt werden, sind folgende Einstelloptionen in der
+        Mandantenkonfiguration zu setzen:
+        <itemizedlist>
+          <listitem>
+            Gutschriften beim SEPA-Lauf verrechnen: Ja (Tab SEPA/Bank)
+          </listitem>
+          <listitem>
+            Veränderbarkeit von Zahlungen: niemals (Tab
+            Buchungskonfiguration)
+          </listitem>
+          <listitem>
+            Standardkonto für durchlaufenden Posten: z.B. Konto 1370 im
+            SKR03 (Tab Standardkonten)
+          </listitem>
+        </itemizedlist>
+        </para>
+
+        <para>Eine explizite Freigabe von SEPA-Überweisungen für
+        alle Einkaufsbelege lässt sich in der Mandantenkonfiguration
+        aktivieren.</para>
       </sect2>
     </sect1>
 
