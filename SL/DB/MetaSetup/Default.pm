@@ -208,6 +208,7 @@ __PACKAGE__->meta->columns(
   sales_reclamation_show_delete             => { type => 'boolean', default => 'true', not_null => 1 },
   sales_serial_eq_charge                    => { type => 'boolean', default => 'false', not_null => 1 },
   sdonumber                                 => { type => 'text' },
+  sepa_amount_editable                      => { type => 'boolean', default => 'false', not_null => 1 },
   sepa_combine_payments                     => { type => 'boolean', default => 'true' },
   sepa_creditor_id                          => { type => 'text' },
   sepa_export_xml                           => { type => 'boolean', default => 'true' },
