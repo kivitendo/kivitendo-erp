@@ -128,29 +128,29 @@
         </tr>
         [% END %]
       [% END %]
-        <tr>
-          <td>
-            <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(bank_transfer.id) %]">
-            <input type="hidden" name="bank_transfers[].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
-            <input type="hidden" name="bank_transfers[].selected" value="1">
-            <input type="hidden" name="bank_transfers[].collected_payment" value="[% bank_transfer.collective_transfer %]">
-            <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
-            <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
-            <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
-            <input type="hidden" id="invoice_open_amount_less_skonto_[% loop.count %]" name="invoice_open_amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount_less_skonto, 2) %]">
-            [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
-              <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
-                [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
-              </a>
-            [% END %]
-          </td>
-          <td><a href="[% IF bank_transfer.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(bank_transfer.id) %]"> [% HTML.escape(bank_transfer.invnumber) %]</a></td>
-          <td class="numeric">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
-          <td class="numeric">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
+      <tr>
+        <td>
+          <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(bank_transfer.id) %]">
+          <input type="hidden" name="bank_transfers[].vc_id" value="[% HTML.escape(bank_transfer.vc_id) %]">
+          <input type="hidden" name="bank_transfers[].selected" value="1">
+          <input type="hidden" name="bank_transfers[].collected_payment" value="[% bank_transfer.collective_transfer %]">
+          <input type="hidden" id="amount_less_skonto_[% loop.count %]" name="amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.amount_less_skonto, 2) %]">
+          <input type="hidden" id="skonto_amount_[% loop.count %]" name="skonto_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.skonto_amount, 2) %]">
+          <input type="hidden" id="invoice_open_amount_[% loop.count %]" name="invoice_open_amount_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount, 2) %]">
+          <input type="hidden" id="invoice_open_amount_less_skonto_[% loop.count %]" name="invoice_open_amount_less_skonto_[% loop.count %]" value="[% LxERP.format_amount(bank_transfer.open_amount_less_skonto, 2) %]">
+          [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
+            <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+              [% GET HTML.escape(bank_transfer.vcname); SET previous_vcname = bank_transfer.vcname; %]
+            </a>
+          [% END %]
+        </td>
+        <td><a href="[% IF bank_transfer.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(bank_transfer.id) %]"> [% HTML.escape(bank_transfer.invnumber) %]</a></td>
+        <td class="numeric">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
+        <td class="numeric">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
 
-          [% IF bank_transfer.collective_transfer
-             # The following fields are read-only for collective transfers and editable for all other transfers
-          %]
+        [% IF bank_transfer.collective_transfer
+           # The following fields are read-only for collective transfers and editable for all other transfers
+        %]
           <td></td>
           <td class="numeric">
             [% L.hidden_tag("bank_transfers[].amount", LxERP.format_amount(bank_transfer.amount, -2), id=loop.count) %]
@@ -166,7 +166,9 @@
             [% END %]
           </td>
           <td></td>
-          [% ELSE %]
+        [% ELSE
+           # normal transfer
+        %]
           <td>[% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]</td>
           <td class="right">
             [% L.input_tag("bank_transfers[].amount", LxERP.format_amount(bank_transfer.amount, -2), id=loop.count, class="numeric wi-verysmall") %]
@@ -178,8 +180,8 @@
             [% END %]
           </td>
           <td>[% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.recommended_execution_date) %]</td>
-          [% END %]
-        </tr>
+        [% END %]
+      </tr>
     [% END %]
     <tr style="border-bottom: 2px solid #000;">
     <tr style="border-bottom: 2px solid #000;">
