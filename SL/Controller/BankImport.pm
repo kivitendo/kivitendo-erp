@@ -359,9 +359,16 @@ sub _check_sepa_automatic {
                             ? $sei->invoice_open_amount_less_skonto
                             : $sei->invoice_open_amount;
 
+  # The check for matching end_to_end_ids above is the main criterion.
+  # Checking the amount is only an additional test. We have not analysed the
+  # invoice_open_amount... functions for different record types (invoice,
+  # credit note) to ensure a consistent sign policy. This is why we only
+  # compare  abs(abs(x) - abs(y)) < eps  instead of the stronger condition
+  # abs(x - y) < eps  below. If signs are inconsistent, the summation for
+  # combined payments might return wrong values, which is still not handled.
   return (
     abs($invoice_open_amount - $transaction->{amount}) < 0.01 &&
-    abs($invoice_open_amount + $sei->amount)           < 0.01
+    abs(abs($invoice_open_amount) - abs($sei->amount)) < 0.01
   ) ? $sei : undef;
 }
 
