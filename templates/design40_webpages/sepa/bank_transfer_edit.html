@@ -62,7 +62,13 @@
             [% L.checkbox_tag("ids[]", value=item.id) %]
           [% END %]
         </td>
-        <td><a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>[% IF item.is_combined_payment %][% 'Combined Payment' | $T8 %] [% END %]</td>
+        <td>
+          [% IF item.is_combined_payment %]
+            [% 'Combined Payment' | $T8 %]
+          [% ELSE %]
+            <a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>
+          [% END %]
+        </td>
         <td>[% HTML.escape(item.vc_name) %]</td>
         <td>[% HTML.escape(item.our_iban) %]</td>
         <td>[% HTML.escape(item.our_bic) %]</td>
