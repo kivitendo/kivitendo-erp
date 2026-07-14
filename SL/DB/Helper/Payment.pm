@@ -715,12 +715,14 @@ sub _skonto_charts_and_tax_correction {
       );
       SL::DB::RecordLink->new(%props_rl)->save;
     } elsif ($params{sepa_export_id}) {
-      %props_acc = (
-                    gl_id           => $current_transaction->id,
-                    sepa_exports_id => $params{sepa_export_id},
-                    acc_trans_id    => $current_transaction->transactions->[0]->acc_trans_id,
-                   );
-      SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+      foreach my $transaction (@{ $current_transaction->transactions }) {
+        %props_acc = (
+             acc_trans_id    => $transaction->acc_trans_id,
+             sepa_exports_id => $params{sepa_export_id},
+             gl_id           => $current_transaction->id,
+        );
+        SL::DB::SepaExportsAccTrans->new(%props_acc)->save || die $@;
+      }
       %props_rl = (
                    from_table => 'sepa_export',
                    from_id    => $params{sepa_export_id},
@@ -728,7 +730,6 @@ sub _skonto_charts_and_tax_correction {
                    to_id      => $current_transaction->id,
                   );
       SL::DB::RecordLink->new(%props_rl)->save;
-
     } else { die "Invalid state"; }
 
     # Record a record link from arap to gl
