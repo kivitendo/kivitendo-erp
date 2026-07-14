@@ -810,7 +810,6 @@ $self->{texts} = {
   'Collective Payment'          => 'Sammelüberweisung',
   'Column name'                 => 'Spaltenname',
   'Combine Payments'            => 'Zahlungen zusammenfassen',
-  'Combined Payment'            => 'Sammelüberweisung',
   'Comma'                       => 'Komma',
   'Comment'                     => 'Kommentar',
   'Commercial court'            => 'Amtsgericht',

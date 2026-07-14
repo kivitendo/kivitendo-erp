@@ -64,7 +64,7 @@
         </td>
         <td>
           [% IF item.is_combined_payment %]
-            [% 'Combined Payment' | $T8 %]
+            [% 'Collective Payment' | $T8 %]
           [% ELSE %]
             <a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>
           [% END %]
