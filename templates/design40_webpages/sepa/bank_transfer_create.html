@@ -116,7 +116,7 @@
           <td></td>
           <td></td>
           <td>
-            [% L.input_tag("collective_bank_transfers[].reference", combine_payments.${bank_transfer.vc_id}.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]
+            [% L.input_tag("collective_bank_transfers[].reference", combine_payments.${bank_transfer.vc_id}.reference.substr(0, 140), maxlength=140, class="wi-wider") %]
           </td>
           <td class="numeric">
             [% L.hidden_tag("collective_bank_transfers[].amount", LxERP.format_amount(combine_payments.${bank_transfer.vc_id}.amount, -2), id=bank_transfer.vc_id _ "_amount") %]
@@ -149,7 +149,7 @@
         <td class="numeric">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
 
         [% IF bank_transfer.collective_transfer
-           # The following fields are read-only for collective transfers and editable for all other transfers
+           # The following fields are read-only for collective transfers and editable for regular transfers
            # Collective transfer:
         %]
           <td></td>
@@ -159,7 +159,7 @@
           </td>
           <td>
             [% L.hidden_tag('bank_transfers[].payment_type', bank_transfer.payment_type, id='payment_type_' _ loop.count) %]
-            [% L.select_tag('bank_transfers[]._payment_type', bank_transfer.payment_select_options, value_key='payment_type', title_key='display', disabled=1) %]
+            [% L.select_tag('bank_transfers[]._payment_type', bank_transfer.payment_select_options, value_key='payment_type', title_key='display', class='wi-mediumsmall', disabled=1) %]
           </td>
           <td[% IF bank_transfer.within_skonto_period %] style="background-color:LightGreen"[% END %]>
             [% IF bank_transfer.skonto_amount %]
@@ -168,13 +168,13 @@
           </td>
           <td></td>
         [% ELSE
-           # Normal transfer:
+           # Regular transfer:
         %]
-          <td>[% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]</td>
+          <td>[% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-wider") %]</td>
           <td class="right">
             [% L.input_tag("bank_transfers[].amount", LxERP.format_amount(bank_transfer.amount, -2), id=loop.count, class="numeric wi-verysmall") %]
           </td>
-          <td>[% L.select_tag('bank_transfers[].payment_type', bank_transfer.payment_select_options, value_key='payment_type', title_key='display', id='payment_type_' _ loop.count, class='type_target' ) %]</td>
+          <td>[% L.select_tag('bank_transfers[].payment_type', bank_transfer.payment_select_options, value_key='payment_type', title_key='display', id='payment_type_' _ loop.count, class='type_target wi-mediumsmall' ) %]</td>
           <td[% IF bank_transfer.within_skonto_period %] style="background-color:LightGreen"[% END %]>
             [% IF bank_transfer.skonto_amount %]
               [% LxERP.format_amount(bank_transfer.percent_skonto, 2) %] % = [% LxERP.format_amount(bank_transfer.skonto_amount, 2) %] € [% 'until' | $T8 %] [% bank_transfer.skonto_date %]
