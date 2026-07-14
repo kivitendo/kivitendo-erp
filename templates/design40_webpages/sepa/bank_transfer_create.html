@@ -74,6 +74,11 @@
 
 <p>3. [% 'Enter the requested execution date or leave empty for the quickest possible execution:' | $T8 %]</p>
 
+[% IF combine_payments && combine_payments.size %]
+  <input type="hidden" name="combine_payments" value="1">
+  <p>[% 'Options' | $T8 %]: [% 'Combine Payments' | $T8 %]</p>
+[% END %]
+
 <table class="tbl-list">
   <thead>
     <tr>
@@ -90,8 +95,6 @@
   </thead>
   <tbody>
   [% IF combine_payments && combine_payments.size %]
-    [% 'Option' | $T8 %] [% 'Combine Payments' | $T8 %]
-    <input type="hidden" name="combine_payments" value="1">
     [% FOREACH bank_transfer = BANK_TRANSFERS %]
       [% IF loop.first || (previous_vcname != bank_transfer.vcname) %]
         [% IF bank_transfer.collective_transfer %]
