@@ -150,6 +150,7 @@
 
         [% IF bank_transfer.collective_transfer
            # The following fields are read-only for collective transfers and editable for all other transfers
+           # Collective transfer:
         %]
           <td></td>
           <td class="numeric">
@@ -167,7 +168,7 @@
           </td>
           <td></td>
         [% ELSE
-           # normal transfer
+           # Normal transfer:
         %]
           <td>[% L.input_tag("bank_transfers[].reference", bank_transfer.reference.substr(0, 140), maxlength=140, class="wi-verywide") %]</td>
           <td class="right">
