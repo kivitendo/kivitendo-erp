@@ -253,7 +253,7 @@ sub _book_sepa {
 
     # only real open invoices need payments
     my $invoice_open_amount =     $sepa_export_item->payment_type eq 'with_skonto_pt'
-                              && ! abs($sepa_export_item->invoice_booked_skonto_amount) > 0.001
+                              && ! (abs($sepa_export_item->invoice_booked_skonto_amount) > 0.001)
                               ? $sepa_export_item->invoice_open_amount_less_skonto
                               : $sepa_export_item->invoice_open_amount;
 
@@ -350,12 +350,12 @@ sub _check_sepa_automatic {
 
   my $invoice_open_amount =  # combined total (open) amount should equal bank import amount
                             $sei->is_combined_payment
-                            ? sum map  {   $_->payment_type eq 'with_skonto_pt' && ! abs($_->invoice_booked_skonto_amount) > 0.001
+                            ? sum map  {   $_->payment_type eq 'with_skonto_pt' && ! (abs($_->invoice_booked_skonto_amount) > 0.001)
                                          ? $_->invoice_open_amount_less_skonto
                                          : $_->invoice_open_amount }
                                   grep {$_->collected_payment && $_->end_to_end_id eq $sei->end_to_end_id} @{ $sei->sepa_export->sepa_export_item }
                             # single sepa item with or without skonto
-                            : $sei->payment_type eq 'with_skonto_pt' && ! abs ($sei->invoice_booked_skonto_amount) > 0.001
+                            : $sei->payment_type eq 'with_skonto_pt' && ! (abs ($sei->invoice_booked_skonto_amount) > 0.001)
                             ? $sei->invoice_open_amount_less_skonto
                             : $sei->invoice_open_amount;
 
