@@ -1,5 +1,6 @@
 [% USE T8 %]
 [% USE L %]
+[% USE P %]
 [% USE HTML %]
 [% USE LxERP %]
 
@@ -87,7 +88,16 @@
       <th>[% 'Amount' | $T8 %]</th>
       <th>[% 'Open amount' | $T8 %]</th>
       <th>[% 'Purpose' | $T8 %]</th>
-      <th>[% IF is_vendor %][% 'Bank transfer amount' | $T8 %][% ELSE %][% LxERP.t8('Bank collection amount') %][% END %]</th>
+      <th>
+        [% IF is_vendor %]
+          [% 'Bank transfer amount' | $T8 %]
+          [% IF INSTANCE_CONF.get_sepa_amount_editable %]
+            [% P.context_help_tag(LxERP.t8('When multiple payments for a single vendor are combined, it is impossible to change the total amount of the payment. This rule ensures that the bank reconciliation process will be able to mark all corresponding records as payed automatically, later on.')) %]
+          [% END %]
+        [% ELSE %]
+          [% LxERP.t8('Bank collection amount') %]
+        [% END %]
+      </th>
       <th>[% LxERP.t8('Payment type') %]</th>
       <th>[% LxERP.t8('Skonto information') %]</th>
       <th>[% 'Execution date' | $T8 %]</th>
