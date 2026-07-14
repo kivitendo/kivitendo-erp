@@ -4818,26 +4818,22 @@ insettings.tex</programlisting>
     <sect1 id="features.bank" xreflabel="bankerweiterung">
       <title>Zahlungsverkehr über Bankkonten</title>
 
-      <para>kivitendo kann Banküberweisungen in den Formaten
-      MT940, camt.053 und CSV einlesen, um offene Verkaufs- wie
-      Einkaufsrechungen automatisch als bezahlt zu markieren. Ferner
-      kann kivitendo Anweisungen an die Bank für SEPA-Überweisungen
-      und SEPA-Bankeinzüge erzeugen, welche in Form von SEPA XML
-      Dateien im Onlinebanking oder Bankingprogramm eingespielt werden
-      können.</para>
+      <para>kivitendo kann Banküberweisungen in den Formaten MT940,
+      camt.053 und CSV einlesen, um automatisch Vorschläge zum Verbuchen
+      von Bankbewegungen zu offene Verkaufs- wie Einkaufsrechungen zu
+      erzeugen. Diese Vorschläge werden nach manueller Kontrolle verbucht.
+      Ferner kann kivitendo Anweisungen an die Bank für
+      SEPA-Überweisungen und SEPA-Bankeinzüge erzeugen, welche in
+      Form von SEPA XML Dateien im Onlinebanking oder Bankingprogramm
+      eingespielt werden können.</para>
 
-      <sect2 id="features.bank.introduction"
-             xreflabel="Einführung in die Bankerweiterung">
-        <title>Einführung</title>
+      <para>Eine Nähere Beschreibung findet sich im Abschnitt
+      Zahlungsverkehr unter:</para>
 
-        <para>Die Beschreibung der Bankerweiterung befindet sich derzeit noch
-        im Wiki und soll von dort später hierhin übernommen werden:</para>
-
-        <para><ulink
-        url="https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung">
-        https://www.kivitendo.de/redmine/projects/forum/wiki/Bankerweiterung
-        </ulink></para>
-      </sect2>
+      <para><ulink
+      url="https://howto.kivitendo.de/course/view.php?id=35">
+      https://howto.kivitendo.de/course/view.php?id=35
+      </ulink></para>
 
       <sect2 id="features.bank.sepa-ueberweisung">
         <title>SEPA-Überweisungen</title>
@@ -4847,7 +4843,7 @@ insettings.tex</programlisting>
  Verfahren werden diese Überweisung direkt beim Import automatisch
  verbucht, falls die SEPA EndToEndID und die Überweisungssumme identisch
  zu einer per SEPA-Export erzeugen Überweisung sind. Damit entfällt
- in diesem Fall das manuelle Zuordnen und Verbuchen der Bankbewegung.
+ in diesem Fall die manuelle Kontrolle beim Verbuchen der Bankbewegung.
         </para>
 
         <para>Lieferantenrechnungen können mit Gutschriften verrechnet
