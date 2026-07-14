@@ -14,6 +14,11 @@
         <td class="longdesc">[% LxERP.t8('If enabled the file ending for SEPA exports will be .xml instead of .cct or .cdd') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('SEPA Bank transfer amounts are editable') %]</th>
+        <td>[% L.yes_no_tag('defaults.sepa_amount_editable', SELF.defaults.sepa_amount_editable) %]</td>
+        <td class="longdesc">[% LxERP.t8('If enabled the bank transfer amount for SEPA exports will editable.') %]</td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8('SEPA Combine Payments') %]</th>
         <td>[% L.yes_no_tag('defaults.sepa_combine_payments', SELF.defaults.sepa_combine_payments) %]</td>
         <td class="longdesc">

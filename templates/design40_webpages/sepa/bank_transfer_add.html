@@ -117,8 +117,15 @@
           [% END %]
          <input type="text" name="bank_transfers[].reference" value="[% HTML.escape(reference.substr(0, 140)) %]" maxlength="140" size="30">
         </td>
-        <td>
-          <input type="text" id=[% loop.count %] name="bank_transfers[].amount" id="amount_[% loop.count %]" value="[% IF invoice.within_skonto_period %] [% LxERP.format_amount(invoice.open_amount_less_skonto, 2) %] [% ELSE %] [% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %][% END %]" style="text-align: right" size="12">
+        <td class="right">
+          <input type="text" name="bank_transfers[].amount" id="[% loop.count %]"
+            [% IF invoice.within_skonto_period %]
+              value="[% LxERP.format_amount(invoice.open_amount_less_skonto, 2) %]"
+            [% ELSE %]
+              value="[% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %]"
+            [% END %]
+            [% UNLESS INSTANCE_CONF.get_sepa_amount_editable %]readonly[% END %]
+            class="type_target numeric wi-verysmall">
         </td>
         <td>
           [% L.select_tag('bank_transfers[].payment_type', invoice.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target wi-mediumsmall' ) %]
