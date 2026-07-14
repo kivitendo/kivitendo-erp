@@ -309,9 +309,10 @@ sub _line_item {
   $params{xml}->endTag;
   #     </ram:ApplicableTradeTax>
 
+  my $linetotal_net = $self->taxincluded ? $item_ptc->{linetotal} - $item_ptc->{tax_amount} : $item_ptc->{linetotal};
   #     <ram:SpecifiedTradeSettlementLineMonetarySummation>
   $params{xml}->startTag("ram:SpecifiedTradeSettlementLineMonetarySummation");
-  $params{xml}->dataElement("ram:LineTotalAmount", _r2($item_ptc->{linetotal}));
+  $params{xml}->dataElement("ram:LineTotalAmount", _r2($linetotal_net));
   $params{xml}->endTag;
   #     </ram:SpecifiedTradeSettlementLineMonetarySummation>
 
