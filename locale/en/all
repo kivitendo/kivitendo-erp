@@ -1571,6 +1571,7 @@ $self->{texts} = {
   'Email of the delivery order recipient' => '',
   'Email of the dunning recipient' => '',
   'Email of the invoice recipient' => '',
+  'Email of the invoicing party' => '',
   'Email signature'             => '',
   'Employee'                    => '',
   'Employee #1 saved!'          => '',

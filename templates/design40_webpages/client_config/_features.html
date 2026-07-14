@@ -231,7 +231,7 @@
         <td class="long-desc"> [% LxERP.t8('Include the transaction description in the preset email subject.') %] </td>
       </tr>
       <tr>
-        <th>[% LxERP.t8('Email of the invoice recipient') %]</th>
+        <th>[% LxERP.t8('Email of the invoicing party') %]</th>
         <td colspan="2">
           [% L.input_tag('defaults.invoice_mail', SELF.defaults.invoice_mail) %]
           <div class ="description">[% 'Used in Factur-X/ZUGFeRD & XRechnung invoice data for the seller party\'s contact information' | $T8 %]</div>
