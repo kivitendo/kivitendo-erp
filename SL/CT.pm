@@ -600,7 +600,7 @@ sub search_contacts {
 
                      ORDER BY $order_by|;
 
-  my $contacts  = selectall_hashref_query($::form, $dbh, $query, @values);
+  my $contacts  = selectall_hashref_query($::form, $dbh, $query, @values, @values);
 
   $::lxdebug->leave_sub;
 
