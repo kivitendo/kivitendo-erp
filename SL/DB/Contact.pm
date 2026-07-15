@@ -47,6 +47,8 @@ sub used {
   require SL::DB::DeliveryOrder;
   require SL::DB::Letter;
   require SL::DB::LetterDraft;
+  require SL::DB::PeriodicInvoicesConfig;
+  require SL::DB::Reclamation;
 
   return SL::DB::Manager::Order->get_all_count(query => [ cp_id => $self->cp_id ])
        + SL::DB::Manager::Invoice->get_all_count(query => [ cp_id => $self->cp_id ])
