@@ -177,9 +177,6 @@ sub _create_export {
        WHERE id = ?|;
   my $h_reference = prepare_query($form, $dbh, $q_reference);
 
-  # toter code
-  # my @now         = localtime;
-
   # if collective bank transfers, distinct end to end id for all transactions and no payment type
   # and no reference to an invoice, but to a vendor_id
   my %vc_id_end_to_end;
