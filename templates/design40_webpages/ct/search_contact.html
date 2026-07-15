@@ -10,7 +10,11 @@
 <table class="tbl-horizontal">
   <tbody>
     <tr>
-      <th>[% 'Name' | $T8 %] </th>
+      <th>[% 'Given Name' | $T8 %] </th>
+      <td><input type="text" name="filter.cp_givenname" class="wi-lightwide initial_focus"></td>
+    </tr>
+    <tr>
+      <th>[% 'Surname' | $T8 %] </th>
       <td><input type="text" name="filter.cp_name" class="wi-lightwide initial_focus"></td>
     </tr>
     <tr>
@@ -77,7 +81,7 @@
     </div>
     <div>
       <input name="l.cp_name" id="l_cp_name" type="checkbox" value="Y" checked>
-      <label for="l_cp_name"> [% 'Name' | $T8 %] </label>
+      <label for="l_cp_name"> [% 'Surname' | $T8 %] </label>
     </div>
     <div>
       <input name="l.cp_givenname" id="l_cp_givenname" type="checkbox" value="Y" checked>
