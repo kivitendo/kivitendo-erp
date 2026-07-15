@@ -1,4 +1,4 @@
-use Test::More tests => 28;
+use Test::More tests => 29;
 
 use strict;
 
@@ -329,6 +329,8 @@ sub test_sepa_combined_skonto_and_credit_note {
   is (ref $sepa_export_item_c3->[0], 'SL::DB::SepaExportItem', 'c3 SEPA Export Item created');
   is (scalar @$sepa_export_item_c3, 1, 'One exact match');
 
+  # all created acc_trans entries are connected
+  is (scalar @{ SL::DB::Manager::SepaExportsAccTrans->get_all() }, 12);
 
   # 4. check import MT940 routines
 
