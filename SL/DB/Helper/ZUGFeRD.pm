@@ -288,7 +288,7 @@ sub _line_item {
   # items sellprice. In the PTC-data, the sellprice is already discounted.
   #       <ram:GrossPriceProductTradePrice>
   $params{xml}->startTag("ram:GrossPriceProductTradePrice");
-  $params{xml}->dataElement("ram:ChargeAmount", $params{item}->sellprice);
+  $params{xml}->dataElement("ram:ChargeAmount", $item_ptc->{sellprice_no_alc});
 
   if ($params{item}->discount) {
     #       <ram:AppliedTradeAllowanceCharge>
@@ -299,8 +299,8 @@ sub _line_item {
     $params{xml}->endTag;
 
     $params{xml}->dataElement("ram:CalculationPercent", _r2($params{item}->discount * 100))                     if _is_profile($self, PROFILE_FACTURX_EXTENDED());
-    $params{xml}->dataElement("ram:BasisAmount",        _r2($params{item}->sellprice))                          if _is_profile($self, PROFILE_FACTURX_EXTENDED());
-    $params{xml}->dataElement("ram:ActualAmount",       _r2($params{item}->sellprice - $item_ptc->{sellprice}));
+    $params{xml}->dataElement("ram:BasisAmount",        $item_ptc->{sellprice_no_alc})                          if _is_profile($self, PROFILE_FACTURX_EXTENDED());
+    $params{xml}->dataElement("ram:ActualAmount",       $item_ptc->{sellprice_no_alc} - $item_ptc->{sellprice});
     $params{xml}->dataElement("ram:Reason",             _u8(t8('Discount')))                                    if _is_profile($self, PROFILE_FACTURX_EXTENDED());
 
     $params{xml}->endTag;
