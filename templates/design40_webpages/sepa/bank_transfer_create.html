@@ -14,12 +14,12 @@
   [% SET iris = 'is' %]
 [% END %]
 
-<div class="wrapper">
 [% IF error_message %]
-  <div class="message message_error">[% error_message %]</div>
+  <div class="wrapper message message_error">[% error_message %]</div>
 [% END %]
 
 <form action="sepa.pl" method="post" id="form">
+<div class="wrapper">
 <p>1.
   [% IF is_vendor %]
     [% 'Please select the source bank account for the transfers:' | $T8 %]
@@ -212,9 +212,8 @@
 
 <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
 <input type="hidden" name="confirmation" value="1">
-
-</form>
 </div><!-- /.wrapper -->
+</form>
 
 <script type="text/javascript">
   $( ".type_target" ).change(function() {
