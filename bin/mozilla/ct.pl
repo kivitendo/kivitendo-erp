@@ -419,7 +419,7 @@ sub list_contacts {
     'cp_id'        => { 'text' => $::locale->text('ID'), },
     'vcname'       => { 'text' => $::locale->text('Customer/Vendor'), },
     'vcnumber'     => { 'text' => $::locale->text('Customer/Vendor Number'), },
-    'cp_name'      => { 'text' => $::locale->text('Name'), },
+    'cp_name'      => { 'text' => $::locale->text('Surname'), },
     'cp_givenname' => { 'text' => $::locale->text('Given Name'), },
     'cp_street'    => { 'text' => $::locale->text('Street'), },
     'cp_zipcode'   => { 'text' => $::locale->text('Zipcode'), },
