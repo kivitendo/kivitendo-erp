@@ -171,14 +171,16 @@ sub _calculate_item {
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
 
-  my $item_sellprice = _round($sellprice * (1 - $item->discount), $num_dec);
+  my $item_sellprice_no_alc = _round($sellprice                        , $num_dec); # without allowance and charges (not discounted)
+  my $item_sellprice        = _round($sellprice * (1 - $item->discount), $num_dec);
 
   push @{ $data->{items} }, {
-    linetotal      => $linetotal,
-    linetotal_cost => $linetotal_cost,
-    sellprice      => $item_sellprice,
-    tax_amount     => $tax_amount,
-    taxkey_id      => $taxkey->id,
+    linetotal        => $linetotal,
+    linetotal_cost   => $linetotal_cost,
+    sellprice        => $item_sellprice,
+    sellprice_no_alc => $item_sellprice_no_alc,
+    tax_amount       => $tax_amount,
+    taxkey_id        => $taxkey->id,
   };
 
   #_dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
