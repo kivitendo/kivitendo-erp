@@ -195,6 +195,11 @@ sub get_custom_variables {
       require SL::DB::Part;
       $cvar->{value} = SL::DB::Manager::Part->find_by(id => $cvar->{value} * 1);
     }
+    if ($cvar->{type} eq 'multiselect') {
+      foreach my $o (@{$cvar->{OPTIONS}}) {
+        $o->{selected} = any { $_ eq $o->{value} } @{$cvar->{value}};
+      }
+    }
   }
 
   $h_var->finish();
