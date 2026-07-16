@@ -61,7 +61,7 @@
       </select>
 
     [% ELSIF cvar.var.type == 'multiselect' %]
-      [% render_cvar_tag_options.name=cvar_tag_name %]
+      [% render_cvar_tag_options.name=cvar_tag_name _ '[]' %]
 
       <select [% P.stringify_attributes(render_cvar_tag_options) %] multiple>
         [% IF LxERP.is_rdbo(cvar.var, 'CustomVariableConfig') %]
