@@ -77,7 +77,7 @@
             [% SET render_cvar_opts = {
                 value = option.value
                };
-               render_cvar_opts.selected = 'selected' IF cvar.value.grep('^' _ option.value _ '$').size;
+               render_cvar_opts.selected = 'selected' IF option.selected;
                L.html_tag('option', option.value, render_cvar_opts) %]
           [% END %]
         [% END %]

@@ -47,7 +47,7 @@
 [% ELSIF var.type == 'multiselect' %]
   <select name="[% var_name %][]" multiple class="wi-wide">
     [% FOREACH option = var.OPTIONS %]
-      <option value="[% option.value | html %]"[% IF var.value.grep('^' _ option.value _ '$').size %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+      <option value="[% option.value | html %]"[% IF option.selected %] selected[% END %]>[% HTML.escape(option.value) %]</option>
     [% END %]
   </select>
 
