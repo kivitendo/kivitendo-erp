@@ -137,8 +137,9 @@ sub bank_transfer_create {
   my $subtract_days   = $::instance_conf->get_sepa_set_skonto_date_buffer_in_days;
   my $set_skonto_date = $::instance_conf->get_sepa_set_skonto_date_as_default_exec_date;
   my $set_duedate     = $::instance_conf->get_sepa_set_duedate_as_default_exec_date;
-  my %vc_id_num_of_transactions;
+  my (%vc_id_num_of_transactions, %vc_id_total);
   my ($total_trans, $total_trans_skonto);
+
   foreach my $bt (@bank_transfers) {
     # add a good recommended exec date
     # set to skonto date if exists or to duedate
@@ -164,17 +165,22 @@ sub bank_transfer_create {
     $vc_id_num_of_transactions{$bt->{vc_id}} += 1;
 
     # calc totals
-    $total_trans        +=   $bt->{open_amount};
-    $total_trans_skonto +=   $bt->{payment_type} eq 'with_skonto_pt'
-                           ? $bt->{open_amount_less_skonto}
-                           : $bt->{open_amount };
+    my $open_amount_with_pt =   $bt->{payment_type} eq 'with_skonto_pt'
+                              ? $bt->{open_amount_less_skonto}
+                              : $bt->{open_amount };
+
+    $total_trans_skonto        += $open_amount_with_pt;
+    $total_trans               += $bt->{open_amount};
+    $vc_id_total{$bt->{vc_id}} += $open_amount_with_pt;
   }
 
   if (!scalar @bank_transfers) {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
-  if ($total_trans < 0) {
-    $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'));
+  for my $vc_id_total (values %vc_id_total) {
+    if ($vc_id_total <= 0) {
+      $form->error($locale->text('Can only balance credits against invoice if some amount still has to be paid.'))
+    }
   }
   my ($vc_bank_info);
   my $error_message;
