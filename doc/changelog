@@ -142,6 +142,10 @@ Kleinere neue Features und Detailverbesserungen:
   der Gesellschaft) lassen sich in der Mandatenkonfiguration hinterlegen
   und werden beim ZUGFeRD-Export mit ausgegeben.
 
+- Umsatzsteuer-Id und Steuernummer sind als weitere Felder bei zusätzlichen
+  Rechnungsadressen eingebbar. Diese stehen auch in den (verkaufsseitigen)
+  Druckvorlagen zur Verfügung.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
