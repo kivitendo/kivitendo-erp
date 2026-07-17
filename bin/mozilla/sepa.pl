@@ -717,7 +717,7 @@ sub bank_transfer_download_sepa_docs {
     my $sepa_export = SL::DB::Manager::SepaExport->find_by(id => $id);
     # check for combined and normal sepa export items
     foreach my $sepa_entry (@{ $sepa_export->find_sepa_exports_acc_trans },
-                            @{ $sepa_export->find_sepa_export_item       } ) {
+                            @{ $sepa_export->find_sepa_export_items      } ) {
       push @items, { ap_id => $sepa_entry->{ap_id} }  if $sepa_entry->{ap_id};
       push @items, { ar_id => $sepa_entry->{ar_id} }  if $sepa_entry->{ar_id};
     }
