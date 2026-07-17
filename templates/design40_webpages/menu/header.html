@@ -12,13 +12,19 @@
     [% END %]
     <div class="frame-header-quicksearch">
       [% FOREACH search = quick_search.enabled_modules %]
-        <span class='frame-header-quicksearch'><input type="text" id="top-quick-search-[% search.name %]" module="[% search.name %]" placeholder="[% search.description_field %]" maxlength="20" class="quick-search"></span>
+        <input type="text" id="top-quick-search-[% search.name %]" module="[% search.name %]" placeholder="[% search.description_field %]" maxlength="20" class="quick-search">
       [% END %]
     </div>
 
     <div class="frame-header-spinner-box">
       <span class="frame-header-spinner" id="ajax-spinner">
          <img src="image/spinner-blue.gif" alt="[% LxERP.t8('Loading...') %]">
+      </span>
+    </div>
+    <div class="frame-header-element">
+      <span id="flash-toggle" title="[% 'Show/Hide flash messages' | $T8 %]">
+        <span class="layout-flash-toggle"><img src="image/header-icon-bell.svg" alt="Flash" width="24" height="24"></span>
+        <span id="flash-number" class="layout-flash-number">0</span>
       </span>
     </div>
     <div class="frame-header-client-box">

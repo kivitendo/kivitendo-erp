@@ -60,7 +60,7 @@
   text-wrap: nowrap;
   font-size: @font-size-large;
   // set height for vertical centering
-  height: @font-size-large;
+  //height: @font-size-large;
 }
 
 // --------------------------------------
@@ -73,23 +73,59 @@ div.frame-header-quicksearch {
   flex-wrap: wrap;
   gap: 5px;
   padding: 5px;
+  flex: 1;
+  justify-content: center;
   // limit maximum height and make input fields scrollable if needed
   // TODO: later this can be adapted so that the input fields wrap on a narrower
   // screen (up to 1 or 2 lines/rows), but for this to work more changes in the
   // underlying less/CSS are required so that the content below can shift down
   // dynamically, currently these heights are hard coded
-  max-height: 35px;
-  overflow-y: scroll;
+  //max-height: 35px;
+  //overflow-y: scroll;
 }
 
-span.frame-header-quicksearch input {
+div.frame-header-quicksearch input {
+  flex: 1;
   min-width: 5em;
-  max-width: 7em;
+  max-width: 15em;
   // NOTE: set the font size explicitly here otherwise the browser renders
   // it as 13.3333px, despite inheriting 14px
   font-size: @font-size-base;
   background-color: @dashbrd_input_bg;
 }
+
+
+    // --------------------------------------
+    // FLASH TOGGLE
+    // --------------------------------------
+
+    #flash-toggle {
+      display: flex;
+      align-items: center;
+    }
+    .layout-flash-toggle {
+        cursor: pointer;
+    }
+    .layout-flash-toggle img {
+        transform-origin: top center;
+    }
+    .layout-flash-toggle img.shake {
+        animation: shake-bell 0.6s ease-in-out;
+    }
+    #flash-number {
+      padding-left: 2px;
+    }
+
+    @keyframes shake-bell {
+      0% { transform: rotate(0); }
+      15% { transform: rotate(10deg); }
+      30% { transform: rotate(-10deg); }
+      45% { transform: rotate(8deg); }
+      60% { transform: rotate(-8deg); }
+      75% { transform: rotate(4deg); }
+      100% { transform: rotate(0); }
+    }
+
 
 
 // --------------------------------------
