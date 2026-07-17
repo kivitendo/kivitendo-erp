@@ -235,7 +235,7 @@ sub _book_sepa {
   if ($sei->is_combined_payment) {
     $sei->set_executed;
     @seis = grep { $_->collected_payment && $sei->end_to_end_id eq $_->end_to_end_id }
-                @{ $sei->sepa_export->find_sepa_export_item };
+                @{ $sei->sepa_export->find_sepa_export_items };
   } else {
     push @seis, $sei;
   }
@@ -353,7 +353,7 @@ sub _check_sepa_automatic {
                             ? sum map  {   $_->payment_type eq 'with_skonto_pt' && ! (abs($_->invoice_booked_skonto_amount) > 0.001)
                                          ? $_->invoice_open_amount_less_skonto
                                          : $_->invoice_open_amount }
-                                  grep {$_->collected_payment && $_->end_to_end_id eq $sei->end_to_end_id} @{ $sei->sepa_export->sepa_export_item }
+                                  grep {$_->collected_payment && $_->end_to_end_id eq $sei->end_to_end_id} @{ $sei->sepa_export->sepa_export_items }
                             # single sepa item with or without skonto
                             : $sei->payment_type eq 'with_skonto_pt' && ! (abs ($sei->invoice_booked_skonto_amount) > 0.001)
                             ? $sei->invoice_open_amount_less_skonto

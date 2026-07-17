@@ -15,7 +15,7 @@ __PACKAGE__->meta->add_relationship(
     class           => 'SL::DB::SepaExportsAccTrans',
     column_map      => { id => 'sepa_exports_id' },
   },
-  sepa_export_item  => {
+  sepa_export_items => {
     type            => 'one to many',
     class           => 'SL::DB::SepaExportItem',
     column_map      => { id => 'sepa_export_id' },
