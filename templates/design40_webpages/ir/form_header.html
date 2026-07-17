@@ -11,7 +11,7 @@
 
 <form id='form' method="post" name="invoice" action="[% script %]">
 
-<p>[% saved_message %]</p>
+[% IF saved_message != '' %]<p>[% saved_message %]</p>[% END %]
 
 [% FOREACH key = HIDDENS %]
 [% L.hidden_tag(key, $key) %]
