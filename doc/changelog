@@ -138,6 +138,10 @@ Kleinere neue Features und Detailverbesserungen:
   sollen. Damit kommen die Preise nach wie vor aus der Preisquelle, aber der
   Preis ist frei editierbar.
 
+- Regulatorische Pflichtangaben (Geschäftsführung/Handelsregistereintrag/Sitz
+  der Gesellschaft) lassen sich in der Mandatenkonfiguration hinterlegen
+  und werden beim ZUGFeRD-Export mit ausgegeben.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
