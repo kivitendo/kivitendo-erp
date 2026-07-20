@@ -129,7 +129,7 @@
               value="[% LxERP.format_amount(invoice.open_amount - invoice.transfer_amount, 2) %]"
             [% END %]
             [% UNLESS INSTANCE_CONF.get_sepa_amount_editable %]readonly[% END %]
-            class="type_target numeric wi-verysmall">
+            class="numeric wi-verysmall">
         </td>
         <td>
           [% L.select_tag('bank_transfers[].payment_type', invoice.payment_select_options, value_key => 'payment_type', title_key => 'display', id => 'payment_type_' _ loop.count, class => 'type_target wi-mediumsmall' ) %]
