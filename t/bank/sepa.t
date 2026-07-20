@@ -42,7 +42,7 @@ our $payment_skonto2 = create_payment_terms(description => '2 % Skonto 7 Tage', 
 our $payment_skonto4 = create_payment_terms(description => '4 % Skonto 20 Tage', percent_skonto => '0.04', terms_skonto => 20, terms_netto => 90);
 our $vendor          = new_vendor(  name => 'Skonto Lieferant',   payment_id => $payment_skonto2->id, bic => '123', iban => '123' )->save;
 our $tax_9           = SL::DB::Manager::Tax->find_by(taxkey => 9, rate => 0.19) || croak "No tax for 19\%";
-our $dt              = DateTime->new(year => 2025, month =>  4, day => 7, hour => 10, minute =>  0),
+our $dt              = DateTime->new(year => 2025, month =>  4, day => 7, hour => 10, minute =>  0);
 our $ar_chart        = SL::DB::Manager::Chart->find_by( accno => '1400' ); # Forderungen
 our $ap_chart        = SL::DB::Manager::Chart->find_by( accno => '1600' ); # Verbindlichkeiten
 our $bank            = SL::DB::Manager::Chart->find_by( accno => '1200' ); # Bank
