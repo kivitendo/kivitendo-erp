@@ -865,8 +865,6 @@ sub send_concatinated_sepa_pdfs {
                                       content_disposition => 'attachment; filename="'. $params{download_filename} . '"');
 
   $::locale->with_raw_io(\*STDOUT, sub { print $out });
-
-  $main::lxdebug->leave_sub();
 }
 
 sub _round {
