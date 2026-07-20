@@ -919,10 +919,27 @@ the state of the export is neither executed nor closed.
 Returns undef if the deletion was successfully.
 Otherwise the function just dies with a short notice of the id.
 
-=head2 C<send_concatinated_sepa_pdfs> \@items $download_filename
+=head2 C<send_concatinated_sepa_pdfs %params>
 
 This function is called from bin/mozialla/sepa.pl. It retrieves PDFs
 documents for all elements of @items, concatinates them and sends the
 resulting PDF back to the client.
+
+C<%params> must include the following:
+
+=over 4
+
+=item C<arap_ids>
+
+An array ref with the ids of the items. They are hashes
+with the keys C<ap_id> or <ar_id>.
+(mandatory)
+
+=item C<download_filename>
+
+The name of the resluting PDF file.
+(mandatory)
+
+=back
 
 =cut
