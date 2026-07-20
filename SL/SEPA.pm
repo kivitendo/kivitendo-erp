@@ -448,14 +448,6 @@ sub retrieve_export {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  # TOTER Code?
-  #my ($joins, $columns);
-
-  #if ($params{details}) {
-  #  $columns = ', arap.invoice';
-  #  $joins   = "LEFT JOIN ${arap} arap ON (se.${arap}_id = arap.id)";
-  #}
-
   my $query =
     qq|SELECT se.*,
          CASE WHEN COALESCE(e.name, '') <> '' THEN e.name ELSE e.login END AS employee
