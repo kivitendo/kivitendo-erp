@@ -153,6 +153,8 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
     bleibt.
 
   Zum Prüfen was sich geändert hat eignen sich folgende Befehle:
+  (Hinweis: Dafür muss das Modul "Rose::DB" in der Version >= 0.788 verwendet
+   werden, da sonst einige Fremdschlüssel-Beziehungen nicht generiert werden.)
 
   # listet alle Dateien in denen sich etwas ändern würde
   $ scripts/rose_auto_create_model.pl --client=<name-or-id> -n --all
