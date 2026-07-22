@@ -4555,6 +4555,7 @@ $self->{texts} = {
   'To (email)'                  => '',
   'To (time)'                   => '',
   'To Date'                     => '',
+  'To be used in ZUGFeRD exported invoices.' => '',
   'To continue please change the taxkey 0 to another value.' => '',
   'To import'                   => '',
   'To upload images: Please create shoppart first' => '',
