@@ -11,8 +11,8 @@
   <colgroup><col class="wi-mediumsmall"><col class="wi-wide"></colgroup>
   <tbody>
     <tr>
-      <th>[% LxERP.t8('Description') %]</th>
-      <td>[% L.input_tag("object.name", SELF.object.name, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Description")) %]</td>
+      <th>[% LxERP.t8('Name') %][% P.context_help_tag(LxERP.t8('To be used in ZUGFeRD exported invoices.')) %]</th>
+      <td>[% L.input_tag("object.name", SELF.object.name, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Name")) %]</td>
     </tr>
     <tr>
       <th>[% LxERP.t8('IBAN') %]</th>
