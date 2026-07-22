@@ -130,6 +130,9 @@ sub load_record_template {
 
   my $row = 0;
   foreach my $item (@{ $template->items }) {
+    # In the past, GL record templates including item rows without amounts have
+    # been saved, specifically the last empty row used to enter a new item.
+    # These rows are no longer saved in templates. To be consistent, we ignore them.
     next unless ($item->amount1 > 0 || $item->amount2 > 0);
 
     $row++;
