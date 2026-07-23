@@ -71,7 +71,7 @@ sub test_bank_transaction_direct_gl {
   # 1. create one transaction manually (MT940 or CAMT.053)
   my @transactions = SL::Camt053->parse_file('t/bank/direct-booking-camt053');
 
-  is 0+@transactions, 1;
+  is scalar(@transactions), 1;
 
   is $transactions[0]{line_number},           1;
   is $transactions[0]{currency},              'EUR';
@@ -114,8 +114,8 @@ sub test_bank_transaction_direct_gl {
   $bank_import->parse_and_analyze_transactions(mode => 'camt053');
 
   # 3.1 check preview html template
-  my $html_preview = $bank_import->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import preview'), preview => 1,[ output => 0 ]);
-  ok ($html_preview =~ /gl\.pl\?action=load_record_template&id=1.*Gewerbesteuer-Voraus/, "CAMT.053 Preview shows direct booking hit");
+  my $html_preview = $bank_import->render('bank_import/import_camt053', { layout => 0, output => 0 }, title => $::locale->text('Camt.053 import preview'), preview => 1);
+  ok ($html_preview =~ /gl\.pl\?action=load_record_template&id=1">.*Gewerbesteuer-Voraus/, "CAMT.053 Preview shows direct booking hit");
 
   is($bank_import->statistics->{gl_bookings}, 1);
   is($bank_import->statistics->{to_import}  , 1);
@@ -124,12 +124,15 @@ sub test_bank_transaction_direct_gl {
   # 4. now we do the real import and we expect a gl booking
   $bank_import->import_transactions();
 
-  # 4.1 check ok html template
-  my $html_ok = $bank_import->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import result', [output => 0]));
-  ok($html_ok =~ />Dialogbuchung i.O./, "Return direct booking ok");
-  ok($html_ok =~ /<a href="gl\.pl\?action=edit&id=1">&lt;%reference_date FORMAT=%m im Jahr %Y %&gt; Gewerbesteuer-Vorauszahlu/, "Link to booking ok");
-
   my $bt = SL::DB::Manager::BankTransaction->get_first;
+  my $bt_links = SL::DB::Manager::BankTransactionAccTrans->get_all(where => [ bank_transaction_id => $bt->id ]);
+  my $gl_booking = SL::DB::Manager::GLTransaction->find_by(id => $bt_links->[0]->gl_id);
+  my $gl_transaction_id = $gl_booking->id;
+
+  # 4.1 check ok html template
+  my $html_ok = $bank_import->render('bank_import/import_camt053', { layout => 0, output => 0 }, title => $::locale->text('Camt.053 import result'));
+  ok($html_ok =~ />Dialogbuchung i.O./, "Return direct booking ok");
+  ok($html_ok =~ /<a href="gl\.pl\?action=edit&id=$gl_transaction_id">&lt;%reference_date FORMAT=%m im Jahr %Y %&gt; Gewerbesteuer-Vorauszahlu/, "Link to booking ok");
 
   is($bt->amount, '-184208.24000' , 'BankTransaction Created');
   is($bt->invoice_amount, '-184208.24000', 'BankTransaction Amount assigned');
@@ -138,11 +141,9 @@ sub test_bank_transaction_direct_gl {
   # 5. check gl booking
   is(scalar @{ $bt->linked_invoices }, 1, 'One linked GL Booking for this Bank Transaction');
 
-  my $bt_links = SL::DB::Manager::BankTransactionAccTrans->get_all(where => [ bank_transaction_id => $bt->id ]);
 
   is (scalar @{ $bt_links }, 2, 'all acc_trans entries for this Bank Transaction created');
 
-  my $gl_booking = SL::DB::Manager::GLTransaction->find_by(id => $bt_links->[0]->gl_id);
   is (ref $gl_booking, 'SL::DB::GLTransaction', 'GL Transaction created');
   is($gl_booking->reference, '02 im Jahr 2026 Gewerbesteuer-Vorauszahlung', 'Variable reference date for reference replaced');
   is($gl_booking->transaction_description, 'Februar 2026 Gewerbesteuer', 'Variable transaction_description replaced');
