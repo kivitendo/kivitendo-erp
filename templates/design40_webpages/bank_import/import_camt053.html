@@ -93,7 +93,7 @@
             [% LxERP.t8("Direct GL") %]
             <a href="gl.pl?action=load_record_template&id=[% HTML.url(transaction.direct_gl.id) %]">[% HTML.escape(transaction.direct_gl.reference) %]</a><br/>
             [% HTML.escape(transaction.direct_gl.description) %]
-            <br/><span>[% L.checkbox_tag('no_automatic_' _ transaction.direct_gl.id, value => 1, checked => 0) %]
+            <br/><span>[% L.checkbox_tag('no_automatic_' _ transaction.line_number, value => 1, checked => 0) %]
             [% LxERP.t8("Disable automatic GL booking") %]</span>
           [% ELSIF preview %]
             [% LxERP.t8("To import") %]

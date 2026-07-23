@@ -230,7 +230,7 @@ sub import_transactions {
         $sepa++;
         $transaction->{sei_ok} = 1;
       }
-      if ($transaction->{direct_gl} && !$::form->{"no_automatic_" . $transaction->{direct_gl}->id}) {
+      if ($transaction->{direct_gl} && !$::form->{"no_automatic_" . $transaction->{line_number}}) {
         $transaction->{direct_gl_id} = $self->_book_gl_template(bt => $current_bt, direct_gl_template_id => $transaction->{direct_gl}->id);
         $gl_bookings++;
       }
