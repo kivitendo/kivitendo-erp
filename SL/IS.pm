@@ -170,7 +170,7 @@ sub invoice_details {
 
   my @arrays =
     qw(runningnumber number description longdescription qty qty_nofmt unit bin
-       deliverydate_oe ordnumber_oe donumber_do transdate_oe invnumber invdate
+       deliverydate_oe invoicing_period_start invoicing_period_end ordnumber_oe donumber_do transdate_oe invnumber invdate
        partnotes serialnumber reqdate sellprice sellprice_nofmt listprice listprice_nofmt netprice netprice_nofmt
        discount discount_nofmt p_discount discount_sub discount_sub_nofmt nodiscount_sub nodiscount_sub_nofmt
        linetotal linetotal_nofmt nodiscount_linetotal nodiscount_linetotal_nofmt tax_rate projectnumber projectdescription
@@ -305,6 +305,8 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{qty_nofmt} },         $form->{"qty_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{deliverydate_oe} },   $form->{"reqdate_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{invoicing_period_start} }, $form->{"invoicing_period_start_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{invoicing_period_end} }, $form->{"invoicing_period_end_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       # linked item print variables
@@ -1015,7 +1017,7 @@ sub _post_invoice {
       $query = <<SQL;
         UPDATE invoice SET trans_id = ?, position = ?, parts_id = ?, description = ?, longdescription = ?, qty = ?,
                            sellprice = ?, fxsellprice = ?, discount = ?, allocated = ?, assemblyitem = ?,
-                           unit = ?, deliverydate = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
+                           unit = ?, deliverydate = ?, invoicing_period_start = ?, invoicing_period_end = ?, project_id = ?, serialnumber = ?, pricegroup_id = ?,
                            base_qty = ?, subtotal = ?,
                            marge_percent = ?, marge_total = ?, lastcost = ?, active_price_source = ?, active_discount_source = ?,
                            price_factor_id = ?, price_factor = (SELECT factor FROM price_factors WHERE id = ?), marge_price_factor = ?
@@ -1026,7 +1028,7 @@ SQL
                  $form->{"description_$i"}, $restricter->process($form->{"longdescription_$i"}), $form->{"qty_$i"},
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
-                 $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
+                 $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_date($form->{"invoicing_period_start_$i"}),  conv_date($form->{"invoicing_period_end_$i"}), conv_i($form->{"project_id_$i"}),
                  trim($form->{"serialnumber_$i"}), $pricegroup_id,
                  $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
@@ -1565,7 +1567,7 @@ SQL
 
   $query = qq|UPDATE ar set
                 invnumber   = ?, ordnumber     = ?, quonumber     = ?, cusordnumber  = ?,
-                transdate   = ?, orddate       = ?, quodate       = ?, tax_point     = ?, customer_id   = ?,
+                transdate   = ?, orddate       = ?, quodate       = ?, tax_point_start = ?, tax_point     = ?, customer_id   = ?,
                 amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
                 shipvia     = ?,                    notes         = ?, intnotes      = ?,
@@ -1580,7 +1582,7 @@ SQL
                 qr_reference = ?, qr_unstructured_message = ?, delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
-             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}), conv_date($form->{tax_point}), conv_i($form->{"customer_id"}),
+             conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}), conv_date($form->{tax_point_start}), conv_date($form->{tax_point}), conv_i($form->{"customer_id"}),
                        $amount,                        $netamount,                       $form->{"paid"},
              conv_date($form->{"duedate"}),  conv_date($form->{"deliverydate"}),    '1',                                $form->{"shippingpoint"},
                        $form->{"shipvia"},                                $restricter->process($form->{"notes"}),       $form->{"intnotes"},
@@ -2338,7 +2340,7 @@ sub _retrieve_invoice {
       qq|SELECT
            a.invnumber, a.ordnumber, a.quonumber, a.cusordnumber,
            a.orddate, a.quodate, a.globalproject_id,
-           a.transdate AS invdate, a.deliverydate, a.tax_point, a.paid, a.storno, a.storno_id, a.gldate,
+           a.transdate AS invdate, a.deliverydate, a.tax_point_start, a.tax_point, a.paid, a.storno, a.storno_id, a.gldate,
            a.shippingpoint, a.shipvia, a.notes, a.intnotes, a.taxzone_id,
            a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.billing_address_id,
@@ -2401,6 +2403,7 @@ sub _retrieve_invoice {
 
            i.id AS invoice_id,
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
+           i.invoicing_period_start, i.invoicing_period_end,
            i.project_id, i.serialnumber, i.pricegroup_id, i.ordnumber, i.donumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor, i.active_price_source, i.active_discount_source,
            p.partnumber, p.part_type, p.notes AS partnotes, p.formel, p.listprice,

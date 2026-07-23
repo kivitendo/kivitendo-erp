@@ -175,7 +175,7 @@ sub display_row {
   );
   # position of serialnr is used below!
   my @row2_sort   = qw(
-    tax_chart tax serialnr projectnr reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
+    tax_chart tax serialnr projectnr invoicing_period_start invoicing_period_end reqdate subtotal recurring_billing_mode marge listprice lastcost onhand
     orderer
   );
   # serialnr is important for delivery_orders
@@ -205,6 +205,11 @@ sub display_row {
     bin           => { width => 10,    value => $locale->text('Bin'),                  display => 0, },
     stock_in_out  => { width => 10,    value => $stock_in_out_title,                   display => $is_delivery_order, },
     reqdate       => {                 value => $locale->text('Reqdate'),              display => $is_s_p_order || $is_delivery_order || $is_invoice, },
+    invoicing_period_start => {        value => $locale->text('Invoicing period start'), display => $is_s_p_order || $is_delivery_order || $is_invoice, },
+    invoicing_period_end => {         value => $locale->text('Invoicing period end'), display => $is_s_p_order || $is_delivery_order || $is_invoice, },
+    reqdate       => {                 value => $locale->text('Reqdate'),              display => $is_s_p_order || $is_delivery_order || $is_invoice, },
+    subtotal      => {                 value => $locale->text('Subtotal'),             display => 1, },
+    subtotal      => {                 value => $locale->text('Subtotal'),             display => 1, },
     subtotal      => {                 value => $locale->text('Subtotal'),             display => 1, },
     recurring_billing_mode => {        value => $locale->text('Recurring billing'),    display => $form->{type} eq 'sales_order', },
     marge         => {                 value => $locale->text('Ertrag'),               display => $show_marge, },
@@ -508,6 +513,8 @@ sub display_row {
       '-default' => $form->{"project_id_$i"}
     ));
     $column_data{reqdate}   = qq|<input name="reqdate_$i" size="11" data-validate="date" value="$form->{"reqdate_$i"}">|;
+    $column_data{invoicing_period_start} = SL::Presenter::Tag::date_tag("invoicing_period_start_$i", $form->{"invoicing_period_start_$i"}, class => 'wi-date');
+    $column_data{invoicing_period_end}   = SL::Presenter::Tag::date_tag("invoicing_period_end_$i", $form->{"invoicing_period_end_$i"}, class => 'wi-date');
     $column_data{subtotal}  = sprintf qq|<input type="checkbox" name="subtotal_$i" value="1" %s>|, $form->{"subtotal_$i"} ? 'checked' : '';
     $column_data{recurring_billing_mode} = SL::Presenter::Tag::select_tag(
       "recurring_billing_mode_$i",
