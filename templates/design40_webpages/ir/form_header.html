@@ -280,8 +280,18 @@
         </tr>
       [% END %]
       <tr>
-        <th>[% 'Tax point' | $T8 %]</th>
-        <td>[% L.date_tag('tax_point', tax_point, id='tax_point', class='wi-small') %]</td>
+        <th>
+          [% 'Invoicing Date or Period' | $T8 %]
+          [% P.context_help_tag(LxERP.t8('To specify an invoicing date, only set the period end date. To specify an invoicing period, set both dates. The date or period is exported to ZUGFeRD invoices.')) %]
+        </th>
+        <td colspan=2>
+          [% L.date_tag('tax_point_start', tax_point_start,
+                        id='tax_point_start', class='wi-date',
+                        placeholder=LxERP.t8('From'), title=LxERP.t8('Invoicing period start')) %]–
+          [% L.date_tag('tax_point', tax_point,
+                        id='tax_point', class='wi-date',
+                        placeholder=LxERP.t8('Until'), title=LxERP.t8('Invoicing period end')) %]
+        </td>
       </tr>
       <tr>
         <th>[% 'Delivery Date' | $T8 %]</th>
