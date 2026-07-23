@@ -1,4 +1,4 @@
-use Test::More tests => 31;
+use Test::More tests => 34;
 
 use strict;
 
@@ -113,12 +113,21 @@ sub test_bank_transaction_direct_gl {
   # 3. now there should be a hit for a automatic booking
   $bank_import->parse_and_analyze_transactions(mode => 'camt053');
 
+  # 3.1 check preview html template
+  my $html_preview = $bank_import->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import preview'), preview => 1,[ output => 0 ]);
+  ok ($html_preview =~ /gl\.pl\?action=load_record_template&id=1.*Gewerbesteuer-Voraus/, "CAMT.053 Preview shows direct booking hit");
+
   is($bank_import->statistics->{gl_bookings}, 1);
   is($bank_import->statistics->{to_import}  , 1);
   is(ref $bank_import->transactions->[0]->{direct_gl}, 'SL::DB::RecordTemplate');
 
   # 4. now we do the real import and we expect a gl booking
   $bank_import->import_transactions();
+
+  # 4.1 check ok html template
+  my $html_ok = $bank_import->render('bank_import/import_camt053', title => $::locale->text('Camt.053 import result', [output => 0]));
+  ok($html_ok =~ />Dialogbuchung i.O./, "Return direct booking ok");
+  ok($html_ok =~ /<a href="gl\.pl\?action=edit&id=1">&lt;%reference_date FORMAT=%m im Jahr %Y %&gt; Gewerbesteuer-Vorauszahlu/, "Link to booking ok");
 
   my $bt = SL::DB::Manager::BankTransaction->get_first;
 
