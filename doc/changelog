@@ -68,12 +68,12 @@ Mittelgroße neue Features:
 - Anstelle eines Leistungszeitpunktes kann auf Rechnungen ein
   Abrechnungszeitraum anstelle des Leistungsdatums angegeben werden:
   Abrechnungszeitraum von - bis.  Positionen von Verkaufsrechnungen
-  besitzen optional einen eigenen Abrechnungszeitraum.  Dieser
-  Abrechnungszeitraum wird in ZUGFeRD als BT-73 / BT-74 exportiert: auf
-  Beleg- und Positionsebene.  Das Feature ist integriert mit der Erzeugung
-  wiederkehrender Rechnungen, bei welchen bisher der Abrechnungszeitraum
-  lediglich als Text im Bemerkungsfeld durch Variablenersetzung aufgenommen
-  werden konnte.
+  besitzen optional einen eigenen Abrechnungszeitraum.
+  Dieser Abrechnungszeitraum wird in ZUGFeRD auf Belegebene als BT-73 / BT-74
+  und auf Positionsebene als BT-134 / BT-135 exportiert.
+  Das Feature ist integriert mit der Erzeugung wiederkehrender Rechnungen,
+  bei welchen bisher der Abrechnungszeitraum lediglich als Text im
+  Bemerkungsfeld durch Variablenersetzung aufgenommen werden konnte.
 
 Kleinere neue Features und Detailverbesserungen:
 
