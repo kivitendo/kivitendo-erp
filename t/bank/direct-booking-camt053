@@ -1,0 +1,115 @@
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+    <BkToCstmrStmt>
+        <GrpHdr>
+            <MsgId>TESTBANK/NL/1420561226673</MsgId>
+            <CreDtTm>2014-01-06T16:20:26.673Z</CreDtTm>
+        </GrpHdr>
+        <Stmt>
+            <Id>1234Test/1</Id>
+            <LglSeqNb>2</LglSeqNb>
+            <CreDtTm>2014-01-06T16:20:26.673Z</CreDtTm>
+            <FrToDt>
+                <FrDtTm>2026-02-22T00:00:00.000Z</FrDtTm>
+                <ToDtTm>2026-02-22T23:59:59.999Z</ToDtTm>
+            </FrToDt>
+            <Acct>
+                <Id>
+                    <IBAN>123</IBAN>
+                </Id>
+                <Nm>Example company</Nm>
+                <Svcr>
+                    <FinInstnId>
+                        <BIC>123</BIC>
+                    </FinInstnId>
+                </Svcr>
+            </Acct>
+            <Bal>
+                <Tp>
+                    <CdOrPrtry>
+                        <Cd>OPBD</Cd>
+                    </CdOrPrtry>
+                </Tp>
+                <Amt Ccy="EUR">184028.24</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <Dt>
+                    <Dt>2026-02-22</Dt>
+                </Dt>
+            </Bal>
+            <Bal>
+                <Tp>
+                    <CdOrPrtry>
+                        <Cd>CLBD</Cd>
+                    </CdOrPrtry>
+                </Tp>
+                <Amt Ccy="EUR">15121.12</Amt>
+                <CdtDbtInd>CRDT</CdtDbtInd>
+                <Dt>
+                    <Dt>2026-02-22</Dt>
+                </Dt>
+            </Bal>
+            <Ntry>
+                <Amt Ccy="EUR">184208.24</Amt>
+                <CdtDbtInd>DBIT</CdtDbtInd>
+                <Sts>BOOK</Sts>
+                <BookgDt>
+                    <Dt>2026-02-22</Dt>
+                </BookgDt>
+                <ValDt>
+                    <Dt>2026-02-22</Dt>
+                </ValDt>
+                <BkTxCd>
+                    <Domn>
+                        <Cd>PMNT</Cd>
+                        <Fmly>
+                            <Cd>RDDT</Cd>
+                            <SubFmlyCd>ESDD</SubFmlyCd>
+                        </Fmly>
+                    </Domn>
+                    <Prtry>
+                        <Cd>EI</Cd>
+                    </Prtry>
+                </BkTxCd>
+                <NtryDtls>
+                    <TxDtls>
+                        <Refs>
+                            <InstrId>INNDNL2U20141231000142300002844</InstrId>
+                            <EndToEndId>KIVITENDO2711</EndToEndId>
+                            <MndtId>1880000341866</MndtId>
+                        </Refs>
+                        <AmtDtls>
+                            <TxAmt>
+                                <Amt Ccy="EUR">754.25</Amt>
+                            </TxAmt>
+                        </AmtDtls>
+                        <RltdPties>
+                            <Cdtr>
+                                <Nm>INSURANCE COMPANY TESTX</Nm>
+                                <PstlAdr>
+                                    <StrtNm>TEST STREET 20</StrtNm>
+                                    <TwnNm>1234 AB TESTCITY</TwnNm>
+                                    <Ctry>NL</Ctry>
+                                </PstlAdr>
+                            </Cdtr>
+                            <CdtrAcct>
+                                <Id>
+                                    <IBAN>789IBAN</IBAN>
+                                </Id>
+                            </CdtrAcct>
+                        </RltdPties>
+                        <RltdAgts>
+                            <CdtrAgt>
+                                <FinInstnId>
+                                    <BIC>456BIC</BIC>
+                                </FinInstnId>
+                            </CdtrAgt>
+                        </RltdAgts>
+                        <RmtInf>
+                            <Ustrd>EREF: SEPA 49 foo Ab rechnung 20 a Kassenzeichen: 27IV3a+SVWMx b</Ustrd>
+                        </RmtInf>
+                        <AddtlTxInf>MKB Insurance 859239PERIOD 01.01.2014 - 31.12.2014</AddtlTxInf>
+                    </TxDtls>
+                </NtryDtls>
+            </Ntry>
+        </Stmt>
+    </BkToCstmrStmt>
+</Document>
