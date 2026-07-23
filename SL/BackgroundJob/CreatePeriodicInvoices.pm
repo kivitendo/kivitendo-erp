@@ -241,6 +241,7 @@ sub _create_periodic_invoice {
     $intnotes    .= "Automatisch am " . $invdate->to_lxoffice . " erzeugte Rechnung";
 
     $invoice->assign_attributes(deliverydate => $period_start_date,
+                                tax_point_start => $period_start_date,
                                 tax_point    => $tax_point,
                                 intnotes     => $intnotes,
                                 employee     => $order->employee, # new_from sets employee to import user
