@@ -250,6 +250,7 @@ my @different_record_item_values = qw(
   allocated assemblyitem cusordnumber deliverydate donumber fxsellprice marge_percent marge_price_factor marge_total optional ordnumber subtotal transdate expense_chart_id tax_id inventory_chart_id
   reason_description_ext reason_description_int reason_id reqdate
   tax_chart_type
+  invoicing_period_start invoicing_period_end
 );
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
