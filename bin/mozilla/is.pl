@@ -1118,6 +1118,14 @@ sub post {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
+  if ($form->{tax_point_start}) {
+    $form->isblank("tax_point",
+                   $locale->text('Invoicing period end date missing!'));
+    unless ($locale->parse_date_to_object($form->{tax_point_start}) <=
+            $locale->parse_date_to_object($form->{tax_point})) {
+      $form->error($locale->text('Invoicing period: the start date must be earlier than the end date!'));
+    }
+  }
   $form->isblank("customer_id", $locale->text('Customer missing!'));
   $form->error($locale->text('Cannot post invoice for a closed period!'))
         if ($form->date_closed($form->{"invdate"}, \%myconfig));

@@ -1033,6 +1033,15 @@ sub validate_items {
   for my $i (1 .. $form->{rowcount} - 1) {
     $form->isblank("partnumber_$i",
                    $locale->text('Number missing in Row') . " $i");
+
+    if ($form->{"invoicing_period_start_$i"}) {
+      $form->isblank("invoicing_period_end_$i",
+                     $locale->text('Invoicing period end date missing in row #1', $i));
+      unless ($locale->parse_date_to_object($form->{"invoicing_period_start_$i"}) <=
+              $locale->parse_date_to_object($form->{"invoicing_period_end_$i"})) {
+        $form->error($locale->text('Invoicing period: the start date must be earlier than the end date in row #1', $i));
+      }
+    }
   }
 
   $main::lxdebug->leave_sub();
