@@ -2235,6 +2235,7 @@ $self->{texts} = {
   'Invoicing period end date missing in row #1' => '',
   'Invoicing period end date missing!' => '',
   'Invoicing period start'      => '',
+  'Invoicing period start date missing in row #1' => '',
   'Invoicing period: the start date must be earlier than the end date in row #1' => '',
   'Invoicing period: the start date must be earlier than the end date!' => '',
   'Is Searchable'               => '',
