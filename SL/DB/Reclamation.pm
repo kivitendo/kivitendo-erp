@@ -428,7 +428,6 @@ sub new_from {
       payment_id
       shipvia
       tax_point
-      tax_point_start
       taxincluded
       taxzone_id
       transaction_description
