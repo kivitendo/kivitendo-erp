@@ -270,7 +270,6 @@ my @different_record_values2 = qw(
     billing_address_id customer_id cv_record_number delivered closed exchangerate record_type reqdate salesman_id shippingpoint shipto_id
     cp_id contact_id
     invnumber record_number qrbill_data
-    tax_point_start
 );
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
