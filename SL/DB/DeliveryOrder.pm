@@ -216,6 +216,8 @@ sub new_from {
       salesman_id
       shippingpoint
       shipvia
+      tax_point_start
+      tax_point
       taxincluded
       taxzone_id
       transaction_description
