@@ -23,6 +23,8 @@ __PACKAGE__->meta->columns(
   fxsellprice            => { type => 'numeric', precision => 15, scale => 5 },
   id                     => { type => 'integer', not_null => 1, sequence => 'invoiceid' },
   inventory_chart_id     => { type => 'integer' },
+  invoicing_period_end   => { type => 'date' },
+  invoicing_period_start => { type => 'date' },
   itime                  => { type => 'timestamp', default => 'now()' },
   lastcost               => { type => 'numeric', precision => 15, scale => 5 },
   longdescription        => { type => 'text' },
