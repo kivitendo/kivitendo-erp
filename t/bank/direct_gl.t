@@ -1,4 +1,4 @@
-use Test::More tests => 17;
+use Test::More tests => 31;
 
 use strict;
 
@@ -25,7 +25,7 @@ use SL::DB::BankTransaction;
 
 
 Support::TestSetup::login();
-our $dt              = DateTime->new(year => 2026, month =>  2, day => 22, hour => 10, minute =>  0),
+our $dt              = DateTime->new(year => 2026, month =>  2, day => 22, hour => 0, minute =>  0),
 our $ar_chart        = SL::DB::Manager::Chart->find_by( accno => '1400' ); # Forderungen
 our $ap_chart        = SL::DB::Manager::Chart->find_by( accno => '1600' ); # Verbindlichkeiten
 our $bank            = SL::DB::Manager::Chart->find_by( accno => '1200' ); # Bank
@@ -37,8 +37,8 @@ our $currency_id     = $::instance_conf->get_currency_id;
 our $bank_account     =  SL::DB::BankAccount->new(
     account_number  => '123',
     bank_code       => '123',
-    iban            => '123',
-    bic             => '123',
+    iban            => '123IBAN',
+    bic             => '123BIC',
     bank            => '123',
     chart_id        => SL::DB::Manager::Chart->find_by(description => 'Bank')->id,
     name            => SL::DB::Manager::Chart->find_by(description => 'Bank')->description,
@@ -69,19 +69,27 @@ sub test_bank_transaction_direct_gl {
   my $bank_import =  SL::Controller::BankImport->new();
 
   # 1. create one transaction manually (MT940 or CAMT.053)
-  my $transaction;
-  $transaction->{amount}        = -184208.24;
-  $transaction->{valutadate}    = $dt;
-  $transaction->{transdate}     = $dt;
-  $transaction->{end_to_end_id} = "KIVITENDO2711";
-  $transaction->{purpose}       = "EREF: SEPA 49 foo Ab rechnung 20 a Kassenzeichen: 27IV3a+SVWMx b";
-  $transaction->{local_bank_account_id} = $bank_account->id;
-  $transaction->{local_bank_code}       = $bank_account->bank_code;
-  $transaction->{local_account_number}  = $bank_account->account_number;
+  my @transactions = SL::Camt053->parse_file('t/bank/direct-booking-camt053');
 
-  $bank_import->transactions([ $transaction ]);
+  is 0+@transactions, 1;
 
-  $bank_import->parse_and_analyze_transactions(unit_test => 1);
+  is $transactions[0]{line_number},           1;
+  is $transactions[0]{currency},              'EUR';
+  is $transactions[0]{transdate},             $dt;
+  is $transactions[0]{valutadate},            $dt;
+  is $transactions[0]{amount},                '-184208.24';
+  is $transactions[0]{reference},             'INNDNL2U20141231000142300002844';
+  is $transactions[0]{local_bank_code},       '123';
+  is $transactions[0]{local_account_number},  '123';
+  is $transactions[0]{end_to_end_id},         'KIVITENDO2711';
+  is $transactions[0]{purpose},               "EREF: SEPA 49 foo Ab rechnung 20 a Kassenzeichen: 27IV3a+SVWMx b";
+  is $transactions[0]{remote_name},           'INSURANCE COMPANY TESTX';
+  is $transactions[0]{remote_bank_code},      '456BIC';
+  is $transactions[0]{remote_account_number}, '789IBAN';
+
+  $bank_import->file_name('t/bank/direct-booking-camt053');
+
+  $bank_import->parse_and_analyze_transactions(mode => 'camt053');
 
   # now we parse this transaction without a configured template
   is($bank_import->statistics->{gl_bookings}, 0);
@@ -103,7 +111,7 @@ sub test_bank_transaction_direct_gl {
   is ($record_template->bank_import_template, 1, 'Record Template can be used for Bank Import');
 
   # 3. now there should be a hit for a automatic booking
-  $bank_import->parse_and_analyze_transactions(unit_test => 1);
+  $bank_import->parse_and_analyze_transactions(mode => 'camt053');
 
   is($bank_import->statistics->{gl_bookings}, 1);
   is($bank_import->statistics->{to_import}  , 1);
