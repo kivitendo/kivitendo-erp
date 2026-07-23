@@ -1042,6 +1042,10 @@ sub validate_items {
         $form->error($locale->text('Invoicing period: the start date must be earlier than the end date in row #1', $i));
       }
     }
+    if ($form->{"invoicing_period_end_$i"}) {
+      $form->isblank("invoicing_period_start_$i",
+                     $locale->text('Invoicing period start date missing in row #1', $i));
+    }
   }
 
   $main::lxdebug->leave_sub();
