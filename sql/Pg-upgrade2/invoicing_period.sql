@@ -12,3 +12,5 @@ ALTER TABLE orderitems      ADD COLUMN invoicing_period_start date,
                             ADD COLUMN invoicing_period_end   date;
 
 ALTER TABLE delivery_orders ADD COLUMN tax_point_start        date;
+
+ALTER TABLE reclamations    ADD COLUMN tax_point_start        date;
