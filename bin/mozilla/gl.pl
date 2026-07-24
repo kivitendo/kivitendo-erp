@@ -130,15 +130,20 @@ sub load_record_template {
 
   my $row = 0;
   foreach my $item (@{ $template->items }) {
+    my $amount1_is_set = ($item->amount1 > 0 || $item->amount1 < 0);
+    my $amount2_is_set = ($item->amount2 > 0 || $item->amount2 < 0);
+
     # In the past, GL record templates including item rows without amounts have
     # been saved, specifically the last empty row used to enter a new item.
     # These rows are no longer saved in templates. To be consistent, we ignore them.
-    next unless ($item->amount1 > 0 || $item->amount2 > 0);
+    next unless $amount1_is_set || $amount2_is_set;
+
+    if ($switch_sign) {
+      $amount1_is_set = !$amount1_is_set;
+      $amount2_is_set = !$amount2_is_set;
+    }
 
     $row++;
-    $item->amount1($item->amount1 * 1 ? 0 : 1) if $switch_sign;
-    $item->amount2($item->amount2 * 1 ? 0 : 1) if $switch_sign;
-
     my $active_taxkey = $item->chart->get_active_taxkey;
     my $taxes         = SL::DB::Manager::Tax->get_all(
       where   => [ chart_categories => { like => '%' . $item->chart->category . '%' }],
@@ -156,8 +161,8 @@ sub load_record_template {
 
     $::form->{"accno_id_${row}"}          = $item->chart_id;
     $::form->{"previous_accno_id_${row}"} = $item->chart_id;
-    $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount1), 2) if $item->amount1 * 1;
-    $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount2), 2) if $item->amount2 * 1;
+    $::form->{"debit_${row}"}             = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount1), 2) if $amount1_is_set;
+    $::form->{"credit_${row}"}            = $::form->format_amount(\%::myconfig, ($payment_suggestion ? $payment_suggestion : $item->amount2), 2) if $amount2_is_set;
     $::form->{"taxchart_${row}"}          = $item->tax_id . '--' . $tax->rate;
     $::form->{"${_}_${row}"}              = $item->$_ for qw(source memo project_id);
   }
