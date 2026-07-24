@@ -14,3 +14,5 @@ ALTER TABLE orderitems      ADD COLUMN invoicing_period_start date,
 ALTER TABLE delivery_orders ADD COLUMN tax_point_start        date;
 
 ALTER TABLE reclamations    ADD COLUMN tax_point_start        date;
+
+ALTER TABLE defaults ADD COLUMN invoicing_period_sales text NOT NULL default '';
