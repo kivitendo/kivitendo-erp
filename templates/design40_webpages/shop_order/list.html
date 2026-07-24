@@ -100,7 +100,7 @@
       <br>[% HTML.escape(shop_order.billing_zipcode) %]&nbsp;[% HTML.escape(shop_order.billing_city) %]
       <br>[% HTML.escape(shop_order.billing_country.description_de) %]
       <br>[% HTML.escape(shop_order.billing_email) %]
-      <br>[% IF shop_order.open_invoices > 0 || shop_order.customer.order_lock == 1 %][% SET alertclass = 'class="shop_alert"' %][% ELSE %][% SET alertclass = '' %][% END %]<span [% alertclass %]>&nbsp;&nbsp;[% 'KdNr' | $T8 %] [% HTML.escape(shop_order.kivi_customer.customernumber) %] -- [% 'OPs' | $T8 %] [% shop_order.open_invoices %]&nbsp;&nbsp;</span></td>
+      <br>[% IF shop_order.open_invoices > 0 || shop_order.customer.order_lock == 1 %][% SET alertclass = 'class="shop_alert"' %][% ELSE %][% SET alertclass = '' %][% END %]<span [% alertclass %]>&nbsp;&nbsp;[% 'Cus-no.' | $T8 %] [% HTML.escape(shop_order.kivi_customer.customernumber) %] -- [% 'OPs' | $T8 %] [% shop_order.open_invoices %]&nbsp;&nbsp;</span></td>
     </td>
     [% IF (shop_order.delivery_lastname != shop_order.billing_lastname || shop_order.delivery_firstname != shop_order.billing_firstname || shop_order.delivery_street != shop_order.billing_street || shop_order.delivery_city != shop_order.billing_city) %] 
       [% SET deliveryclass = 'class="shop_delivery"' %]
