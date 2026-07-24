@@ -573,19 +573,22 @@ sub _payment_terms {
 sub _invoicing_period {
   my ($self, %params) = @_;
 
-  if ($self->tax_point_start && $self->tax_point) {
+  my $invoicing_period_start = $self->tax_point_start // $self->tax_point;
+  my $invoicing_period_end   = $self->tax_point;
+
+  if ($invoicing_period_start && $invoicing_period_end) {
     #     <ram:BillingSpecifiedPeriod>
     $params{xml}->startTag("ram:BillingSpecifiedPeriod");
 
     #       <ram:StartDateTime> BT-73
     $params{xml}->startTag("ram:StartDateTime");
-    $params{xml}->dataElement("udt:DateTimeString", $self->tax_point_start->strftime('%Y%m%d'), format => "102");
+    $params{xml}->dataElement("udt:DateTimeString", $invoicing_period_start->strftime('%Y%m%d'), format => "102");
     $params{xml}->endTag;
     #       </ram:StartDateTime>
 
     #       <ram:EndDateTime> BT-74
     $params{xml}->startTag("ram:EndDateTime");
-    $params{xml}->dataElement("udt:DateTimeString", $self->tax_point->strftime('%Y%m%d'), format => "102");
+    $params{xml}->dataElement("udt:DateTimeString", $invoicing_period_end->strftime('%Y%m%d'), format => "102");
     $params{xml}->endTag;
     #       </ram:EndDateTime>
 
