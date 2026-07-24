@@ -69,7 +69,7 @@ sub test_bank_transaction_direct_gl {
   my $bank_import =  SL::Controller::BankImport->new();
 
   # 1. create one transaction manually (MT940 or CAMT.053)
-  my @transactions = SL::Camt053->parse_file('t/bank/direct-booking-camt053');
+  my @transactions = SL::Camt053->parse_file('t/bank/direct-booking-camt053.xml');
 
   is scalar(@transactions), 1;
 
@@ -87,7 +87,7 @@ sub test_bank_transaction_direct_gl {
   is $transactions[0]{remote_bank_code},      '456BIC';
   is $transactions[0]{remote_account_number}, '789IBAN';
 
-  $bank_import->file_name('t/bank/direct-booking-camt053');
+  $bank_import->file_name('t/bank/direct-booking-camt053.xml');
 
   $bank_import->parse_and_analyze_transactions(mode => 'camt053');
 

@@ -2,7 +2,5 @@
 -- @description: Dialogbuchungsvorlagen kennzeichnen die direkt als Quelle vom Bankimport bebucht werden dürfen
 -- @depends: release_4_0_0
 
-ALTER TABLE gl ADD bank_import_template boolean DEFAULT false;
-ALTER TABLE record_templates ADD bank_import_template boolean DEFAULT false;
-
-
+ALTER TABLE gl ADD COLUMN bank_import_template boolean DEFAULT false;
+ALTER TABLE record_templates ADD COLUMN bank_import_template boolean DEFAULT false;
