@@ -1041,6 +1041,19 @@ sub validate_items {
               $locale->parse_date_to_object($form->{"invoicing_period_end_$i"})) {
         $form->error($locale->text('Invoicing period: the start date must be earlier than the end date in row #1', $i));
       }
+
+      if ($form->{tax_point_start} && $form->{"invoicing_period_start_$i"}) {
+        unless ($locale->parse_date_to_object($form->{tax_point_start}) <=
+                $locale->parse_date_to_object($form->{"invoicing_period_start_$i"})) {
+          $form->error($locale->text('Invoicing period in row #1 must be within the record\'s invoicing period', $i));
+        }
+      }
+      if ($form->{tax_point} && $form->{"invoicing_period_end_$i"}) {
+        unless ($locale->parse_date_to_object($form->{"invoicing_period_end_$i"}) <=
+                $locale->parse_date_to_object($form->{tax_point})) {
+          $form->error($locale->text('Invoicing period in row #1 must be within the record\'s invoicing period', $i));
+        }
+      }
     }
     if ($form->{"invoicing_period_end_$i"}) {
       $form->isblank("invoicing_period_start_$i",
