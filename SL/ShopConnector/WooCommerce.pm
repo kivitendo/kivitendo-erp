@@ -209,6 +209,8 @@ sub map_data_to_shoporder {
   );
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
+  my $billing_country = SL::DB::Manager::Country->find_by( iso2 => $import->{billing}->{country} );
+  my $delivery_country = SL::DB::Manager::Country->find_by( iso2 => $import->{shipping}->{country} );
   my %columns = (
 #billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},
@@ -220,7 +222,7 @@ sub map_data_to_shoporder {
     #state
     # ???
     billing_zipcode         => $import->{billing}->{postcode},
-    billing_country         => $import->{billing}->{country},
+    billing_country         => $billing_country,
     billing_email           => $import->{billing}->{email},
     billing_phone           => $import->{billing}->{phone},
 
@@ -242,7 +244,7 @@ sub map_data_to_shoporder {
 
     #customer_city           => "",
     #customer_company        => "",
-    #customer_country        => "",
+    customer_country        => $billing_country,
     #customer_department     => "",
     #customer_email          => "",
     #customer_fax            => "",
@@ -262,7 +264,7 @@ sub map_data_to_shoporder {
     delivery_city           => $import->{shipping}->{city} || $import->{billing}->{city},
     #state ???
     delivery_zipcode        => $import->{shipping}->{postcode} || $import->{billing}->{postcode},
-    delivery_country        => $import->{shipping}->{country} || $import->{billing}->{country},
+    delivery_country        => $delivery_country,
     #delivery_department     => "",
     #delivery_email          => "",
     #delivery_fax            => "",
