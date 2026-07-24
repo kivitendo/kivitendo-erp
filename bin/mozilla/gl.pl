@@ -109,9 +109,9 @@ sub load_record_template {
   # check sign for bank_transactions source and switch sign if necessary
   my $switch_sign;
   if ($form_defaults->{bt_id}) {
-    my @wrong_sign  = grep { $_->{chart_id} == $form_defaults->{bt_chart_id} } @{ $template->items };
-    $switch_sign    =    ($wrong_sign[0]->{amount2} != 0 && $form_defaults->{amount_1_signed} > 0)
-                      || ($wrong_sign[0]->{amount1} != 0 && $form_defaults->{amount_1_signed} < 0);
+    my $wrong_sign  = first { $_->{chart_id} == $form_defaults->{bt_chart_id} } @{ $template->items };
+    $switch_sign    =    ($wrong_sign->{amount2} != 0 && $form_defaults->{amount_1_signed} > 0)
+                      || ($wrong_sign->{amount1} != 0 && $form_defaults->{amount_1_signed} < 0);
   }
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
 
