@@ -111,7 +111,7 @@ sub load_record_template {
   if ($form_defaults->{bt_id}) {
     my @wrong_sign  = grep { $_->{chart_id} == $form_defaults->{bt_chart_id} } @{ $template->items };
     $switch_sign    =    ($wrong_sign[0]->{amount2} != 0 && $form_defaults->{amount_1_signed} > 0)
-                      || ($wrong_sign[0]->{amount1} != 0 && $form_defaults->{amount_1_signed} < 0) ? 1 : 0;
+                      || ($wrong_sign[0]->{amount1} != 0 && $form_defaults->{amount_1_signed} < 0);
   }
   delete @{ $::form }{ grep { !m{^(?:script|login)$}i } keys %{ $::form } };
 
