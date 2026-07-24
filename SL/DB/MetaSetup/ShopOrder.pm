@@ -1,12 +1,12 @@
-  # This file has been auto-generated. Do not modify it; it will be overwritten
-  # by rose_auto_create_model.pl automatically.
-  package SL::DB::ShopOrder;
+# This file has been auto-generated. Do not modify it; it will be overwritten
+# by rose_auto_create_model.pl automatically.
+package SL::DB::ShopOrder;
 
-  use strict;
+use strict;
 
-  use parent qw(SL::DB::Object);
+use parent qw(SL::DB::Object);
 
-  __PACKAGE__->meta->table('shop_orders');
+__PACKAGE__->meta->table('shop_orders');
 
 __PACKAGE__->meta->columns(
   amount                 => { type => 'numeric', precision => 15, scale => 5 },
@@ -115,3 +115,4 @@ __PACKAGE__->meta->foreign_keys(
 );
 
 1;
+
