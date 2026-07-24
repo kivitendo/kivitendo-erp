@@ -354,6 +354,25 @@ sub prepare_invoice {
       $form->{rowcount}        = $i;
 
     }
+  } else {
+    if ($::instance_conf->get_invoicing_period_sales eq 'previous_month') {
+      my ($start_date, $previous_month_start, $previous_month_end);
+
+      $start_date           = DateTime->today_local;
+
+      $previous_month_start = $start_date
+        ->clone
+        ->truncate(to => 'month')
+        ->subtract(months => 1);
+
+      $previous_month_end   = $previous_month_start
+        ->clone->add(months => 1)
+        ->truncate(to => 'month')
+        ->subtract(days => 1);
+
+      $form->{tax_point_start} //= $::locale->format_date(\%::myconfig, $previous_month_start);
+      $form->{tax_point}       //= $::locale->format_date(\%::myconfig, $previous_month_end);
+    }
   }
   $main::lxdebug->leave_sub();
 }
