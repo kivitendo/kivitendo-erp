@@ -321,9 +321,10 @@ sub _book_sepa {
   $bt->save;
   return undef;
 }
+
 sub _book_gl_template {
   my ($self, %params) = @_;
-  die "Need a bankt transaction" unless ref $params{bt} eq 'SL::DB::BankTransaction';
+  die "Need a bank transaction" unless ref $params{bt} eq 'SL::DB::BankTransaction';
 
   my $gl_template = SL::DB::Manager::RecordTemplate->find_by(id => $params{direct_gl_template_id});
   die "Need a template GL" unless ref $gl_template eq 'SL::DB::RecordTemplate';
