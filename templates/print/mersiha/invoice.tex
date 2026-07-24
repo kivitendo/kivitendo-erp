@@ -45,7 +45,11 @@
 \setkomavar{info4}[\auftragsnummer]    {<%ordnumber%>}
 \setkomavar{info5}[\angebot{}~\nr]     {<%quonumber%>}
 \setkomavar{info6}[\lieferschein{}~\nr]{<%donumber%>}
-\setkomavar{info7}[\leistungsdatum]    {<%tax_point%>}
+<%if tax_point_start %>
+  \setkomavar{info7}[\abrechnungszeitraum]{<%tax_point_start%> -- <%tax_point%>}
+<%else%>
+  \setkomavar{info7}[\leistungsdatum]  {<%tax_point%>}
+<%end%>
 \setkomavar{info8}[\ansprechpartner]   {<%employee_name%>}
 \setkomavar{info9}[\textTelefon]       {<%employee_tel%>}
 \setkomavar{info10}[\textEmail]        {<%employee_email%>}
