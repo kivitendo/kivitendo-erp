@@ -53,7 +53,7 @@ sub get_taxzone {
   require SL::DB::TaxZone;
 
   return SL::DB::Manager::TaxZone->find_by( description => 'Inland' ) if $self->iso2 eq 'DE';
-  return SL::DB::Manager::TaxZone->find_by( description => { like => "EU ohne USt-ID Nummer " . $self->iso2 } ) if $self->is_eu_country;
+  return SL::DB::Manager::TaxZone->find_by( description => 'EU ohne USt-ID Nummer' ) if $self->is_eu_country;
   return SL::DB::Manager::TaxZone->find_by( description => 'Nicht EU' );
 }
 
