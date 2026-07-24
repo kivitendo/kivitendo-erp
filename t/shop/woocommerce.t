@@ -41,6 +41,7 @@ sub reset_state {
   $customer = new_customer( name    => 'Evil Inc',
                             street  => 'Evil Street',
                             zipcode => '66666',
+                            country_id => 57,
                             email   => 'evil@evilinc.com'
                           )->save;
 }
