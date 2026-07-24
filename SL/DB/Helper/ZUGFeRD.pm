@@ -24,6 +24,8 @@ use Carp;
 use Encode qw(encode);
 use List::MoreUtils qw(any);
 use List::Util qw(first sum sum0);
+use MIME::Base64 qw();
+use File::Slurp qw();
 use Template;
 use XML::Writer;
 use Params::Validate qw(:all);
@@ -268,6 +270,52 @@ sub _tax_rate_and_code {
   }
 
   return (rate => $tax_rate, code => $tax_code);
+}
+
+sub _additional_referenced_document {
+  my ($self, %params) = @_;
+
+  die "doc_id is needed in params" if !$params{doc_id}; # BT-122
+
+  # type codes:
+  #  50 Validated priced tender
+  # 130 Rechnungsdatenblatt
+  # 916 Referenzpapier
+  my $type_code = $params{type_code} || '916';
+
+  # check params for including binary data
+  if ($params{filename}) {
+    die "file or content is needed in params" if !($params{file} || $params{content});
+
+    my %valid_mime_codes = (
+      'application/pdf'                                                   => 1,
+      'image/png'                                                         => 1,
+      'image/jpeg'                                                        => 1,
+      'text/csv'                                                          => 1,
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 1,
+      'application/vnd.oasis.opendocument.spreadsheet'                    => 1,
+    );
+    die "a valid mime_code is needed in params" if !$valid_mime_codes{$params{mime_code}};
+  }
+
+  #   <ram:AdditionalReferencedDocument>
+  $params{xml}->startTag("ram:AdditionalReferencedDocument");
+  $params{xml}->dataElement("ram:IssuerAssignedID", _u8($params{doc_id}));
+  $params{xml}->dataElement("ram:TypeCode",         $type_code);
+  $params{xml}->dataElement("ram:Name",             _u8($params{name}))    if $params{name};
+
+  if ($params{filename}) {
+    my $content = $params{content} || File::Slurp::read_file($params{file});
+    my $data    = MIME::Base64::encode($content);
+    $params{xml}->dataElement("ram:AttachmentBinaryObject",
+                              $data,
+                              mimeCode => $params{mime_code},
+                              filename => _u8($params{filename}));
+  }
+
+  $params{xml}->endTag;
+  #   </ram:AdditionalReferencedDocument>
+
 }
 
 sub _line_item {
@@ -821,6 +869,13 @@ sub _applicable_header_trade_agreement {
     #     </ram:BuyerOrderReferencedDocument>
   }
 
+  foreach my $add_doc (@{$params{add_docs} || []}) {
+    _additional_referenced_document(
+      $self, %params,
+      %$add_doc,
+    );
+  }
+
   $params{xml}->endTag;
   #     </ram:ApplicableHeaderTradeAgreement>
 }
@@ -900,6 +955,7 @@ sub create_zugferd_data {
 
   my %params        = $self->validate_zugferd_data(prefix => $::locale->text('The ZUGFeRD invoice data cannot be generated because the data validation failed.') . ' ');
   $params{ptc_data} = { $self->calculate_prices_and_taxes };
+  $params{add_docs} = $self->get_zugferd_additional_documents || [];
   $params{xml}      = XML::Writer->new(
     OUTPUT          => \$output,
     DATA_MODE       => 1,
