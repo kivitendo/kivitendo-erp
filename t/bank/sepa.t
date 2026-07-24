@@ -385,7 +385,7 @@ sub create_ap_transaction_local {
   my $exchangerate     = $params{exchangerate} || undef;
 
   my $invoice   = SL::DB::PurchaseInvoice->new(
-    invoice      => 0,
+    invoice      => !! ($amount < 0),
     invnumber    => $params{invnumber},
     amount       => $amount,
     netamount    => $netamount,
