@@ -273,8 +273,16 @@
     </tr>
 
     <tr>
-      <th>[% 'Tax point' | $T8 %]</th>
-      <td>[% L.date_tag('reclamation.tax_point_as_date', SELF.reclamation.tax_point_as_date, class='recalc wi-date') %]</td>
+      <th>
+        [% 'Invoicing Date or Period' | $T8 %]
+        [% P.context_help_tag(LxERP.t8('To specify an invoicing date, only set the period end date. To specify an invoicing period, set both dates. The date or period is exported to ZUGFeRD invoices.')) %]
+      </th>
+      <td>
+        [% L.date_tag('reclamation.tax_point_start_as_date', SELF.reclamation.tax_point_start_as_date, class='wi-date recalc',
+                      placeholder=LxERP.t8('From'), title=LxERP.t8('Invoicing period start')) %]–
+        [% L.date_tag('reclamation.tax_point_as_date', SELF.reclamation.tax_point_as_date, class='wi-date recalc',
+                      placeholder=LxERP.t8('Until'), title=LxERP.t8('Invoicing period end')) %]
+      </td>
     </tr>
 
     <tr>

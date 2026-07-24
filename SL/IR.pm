@@ -807,7 +807,7 @@ SQL
                 orddate      = ?, quodate     = ?, vendor_id     = ?, amount       = ?,
                 netamount    = ?, paid        = ?, duedate       = ?, deliverydate = ?,
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded  = ?,
-                intnotes     = ?, storno_id   = ?, storno        = ?, tax_point    = ?,
+                intnotes     = ?, storno_id   = ?, storno        = ?, tax_point_start = ?,       tax_point    = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?, delivery_term_id = ?,
                 payment_id   = ?, transaction_description        = ?,
                 currency_id = (SELECT id FROM currencies WHERE name = ?),
@@ -819,7 +819,7 @@ SQL
       conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
                 $netamount,                  $form->{paid},        conv_date($form->{duedate}),     conv_date($form->{deliverydate}),
             '1',                             $taxzone_id, $restricter->process($form->{notes}),               $form->{taxincluded} ? 't' : 'f',
-                $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f', conv_date($form->{tax_point}),
+                $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f', conv_date($form->{tax_point_start}), conv_date($form->{tax_point}),
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}), conv_i($form->{delivery_term_id}),
          conv_i($form->{payment_id}), $form->{transaction_description},
                 $form->{"currency"},
@@ -1074,7 +1074,7 @@ sub retrieve_invoice {
 
   # retrieve invoice
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
-                orddate, quodate, deliverydate, tax_point, globalproject_id,
+                orddate, quodate, deliverydate, tax_point_start, tax_point, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
                 mtime, itime,
                 intnotes, (SELECT cu.name FROM currencies cu WHERE cu.id=ap.currency_id) AS currency, direct_debit,

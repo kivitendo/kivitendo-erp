@@ -365,6 +365,26 @@ sub _line_item {
   $params{xml}->endTag;
   #     </ram:ApplicableTradeTax>
 
+  if ($params{item}->invoicing_period_start && $params{item}->invoicing_period_end) {
+    #     <ram:BillingSpecifiedPeriod>
+    $params{xml}->startTag("ram:BillingSpecifiedPeriod");
+
+    #       <ram:StartDateTime> BT-134
+    $params{xml}->startTag("ram:StartDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", $params{item}->invoicing_period_start->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
+    #       </ram:StartDateTime>
+
+    #       <ram:EndDateTime> BT-135
+    $params{xml}->startTag("ram:EndDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", $params{item}->invoicing_period_end->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
+    #       </ram:EndDateTime>
+
+    $params{xml}->endTag;
+    #     </ram:BillingSpecifiedPeriod>
+  }
+
   my $linetotal_net = $self->taxincluded ? $item_ptc->{linetotal} - $item_ptc->{tax_amount} : $item_ptc->{linetotal};
   #     <ram:SpecifiedTradeSettlementLineMonetarySummation>
   $params{xml}->startTag("ram:SpecifiedTradeSettlementLineMonetarySummation");
@@ -548,6 +568,33 @@ sub _payment_terms {
 
   $params{xml}->endTag;
   #     </ram:SpecifiedTradePaymentTerms>
+}
+
+sub _invoicing_period {
+  my ($self, %params) = @_;
+
+  my $invoicing_period_start = $self->tax_point_start // $self->tax_point;
+  my $invoicing_period_end   = $self->tax_point;
+
+  if ($invoicing_period_start && $invoicing_period_end) {
+    #     <ram:BillingSpecifiedPeriod>
+    $params{xml}->startTag("ram:BillingSpecifiedPeriod");
+
+    #       <ram:StartDateTime> BT-73
+    $params{xml}->startTag("ram:StartDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", $invoicing_period_start->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
+    #       </ram:StartDateTime>
+
+    #       <ram:EndDateTime> BT-74
+    $params{xml}->startTag("ram:EndDateTime");
+    $params{xml}->dataElement("udt:DateTimeString", $invoicing_period_end->strftime('%Y%m%d'), format => "102");
+    $params{xml}->endTag;
+    #       </ram:EndDateTime>
+
+    $params{xml}->endTag;
+    #     </ram:BillingSpecifiedPeriod>
+  }
 }
 
 sub _totals {
@@ -866,6 +913,7 @@ sub _applicable_header_trade_settlement {
 
   _specified_trade_settlement_payment_means($self, %params);
   _taxes($self, %params);
+  _invoicing_period($self, %params);
   _payment_terms($self, %params);
   _totals($self, %params);
 

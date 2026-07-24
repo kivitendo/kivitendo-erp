@@ -157,6 +157,16 @@
       <td class="longdesc">[% LxERP.t8('Usually the delivery date of an order is the next working day. If a value is set here this value will be added to the delivery date of the sales order. The resulting date will be adjusted to the next working day if it ends up on a weekend.') %]</td>
     </tr>
     <tr>
+      <th>[% LxERP.t8('Set invoicing period for sales invoices') %]</th>
+      <td>[% L.select_tag('defaults.invoicing_period_sales', [
+               ["", LxERP.t8("No")],
+               ["previous_month", LxERP.t8("Previous month")],
+             ],
+             default=SELF.defaults.invoicing_period_sales,
+             class='wi-normal') %]</td>
+      <td class="longdesc">[% LxERP.t8("If set to no the 'invoicing period' field for sales invoices won't be set at all.") %]</td>
+    </tr>
+    <tr>
       <th>[% LxERP.t8('Allow fuzzy skonto for payment bookings') %]</th>
       <td>[% L.yes_no_tag('defaults.fuzzy_skonto', SELF.defaults.fuzzy_skonto) %]</td>
       <td class="longdesc">[% LxERP.t8("If set to yes a percentage deviation will be allowed for otherwise strict skonto bookings. The deviation will booked to the skonto chart and the allowed deviation is also configurable.") %]</td>

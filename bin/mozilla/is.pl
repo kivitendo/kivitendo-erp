@@ -354,6 +354,25 @@ sub prepare_invoice {
       $form->{rowcount}        = $i;
 
     }
+  } else {
+    if ($::instance_conf->get_invoicing_period_sales eq 'previous_month') {
+      my ($start_date, $previous_month_start, $previous_month_end);
+
+      $start_date           = DateTime->today_local;
+
+      $previous_month_start = $start_date
+        ->clone
+        ->truncate(to => 'month')
+        ->subtract(months => 1);
+
+      $previous_month_end   = $previous_month_start
+        ->clone->add(months => 1)
+        ->truncate(to => 'month')
+        ->subtract(days => 1);
+
+      $form->{tax_point_start} //= $::locale->format_date(\%::myconfig, $previous_month_start);
+      $form->{tax_point}       //= $::locale->format_date(\%::myconfig, $previous_month_end);
+    }
   }
   $main::lxdebug->leave_sub();
 }
@@ -1118,6 +1137,14 @@ sub post {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   $form->isblank("invdate",  $locale->text('Invoice Date missing!'));
+  if ($form->{tax_point_start}) {
+    $form->isblank("tax_point",
+                   $locale->text('Invoicing period end date missing!'));
+    unless ($locale->parse_date_to_object($form->{tax_point_start}) <=
+            $locale->parse_date_to_object($form->{tax_point})) {
+      $form->error($locale->text('Invoicing period: the start date must be earlier than the end date!'));
+    }
+  }
   $form->isblank("customer_id", $locale->text('Customer missing!'));
   $form->error($locale->text('Cannot post invoice for a closed period!'))
         if ($form->date_closed($form->{"invdate"}, \%myconfig));

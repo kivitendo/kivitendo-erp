@@ -16,6 +16,8 @@ __PACKAGE__->meta->columns(
   description                  => { type => 'text' },
   discount                     => { type => 'float', precision => 4, scale => 4 },
   id                           => { type => 'integer', not_null => 1, sequence => 'orderitemsid' },
+  invoicing_period_end         => { type => 'date' },
+  invoicing_period_start       => { type => 'date' },
   itime                        => { type => 'timestamp', default => 'now()' },
   lastcost                     => { type => 'numeric', precision => 15, scale => 5 },
   longdescription              => { type => 'text' },
