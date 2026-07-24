@@ -75,13 +75,15 @@ sub convert_to_sales_order {
   } @soi;
   if(!scalar(@error_report)){
 
-    my $shipto_id;
+    my ( $shipto_id );
+    my $taxzone = $self->delivery_country->get_taxzone;
     if ($self->has_differing_delivery_address) {
       if(my $address = SL::DB::Manager::Shipto->find_by( shiptoname   => $self->delivery_fullname,
                                                          shiptostreet => $self->delivery_street,
                                                          shiptocity   => $self->delivery_city,
                                                         )) {
         $shipto_id = $address->{shipto_id};
+        $taxzone = $address->shiptocountry->get_taxzone;
       } else {
         my $deliveryaddress = SL::DB::Shipto->new;
         $deliveryaddress->assign_attributes(
@@ -91,12 +93,13 @@ sub convert_to_sales_order {
           shiptostreet       => $self->delivery_street,
           shiptozipcode      => $self->delivery_zipcode,
           shiptocity         => $self->delivery_city,
-          shiptocountry      => $self->delivery_country,
+          shiptocountry_id   => $self->delivery_country_id,
           trans_id           => $customer->id,
           module             => "CT",
         );
         $deliveryaddress->save;
         $shipto_id = $deliveryaddress->{shipto_id};
+        $taxzone = $deliveryaddress->shiptocountry->get_taxzone;
       }
     }
 
@@ -112,7 +115,7 @@ sub convert_to_sales_order {
       salesman_id             => $employee->id,
       taxincluded             => $self->tax_included,
       payment_id              => $self->payment_id,
-      taxzone_id              => $customer->taxzone_id,
+      taxzone_id              => $taxzone->id,
       currency_id             => $customer->currency_id,
       transaction_description => $shop->transaction_description,
       transdate               => $transdate,
@@ -212,12 +215,8 @@ sub get_customer{
   my $payment_id = $default_payment ? $default_payment->id : undef;
   if(!scalar(@{$customer_proposals})){
 
-    my $country_id = $shop->default_country_id;
-    if ($self->billing_country) {
-      my $country = SL::DB::Manager::Country->find_by_name($self->billing_country);
-      die t8('Error: Country not found: #1', $self->billing_country) if !$country;
-      $country_id = $country->id;
-    };
+    my $taxzone;
+    $taxzone = $self->billing_country->get_taxzone;
 
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
@@ -227,7 +226,7 @@ sub get_customer{
                     'city'                  => $self->billing_city,
                     'email'                 => $self->billing_email,
                     'invoice_mail'          => $self->billing_email,
-                    'country_id'            => $country_id,
+                    'country_id'            => $self->billing_country_id,
                     'greeting'              => $self->billing_greeting,
                     'fax'                   => $self->billing_fax,
                     'phone'                 => $self->billing_phone,
@@ -235,7 +234,7 @@ sub get_customer{
                     'taxincluded_checked'   => $shop->pricetype eq "brutto" ? 1 : 0,
                     'taxincluded'           => $shop->pricetype eq "brutto" ? 1 : 0,
                     'pricegroup_id'         => (split '\/',$shop->price_source)[0] eq "pricegroup" ?  (split '\/',$shop->price_source)[1] : undef,
-                    'taxzone_id'            => $shop->taxzone_id,
+                    'taxzone_id'            => $taxzone->id,
                     'currency'              => $::instance_conf->get_currency_id,
                     'payment_id'            => $payment_id,
                   );

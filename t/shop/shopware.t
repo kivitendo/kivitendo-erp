@@ -38,10 +38,11 @@ sub reset_state {
 
   $employee = SL::DB::Manager::Employee->current || croak "No employee";
 
-  $customer = new_customer( name    => 'Evil Inc',
-                            street  => 'Evil Street',
-                            zipcode => '66666',
-                            email   => 'evil@evilinc.com'
+  $customer = new_customer( name       => 'Evil Inc',
+                            street     => 'Evil Street',
+                            zipcode    => '66666',
+                            country_id => 57,
+                            email      => 'evil@evilinc.com'
                           )->save;
 }
 
