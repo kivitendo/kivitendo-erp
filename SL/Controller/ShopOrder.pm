@@ -222,7 +222,7 @@ sub action_apply_customer {
   my $shop = SL::DB::Manager::Shop->find_by( id => $self->shop_order->shop_id );
   my $what = $::form->{create_customer}; # new from billing, customer or delivery address
   my $country = SL::DB::Manager::Country->find_by(id => $::form->{$what.'_country_id'});
-  die t8('Error: Country not found: #1', $::form->{$what.'_country'}) if !$country;
+  die t8('Error: Country not found: #1', $::form->{$what.'_country_id'}) if !$country;
   my $taxzone = $country->get_taxzone;
   my %address = ( 'name'                  => $::form->{$what.'_name'},
                   'department_1'          => $::form->{$what.'_company'},
