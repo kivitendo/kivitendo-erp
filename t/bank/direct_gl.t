@@ -16,11 +16,14 @@ use SL::DB::BankTransactionAccTrans;
 use SL::DB::Currency;
 use SL::DB::Customer;
 use SL::DB::Default;
+use SL::DB::Exchangerate;
 use SL::DB::GLTransaction;
+use SL::DB::PaymentTerm;
+use SL::DB::RecordTemplate;
 use SL::DB::Vendor;
 use SL::DB::BankAccount;
 use SL::DB::BankTransaction;
-
+use SL::Camt053;
 
 
 
