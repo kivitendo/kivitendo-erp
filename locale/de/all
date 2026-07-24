@@ -1358,6 +1358,7 @@ $self->{texts} = {
   'Document Project (number)'   => 'Projektnummer des Belegs',
   'Document Project Description' => 'Projektbeschreibung des Belegs',
   'Document Project Number'     => 'Projektnummer des Belegs',
+  'Document file not found: #1' => 'Dokumentendatei nicht gefunden: #1',
   'Document generating failed. Please check Templates an LateX !' => 'Das Dokument konnte nicht erzeugt werden. Bitte Vorlagen und LateX prüfen!',
   'Documentation'               => 'Dokumentation',
   'Documentation (in German)'   => 'Dokumentation',
