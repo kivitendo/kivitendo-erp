@@ -195,7 +195,7 @@ sub save_record_template {
     $has_debit  = 1 if $::form->{"debit_$i"};
     $has_credit = 1 if $::form->{"credit_$i"};
   }
-  return $js->flash('error', t8('Can only save template if amounts,i.e. 1 for debit and credit are set.'))->render
+  return $js->flash('error', t8('Can only save template if amounts, i.e. 1 for debit and credit are set.'))->render
     unless $has_debit && $has_credit;
 
   my @items = grep {
