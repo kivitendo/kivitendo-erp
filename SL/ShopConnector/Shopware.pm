@@ -192,12 +192,14 @@ sub map_data_to_shoporder {
   );
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
+  my $billing_country = SL::DB::Manager::Country->find_by( iso2 => $import->{data}->{billing}->{country}->{iso} );
+  my $delivery_country = SL::DB::Manager::Country->find_by( iso2 => $import->{data}->{shipping}->{country}->{iso} );
   # Mapping to table shoporders. See http://community.shopware.com/_detail_1690.html#GET_.28Liste.29
   my %columns = (
     amount                  => $import->{data}->{invoiceAmount},
     billing_city            => $import->{data}->{billing}->{city},
     billing_company         => $import->{data}->{billing}->{company},
-    billing_country         => $import->{data}->{billing}->{country}->{name},
+    billing_country         => $billing_country,
     billing_department      => $import->{data}->{billing}->{department},
     billing_email           => $import->{data}->{customer}->{email},
     billing_fax             => $import->{data}->{billing}->{fax},
@@ -210,7 +212,7 @@ sub map_data_to_shoporder {
     billing_zipcode         => $import->{data}->{billing}->{zipCode},
     customer_city           => $import->{data}->{billing}->{city},
     customer_company        => $import->{data}->{billing}->{company},
-    customer_country        => $import->{data}->{billing}->{country}->{name},
+    customer_country        => $billing_country,
     customer_department     => $import->{data}->{billing}->{department},
     customer_email          => $import->{data}->{customer}->{email},
     customer_fax            => $import->{data}->{billing}->{fax},
@@ -224,7 +226,7 @@ sub map_data_to_shoporder {
     customer_newsletter     => $import->{data}->{customer}->{newsletter},
     delivery_city           => $import->{data}->{shipping}->{city},
     delivery_company        => $import->{data}->{shipping}->{company},
-    delivery_country        => $import->{data}->{shipping}->{country}->{name},
+    delivery_country        => $delivery_country,
     delivery_department     => $import->{data}->{shipping}->{department},
     delivery_email          => "",
     delivery_fax            => $import->{data}->{shipping}->{fax},
