@@ -1012,7 +1012,7 @@ sub map_data_to_shoporder {
     delivery_city           => $shipto->{city},
     delivery_company        => $shipto->{additionalAddressLine1},
     delivery_country_id     => $delivery_country_id,
-    delivery_department     => $postnumber || $shipto->{department},
+    delivery_department     => $shipto->{department},
     delivery_email          => "",
     delivery_fax            => $shipto->{fax},
     delivery_firstname      => $shipto->{firstName},
