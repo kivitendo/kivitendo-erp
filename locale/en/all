@@ -1358,6 +1358,7 @@ $self->{texts} = {
   'Document Project (number)'   => '',
   'Document Project Description' => '',
   'Document Project Number'     => '',
+  'Document file not found: #1' => '',
   'Document generating failed. Please check Templates an LateX !' => '',
   'Documentation'               => '',
   'Documentation (in German)'   => '',

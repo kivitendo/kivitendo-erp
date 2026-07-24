@@ -835,16 +835,15 @@ sub send_concatinated_sepa_pdfs {
 
     # check if there is already a file for the invoice
     # check if already resynced
-    my @file_objects = SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
+    my @file_objects = grep { ref($_) eq 'SL::File::Object' }
+                       SL::File->get_all(object_id   => $item->{ap_id} ? $item->{ap_id} : $item->{ar_id},
                                          object_type => $item->{ap_id} ? 'purchase_invoice' : 'invoice',
                                          file_type   => 'document',
+                                         mime_type   => 'application/pdf',
                                         );
     foreach my $file_object (@file_objects) {
-      next if     (ref $file_object ne 'SL::File::Object');
-      next unless $file_object->mime_type eq 'application/pdf';
-
       my $file = $file_object->get_file;
-      die "No file" unless -e $file;
+      $::form->error(t8('Document file not found: #1', $file)) unless -e $file;
       push @files, $file;
     }
   }
