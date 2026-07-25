@@ -181,16 +181,22 @@ sub parse_and_analyze_transactions {
       $duplicates++;
       next;
     }
+
     # check if endtoend id exists and matches one in kivi
     if ($transaction->{end_to_end_id} && $transaction->{end_to_end_id} =~ m/^KIVITENDO/) {
       $transaction->{sei} = $self->_check_sepa_automatic(transaction => $transaction);
-      $sepa++ if ref $transaction->{sei} eq 'SL::DB::SepaExportItem';
+      if (ref $transaction->{sei} eq 'SL::DB::SepaExportItem') {
+        $sepa++;
+        next;
+      }
     }
+
     # check if template_gl description matches purpose
-    my $direct_gl = [ grep { $_->description && index($transaction->{purpose}, $_->description) != -1 } @{ $templates_gl } ];
-    if (scalar @{ $direct_gl} == 1) {
-      $transaction->{direct_gl} = $direct_gl->[0];
+    my @direct_gl = grep { $_->description && index($transaction->{purpose}, $_->description) != -1 } @$templates_gl;
+    if (scalar @direct_gl == 1) {
+      $transaction->{direct_gl} = $direct_gl[0];
       $gl_bookings++;
+      next;
     }
   }
 
