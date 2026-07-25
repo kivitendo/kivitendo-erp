@@ -41,6 +41,16 @@ Mittelgroße neue Features:
   Bank über das MT940 Verfahren diese Überweisung direkt beim Import verbucht
   (falls SEPA EndToEndID und Überweisungssumme identisch ist).
 
+- Dialogbuchungen direkt beim Kontoauszugsimport:
+  Es gibt nun die Möglichkeit, Dialogbuchungsvorlagen mit Beschreibungstexten
+  (inkl. Variablenersetzung) anzulegen, welche mit dem Verwendungszweck von
+  Banktransaktionen abgeglichen werden und im Falle eines Treffers direkt beim
+  Importieren des Kontoauszuges verbucht werden.
+  Zur Kontrolle lässt sich das automatische Verbuchen beim Kontoauszugsimport
+  deaktivieren, wobei dann bei den Bankbuchungen neben den bisher existierenden
+  Optionen »Rechnung zuweisen« und »Buchung erstellen« als dritte Möglichkeit
+  die passende Dialogbuchungsvorlage direkt aufgerufen wird.
+
 - Das Land in den Stammdaten, Liefer- und Rechnungsadressen, bei Ansprechpersonen,
   Webshopbestellungen und in der Mandantenkonfig ist per Auswahlmenü aus einer
   vordefinierten Liste wählbar, anstatt wie zuvor, ein Freitextfeld. Ein
