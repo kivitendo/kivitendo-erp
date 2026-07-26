@@ -1,8 +1,11 @@
 namespace("kivi.AsyncMsg", function(ns) {
   "use strict";
 
+  ns.last_msg_id = 0;
+
   ns.connect_ws = function() {
-    const socket = new WebSocket(kivi.myconfig.frontend_websocket_location);
+    const socket = new WebSocket(kivi.myconfig.frontend_websocket_location
+      + '?last_msg_id=' + ns.last_msg_id);
 
     socket.addEventListener("message", (event) => {
       if (!event.data || event.data.length == 0) return;
@@ -15,6 +18,8 @@ namespace("kivi.AsyncMsg", function(ns) {
         const timestamp = ev.ts_fmt;
         kivi.Flash.display_flash(ev.msg_type, message, details, timestamp, ev.id);
       }
+
+      ns.last_msg_id = data.last_msg_id;
     });
     socket.addEventListener("open", (event) => {
       $('.layout-flash-toggle img')[0].style.filter = 'brightness(0.5) sepia(1) hue-rotate(90deg) saturate(15)';

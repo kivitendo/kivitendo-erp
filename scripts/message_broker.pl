@@ -202,10 +202,12 @@ websocket '/ws' => sub {
 
   my %employees_by_login = map { ($_->login => $_) } @{ SL::DB::Manager::Employee->get_all };
 
+  my $last_msg_id = 0+$c->param('last_msg_id');
+
   my $seqno_max = $next_seqno{$client_id} // 0;
 
-  my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM async_events WHERE id <= ? ORDER BY id;|;
-  my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $seqno_max);
+  my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM async_events WHERE ? < id AND id <= ? ORDER BY id;|;
+  my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $last_msg_id, $seqno_max);
 
   foreach my $e (@$events) {
     $e->{ts_fmt} = DateTime->from_epoch(epoch => $e->{timestamp})
@@ -216,14 +218,19 @@ websocket '/ws' => sub {
   my @user_events             = grep { $_->{user_id} == $user_id } @$events;
   my @user_new_events         =                             grep { !$_->{redact_msg_id} } @user_events;
   my @user_redacted_event_ids = map { $_->{redact_msg_id} } grep {  $_->{redact_msg_id} } @user_events;
-  my $body = SL::JSON::to_json({ events => \@user_new_events, redacted_event_ids => \@user_redacted_event_ids });
+  my $last_msg_id = scalar(@user_events) ? $user_events[-1]->{id} : undef;
+  my $body = SL::JSON::to_json({
+    events             => \@user_new_events,
+    redacted_event_ids => \@user_redacted_event_ids,
+    (last_msg_id       => $last_msg_id) x !! defined($last_msg_id),
+  });
   $ws->send($body);
   $totals{ws_msg_sent}++;
 
 
 
   $ws_cons{$client_id}{$login} //= [];
-  my $obj = { ws => $ws, id => unique_dt_string };
+  my $obj = { ws => $ws, id => unique_dt_string, last_msg_id => $last_msg_id };
   push @{$ws_cons{$client_id}{$login}}, $obj;
 
   #print "$client_id $login " . Dumper([ map { $_->{id} } @{$ws_cons{$client_id}{$login} // []} ]);
@@ -294,8 +301,14 @@ sub dispatch_events_for_all_clients {
       my @user_events             = grep { $_->{user_id} == $user_id } @$events;
       my @user_new_events         =                             grep { !$_->{redact_msg_id} } @user_events;
       my @user_redacted_event_ids = map { $_->{redact_msg_id} } grep {  $_->{redact_msg_id} } @user_events;
-      next if (!@user_events && !@user_redacted_event_ids);
-      my $body = SL::JSON::to_json({ events => \@user_new_events, redacted_event_ids => \@user_redacted_event_ids });
+      next if (!@user_events);
+
+      my $last_msg_id = $user_events[-1]->{id};
+      my $body = SL::JSON::to_json({
+        events             => \@user_new_events,
+        redacted_event_ids => \@user_redacted_event_ids,
+        last_msg_id        => $last_msg_id,
+      });
       for my $obj (@{$ws_cons{$client_id}{$login}}) {
         $obj->{ws}->send($body);
         $totals{ws_msg_sent}++;
@@ -670,6 +683,7 @@ th { background-color: #eee; text-align: left; }
         <th>client ID</th>
         <th>user login</th>
         <th>WebSocket connection ID</th>
+        <th>?last_msg_id=</th>
       </tr>
       % for my $row (@$rows) {
       <tr>
@@ -681,6 +695,9 @@ th { background-color: #eee; text-align: left; }
         </td>
         <td>
           %= $row->{id}
+        </td>
+        <td>
+          %= $row->{last_msg_id}
         </td>
       </tr>
       % }
