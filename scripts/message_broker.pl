@@ -202,12 +202,10 @@ websocket '/ws' => sub {
 
   my %employees_by_login = map { ($_->login => $_) } @{ SL::DB::Manager::Employee->get_all };
 
-  my $last_msg_id = 0+$c->param('last_msg_id');
-
   my $seqno_max = $next_seqno{$client_id} // 0;
 
-  my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM async_events WHERE ? < id AND id <= ? ORDER BY id;|;
-  my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $last_msg_id, $seqno_max);
+  my $query  = qq|SELECT *, extract(epoch from itime) as timestamp FROM async_events WHERE id <= ? ORDER BY id;|;
+  my $events = selectall_hashref_query($::form, SL::DB->client->dbh, $query, $seqno_max);
 
   foreach my $e (@$events) {
     $e->{ts_fmt} = DateTime->from_epoch(epoch => $e->{timestamp})
@@ -230,7 +228,7 @@ websocket '/ws' => sub {
 
 
   $ws_cons{$client_id}{$login} //= [];
-  my $obj = { ws => $ws, id => unique_dt_string, last_msg_id => $last_msg_id };
+  my $obj = { ws => $ws, id => unique_dt_string};
   push @{$ws_cons{$client_id}{$login}}, $obj;
 
   #print "$client_id $login " . Dumper([ map { $_->{id} } @{$ws_cons{$client_id}{$login} // []} ]);
@@ -683,7 +681,6 @@ th { background-color: #eee; text-align: left; }
         <th>client ID</th>
         <th>user login</th>
         <th>WebSocket connection ID</th>
-        <th>?last_msg_id=</th>
       </tr>
       % for my $row (@$rows) {
       <tr>
@@ -695,9 +692,6 @@ th { background-color: #eee; text-align: left; }
         </td>
         <td>
           %= $row->{id}
-        </td>
-        <td>
-          %= $row->{last_msg_id}
         </td>
       </tr>
       % }

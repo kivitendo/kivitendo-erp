@@ -4,8 +4,7 @@ namespace("kivi.AsyncMsg", function(ns) {
   ns.last_msg_id = 0;
 
   ns.connect_ws = function() {
-    const socket = new WebSocket(kivi.myconfig.frontend_websocket_location
-      + '?last_msg_id=' + ns.last_msg_id);
+    const socket = new WebSocket(kivi.myconfig.frontend_websocket_location);
 
     socket.addEventListener("message", (event) => {
       if (!event.data || event.data.length == 0) return;
@@ -13,6 +12,7 @@ namespace("kivi.AsyncMsg", function(ns) {
 
       data.redacted_event_ids.forEach((id) => kivi.Flash.remove_msg_by_id(id));
       for (let ev of data.events) {
+        if (ev.id <= ns.last_msg_id) continue;
         const message = ev.subject;
         const details = ev.body;
         const timestamp = ev.ts_fmt;
