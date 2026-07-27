@@ -251,7 +251,7 @@
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
-          [%- ELSIF id %]
+          [%- ELSIF SELF.record.id %]
             [% L.hidden_tag("record.invnumber", SELF.record.invnumber) %]
             [% SELF.record.invnumber | html %]
           [%- ELSE %]
@@ -275,7 +275,7 @@
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
-          [%- ELSIF id %]
+          [%- ELSIF SELF.record.id %]
             [% L.hidden_tag("record.invnumber", SELF.record.invnumber) %]
             [% invnumber | html %]
           [%- ELSE %]
