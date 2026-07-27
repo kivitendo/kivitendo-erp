@@ -4871,6 +4871,32 @@ insettings.tex</programlisting>
         alle Einkaufsbelege lässt sich in der Mandantenkonfiguration
         aktivieren.</para>
       </sect2>
+
+      <sect2 id="features.bank.buchungsvorlagen">
+        <title>Kontoauszug Verbuchen mit Buchungsvorlagen und direktem Verbuchen</title>
+        <para>Beim Verbuchen von Kontoauszügen werden zu jeder
+        Banktransaktion drei Optionen angeboten:
+        <itemizedlist>
+          <listitem>
+            »Rechnung zuweisen«
+          </listitem>
+          <listitem>
+            <para>»Buchung erstellen«: Auswahl und Laden einer Buchungsvorlage
+            </para>
+          </listitem>
+          <listitem>
+            <para>»NI optimierte Buchung«:<footnote><para>NI steht für natürliche Intelligenz</para></footnote>
+            Die passende Dialogbuchungsvorlage wird direkt aufgerufen.</para>
+          </listitem>
+        </itemizedlist>
+        </para>
+        <para>Existiert beim Kontoauszugsimport eine Dialogbuchungsvorlage
+        mit Beschreibungstext (inkl. Variablenersetzung), welcher zu
+        dem Verwendungszweck einer Banktransaktionen passt, dann wird
+        die Banktransaktion direkt beim Importieren des Kontoauszuges
+        automatisch verbucht. Zur Kontrolle lässt sich das automatische
+        Verbuchen beim Kontoauszugsimport deaktivieren.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="dokumentenvorlagen-und-variablen">
