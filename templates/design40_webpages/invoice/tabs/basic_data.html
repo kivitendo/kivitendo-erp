@@ -277,7 +277,7 @@
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
           [%- ELSIF SELF.record.id %]
             [% L.hidden_tag("record.invnumber", SELF.record.invnumber) %]
-            [% invnumber | html %]
+            [% SELF.record.invnumber | html %]
           [%- ELSE %]
             [% LxERP.t8("will be set upon posting") %]
           [%- END %]
