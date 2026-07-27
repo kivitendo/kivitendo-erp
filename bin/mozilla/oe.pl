@@ -519,7 +519,7 @@ sub orders {
     'transdate'               => { 'text' => $locale->text('Date'), },
     'reqdate'                 => { 'text' => $form->{type} =~ /_order/ ? $locale->text('Required by') : $locale->text('Valid until') },
     'id'                      => { 'text' => $locale->text('ID'), },
-    'ordnumber'               => { 'text' => (any {$form->{type} eq $_} qw(sales_order purchase_order_confirmation)) ? $locale->text('Confirmation'): $locale->text('Order'), },
+    'ordnumber'               => { 'text' => (any {$form->{type} eq $_} qw(sales_order purchase_order_confirmation)) ? $locale->text('Confirmation'): $locale->text('Purchase Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
     'cusordnumber'            => { 'text' => $locale->text('Customer Order Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
