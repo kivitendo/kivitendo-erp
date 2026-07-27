@@ -344,6 +344,14 @@
       </td>
     </tr>
     [%- END %]
+    [%- IF INSTANCE_CONF.get_payment_approval && !SELF.type_data.properties('is_customer')  %]
+    <tr>
+      <th>[% 'Payment Approved' | $T8 %]</th>
+      <td>
+        <span class="data wi-small">[% SELF.record.payment_approval.itime_as_date | html %] [% SELF.record.payment_approval.employee.safe_name | html %]</span>
+      </td>
+    </tr>
+    [%- END %]
   </tbody>
 </table>
 
