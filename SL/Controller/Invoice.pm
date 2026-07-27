@@ -627,6 +627,23 @@ sub action_files_pdf_export {
   $self->_create_and_send_zip(\@file_names_and_file_paths);
 }
 
+sub action_approve_payment {
+  my ($self) = @_;
+
+  $::auth->assert('ap_transactions');
+  SL::DB::PaymentApproval->new(ap_id => $self->record->id, employee_id => SL::DB::Manager::Employee->current->id)->save;
+
+  flash_later('info', t8('Payment Approved'));
+
+  $self->redirect_to(
+    action   => 'edit',
+    type     => $self->record->record_type,
+    id       => $self->record->id,
+    callback => $::form->{callback},
+  );
+}
+
+
 # post the record
 #
 # And delete items that are deleted in the form.
@@ -987,6 +1004,11 @@ sub setup_action_bar {
       && SL::DB::Default->get->payments_changeable != 0
       && SL::DB::Manager::BankTransactionAccTrans->find_by(ar_id => $self->record->id);
 
+  my $is_payment_approved;
+  if ($self->record->id && !$self->type_data->properties('is_customer')) {
+    $is_payment_approved = 1 if ($self->record->payment_approval);
+  }
+
   my $warn_unlinked_delivery_order = $::instance_conf->get_warn_no_delivery_order_for_invoice
       && !$self->record->id && $::form->{convert_from_record_type_ref} ne 'SL::DB::DeliveryOrder';  # TODO make this more robust
 
@@ -1055,6 +1077,18 @@ sub setup_action_bar {
                     : !$self->record->id ? t8('This invoice has not been posted yet.')
                     :                     undef,
           only_if  => $self->type_data->show_menu('mark_as_paid'),
+        ],
+
+        # Purchase Invoices only
+        action => [ t8('Approve Payment'),
+          call     => [ 'kivi.Invoice.post', { action => "approve_payment" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$may_edit_create           ? t8('You must not change this AP transaction.')
+                    : !$self->record->id          ? t8('This invoice has not been posted yet.')
+                    : $is_payment_approved        ? t8('This transaction is already approved.')
+                    : $is_linked_bank_transaction ? t8('This transaction is linked with a bank transaction.')
+                    :                               undef,
+          only_if  => !$self->type_data->properties('is_customer'),
         ],
       ], # end of combobox "Post"
 
