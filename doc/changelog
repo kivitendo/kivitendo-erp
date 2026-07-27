@@ -42,14 +42,16 @@ Mittelgroße neue Features:
   (falls SEPA EndToEndID und Überweisungssumme identisch ist).
 
 - Dialogbuchungen direkt beim Kontoauszugsimport:
-  Es gibt nun die Möglichkeit, Dialogbuchungsvorlagen mit Beschreibungstexten
-  (inkl. Variablenersetzung) anzulegen, welche mit dem Verwendungszweck von
-  Banktransaktionen abgeglichen werden und im Falle eines Treffers direkt beim
-  Importieren des Kontoauszuges verbucht werden.
+  Beim Verbuchen von Kontoauszügen wird für die Bankbuchungen neben den bisher
+  existierenden Optionen »Rechnung zuweisen« und »Buchung erstellen« als
+  dritte Möglichkeit »NI optimierte Buchung« angeboten, wobei die passende
+  Dialogbuchungsvorlage direkt aufgerufen wird.
+  Dialogbuchungsvorlagen mit Beschreibungstexten (inkl. Variablenersetzung),
+  welche zu dem Verwendungszweck einer Banktransaktionen passen, werden nun
+  direkt beim Importieren des Kontoauszuges verbucht.
   Zur Kontrolle lässt sich das automatische Verbuchen beim Kontoauszugsimport
-  deaktivieren, wobei dann bei den Bankbuchungen neben den bisher existierenden
-  Optionen »Rechnung zuweisen« und »Buchung erstellen« als dritte Möglichkeit
-  die passende Dialogbuchungsvorlage direkt aufgerufen wird.
+  deaktivieren.
+  PS: NI steht für natürlich intelligent
 
 - Das Land in den Stammdaten, Liefer- und Rechnungsadressen, bei Ansprechpersonen,
   Webshopbestellungen und in der Mandantenkonfig ist per Auswahlmenü aus einer
