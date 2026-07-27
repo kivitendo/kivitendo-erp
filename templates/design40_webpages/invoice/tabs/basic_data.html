@@ -253,7 +253,7 @@
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
           [%- ELSIF SELF.record.id %]
             [% L.hidden_tag("record.invnumber", SELF.record.invnumber) %]
-            [% SELF.record.invnumber | html %]
+            <span class="data wi-small">[% SELF.record.invnumber | html %]</span>
           [%- ELSE %]
             [% LxERP.t8("will be set upon posting") %]
           [%- END %]
@@ -277,7 +277,7 @@
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
           [%- ELSIF SELF.record.id %]
             [% L.hidden_tag("record.invnumber", SELF.record.invnumber) %]
-            [% SELF.record.invnumber | html %]
+            <span class="data wi-small">[% SELF.record.invnumber | html %]</span>
           [%- ELSE %]
             [% LxERP.t8("will be set upon posting") %]
           [%- END %]
