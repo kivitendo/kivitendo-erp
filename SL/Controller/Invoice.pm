@@ -979,7 +979,9 @@ sub setup_action_bar {
   my $may_edit_create         = $::auth->assert('invoice_edit', 1);
   my $factur_x_enabled        = $self->record && $self->type_data->properties('is_customer') && $self->record->customer
                              && $self->record->customer->create_zugferd_invoices_for_this_customer;
-  my $locked                  = $self->record->transdate && $self->record->transdate <= SL::DB::Default->get->closedto;
+  my $locked                  = $self->record->transdate &&
+                                SL::DB::Default->get->closedto &&
+                                $self->record->transdate <= SL::DB::Default->get->closedto;
 
   my $is_linked_bank_transaction = $self->record->id
       && SL::DB::Default->get->payments_changeable != 0
