@@ -807,4 +807,5 @@ $(function() {
 
   $('.reformat_number_as_null_number').change(kivi.Invoice.reformat_number_as_null_number);
 
+  kivi.SalesPurchase.setup_number_in_title('#record_invnumber');
 });
