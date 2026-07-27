@@ -652,7 +652,7 @@ sub generate_report {
 
     map { $row->{$_}->{data} = \@{ $rows{$_} } if ($ref->{"${_}_accno"} ne "") } qw(debit_tax credit_tax);
 
-    $row->{reference}->{link} = $::instance_conf->get_feature_experimental_invoice
+    $row->{reference}->{link} = ($::instance_conf->get_feature_experimental_invoice && $ref->{module} eq 'is' || $ref->{module} eq 'ir')
                               ? build_std_url('script=controller.pl', 'action=Invoice/edit', 'type=' . ($ref->{module} eq 'is' ? 'invoice' : 'purchase_invoice') . '&id=' . E($ref->{id}), 'callback')
                               : build_std_url("script=$ref->{module}.pl", 'action=edit', 'id=' . E($ref->{id}), 'callback');
 
