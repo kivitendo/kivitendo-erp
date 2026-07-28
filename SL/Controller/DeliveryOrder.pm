@@ -45,6 +45,7 @@ use SL::DB::Manager::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
 use SL::Model::Record;
 
+use SL::HTML::Util qw();
 use SL::Helper::CreatePDF qw(:all);
 use SL::Helper::PrintOptions;
 use SL::Helper::ShippedQty;
@@ -473,8 +474,8 @@ sub action_save_and_show_email_dialog {
 
   my @replacement_vars = map { $_->{name} } @{$self->order->displayable_name_specs()->{options}};
   foreach my $name (@replacement_vars) {
-    my $val = $self->order->$name;
-    $email_form->{message} =~ s{<%$name%>}{$val}g;
+    my $val = SL::HTML::Util->strip($self->order->$name // '');
+    $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
   }
 
   my %files = $self->get_files_for_email_dialog();
