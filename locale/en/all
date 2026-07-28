@@ -3381,6 +3381,7 @@ $self->{texts} = {
   'Renumber sections and function blocks' => '',
   'Reorder Level List'          => '',
   'Replace the orphaned currencies by other not orphaned currencies. To do so, please delete the currency in the textfields above and replace it by another currency. You could loose or change unintentionally exchangerates. Go on very carefully since you could destroy transactions.' => '',
+  'Replacement Variables'       => '',
   'Report Positions'            => '',
   'Report about warehouse contents' => '',
   'Report about warehouse transactions' => '',
