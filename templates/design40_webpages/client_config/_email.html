@@ -1,0 +1,50 @@
+[% USE LxERP %]
+[% USE L %]
+[% USE P %]
+[% USE T8 %]
+
+<div id="email">
+
+<div class="wrapper">
+
+  <table class="tbl-horizontal expanded" style="margin-right:4.0em;">
+    <caption>[% LxERP.t8("Email HTML Paragraph Style") %]</caption>
+    <colgroup>
+      <col class="wi-normal">
+      <col class="wi-verywide">
+      <col>
+    </colgroup>
+    <tbody>
+      <tr>
+        <th>[% LxERP.t8('Email Body') %]</th>
+        <td>[% L.input_tag('defaults.email_paragraph_style_body', SELF.defaults.email_paragraph_style_body, class='wi-verywide') %]</td>
+        <td class="long-desc">
+          [% LxERP.t8('CSS style which is added to HTML &lt;p&gt; tags.') %]
+          [% LxERP.t8('Example') %]:
+          <tt>font-family: Verdana,Helvetica Neue,Helvetica,Arial,sans-serif; font-size:16px</tt>
+        </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Email Employee Signature') %]</th>
+        <td>[% L.input_tag('defaults.email_paragraph_style_employee_signature', SELF.defaults.email_paragraph_style_employee_signature, class='wi-verywide') %]</td>
+        <td class="long-desc">
+          [% LxERP.t8('CSS style which is added to HTML &lt;p&gt; tags.') %]
+          [% LxERP.t8('Example') %]:
+          <tt>font-family: Verdana,Helvetica Neue,Helvetica,Arial,sans-serif; font-size:16px</tt>
+        </td>
+      </tr>
+      <tr>
+        <th>[% LxERP.t8('Email Company Signature') %]</th>
+        <td>[% L.input_tag('defaults.email_paragraph_style_company_signature', SELF.defaults.email_paragraph_style_company_signature, class='wi-verywide') %]</td>
+        <td class="long-desc">
+          [% LxERP.t8('CSS style which is added to HTML &lt;p&gt; tags.') %]
+          [% LxERP.t8('Example') %]:
+          <tt>font-family: Verdana,Helvetica Neue,Helvetica,Arial,sans-serif; font-size:12px; color: gray</tt>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div><!-- /.wrapper -->
+
+</div><!-- /#email -->
