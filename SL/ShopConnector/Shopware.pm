@@ -193,7 +193,9 @@ sub map_data_to_shoporder {
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
   my $billing_country = SL::DB::Manager::Country->find_by( iso2 => $import->{data}->{billing}->{country}->{iso} );
+  die t8('Error: Country not found: #1', $import->{data}->{billing}->{country}->{iso}) unless $billing_country;
   my $delivery_country = SL::DB::Manager::Country->find_by( iso2 => $import->{data}->{shipping}->{country}->{iso} );
+  die t8('Error: Country not found: #1', $import->{data}->{shipping}->{country}->{iso}) unless $delivery_country;
   # Mapping to table shoporders. See http://community.shopware.com/_detail_1690.html#GET_.28Liste.29
   my %columns = (
     amount                  => $import->{data}->{invoiceAmount},

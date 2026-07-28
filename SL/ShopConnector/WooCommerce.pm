@@ -210,7 +210,9 @@ sub map_data_to_shoporder {
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
   my $billing_country = SL::DB::Manager::Country->find_by( iso2 => $import->{billing}->{country} );
+  die t8('Error: Country not found: #1', $import->{billing}->{country}) unless $billing_country;
   my $delivery_country = SL::DB::Manager::Country->find_by( iso2 => $import->{shipping}->{country} );
+  die t8('Error: Country not found: #1', $import->{shipping}->{country}) unless $delivery_country;
   my %columns = (
 #billing Shop can have different billing addresses, and may have 1 customer_address
     billing_firstname       => $import->{billing}->{first_name},
