@@ -471,6 +471,12 @@ sub action_save_and_show_email_dialog {
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.DeliveryOrder.send_email()';
 
+  my @replacement_vars = map { $_->{name} } @{$self->order->displayable_name_specs()->{options}};
+  foreach my $name (@replacement_vars) {
+    my $val = $self->order->$name;
+    $email_form->{message} =~ s{<%$name%>}{$val}g;
+  }
+
   my %files = $self->get_files_for_email_dialog();
 
   my @employees_with_email = grep {

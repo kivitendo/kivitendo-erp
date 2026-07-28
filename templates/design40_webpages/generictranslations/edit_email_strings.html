@@ -35,6 +35,24 @@
              <a href="doc/html/ch03.html#features.periodic-invoices.variables" target="_blank" class="button wi-tiny neutral tooltipster-html" style="float:left;" title="[% 'Documentation about variables in a new window/tab' | $T8 %]">?</a>
            [% END %]
         </td>
+
+        [% IF language.id == 'default' && PLACEHOLDER_SPECS.$mail_string %]
+          <td rowspan="[% LANGUAGES.size %]">
+            [% 'Help Template Variables' | $T8 %]
+            <table>
+              <tr>
+                <th>[% 'Option' | $T8 %]</th>
+                <th>[% 'Name'   | $T8 %]</th>
+              </tr>
+              [% FOREACH option=PLACEHOLDER_SPECS.$mail_string %]
+              <tr>
+                <td>[% option.title %]</td>
+                <td>&lt;%[% option.name  %]%&gt;</td>
+              </tr>
+              [% END %]
+            </table>
+          </td>
+        [% END %]
       </tr>
       [% END %]
     [% END %]

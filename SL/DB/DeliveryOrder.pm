@@ -20,12 +20,28 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
+use SL::Locale::String qw(t8);
 use SL::Helper::Number qw(_format_total _round_total);
 use SL::Helper::ShippedQty;
 
 use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
+
+use SL::DB::Helper::DisplayableNamePreferences (
+  title   => t8('Delivery Order'),
+  options => [
+    {name => 'cusordnumber',               title => t8('Customer Order Number')},
+    {name => 'donumber',                   title => t8('Delivery Order Number')},
+    {name => 'notes',                      title => t8('Notes')},
+    {name => 'intnotes',                   title => t8('Internal Notes')},
+    {name => 'shippingpoint',              title => t8('Shipping Point')},
+    {name => 'shipvia',                    title => t8('Ship via')},
+    {name => 'transaction_description',    title => t8('Transaction description')},
+    {name => 'vendor_confirmation_number', title => t8('Vendor Confirmation Number')},
+  ],
+);
+
 
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
