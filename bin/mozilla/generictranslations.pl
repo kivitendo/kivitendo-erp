@@ -181,12 +181,15 @@ sub edit_email_strings {
       $language->{$_} = $translations{$language->{id}};
     }
   }
+  my %placeholder_specs = (
+    preset_text_sales_delivery_order => SL::DB::DeliveryOrder->new()->displayable_name_specs()->{options},
+  );
   setup_generictranslations_edit_email_strings_action_bar();
 
   $form->{title} = $locale->text('Edit preset email strings');
   $::request->{layout}->use_javascript(map { "${_}.js" } qw(ckeditor5/ckeditor ckeditor5/translations/de));
   $form->header();
-  print $form->parse_html_template('generictranslations/edit_email_strings',{ 'MAIL_STRINGS' => \%mail_strings });
+  print $form->parse_html_template('generictranslations/edit_email_strings',{ 'MAIL_STRINGS' => \%mail_strings, PLACEHOLDER_SPECS => \%placeholder_specs });
 
   $main::lxdebug->leave_sub();
 }
