@@ -50,7 +50,7 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% L.input_tag('customer_greeting', IMPORT.customer_greeting) %]</td>
+          <td>[% L.input_tag('customer_greeting', IMPORT.customer_greeting, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Customer' | $T8 %]</th>
@@ -113,26 +113,26 @@
       <div class="col">
       <table class="tbl-horizontal col">
         <caption>[% 'Shop Billing Address' | $T8 %]</caption>
-        <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
+        <colgroup><col class="wi-verysmall"><col class="wi-wide"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_greeting, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.billing_greeting) %]</td>
         </tr>
         <tr>
           <th>[% 'Firstname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_firstname, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.billing_firstname) %]</td>
         </tr>
         <tr>
           <th>[% 'Lastname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_lastname, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.billing_lastname) %]</td>
         </tr>
         <tr>
           <th>[% 'Company' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_company, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.billing_company) %]</td>
         </tr>
         <tr>
           <th>[% 'Department' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.billing_department, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.billing_department) %]</td>
         </tr>
       </table>
 
