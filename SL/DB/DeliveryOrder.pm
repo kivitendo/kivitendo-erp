@@ -28,21 +28,6 @@ use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
 
-use SL::DB::Helper::DisplayableNamePreferences (
-  title   => t8('Delivery Order'),
-  options => [
-    {name => 'cusordnumber',               title => t8('Customer Order Number')},
-    {name => 'donumber',                   title => t8('Delivery Order Number')},
-    {name => 'notes',                      title => t8('Notes')},
-    {name => 'intnotes',                   title => t8('Internal Notes')},
-    {name => 'shippingpoint',              title => t8('Shipping Point')},
-    {name => 'shipvia',                    title => t8('Ship via')},
-    {name => 'transaction_description',    title => t8('Transaction description')},
-    {name => 'vendor_confirmation_number', title => t8('Vendor Confirmation Number')},
-  ],
-);
-
-
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
                                                     column_map   => { id => 'delivery_order_id' },
@@ -138,6 +123,21 @@ sub displayable_type {
 sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
 };
+
+sub displayable_name_specs {
+  {
+    options => [
+      {name => 'cusordnumber',               title => t8('Customer Order Number')},
+      {name => 'donumber',                   title => t8('Delivery Order Number')},
+      {name => 'notes',                      title => t8('Notes')},
+      {name => 'intnotes',                   title => t8('Internal Notes')},
+      {name => 'shippingpoint',              title => t8('Shipping Point')},
+      {name => 'shipvia',                    title => t8('Ship via')},
+      {name => 'transaction_description',    title => t8('Transaction description')},
+      {name => 'vendor_confirmation_number', title => t8('Vendor Confirmation Number')},
+    ],
+  };
+}
 
 sub displayable_state {
   my ($self) = @_;
@@ -536,6 +536,10 @@ An alias for C<transdate> for compatibility with other sales/purchase models.
 
 Returns a human-readable and translated description of the delivery order, consisting of
 record type and number, e.g. "Verkaufslieferschein 123".
+
+=item C<displayable_name_specs>
+
+Used to specify replacement variables for email texts.
 
 =item C<displayable_state>
 
