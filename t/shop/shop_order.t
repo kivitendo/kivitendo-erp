@@ -19,6 +19,11 @@ use Data::Dumper;
 my ($shop, $shop_order, $shop_part, $part, $customer, $employee);
 my ($transdate);
 
+Support::TestSetup::login();
+
+my $country = SL::DB::Manager::Country->find_by( iso2 => 'DE' );
+die t8('Error: Country not found: #1', 'DE' ) unless $country;
+
 sub reset_state {
   my %params = @_;
 
@@ -36,7 +41,7 @@ sub reset_state {
   $customer = new_customer( name       => 'Evil Inc',
                             street     => 'Evil Street',
                             zipcode    => '66666',
-                            country_id => 57,
+                            country    => $country,
                             email      => 'evil@evilinc.com'
                           )->save;
 }
@@ -53,6 +58,7 @@ sub save_shopcontroller_to_string {
   close $outputFH;
   return $output;
 }
+
 sub test_transfer {
   my ( %params ) = @_;
   $::form = Support::TestSetup->create_new_form;
@@ -69,11 +75,10 @@ sub test_transfer {
   is($links_record[0]->{to_table}   , 'oe'              , "record to table <oe> check");
 }
 
-Support::TestSetup::login();
-
 reset_state();
 
 my $trgm = check_trgm($::form->get_standard_dbh());
+
 
 my $shop_trans_id = 1;
 
@@ -89,21 +94,21 @@ $shop_order = new_shop_order(
   billing_street      => 'Evil Street 666',
   billing_zipcode     => $customer->zipcode,
   billing_email       => 'email',
-  billing_country_id  => 57,
+  billing_country     => $country,
   customer_lastname   => 'Schmidt',
   customer_firstname  => 'Sven',
   customer_company    => 'Evil Inc',
   customer_street     => 'Evil Street 666',
   customer_zipcode    => $customer->zipcode,
   customer_email      => 'email',
-  customer_country_id => 57,
+  customer_country    => $country,
   delivery_lastname   => 'Schmidt',
   delivery_firstname  => 'Sven',
   delivery_company    => 'Evil Inc',
   delivery_street     => 'Evil Street 666',
   delivery_zipcode    => $customer->zipcode,
   delivery_email      => 'email',
-  delivery_country_id => 57,
+  delivery_country    => $country,
 );
 
 my $shop_order_item = SL::DB::ShopOrderItem->new(
@@ -127,7 +132,7 @@ my $customer_different = new_customer(
   name       => "Different Name",
   street     => 'Good Straet', # difference large enough from "Evil Street"
   zipcode    => $customer->zipcode,
-  country_id => 57,
+  country    => $country,
   email      => "foo",
 )->save;
 $fuzzy_customers = $shop_order->check_for_existing_customers;
@@ -138,21 +143,21 @@ my $customer_similar = new_customer(
   name       => "Different Name",
   street     => 'Evil Street 666', # difference not large enough from "Evil Street", street matches
   zipcode    => $customer->zipcode,
-  country_id => 57,
+  country    => $country,
   email      => "foo",
 )->save;
 my $customer_similar_2 = new_customer(
   name       => "Different Name",
   street     => 'Evil Straet', # difference not large enough from "Evil Street", street matches
   zipcode    => $customer->zipcode,
-  country_id => 57,
+  country    => $country,
   email      => "foofoo",
 )->save;
 my $customer_same_email = new_customer(
   name       => "Different Name",
   street     => 'Angel Way', # difference large enough from "Evil Street", street not matches , same email
   zipcode    => $customer->zipcode,
-  country_id => 57,
+  country    => $country,
   email      => 'email',
 )->save;
 my $customers = SL::DB::Manager::Customer->get_all();

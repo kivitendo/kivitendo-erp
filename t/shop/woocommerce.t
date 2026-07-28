@@ -19,6 +19,11 @@ use SL::JSON;
 use SL::ShopConnector::Shopware;
 my ($shop, $shopware, $shop_order, $shop_part, $part, $customer, $employee, $json_import);
 
+Support::TestSetup::login();
+
+my $country = SL::DB::Manager::Country->find_by( iso2 => 'DE' );
+die t8('Error: Country not found: #1', 'DE' ) unless $country;
+
 sub reset_state {
   my %params = @_;
 
@@ -41,7 +46,7 @@ sub reset_state {
   $customer = new_customer( name    => 'Evil Inc',
                             street  => 'Evil Street',
                             zipcode => '66666',
-                            country_id => 57,
+                            country => $country,
                             email   => 'evil@evilinc.com'
                           )->save;
 }
@@ -233,8 +238,6 @@ sub test_import {
   $shop_order = $shopware->connector->import_data_to_shop_order($import);
   is($shop_order->shop_id , $shop->id  , "shop_id ok");
 }
-
-Support::TestSetup::login();
 
 reset_state();
 
