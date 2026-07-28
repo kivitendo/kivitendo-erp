@@ -977,14 +977,16 @@ sub map_data_to_shoporder {
   my $default_payment    = SL::DB::Manager::PaymentTerm->get_first();
   my $default_payment_id = $default_payment ? $default_payment->id : undef;
 
-  my $billing_country_id  = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} )->id;
-  my $delivery_country_id = SL::DB::Manager::Country->find_by( iso2 => $shipto->{country}->{iso} )->id;
+  my $billing_country = SL::DB::Manager::Country->find_by( iso2 => $billing->{country}->{iso} );
+  die t8('Error: Country not found: #1', $billing->{country}->{iso}) unless $billing_country;
+  my $delivery_country = SL::DB::Manager::Country->find_by( iso2 => $shipto->{country}->{iso} );
+  die t8('Error: Country not found: #1', $shipto->{country}->{iso}) unless $delivery_country;
 
   my %columns = (
     amount                  => $import->{amountTotal},
     billing_city            => $billing->{city},
     billing_company         => $billing->{additionalAddressLine1},
-    billing_country_id      => $billing_country_id,
+    billing_country         => $billing_country,
     billing_department      => $billing->{department},
     billing_email           => $import->{orderCustomer}->{email},
     billing_fax             => $billing->{fax},
@@ -997,7 +999,7 @@ sub map_data_to_shoporder {
     billing_zipcode         => $billing->{zipcode},
     customer_city           => $billing->{city},
     customer_company        => $billing->{company},
-    customer_country_id     => $billing_country_id,
+    customer_country        => $billing_country,
     customer_department     => $billing->{department},
     customer_email          => $billing->{email},
     customer_fax            => $billing->{fax},
@@ -1011,7 +1013,7 @@ sub map_data_to_shoporder {
 #    customer_newsletter     => $customer}->{newsletter},
     delivery_city           => $shipto->{city},
     delivery_company        => $shipto->{additionalAddressLine1},
-    delivery_country_id     => $delivery_country_id,
+    delivery_country        => $delivery_country,
     delivery_department     => $shipto->{department},
     delivery_email          => "",
     delivery_fax            => $shipto->{fax},
