@@ -78,6 +78,7 @@ use SL::Menu;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::OE;
 use SL::PrefixedNumber;
+use SL::Presenter::EscapedText qw();
 use SL::Request;
 use SL::Template;
 use SL::User;
@@ -1042,7 +1043,10 @@ sub send_email {
   }
 
   $mail->{message}  =~ s/\r//g;
+  my $style = _escape_style_attribute(SL::DB::Default->get->email_paragraph_style_body);
+  $mail->{message}  =~ s{<p>}{<p style="$style">}g if $style;
   $mail->{message} .= $full_signature;
+
   $self->{emailerr} = $mail->send();
 
   $self->{email_journal_id} = $mail->{journalentry};
@@ -3426,9 +3430,17 @@ sub reformat_numbers {
   $::myconfig{numberformat} = $saved_numberformat;
 }
 
+sub _escape_style_attribute { SL::Presenter::EscapedText::escape($_[0]); }
+
 sub create_email_signature {
   my $client_signature = $::instance_conf->get_signature;
   my $user_signature   = $::myconfig{signature};
+  my $style;
+
+  $style = _escape_style_attribute(SL::DB::Default->get->email_paragraph_style_employee_signature);
+  $user_signature   =~ s{<p>}{<p style="$style">}g if $style;
+  $style = _escape_style_attribute(SL::DB::Default->get->email_paragraph_style_company_signature);
+  $client_signature =~ s{<p>}{<p style="$style">}g if $style;
 
   return join '', grep { $_ } ($user_signature, $client_signature);
 }
