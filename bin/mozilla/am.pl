@@ -717,10 +717,11 @@ sub save_preferences {
       $::auth->change_password($::myconfig{login}, $form->{new_password});
     }
 
-    $form->redirect($locale->text('Preferences saved!'));
+    flash_later('info', $locale->text('Preferences saved!'));
+    print $form->redirect_header('am.pl?action=config');
+  } else {
+    $form->error($locale->text('Cannot save preferences!'));
   }
-
-  $form->error($locale->text('Cannot save preferences!'));
 
   $main::lxdebug->leave_sub();
 }
