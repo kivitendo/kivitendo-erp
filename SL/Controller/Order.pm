@@ -1727,7 +1727,7 @@ sub cv_assigned_contacts {
   my ($self) = @_;
 
   my $contacts = $self->order->customervendor ? $self->order->customervendor->contacts() : [];
-  if ($self->order->contact && none { $_->cp_id == $self->order->contact->cp_id } @$contacts) {
+  if ($self->order->cp_id && none { $_->cp_id == $self->order->cp_id } @$contacts) {
     push @$contacts, $self->order->contact;
   }
 
