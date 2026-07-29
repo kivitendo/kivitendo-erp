@@ -566,7 +566,7 @@ sub new_from {
         amount billing_address_id currency_id customer_id delivery_term_id department_id
         exchangerate globalproject_id intnotes language_id netamount
         notes payment_id  reqdate salesman_id shippingpoint shipvia taxincluded
-        tax_point taxzone_id transaction_description vendor_id
+        tax_point_start tax_point taxzone_id transaction_description vendor_id
       )),
       cp_id     => $source->{contact_id},
       closed    => 0,
