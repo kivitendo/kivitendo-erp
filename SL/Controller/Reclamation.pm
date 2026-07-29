@@ -1275,7 +1275,7 @@ sub cv_assigned_contacts {
   my ($self) = @_;
 
   my $contacts = $self->reclamation->customervendor ? $self->reclamation->customervendor->contacts() : [];
-  if ($self->reclamation->contact && none { $_->cp_id == $self->reclamation->contact->cp_id } @$contacts) {
+  if ($self->reclamation->contact_id && none { $_->cp_id == $self->reclamation->contact_id } @$contacts) {
     push @$contacts, $self->reclamation->contact;
   }
 
