@@ -2321,6 +2321,15 @@ sub show_sales_purchase_email_dialog {
     js_send_function    => 'kivi.SalesPurchase.send_email()',
   };
 
+  if ($is_invoice_mail) {
+    my $invoice = SL::DB::Invoice->new(id => $::form->{id})->load;
+    my @replacement_vars = map { $_->{name} } @{$invoice->displayable_name_specs()->{options}};
+    foreach my $name (@replacement_vars) {
+      my $val = SL::HTML::Util->strip($invoice->$name // '');
+      $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
+    }
+  }
+
   my %files = _get_files_for_email_dialog();
 
   my $all_partner_email_addresses;

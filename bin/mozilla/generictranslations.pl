@@ -183,6 +183,8 @@ sub edit_email_strings {
   }
   my %placeholder_specs = (
     preset_text_sales_delivery_order => SL::DB::DeliveryOrder->new()->email_replacement_specs()->{options},
+    preset_text_invoice              => SL::DB::Invoice->new()->displayable_name_specs()->{options},
+    preset_text_invoice_direct_debit => SL::DB::Invoice->new()->displayable_name_specs()->{options},
   );
   setup_generictranslations_edit_email_strings_action_bar();
 
