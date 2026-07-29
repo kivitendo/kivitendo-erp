@@ -617,6 +617,20 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
 };
 
+sub displayable_name_specs {
+  {
+    options => [
+      {name => 'cusordnumber',               title => t8('Customer Order Number')},
+      {name => 'invnumber',                  title => t8('Invoice Number')},
+      {name => 'notes',                      title => t8('Notes')},
+      {name => 'intnotes',                   title => t8('Internal Notes')},
+      {name => 'shippingpoint',              title => t8('Shipping Point')},
+      {name => 'shipvia',                    title => t8('Ship via')},
+      {name => 'transaction_description',    title => t8('Transaction description')},
+    ],
+  };
+}
+
 sub abbreviation {
   my ($self) = @_;
 
