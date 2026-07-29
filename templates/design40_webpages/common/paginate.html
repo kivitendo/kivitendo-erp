@@ -1,11 +1,11 @@
 [% USE T8 %]
-[% MACRO build_url BLOCK %]
- [% IF base_url %]
-  [% base_url %]&page=[% page %]
- [% ELSE %]
-  [% url_maker('page' => page) %]
- [% END %]
-[% END %]
+[%- MACRO build_url BLOCK %]
+ [%- IF base_url %]
+  [%- base_url %]&page=[% page %]&per_page=[% per_page || pages.per_page %]
+ [%- ELSE %]
+  [%- url_maker(page=page, per_page=per_page||pages.per_page) %]
+ [%- END %]
+[%- END %]
 
 [% IF pages.max > 1 %]
 <div class="paginate control-panel">
@@ -24,6 +24,13 @@
   [% ELSE %]
     <span class="paginate-next"></span>
   [% END %]
+  <span>
+    <select onchange="window.location = this.value;" title="[% "Results per page" | $T8 %]">
+      <option [% IF pages.per_page ==   20 %]selected[% END %] value="[% build_url(page=1, per_page=  20) %]">20</option>
+      <option [% IF pages.per_page ==  100 %]selected[% END %] value="[% build_url(page=1, per_page= 100) %]">100</option>
+      <option [% IF pages.per_page == 1000 %]selected[% END %] value="[% build_url(page=1, per_page=1000) %]">1000</option>
+    </select>
+  </span>
 </div>
 [% END %]
 
