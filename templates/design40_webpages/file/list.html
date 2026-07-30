@@ -51,7 +51,7 @@
       [%- IF !is_other_version %]
         <tr>
       [%- ELSE %]
-        <tr class="[% 'version_row_' _ file.id %] hidden">
+        <tr class="[% 'version_row_' _ file.id %]" style="display:none">
       [%- END %]
         [% IF edit_attachments %]
           <td>[% L.checkbox_tag(checkname _ '[]', 'value'=file.file_version.guid, 'class'=checkname) %]</td>
