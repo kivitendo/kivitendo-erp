@@ -20,9 +20,15 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Order::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 
+use SL::DB::History;
+
+use SL::Helper::CreatePDF qw();
 use SL::Helper::Number qw(_format_total _round_total);
 use SL::Helper::ShippedQty;
+use SL::Locale::String qw(t8);
+use SL::MIME;
 
+use English qw(-no_match_vars);
 use List::Util qw(first);
 use List::MoreUtils qw(any pairwise);
 use Math::Round qw(nhimult);
@@ -481,6 +487,163 @@ sub convert_to_invoice {
   }
 
   return $invoice;
+}
+
+sub generate_doc_filename {
+  my ($self, $params) = @_;
+
+  my $language = $params->{language} || $self->language;
+
+  # create a form for generate_attachment_filename
+  my $form   = Form->new;
+  $form->{$self->type_data->properties('nr_key')} = $self->record_number;
+  $form->{type}                                   = $self->type;
+  $form->{format}                                 = $params->{format}   || 'pdf';
+  $form->{formname}                               = $params->{formname} || $self->type;
+  $form->{language}                               = '_' . $language->template_code if $language;
+
+  $form->generate_attachment_filename();
+}
+
+sub generate_doc {
+  my ($self, $doc_ref, $params) = @_;
+
+  my @errors = ();
+
+  my $print_form = Form->new('');
+  $print_form->{type}        = $self->type;
+  $print_form->{formname}    = $params->{formname} || $self->type;
+  $print_form->{format}      = $params->{format}   || 'pdf';
+  $print_form->{media}       = $params->{media}    || 'file';
+  $print_form->{groupitems}  = $params->{groupitems};
+  $print_form->{printer_id}  = $params->{printer_id};
+  $print_form->{media}       = 'file'                             if $print_form->{media} eq 'screen';
+
+  $self->language($params->{language}) if $params->{language};
+
+  # Keep items which should be printed.
+  if ($params->{only_selected_item_positions}) {
+    my %keep = map { $_ => 1 } @{ $params->{selected_item_positions} || [] };
+    $self->items([ grep { $keep{$_->position} } @{ $self->items } ]);
+  }
+
+  $self->flatten_to_form($print_form, format_amounts => 1);
+
+  my $template_ext;
+  my $template_type;
+  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
+    $template_ext  = 'odt';
+    $template_type = 'OpenDocument';
+  } elsif ($print_form->{format} =~ m{html}i) {
+    $template_ext  = 'html';
+    $template_type = 'HTML';
+  }
+
+  # search for the template
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $print_form->{formname},
+    extension   => $template_ext,
+    email       => $print_form->{media} eq 'email',
+    language    => $params->{language},
+    printer_id  => $print_form->{printer_id},
+  );
+
+  if (!defined $template_file) {
+    push @errors, t8('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
+  }
+
+  return @errors if scalar @errors;
+
+  $print_form->throw_on_error(sub {
+    eval {
+      $print_form->prepare_for_printing;
+
+      $$doc_ref = SL::Helper::CreatePDF->create_pdf(
+        format        => $print_form->{format},
+        template_type => $template_type,
+        template      => $template_file,
+        variables     => $print_form,
+        variable_content_types => {
+          longdescription => 'html',
+          partnotes       => 'html',
+          notes           => 'html',
+          $::form->get_variable_content_types_for_cvars,
+        },
+      );
+      1;
+    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
+  });
+
+  if ($self->id && !scalar @errors) {
+    my $number_type = $self->type_data->properties('nr_key');
+    my $snumbers    = $number_type . '_' . $self->record_number;
+    my $addition    = 'PRINTED';
+    SL::DB::History->new(
+      trans_id    => $self->id,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      what_done   => $self->type,
+      snumbers    => $snumbers,
+      addition    => $addition,
+    )->save;
+  }
+
+  return @errors;
+}
+
+sub store_doc_to_webdav_and_filemanagement {
+  my ($self, $content, %params) = @_;
+
+  my $filename = $params{filename} || $self->generate_doc_filename;
+  my $variant  = $params{variant}  || $self->record_type;
+
+  my @errors;
+
+  # copy file to webdav folder
+  if ($self->record_number && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $self->record_type,
+      number   => $self->record_number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $filename,
+    );
+    eval {
+      $webdav_file->store(data => \$content);
+      1;
+    } or do {
+      push @errors, t8('Storing the document to the WebDAV folder failed: #1', $@);
+    };
+  }
+  my $file_obj;
+  if ($self->id && $::instance_conf->get_doc_storage) {
+    eval {
+      my $mime_type = $params{mime_type} || SL::MIME->mime_type_from_ext($filename);
+      $file_obj = SL::File->save(object_id     => $self->id,
+                                 object_type   => $self->record_type,
+                                 mime_type     => $mime_type,
+                                 source        => 'created',
+                                 file_type     => 'document',
+                                 file_name     => $filename,
+                                 file_contents => $content,
+                                 print_variant => $variant);
+
+      if (exists $params{return_info}) {
+        $params{return_info} = {
+          file_obj  => $file_obj,
+          mime_type => $mime_type,
+          filename  => $filename,
+        };
+      }
+
+      1;
+
+    } or do {
+      push @errors, t8('Storing the document in the storage backend failed: #1', $@);
+    };
+  }
+
+  return @errors;
 }
 
 sub digest {
