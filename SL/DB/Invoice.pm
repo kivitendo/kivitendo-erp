@@ -22,6 +22,7 @@ use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Helper::ZUGFeRD qw(:CREATE);
 use SL::DB::Helper::ZUGFeRDValidator;
 use SL::Locale::String qw(t8);
+use SL::MIME;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -689,6 +690,107 @@ sub netamount_base_currency {
   my ($self) = @_;
 
   return $self->netamount; # already matches base currency
+}
+
+sub get_zugferd_additional_documents {
+  my ($self) = @_;
+
+  my @docs = ();
+
+  # get docs from file management which are marked as zugferd attachment
+  my @object_types = ($self->record_type);
+  push @object_types, qw(dunning1 dunning2 dunning3 dunning_invoice dunning_orig_invoice) if $self->record_type eq 'invoice'; # hardcoded object types?
+
+  require SL::File;
+
+  my @file_versions = SL::File->get_all_versions(object_id   => $self->id,
+                                                 object_type => \@object_types);
+
+  @file_versions = grep { $_->file_version->zugferd_option && $_->file_version->zugferd_option->attach } @file_versions;
+
+  foreach my $file (@file_versions) {
+    push @docs, {
+      doc_id    => $file->file_version->zugferd_option->doc_id,
+      name      => $file->file_version->zugferd_option->doc_name,
+      filename  => $file->db_file->file_name,
+      mime_code => $file->db_file->mime_type,
+      file      => $file->file_version->get_system_location(),
+    };
+  }
+
+  my $delivery_order_docs = $self->_find_or_create_linked_delivery_orders_documents();
+
+  push @docs, @{$delivery_order_docs};
+
+  return \@docs;
+}
+
+sub _find_or_create_linked_delivery_orders_documents {
+  my ($self) = @_;
+
+  my @docs = ();
+
+  return \@docs if 'no' eq $::instance_conf->get_zugferd_attach_linked_sales_delivery_orders;
+
+  my $linked_delivery_orders = $self->linked_records(
+    from  => 'DeliveryOrder',
+    query => [record_type => 'sales_delivery_order']);
+
+  foreach my $linked_delivery_order (@$linked_delivery_orders) {
+    my @files;
+
+    if ('create_always' ne $::instance_conf->get_zugferd_attach_linked_sales_delivery_orders) {
+      # get files (if filename changes (i.e. because of language), this is a new file, not a version)
+      @files = SL::File->get_all(
+        object_id     => $linked_delivery_order->id,
+        object_type   => $linked_delivery_order->record_type,
+        file_type     => 'document',
+        print_variant => $linked_delivery_order->record_type,
+      );
+    }
+
+    my ($filename, $file, $content, $mime_code);
+
+    my $should_create =    (!@files && 'yes'           eq $::instance_conf->get_zugferd_attach_linked_sales_delivery_orders)
+                        || (           'create_always' eq $::instance_conf->get_zugferd_attach_linked_sales_delivery_orders);
+
+    if ($should_create) {
+      my $doc;
+
+      require SL::Model::Record;
+
+      my @errors = SL::Model::Record->generate_doc($linked_delivery_order, \$doc);
+      die t8('Generating delivery order document to attach failed: #1', "\n" . join "\n", @errors) if scalar @errors;
+
+      $content   = $doc;
+      $filename  = SL::Model::Record->generate_doc_filename($linked_delivery_order);
+      $mime_code = SL::MIME->mime_type_from_ext($filename);
+
+      # ignore errors silently here: maybe a warn log or collect and return as warning?
+      SL::Model::Record->store_doc_to_webdav_and_filemanagement($linked_delivery_order, $doc,
+                                                                filename  => $filename,
+                                                                mime_type => $mime_code);
+
+    } elsif (@files) {
+      my $latest_file_version = $files[0];
+      $filename  = $latest_file_version->file_name;
+      $file      = $latest_file_version->get_file;
+      $mime_code = $latest_file_version->mime_type;
+    }
+
+    next if !$filename;
+
+    push @docs, {
+      doc_id    => $linked_delivery_order->record_number,
+      name      => t8('Sales Delivery Order'),
+      filename  => $filename,
+      mime_code => $mime_code,
+     (file      => $file)    x !!$file,
+     (content   => $content) x !!$content,
+    };
+  }
+
+  return \@docs;
 }
 
 1;
