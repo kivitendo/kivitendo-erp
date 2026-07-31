@@ -2,18 +2,22 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
+
+<div class="wrapper">
+
 [% L.button_tag('', LxERP.t8('Hide buttons'), id="hide_buttons_button", class="hide") %]
 [% L.button_tag('', LxERP.t8('Show charts'),  id="show_charts_button",  class="hide") %]
 [% L.button_tag('', LxERP.t8('Hide charts'),  id="hide_charts_button",  class="hide") %]
-<!-- PENDENT: Ueberschriften mal genauer anschauen -->
-<h3 id="show_buttons"> [% title %]</h3>
+
 <h3>[% period %]<br><big>[% accounting_method %]<br></big><i>[% report_date %]</i></h3>
 
 <table id="eurtable" class="tbl-list">
-<tbody>
+<thead>
 <tr>
-  <th colspan="2" class="caption">A. Betriebseinnahmen</td>
+  <th colspan="2">A. Betriebseinnahmen</th>
 </tr>
+</thead>
+<tbody>
 
 [% FOREACH i IN categories_income %]
   <tr class="category" data-catid="cat[% i %]">
@@ -31,14 +35,19 @@
 
 <tr class="inrows-footer">
   <th><b>Summe Einnahmen</b></th>
-  <th class="numeric">[% sumeura %]</td>
+  <td class="numeric"><b>[% sumeura %]</b></td>
 </tr>
 <tr class="spacer">
   <td colspan="2">&nbsp;</td>
 </tr>
+
+</tbody>
+<thead>
 <tr>
-  <th class="caption" colspan="2">B. Betriebsausgaben</th>
+  <th colspan="2">B. Betriebsausgaben</th>
 </tr>
+</thead>
+<tbody>
 
 [% FOREACH i IN categories_expense %]
   <tr class="category" data-catid="cat[% i %]">
@@ -52,15 +61,15 @@
   </tr>
   [% END %]
 [% END %]
+<tr class="inrows-footer">
+  <th><b>Summe Ausgaben</b></th>
+  <td class="numeric"><b>[% sumeurb %]</b></td>
+</tr>
 </tbody>
 <tfoot>
 <tr>
-  <th><b>Summe Ausgaben</b></th>
-  <td>[% sumeurb %]</td>
-</tr>
-<tr>
   <td>GEWINN / VERLUST</td>
-  <td>[% guvsumme %]<br><hr noshade size=2></td>
+  <td class="numeric">[% guvsumme %]</td>
 </tr>
 </tfoot>
 </table>
@@ -74,12 +83,14 @@
 <div id="chartlist">
 <div>[% 'Chart list' | $T8 %]</div>
 <div>
-<table>
+<table class="tbl-list">
+<thead>
 <tr>
   <th>[% 'Chart'    | $T8 %]</th>
   <th>[% 'Amount'   | $T8 %]</th>
   <th>[% 'Category' | $T8 %]</th>
 </tr>
+</thead>
 [% FOREACH key = charts.keys.sort %]
 [% UNLESS charts.$key.pos_eur %]
 [% NEXT %]
@@ -93,8 +104,8 @@
 </table>
 </div>
 </div>
-</body>
-</html>
+
+</div><!-- .wrapper -->
 
 <script language="javascript">
 $( document ).ready(function() {
