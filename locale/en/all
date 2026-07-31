@@ -1985,7 +1985,6 @@ $self->{texts} = {
   'Hide Filter'                 => '',
   'Hide Records'                => '',
   'Hide all details'            => '',
-  'Hide buttons'                => '',
   'Hide by default'             => '',
   'Hide chart details'          => '',
   'Hide chart list'             => '',
