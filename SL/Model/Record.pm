@@ -75,6 +75,15 @@ sub get_record {
 sub new_from_workflow {
   my ($class, $source_object, $target_type, %flags) = @_;
 
+  foreach my $item (@{ $source_object->items }) {
+    # autovivify all cvars that are not in the form (cvars_by_config can do it).
+    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+    foreach my $var (@{ $item->cvars_by_config }) {
+      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+    }
+    $item->parse_custom_variable_values;
+  }
+
   $flags{destination_type} = $target_type;
   my %defaults_flags = (
     no_linked_records => 0,
