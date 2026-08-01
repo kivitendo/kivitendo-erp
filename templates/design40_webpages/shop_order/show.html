@@ -172,7 +172,7 @@
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% P.country.picker('billing_country_id', IMPORT.billing_country_id, with_empty=1, class="wi-wide") %]</td>
+          <td>[% P.country.picker('billing_country_id', IMPORT.billing_country_id, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>
@@ -209,23 +209,23 @@
         <colgroup><col class="wi-verysmall"><col class="wi-mediumsmall"></colgroup>
         <tr>
           <th>[% 'Greeting' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_greeting, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_greeting) %]</td>
         </tr>
         <tr>
           <th>[% 'Firstname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_firstname, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_firstname) %]</td>
         </tr>
         <tr>
           <th>[% 'Lastname' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_lastname, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_lastname) %]</td>
         </tr>
         <tr>
           <th>[% 'Company' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_company, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_company) %]</td>
         </tr>
         <tr>
           <th>[% 'Department' | $T8 %]</th>
-          <td>[% HTML.escape(IMPORT.delivery_department, class="wi-wide") %]</td>
+          <td>[% HTML.escape(IMPORT.delivery_department) %]</td>
         </tr>
       </table>
 
@@ -264,7 +264,7 @@
         </tr>
         <tr>
           <th>[% 'Country' | $T8 %]</th>
-          <td>[% P.country.picker('delivery_country_id', IMPORT.delivery_country_id, with_empty=1, class="wi-wide") %]</td>
+          <td>[% P.country.picker('delivery_country_id', IMPORT.delivery_country_id, class="wi-wide") %]</td>
         </tr>
         <tr>
           <th>[% 'Phone' | $T8 %]</th>

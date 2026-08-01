@@ -22,8 +22,7 @@ my ($transdate);
 Support::TestSetup::login();
 
 my $country = SL::DB::Manager::Country->find_by( iso2 => 'DE' );
-die t8('Error: Country not found: #1', 'DE' ) unless $country;
-
+die "Error: Country not found: DE" unless $country;
 sub reset_state {
   my %params = @_;
 

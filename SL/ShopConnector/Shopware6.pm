@@ -985,7 +985,7 @@ sub map_data_to_shoporder {
   my %columns = (
     amount                  => $import->{amountTotal},
     billing_city            => $billing->{city},
-    billing_company         => $billing->{additionalAddressLine1},
+    billing_company         => $billing->{company},
     billing_country         => $billing_country,
     billing_department      => $billing->{department},
     billing_email           => $import->{orderCustomer}->{email},
@@ -1012,7 +1012,7 @@ sub map_data_to_shoporder {
     customer_zipcode        => $billing->{zipcode},
 #    customer_newsletter     => $customer}->{newsletter},
     delivery_city           => $shipto->{city},
-    delivery_company        => $shipto->{additionalAddressLine1},
+    delivery_company        => $shipto->{company},
     delivery_country        => $delivery_country,
     delivery_department     => $shipto->{department},
     delivery_email          => "",
