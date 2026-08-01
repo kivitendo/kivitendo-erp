@@ -1,5 +1,5 @@
 -- @tag: shop_orders_add_country_id
--- @description: Hinzufügen der Spalte country_id wg neuerem Ländermodul
+-- @description: Hinzufügen der Spalte country_id wg. neuem Länderfeature
 -- @depends: release_4_0_0 countries_phase_2
 -- @ignore: 0
 

@@ -1,5 +1,5 @@
 # @tag: countries_shop_phase_2
-# @description: Setzt Länder-Auswahlmenü als Pflichtfeld für Kunden und Lieferanten sowie als optionales Feld für abweichende Liefer- und Rechnungsadressen
+# @description: Setzt Länder-Auswahlmenü als Pflichtfeld für Shopbestellungen
 # @depends: release_4_0_0 countries_phase_2 shop_orders_add_country_id
 package SL::DBUpgrade2::countries_shop_phase_2;
 
@@ -38,7 +38,7 @@ sub print_errors {
       '<div class="wrapper"><form name="Form" method="post" action="login.pl"><input type="hidden" name="action" value="login">' .
       html_tag('p', t8('The following country names must be assigned to countries from the ISO 3166-1 alpha-2 code list, as automatic assignment failed for these.')),
     raw_bottom_info_text =>
-      submit_tag('rerun_countries_upgrade_customer_vendor_2', t8('Rerun update')) .
+      submit_tag('rerun_countries_upgrade_shop_phase_2', t8('Rerun update')) .
       '</form></div>',
   );
 

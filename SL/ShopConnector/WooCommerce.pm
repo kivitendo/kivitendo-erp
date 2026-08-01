@@ -15,6 +15,7 @@ use SL::DB::File;
 use Data::Dumper;
 use SL::Helper::Flash;
 use Encode qw(encode_utf8);
+use SL::Locale::String qw(t8);
 
 sub get_one_order {
   my ($self, $order_id) = @_;

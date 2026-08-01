@@ -212,13 +212,6 @@ sub get_customer{
   my $payment_id = $default_payment ? $default_payment->id : undef;
   if(!scalar(@{$customer_proposals})){
 
-    my $country_id = $shop->default_country_id;
-    if ($self->billing_country) {
-      my $country = SL::DB::Manager::Country->find_by_name($self->billing_country);
-      die t8('Error: Country not found: #1', $self->billing_country) if !$country;
-      $country_id = $country->id;
-    };
-
     my %address = ( 'name'                  => $name,
                     'department_1'          => $self->billing_company,
                     'department_2'          => $self->billing_department,

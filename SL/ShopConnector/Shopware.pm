@@ -20,6 +20,7 @@ use SL::Helper::Flash;
 use Encode qw(encode_utf8);
 use SL::File;
 use File::Slurp;
+use SL::Locale::String qw(t8);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(connector url) ],
