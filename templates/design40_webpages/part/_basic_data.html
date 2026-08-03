@@ -93,7 +93,7 @@
     <colgroup> <col class="wi-mediumsmall-wide"> </colgroup>
     <tbody>
       <tr>
-        <td class="wi-mediumsmall-wide">[% L.textarea_tag("part.notes", P.restricted_html(SELF.part.notes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
+        <td class="wi-mediumsmall-wide">[% L.textarea_tag("part.notes", HTML.escape(SELF.part.notes_as_restricted_html), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
       </tr>
     </tbody>
   </table>
@@ -102,7 +102,7 @@
     <colgroup> <col class="wi-mediumsmall-wide"> </colgroup>
     <tbody>
       <tr>
-        <td class="wi-mediumsmall-wide">[% L.textarea_tag('part.intnotes', P.restricted_html(SELF.part.intnotes), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
+        <td class="wi-mediumsmall-wide">[% L.textarea_tag('part.intnotes', HTML.escape(SELF.part.intnotes_as_restricted_html), class='texteditor wi-mediumsmall-wide', cols=10, rows=10) %]</td>
       </tr>
     </tbody>
   </table>
