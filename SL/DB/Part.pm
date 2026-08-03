@@ -106,6 +106,7 @@ __PACKAGE__->meta->initialize;
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(onhandqty stockqty get_open_ordered_qty) ],
 );
+__PACKAGE__->attr_html('intnotes');
 __PACKAGE__->attr_html('notes');
 __PACKAGE__->attr_sorted({ unsorted => 'makemodels',     position => 'sortorder' });
 __PACKAGE__->attr_sorted({ unsorted => 'customerprices', position => 'sortorder' });
