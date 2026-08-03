@@ -472,7 +472,7 @@ sub action_save_and_show_email_dialog {
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.DeliveryOrder.send_email()';
 
-  my @replacement_vars = map { $_->{name} } @{$self->order->displayable_name_specs()->{options}};
+  my @replacement_vars = map { $_->{name} } @{$self->order->email_replacement_specs()->{options}};
   foreach my $name (@replacement_vars) {
     my $html_name = "${name}_as_stripped_html";
     my $val = $self->order->can($html_name) ? $self->order->$html_name
