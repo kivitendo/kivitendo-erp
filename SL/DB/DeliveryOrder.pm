@@ -124,7 +124,19 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
 };
 
-sub displayable_name_specs {
+sub displayable_state {
+  my ($self) = @_;
+
+  return join '; ',
+    ($self->closed    ? $::locale->text('closed')    : $::locale->text('open')),
+    ($self->delivered ? $::locale->text('delivered') : $::locale->text('not delivered'));
+}
+
+sub date {
+  goto &transdate;
+}
+
+sub email_replacement_specs {
   {
     options => [
       {name => 'cusordnumber',               title => t8('Customer Order Number')},
@@ -137,18 +149,6 @@ sub displayable_name_specs {
       {name => 'vendor_confirmation_number', title => t8('Vendor Confirmation Number')},
     ],
   };
-}
-
-sub displayable_state {
-  my ($self) = @_;
-
-  return join '; ',
-    ($self->closed    ? $::locale->text('closed')    : $::locale->text('open')),
-    ($self->delivered ? $::locale->text('delivered') : $::locale->text('not delivered'));
-}
-
-sub date {
-  goto &transdate;
 }
 
 sub number {
@@ -539,14 +539,14 @@ An alias for C<transdate> for compatibility with other sales/purchase models.
 Returns a human-readable and translated description of the delivery order, consisting of
 record type and number, e.g. "Verkaufslieferschein 123".
 
-=item C<displayable_name_specs>
-
-Used to specify replacement variables for email texts.
-
 =item C<displayable_state>
 
 Returns a human-readable description of the state regarding being
 closed and delivered.
+
+=item C<email_replacement_specs>
+
+Used to specify replacement variables for email texts.
 
 =item C<items>
 
