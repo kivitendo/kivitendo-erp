@@ -474,7 +474,10 @@ sub action_save_and_show_email_dialog {
 
   my @replacement_vars = map { $_->{name} } @{$self->order->displayable_name_specs()->{options}};
   foreach my $name (@replacement_vars) {
-    my $val = SL::HTML::Util->strip($self->order->$name // '');
+    my $html_name = "${name}_as_stripped_html";
+    my $val = $self->order->can($html_name) ? $self->order->$html_name
+                                            : $self->order->$name // '';
+    $val = $::locale->quote_special_chars('html', $val);
     $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
   }
 
