@@ -143,6 +143,7 @@ sub email_replacement_specs {
       {name => 'donumber',                   title => t8('Delivery Order Number')},
       {name => 'notes',                      title => t8('Notes')},
       {name => 'intnotes',                   title => t8('Internal Notes')},
+      {name => 'ordnumber',                  title => t8('Order Confirmation Number')},
       {name => 'shippingpoint',              title => t8('Shipping Point')},
       {name => 'shipvia',                    title => t8('Ship via')},
       {name => 'transaction_description',    title => t8('Transaction description')},
