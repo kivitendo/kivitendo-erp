@@ -61,7 +61,7 @@
     <tr>
       <th> [% LxERP.t8("Tax number") %] </th>
       [% IF SELF.defaults.feature_ustva %]
-      <td> [% SELF.defaults.taxnumber %]&nbsp;&nbsp; <a href="ustva.pl?action=config_step1"> ([% LxERP.t8("For changeing goto USTVA Config") %]) </a> </td>
+      <td> [% SELF.defaults.taxnumber %]&nbsp;&nbsp; <a href="ustva.pl?action=config_step1"> ([% LxERP.t8("For editing, please go to the UStVA Configuration") %]) </a> </td>
       [% ELSE %]
       <td> [% L.input_tag('defaults.taxnumber', SELF.defaults.taxnumber, class='wi-medium-small') %] </td>
       [% END %]
