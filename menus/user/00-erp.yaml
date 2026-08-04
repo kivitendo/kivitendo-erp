@@ -936,7 +936,7 @@
     report: balance_sheet
 - parent: reports
   id: reports_ustva
-  name: UStVa
+  name: UStVA
   icon: ustva
   order: 600
   access: advance_turnover_tax_return & client/feature_ustva
@@ -1121,7 +1121,7 @@
     action: ClientConfig/edit
 - parent: system
   id: system_ustva_einstellungen
-  name: UStVa Einstellungen
+  name: UStVA Configuration
   order: 200
   access: client/feature_ustva
   module: ustva.pl
