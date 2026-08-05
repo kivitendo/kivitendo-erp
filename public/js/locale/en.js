@@ -64,6 +64,7 @@ namespace("kivi").setupLocale({
 "Download picture":"",
 "Due Date missing!":"",
 "Edit":"",
+"Edit ZUGFeRD/Factur-X option":"",
 "Edit article/section assignments":"",
 "Edit custom shipto":"",
 "Edit note":"",
