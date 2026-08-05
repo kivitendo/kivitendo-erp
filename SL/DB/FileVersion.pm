@@ -8,6 +8,14 @@ use strict;
 use SL::DB::MetaSetup::FileVersion;
 use SL::DB::Manager::FileVersion;
 
+__PACKAGE__->meta->add_relationship(
+  zugferd_option => {
+    type                   => 'one to one',
+    class                  => 'SL::DB::FileVersionsZugferdOption',
+    column_map             => { guid => 'guid' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 
