@@ -550,10 +550,13 @@ sub input_phone_tag {
   my $link_id   = $params{id} ? $params{id} . '_link' : undef;
   $value = trim($value);
   if ($cti_enabled && $value) {
-    $html      .= link_tag('controller.pl?action=CTI/call&number=' . escape($value),
-                           img_tag(src => 'image/icons/16x16/phone.png', alt => t8('Call'), border => 0), target => '_blank',
-                           (id    => $link_id)x!!$link_id,
-                           (style => 'display:none')x!$show_icon);
+    $html .= html_tag('button', img_tag(src => 'image/icons/16x16/phone.png'),
+      onclick => "event.preventDefault();" .
+                 "\$.post('controller.pl?action=CTI/call&number=" .
+                 escape($value). "', [], kivi.eval_json_result);",
+      title   => t8('Call'),
+      class   => 'neutral'
+    );
   }
 
   return '<span>' . $html . '</span>';
