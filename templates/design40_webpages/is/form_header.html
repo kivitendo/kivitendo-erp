@@ -9,7 +9,9 @@
 <script type="text/javascript" src="js/calculate_qty.js"></script>
 <script type="text/javascript" src="js/follow_up.js"></script>
 
-<form method="post" id='form' name="invoice" action="[% script %]">
+[% SET show_zugferd_options = invoice_obj && invoice_obj.customer.create_zugferd_invoices_for_this_customer %]
+
+<form method="post" id='form' name="invoice" action="[% script %]" data-show-zugferd-options="[% show_zugferd_options %]">
 
 [% FOREACH key = HIDDENS %]
   <input type="hidden" name="[% HTML.escape(key) %]" id="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
@@ -48,8 +50,8 @@
     [% END %]
     [% IF id %]
       [% IF INSTANCE_CONF.get_doc_storage %]
-        <li><a href="controller.pl?action=File/list&file_type=document&object_type=[% type %]&object_id=[% HTML.url(id) %]">[% 'Documents' | $T8 %]</a></li>
-        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% type %]&object_id=[% HTML.url(id) %]">[% 'Attachments' | $T8 %]</a></li>
+        <li><a href="controller.pl?action=File/list&file_type=document&object_type=[% type %]&object_id=[% HTML.url(id) %]&show_zugferd_options=[% show_zugferd_options %]">[% 'Documents' | $T8 %]</a></li>
+        <li><a href="controller.pl?action=File/list&file_type=attachment&object_type=[% type %]&object_id=[% HTML.url(id) %]&show_zugferd_options=[% show_zugferd_options %]">[% 'Attachments' | $T8 %]</a></li>
       [% END %]
       [% IF AUTH.assert('record_links', 1) %]
         <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>

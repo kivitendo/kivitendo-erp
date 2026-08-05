@@ -19,6 +19,7 @@ use File::Spec::Win32;
 use File::MimeInfo::Magic;
 use MIME::Base64;
 use SL::DB::Helper::Mappings;
+use SL::DB::FileVersionsZugferdOption;
 use SL::DB::Order;
 use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
@@ -31,8 +32,10 @@ use SL::DB::History;
 use SL::JSON;
 use SL::Helper::CreatePDF qw(:all);
 use SL::Locale::String;
+use SL::Presenter::EscapedText qw(escape);
 use SL::SessionFile;
 use SL::SessionFile::Random;
+use SL::Util qw(trim);
 use SL::File;
 use SL::Controller::Helper::ThumbnailCreator qw(file_probe_image_type file_probe_type);
 
@@ -346,6 +349,49 @@ sub action_ajax_get_thumbnail {
     ->render;
 }
 
+sub action_edit_zugferd_option_dialog {
+  my ($self) = @_;
+
+  my $guid = $::form->{guid};
+
+  my $zugferd_option = SL::DB::Manager::FileVersionsZugferdOption->find_by_or_create(guid => $guid);
+  $zugferd_option->guid($guid);
+
+  $self->render('file/zugferd_option_dialog', { layout => 0 },
+                zugferd_option => $zugferd_option);
+}
+
+sub action_set_zugferd_option {
+  my ($self) = @_;
+
+  $::form->{zugferd_option}{doc_id}   = trim($::form->{zugferd_option}{doc_id});
+  $::form->{zugferd_option}{doc_name} = trim($::form->{zugferd_option}{doc_name});
+
+  if ($::form->{zugferd_option}{attach} && !$::form->{zugferd_option}{doc_id}) {
+    return $self->js
+      ->html('#message-text', t8('A document id is mandatory.'))
+      ->show('#message')
+      ->render;
+  }
+
+  # Save to db. Delete entry if not active and all fields are empty.
+  my $zugferd_option = SL::DB::Manager::FileVersionsZugferdOption->find_by_or_create(guid => $::form->{zugferd_option}{guid});
+
+  if (!($::form->{zugferd_option}{attach} || $::form->{zugferd_option}{doc_id} || $::form->{zugferd_option}{doc_name})) {
+    $zugferd_option->delete if $zugferd_option->id;
+  } else {
+    $zugferd_option->update_attributes(%{ $::form->{zugferd_option} });
+  }
+
+  # Set new values in form and close.
+  my $guid = $::form->{zugferd_option}{guid};
+  $self->js
+    ->html('#zugferd_option_attach_'   . $guid, $::form->{zugferd_option}{attach} ? t8('Yes') : t8('No'))
+    ->html('#zugferd_option_doc_id_'   . $guid, escape($::form->{zugferd_option}{doc_id}))
+    ->html('#zugferd_option_doc_name_' . $guid, escape($::form->{zugferd_option}{doc_name}))
+    ->dialog->close('#zugferd_option_dialog')
+    ->render;
+}
 
 #
 # filters
@@ -500,6 +546,7 @@ sub _mk_render {
       file_type        => $self->file_type,
       is_global        => $self->is_global,
       json             => $json,
+      show_zugferd_options => $::form->{show_zugferd_options},
     );
     if ( $json ) {
       $self->js->html('#'.$self->file_type.'_list_'.$self->object_type, $output);
