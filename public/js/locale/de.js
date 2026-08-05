@@ -64,6 +64,7 @@ namespace("kivi").setupLocale({
 "Download picture":"Bild herunterladen",
 "Due Date missing!":"Fälligkeitsdatum fehlt!",
 "Edit":"Bearbeiten",
+"Edit ZUGFeRD/Factur-X option":"ZUGFeRD/Factur-X-Optionen bearbeiten",
 "Edit article/section assignments":"Zuweisung Artikel/Abschnitte bearbeiten",
 "Edit custom shipto":"Individuelle Lieferadresse bearbeiten",
 "Edit note":"Notiz bearbeiten",
