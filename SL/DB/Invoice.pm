@@ -617,7 +617,7 @@ sub displayable_name {
   join ' ', grep $_, map $_[0]->$_, qw(displayable_type record_number);
 };
 
-sub displayable_name_specs {
+sub email_replacement_specs {
   {
     options => [
       {name => 'cusordnumber',               title => t8('Customer Order Number')},
