@@ -19,7 +19,8 @@ namespace("kivi.AsyncMsg", function(ns) {
         kivi.Flash.display_flash(ev.msg_type, message, details, timestamp, ev.id);
       }
 
-      ns.last_msg_id = data.last_msg_id;
+      if (ns.last_msg_id < data.last_msg_id)
+        ns.last_msg_id = data.last_msg_id;
     });
     socket.addEventListener("open", (event) => {
       $('.layout-flash-toggle img')[0].style.filter = 'brightness(0.5) sepia(1) hue-rotate(90deg) saturate(15)';
