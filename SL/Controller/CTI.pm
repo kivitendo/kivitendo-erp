@@ -24,7 +24,11 @@ sub action_call {
     flash('error', $@);
   };
 
-  $self->render('cti/calling');
+  if ($::request->is_ajax) {
+    $self->js->render();#flash('ok', t8('Calling #1 now', $::form->
+  } else {
+    $self->render('cti/calling');
+  }
 }
 
 sub action_list_internal_extensions {
