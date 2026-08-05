@@ -2323,9 +2323,14 @@ sub show_sales_purchase_email_dialog {
 
   if ($is_invoice_mail) {
     my $invoice = SL::DB::Invoice->new(id => $::form->{id})->load;
-    my @replacement_vars = map { $_->{name} } @{$invoice->displayable_name_specs()->{options}};
+    my @replacement_vars = $invoice->can('email_replacement_specs')
+                         ? map { $_->{name} } @{$invoice->email_replacement_specs()->{options}}
+                         : ();
     foreach my $name (@replacement_vars) {
-      my $val = SL::HTML::Util->strip($invoice->$name // '');
+      my $html_name = "${name}_as_restricted_html";
+      my $val = $invoice->can($html_name)
+              ? $invoice->$html_name
+              : $::locale->quote_special_chars('html', $invoice->$name // '');
       $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
     }
   }
