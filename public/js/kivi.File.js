@@ -49,6 +49,7 @@ namespace('kivi.File', function(ns) {
       next_ids:        $('#next_ids_id_'+file_type).val(),
       is_global:       $('#is_global_id_'+file_type).val(),
       sessionfile:     $('#sessionfile_id_'+file_type).val(),
+      show_zugferd_options: ns.get_show_zugferd_options()
     };
     $.post("controller.pl", data, kivi.eval_json_result);
     return true;
@@ -162,6 +163,7 @@ namespace('kivi.File', function(ns) {
       fd.append('object_id',   id);
       fd.append('file_type',   filetype);
       fd.append('is_global',   is_global);
+      fd.append('show_zugferd_options', ns.get_show_zugferd_options());
 
       var oReq = new XMLHttpRequest();
       oReq.onload            = ns.attSuccess;
@@ -209,6 +211,7 @@ namespace('kivi.File', function(ns) {
       file_type  :  file_type,
       ids        :  checkbox_class,
       is_global  :  is_global,
+      show_zugferd_options: ns.get_show_zugferd_options()
     };
     $.post("controller.pl?" + checkboxes.serialize(), data, kivi.eval_json_result);
     return false;
@@ -232,6 +235,7 @@ namespace('kivi.File', function(ns) {
       object_type:  type,
       file_type  :  file_type,
       ids        :  checkbox_class,
+      show_zugferd_options: ns.get_show_zugferd_options()
     };
     $.post("controller.pl?" + checkboxes.serialize(), data, kivi.eval_json_result);
     return false;
@@ -244,7 +248,8 @@ namespace('kivi.File', function(ns) {
       object_type:  type,
       object_id:    id,
       file_type:    file_type,
-      is_global:    is_global
+      is_global:    is_global,
+      show_zugferd_options: ns.get_show_zugferd_options()
     };
 
     $.post("controller.pl", data, kivi.eval_json_result);
@@ -285,7 +290,8 @@ namespace('kivi.File', function(ns) {
         file_type  : file_type,
         source     : fromwhere,
         path       : frompath,
-        ids        : checkbox_class
+        ids        : checkbox_class,
+        show_zugferd_options: ns.get_show_zugferd_options()
     };
     $.post("controller.pl?" + checkboxes.serialize(), data, kivi.eval_json_result);
     return true;
@@ -419,6 +425,21 @@ namespace('kivi.File', function(ns) {
       $('#version_toggle_' + file_id).data('versions_expanded', 1);
       $('#version_toggle_' + file_id).html("⏶ ");
     }
+  };
+
+  ns.get_show_zugferd_options = function() {
+    return $('#form').data('show-zugferd-options');
+  };
+
+  ns.edit_zugferd_option = function(guid) {
+    kivi.popup_dialog({ url:    'controller.pl',
+                        data:   { action : 'File/edit_zugferd_option_dialog',
+                                  guid   : guid
+                                },
+                        id:     'zugferd_option_dialog',
+                        dialog: { title: kivi.t8('Edit ZUGFeRD/Factur-X option') }
+                      });
+
   };
 
 });

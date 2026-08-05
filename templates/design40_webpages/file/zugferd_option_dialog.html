@@ -1,0 +1,36 @@
+[% USE P %]
+[% USE LxERP %]
+[% USE T8 %]
+[% USE HTML %]
+
+<form id="zugferd_option_form" method="post">
+
+ [% P.hidden_tag('zugferd_option.guid', zugferd_option.guid) %]
+
+ <table class="tbl-list">
+  <thead>
+   <tr>
+    <th>[% 'Active' | $T8 %]</th>
+    <th>[% 'Document Id' | $T8 %]</th>
+    <th>[% 'Document Name' | $T8 %]</th>
+   </tr>
+  </thead>
+  <tbody>
+   <tr>
+    <td>[% P.checkbox_tag('zugferd_option.attach', checked=zugferd_option.attach, for_submit=1) %]</td>
+    <td>[% P.input_tag('zugferd_option.doc_id', HTML.escape(zugferd_option.doc_id)) %]</td>
+    <td>[% P.input_tag('zugferd_option.doc_name', HTML.escape(zugferd_option.doc_name)) %]</td>
+   </tr>
+  </tbody>
+ </table>
+
+ <div id="message" class="message message_error hidden">
+  <span id="message-text"></span>
+ </div>
+
+ <div class="buttons">
+  [% P.button_tag("kivi.submit_ajax_form('controller.pl?action=File/set_zugferd_option', '#zugferd_option_form')", LxERP.t8("Assign"), class="button submit") %]
+  [% P.button_tag("\$('#zugferd_option_dialog').dialog('close');", LxERP.t8("Abort"), class="button neutral") %]
+</div>
+
+</form>
