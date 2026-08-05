@@ -432,6 +432,7 @@ sub ami_handle_event {
     my $num_from = $ev->{CallerIDNum};
     my $exten_to = $ev->{DestChannel}; $exten_to =~ s/-[a-z0-9]*$//;
 
+    #print "DialBegin $num_from $exten_to " . Dumper($ev);
 
     my $calls    = handle_incoming_call($num_from, $exten_to);
     if ($calls) {
@@ -448,6 +449,8 @@ sub ami_handle_event {
     if ($c) {
       $c->{ts_end} = now_local_as_string();
       $c->{status} = $ev->{DialStatus};
+
+      #print "DialEnd " . Dumper($ev);
 
       foreach my $ue (@{$c->{calls}}) {
         my $ae = SL::DB::Manager::AsyncEvent->get_first(where => [ id => $ue->{async_event_id} ]);
@@ -514,9 +517,10 @@ sub handle_incoming_call {
   if ($contact) {
     $msg .= "(".$contact->{full_name};
 
+    #print "contact " . Dumper($contact);
     my $c = SL::DB::Contact->new(cp_id => $contact->{id})->load;
-    my $cv = SL::DB::Manager::Customer->get_first(where => [id => $c->cp_cv_id]) //
-             SL::DB::Manager::Vendor->get_first(where => [id => $c->cp_cv_id]);
+    my $cv = $c->customers()->[0] //
+             $c->vendors()->[0];
     $msg .= ' ';
     $msg .= $cv->is_customer
            ? SL::DB::Customer->new(id => $cv->{id})->load->presenter->customer(target => '_blank')
