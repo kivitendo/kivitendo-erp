@@ -794,6 +794,20 @@ EOSQL
   return $current_version_number;
 }
 
+sub email_replacement_specs {
+  {
+    options => [
+      {name => 'ordnumber',                  title => t8('Order Number')},
+      {name => 'quonumber',                  title => t8('Quotation Number')},
+      {name => 'notes',                      title => t8('Notes')},
+      {name => 'intnotes',                   title => t8('Internal Notes')},
+      {name => 'shippingpoint',              title => t8('Shipping Point')},
+      {name => 'shipvia',                    title => t8('Ship via')},
+      {name => 'transaction_description',    title => t8('Transaction description')},
+    ],
+  };
+}
+
 sub is_final_version {
   my ($self) = @_;
 

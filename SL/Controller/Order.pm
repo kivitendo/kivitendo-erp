@@ -511,6 +511,17 @@ sub action_save_and_show_email_dialog {
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.Order.send_email()';
 
+  my @replacement_vars = $self->order->can('email_replacement_specs')
+                       ? map { $_->{name} } @{$self->order->email_replacement_specs()->{options}}
+                       : ();
+  foreach my $name (@replacement_vars) {
+    my $html_name = "${name}_as_restricted_html";
+    my $val = $self->order->can($html_name)
+            ? $self->order->$html_name
+            : $::locale->quote_special_chars('html', $self->order->$name // '');
+    $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
+  }
+
   my %files = $self->get_files_for_email_dialog();
 
   my @employees_with_email = grep {
