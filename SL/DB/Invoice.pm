@@ -683,6 +683,25 @@ sub get_zugferd_additional_documents {
 
   my @docs = ();
 
+  # get docs from file management which are marked as zugferd attachment
+  my @object_types = ($self->record_type);
+  push @object_types, qw(dunning1 dunning2 dunning3 dunning_invoice dunning_orig_invoice) if $self->record_type eq 'invoice'; # hardcoded object types?
+
+  my @file_versions = SL::File->get_all_versions(object_id   => $self->id,
+                                                 object_type => \@object_types);
+
+  @file_versions = grep { $_->file_version->zugferd_option && $_->file_version->zugferd_option->attach } @file_versions;
+
+  foreach my $file (@file_versions) {
+    push @docs, {
+      doc_id    => $file->file_version->zugferd_option->doc_id,
+      name      => $file->file_version->zugferd_option->doc_name,
+      filename  => $file->db_file->file_name,
+      mime_code => $file->db_file->mime_type,
+      file      => $file->file_version->get_system_location(),
+    };
+  }
+
   #return \@docs if !$::instance_conf->zugferd_attach_linked_sales_delivery_orders;
 
   my $linked_delivery_orders = $self->linked_records(
