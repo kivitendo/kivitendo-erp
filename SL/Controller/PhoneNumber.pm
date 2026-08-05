@@ -64,9 +64,11 @@ sub find_contact_for_number {
     where          => [ contact_id => [ map { $_->cp_id } @hits ] ],
   );
 
-  my %customer_vendors = map { $_->id => $_ }
-    @{ SL::DB::Manager::Customer->get_all(where => [ id => [ map { $_->customer_id } @$c_contacts ], obsolete => 0 ], inject_results => 1) },
-    @{ SL::DB::Manager::Vendor  ->get_all(where => [ id => [ map { $_->vendor_id   } @$v_contacts ], obsolete => 0 ], inject_results => 1) };
+  my @cvobjs = ();
+  push @cvobjs, @{ SL::DB::Manager::Customer->get_all(where => [ id => [ map { $_->customer_id } @$c_contacts ], obsolete => 0 ], inject_results => 1) } if @$c_contacts;
+  push @cvobjs, @{ SL::DB::Manager::Vendor  ->get_all(where => [ id => [ map { $_->vendor_id   } @$v_contacts ], obsolete => 0 ], inject_results => 1) } if @$v_contacts;
+
+  my %customer_vendors = map { $_->id => $_ } @cvobjs;
 
   my %cv_by_contacts;
   $cv_by_contacts{$_->contact_id}++ for grep { $customer_vendors{ $_->customer_id } } @$c_contacts;
