@@ -249,7 +249,7 @@ sub textarea_tag {
 
   html_tag('div',
     $icon .
-    html_tag('textarea', $value, class => 'materialize-textarea', %attributes, name => $name) .
+    html_tag('textarea', escape($value), class => 'materialize-textarea', %attributes, name => $name) .
     $label,
     class => [ grep $_, $class, INPUT_FIELD ],
   );
