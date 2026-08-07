@@ -87,7 +87,7 @@ Mittelgroße neue Features:
   bei welchen bisher der Abrechnungszeitraum lediglich als Text im
   Bemerkungsfeld durch Variablenersetzung aufgenommen werden konnte.
 
-- Neuer Benutzerdefinierte-Variablen-Typ Auswahlbox (mehrfach)
+- Neuer Typ von benutzerdefinierten Variablen: Auswahlbox (mehrfach)
   Gegenüber dem bisher existierenen Typen »Auswahlbox« erlaubt der neue Typ
   »Auswahlbox (mehrfach)« das gleichzeitige Setzen und Speichern mehrerer
   Auswahloptionen. Dieser BDV-Typ kann überall eingesetzt werden, wo BDVs
