@@ -597,7 +597,7 @@ sub textarea_tag {
     $::request->{layout}->add_javascripts("$_.js") for qw(ckeditor5/ckeditor ckeditor5/translations/de);
   }
 
-  html_tag('textarea', $content, %attributes, name => $name);
+  html_tag('textarea', escape($content), %attributes, name => $name);
 }
 
 sub link_tag {
