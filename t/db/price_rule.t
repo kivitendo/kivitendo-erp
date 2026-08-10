@@ -321,11 +321,13 @@ for (@SL::Controller::CustomVariableConfig::types) {
 
     test($price_rule, $order, $item, "$name -- global project, but no value", 0);
 
-    $order->globalproject->cvar_by_name($name)->value($item->part);
+    $order->globalproject->cvar_by_name($name)->unparsed_value($item->part);
+    $order->globalproject->parse_custom_variable_values;
     $order->globalproject->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- global project, not matching", 0);
 
-    $order->globalproject->cvar_by_name($name)->value($part);
+    $order->globalproject->cvar_by_name($name)->unparsed_value($part);
+    $order->globalproject->parse_custom_variable_values;
     $order->globalproject->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- global project, matching", 1);
 
@@ -338,11 +340,13 @@ for (@SL::Controller::CustomVariableConfig::types) {
 
     test($price_rule, $order, $item, "$name -- item project, but no value", 0);
 
-    $item->project->cvar_by_name($name)->value($item->part);
+    $item->project->cvar_by_name($name)->unparsed_value($item->part);
+    $item->project->parse_custom_variable_values;
     $item->project->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- item project, not matching", 0);
 
-    $item->project->cvar_by_name($name)->value($part);
+    $item->project->cvar_by_name($name)->unparsed_value($part);
+    $item->project->parse_custom_variable_values;
     $item->project->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- item project, matching", 1);
   }
@@ -384,11 +388,13 @@ for (@SL::Controller::CustomVariableConfig::types) {
 
     test($price_rule, $order, $item, "$name -- no value", 0);
 
-    $item->part->cvar_by_name($name)->value(new_customer());
+    $item->part->cvar_by_name($name)->unparsed_value(new_customer());
+    $item->part->parse_custom_variable_values;
     $item->part->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- not matching", 0);
 
-    $item->part->cvar_by_name($name)->value($customer);
+    $item->part->cvar_by_name($name)->unparsed_value($customer);
+    $item->part->parse_custom_variable_values;
     $item->part->cvar_by_name($name)->save;
     test($price_rule, $order, $item, "$name -- matching", 1);
   }
