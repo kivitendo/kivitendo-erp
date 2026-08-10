@@ -8,16 +8,11 @@
       url:        source,
       success:    function (rsp) {
         $(target).html(rsp);
-        $(target).find('.paginate').find('a').click(function(event){ redirect_event(event, target) });
+        kivi.init_report_paginate_controls($(target));
       },
       data:       data,
     });
   };
-
-  function redirect_event(event, target){
-    event.preventDefault();
-    get_report(target, event.target + '', {});
-  }
 
   $(document).ready(function(){
     [%- IF error %]

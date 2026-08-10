@@ -173,15 +173,10 @@ namespace('kivi.CustomerVendor', function(ns) {
       url:        source,
       success:    function (rsp) {
         $(target).html(rsp);
-        $(target).find('.paginate').find('a').click(function(event){ ns.redirect_event(event, target) });
-        $(target).find('a.report-generator-header-link').click(function(event){ ns.redirect_event(event, target) });
+        kivi.init_report_paginate_controls($(target));
       },
       data:       data,
     });
-  };
-  this.redirect_event = function(event, target){
-    event.preventDefault();
-    ns.inline_report(target, event.target + '', {});
   };
 
   var KEY = {
@@ -430,14 +425,9 @@ namespace('kivi.CustomerVendor', function(ns) {
       url:        source,
       success:    function (rsp) {
         $(target).html(rsp);
-        $(target).find('a.report-generator-header-link').click(function(event){ ns.price_report_redirect_event(event, target) });
+        kivi.init_report_paginate_controls($(target));
       },
     });
-  };
-
-  ns.price_report_redirect_event = function (event, target) {
-    event.preventDefault();
-    ns.get_price_report(target, event.target + '');
   };
 
   ns.price_list_init = function () {
