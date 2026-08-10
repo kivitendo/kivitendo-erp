@@ -38,10 +38,14 @@ sub parse_value {
 
   my $unparsed = delete $self->{__unparsed_value};
 
-  if ($type =~ m{^(?:customer|vendor|part|number)}) {
+  if ($type =~ m{^(?:customer|vendor|part)}) {
     return $self->number_value(!defined($unparsed) ? undef
                                : (any { ref($unparsed) eq $_ } qw(SL::DB::Customer SL::DB::Vendor SL::DB::Part)) ? $unparsed->id
                                : $unparsed * 1);
+  }
+
+  if ($type =~ m{^(?:number)}) {
+    return $self->number_value(!defined($unparsed) ? undef : $::form->parse_amount(\%::myconfig, $unparsed));
   }
 
   if ($type =~ m{^(?:bool)}) {
@@ -60,13 +64,36 @@ sub parse_value {
   $self->text_value($unparsed);
 }
 
+sub _set_value {
+  my ($self, $value) = @_;
+
+  my $type = $self->_ensure_config->type;
+
+  my $method = 'text_value';
+
+  if ($type =~ m{^(?:customer|vendor|part|number)}) {
+    $method = 'number_value';
+    $value *= 1 if defined $value;
+
+  } elsif ($type =~ m{^(?:bool)}) {
+    $method = 'bool_value';
+
+  } elsif ($type =~ m{^(?:date|timestamp)}) {
+    $method = 'timestamp_value' ;
+
+  } elsif ($type =~ m{^(?:multiselect)}) {
+    $value = 'ARRAY' ne ref $value ? undef : '##' . join('##', @$value) . '##';
+  }
+
+  $self->$method($value);
+}
+
 sub value {
   my $self = $_[0];
   my $type = $self->_ensure_config->type;
 
   if (scalar(@_) > 1) {
-    $self->unparsed_value($_[1]);
-    $self->parse_value;
+    $self->_set_value($_[1]);
     @_ = ($self);
   }
 
@@ -80,20 +107,21 @@ sub value {
   if ( $type eq 'customer' ) {
     require SL::DB::Customer;
 
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Customer->new(id => $id)->load() : undef;
+    return defined($self->number_value) ? int($self->number_value) : undef;
+
   } elsif ( $type eq 'vendor' ) {
     require SL::DB::Vendor;
 
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Vendor->new(id => $id)->load() : undef;
+    return defined($self->number_value) ? int($self->number_value) : undef;
+
   } elsif ( $type eq 'part' ) {
     require SL::DB::Part;
 
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Part->new(id => $id)->load() : undef;
+    return defined($self->number_value) ? int($self->number_value) : undef;
+
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
+
   } elsif ( $type eq 'multiselect' ) {
     return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
   }
