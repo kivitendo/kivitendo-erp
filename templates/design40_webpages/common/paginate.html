@@ -7,6 +7,7 @@
  [%- END %]
 [%- END %]
 
+
 [% IF pages.max > 1 %]
 <div class="paginate control-panel">
 [% IF pages.page > 1 %]
@@ -25,7 +26,8 @@
     <span class="paginate-next"></span>
   [% END %]
   <span>
-    <select onchange="window.location = this.value;" title="[% "Results per page" | $T8 %]">
+    <select  title="[% "Results per page" | $T8 %]">
+      [% IF pages.per_page  <   20 %]<option selected value="[% build_url(page=1) %]">[% pages.per_page %]</option>[% END %]
       <option [% IF pages.per_page ==   20 %]selected[% END %] value="[% build_url(page=1, per_page=  20) %]">20</option>
       <option [% IF pages.per_page ==  100 %]selected[% END %] value="[% build_url(page=1, per_page= 100) %]">100</option>
       <option [% IF pages.per_page == 1000 %]selected[% END %] value="[% build_url(page=1, per_page=1000) %]">1000</option>
