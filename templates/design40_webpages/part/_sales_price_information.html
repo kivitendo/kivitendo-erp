@@ -25,5 +25,13 @@
     return 1;
   });
 
+  $('.tabwidget').on('tabscreate', function(event, ui){
+    if (ui.panel.attr('id') == 'sales_price_information') {
+      get_report('#sales_price_information_sales_order', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_order' });
+      get_report('#sales_price_information_sales_quotation', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_quotation' });
+      get_report('#parts_price_history', 'controller.pl', { action: 'PartsPriceHistory/list', 'filter.part_id': [% id %] });
+    }
+    return 1;
+  });
 
 </script>
