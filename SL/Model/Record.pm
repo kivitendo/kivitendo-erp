@@ -77,10 +77,7 @@ sub new_from_workflow {
 
   foreach my $item (@{ $source_object->items }) {
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
-    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
-    foreach my $var (@{ $item->cvars_by_config }) {
-      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
-    }
+    $item->cvars_by_config;
     $item->parse_custom_variable_values;
   }
 
@@ -234,10 +231,7 @@ sub save {
 
   foreach my $item (@{ $record->items }) {
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
-    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
-    foreach my $var (@{ $item->cvars_by_config }) {
-      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
-    }
+    $item->cvars_by_config;
     $item->parse_custom_variable_values;
   }
 
