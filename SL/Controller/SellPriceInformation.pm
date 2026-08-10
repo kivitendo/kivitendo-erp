@@ -20,7 +20,7 @@ sub action_list {
   );
 
   my $db_args = $self->setup_for_list(%list_params);
-  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => 5);
+  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => $::form->{per_page} // 5);
 
   my $bottom = $::form->parse_html_template('price_information/report_bottom', { SELF => $self });
 
@@ -177,7 +177,7 @@ sub self_url {
     action   => $self->{action},
     sort_by  => $self->{sort_by},
     sort_dir => $self->{sort_dir},
-    page     => $self->{pages}{cur},
+    (page    => $self->{pages}{cur}) x !! $self->{pages}{cur},
     filter   => $::form->{filter},
     %params,
   );

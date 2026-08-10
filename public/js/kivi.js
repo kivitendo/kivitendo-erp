@@ -376,6 +376,38 @@ namespace("kivi", function(ns) {
     });
   };
 
+  ns.init_report_paginate_controls = function($element) {
+    /* For dynamic reloading via AJAX, the handler is overwritten in init_inline_report(). */
+    $element.find('select').change(function(event) { window.location = event.target.value; });
+  };
+
+  ns.inline_report_set_event_handlers_for_ajax = function(url, container_div) {
+    $.ajax({
+      url:        url,
+      success:    function (rsp) {
+        $(container_div).html(rsp);
+        ns.init_inline_report(container_div);
+      },
+      data:       {},
+    });
+  };
+
+  ns.init_inline_report = function($element) {
+    /* redirect links to reload report in-place */
+
+    $element.find('.paginate').find('a').click(function(event) {
+      event.preventDefault();
+      ns.inline_report_set_event_handlers_for_ajax(event.target+'', $element)
+    });
+    $element.find('.paginate').find('select').change(function(event) {
+      ns.inline_report_set_event_handlers_for_ajax(event.target.value, $element); console.log(event.target.value)
+    });
+    $element.find('a.report-generator-header-link').click(function(event){
+      event.preventDefault();
+      ns.inline_report_set_event_handlers_for_ajax(event.target+'', $element)
+    });
+  };
+
   ns.filter_select = function() {
     var $input  = $(this);
     var $select = $('#' + $input.data('select-id'));
@@ -433,6 +465,7 @@ namespace("kivi", function(ns) {
 
     ns.run_once_for('.tabwidget', 'tabwidget', kivi.init_tabwidget);
     ns.run_once_for('.texteditor', 'texteditor', kivi.init_text_editor5);
+    ns.run_once_for('.paginate',  'paginate', kivi.init_report_paginate_controls);
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {
