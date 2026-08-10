@@ -39,15 +39,10 @@ namespace('kivi.PriceRule', function(ns) {
       url:        source,
       success:    function (rsp) {
         $(target).html(rsp);
-        $(target).find('.paginate').find('a').click(function(event){ ns.redirect_event(event, target) });
-        $(target).find('a.report-generator-header-link').click(function(event){ ns.redirect_event(event, target) });
+        kivi.init_report_paginate_controls($(target));
       },
       data:       data,
     });
-  };
-  ns.redirect_event = function(event, target){
-    event.preventDefault();
-    ns.inline_report(target, event.target + '', {});
   };
 
   ns.load_price_rules_for_part = function(id) {
