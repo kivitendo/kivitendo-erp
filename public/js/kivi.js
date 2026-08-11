@@ -397,14 +397,14 @@ namespace("kivi", function(ns) {
 
     $element.find('.paginate').find('a').click(function(event) {
       event.preventDefault();
-      ns.inline_report_set_event_handlers_for_ajax(event.target+'', $element)
+      ns.inline_report_set_event_handlers_for_ajax(event.target.href, $element);
     });
     $element.find('.paginate').find('select').change(function(event) {
-      ns.inline_report_set_event_handlers_for_ajax(event.target.value, $element); console.log(event.target.value)
+      ns.inline_report_set_event_handlers_for_ajax(event.target.value, $element);
     });
     $element.find('a.report-generator-header-link').click(function(event){
       event.preventDefault();
-      ns.inline_report_set_event_handlers_for_ajax(event.target+'', $element)
+      ns.inline_report_set_event_handlers_for_ajax(event.target.href, $element);
     });
   };
 
