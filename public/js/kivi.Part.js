@@ -886,6 +886,24 @@ namespace('kivi.Part', function(ns) {
     ns.reinit_widgets();
   };
 
+  ns.init_price_information_and_history = function() {
+    const load_lists = function () {
+      const id = $('#part_id').val();
+      kivi.inline_report_load_into_container('controller.pl', '#sales_price_information_sales_order', { action: 'SellPriceInformation/list', 'filter.part.id': id, 'filter.order.type': 'sales_order' });
+      kivi.inline_report_load_into_container('controller.pl', '#sales_price_information_sales_quotation', { action: 'SellPriceInformation/list', 'filter.part.id': id, 'filter.order.type': 'sales_quotation' });
+      kivi.inline_report_load_into_container('controller.pl', '#parts_price_history', { action: 'PartsPriceHistory/list', 'filter.part_id': id });
+    };
+    $('.tabwidget').on('tabsbeforeactivate', function(event, ui){
+      if (ui.newPanel.attr('id') == 'sales_price_information') { load_lists(); }
+      return 1;
+    });
+
+    $('.tabwidget').on('tabscreate', function(event, ui){
+      if (ui.panel.attr('id') == 'sales_price_information') { load_lists(); }
+      return 1;
+    });
+  };
+
   ns.add_to_basket = function() {
     var data = $('#ic').serializeArray();
     data.push({ name: 'action', value: 'Part/add_to_basket' });
@@ -901,5 +919,6 @@ namespace('kivi.Part', function(ns) {
     $('#part_warehouse_id').change(kivi.Part.reload_bin_selection);
 
     ns.init();
+    ns.init_price_information_and_history();
   });
 });

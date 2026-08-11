@@ -3,23 +3,12 @@
 <div id='csv_import_report'></div>
 
 <script type='text/javascript'>
-  function get_report(target, source, data){
-    $.ajax({
-      url:        source,
-      success:    function (rsp) {
-        $(target).html(rsp);
-        kivi.init_report_paginate_controls($(target));
-      },
-      data:       data,
-    });
-  };
-
   $(document).ready(function(){
     [%- IF error %]
       kivi.display_flash('error', '[% P.escape_js(error) %]');
     [%- END %]
     [%- IF SELF.background_job.data_as_hash.report_id %]
-      get_report('#csv_import_report', 'controller.pl', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %] });
+      kivi.inline_report_load_into_container('controller.pl', '#csv_import_report', { action: 'CsvImport/report', 'no_layout': 1, 'id': [% SELF.background_job.data_as_hash.report_id %] });
     [%- END %]
   });
 

@@ -34,21 +34,10 @@ namespace('kivi.PriceRule', function(ns) {
     }
   };
 
-  ns.inline_report = function(target, source, data){
-    $.ajax({
-      url:        source,
-      success:    function (rsp) {
-        $(target).html(rsp);
-        kivi.init_report_paginate_controls($(target));
-      },
-      data:       data,
-    });
-  };
-
   ns.load_price_rules_for_part = function(id) {
     window.setTimeout(function(){
-      ns.inline_report('#price_rules_customer_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'customer', inline: 1 });
-      ns.inline_report('#price_rules_vendor_report', 'controller.pl', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'vendor', inline: 1 });
+      kivi.inline_report_load_into_container('controller.pl', '#price_rules_customer_report', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'customer', inline: 1 });
+      kivi.inline_report_load_into_container('controller.pl', '#price_rules_vendor_report', { action: 'PriceRule/list', 'filter.item_type_matches[].part': id, 'filter.type': 'vendor', inline: 1 });
     }, 200);
   };
 
