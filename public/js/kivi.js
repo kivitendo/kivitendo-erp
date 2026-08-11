@@ -377,34 +377,35 @@ namespace("kivi", function(ns) {
   };
 
   ns.init_report_paginate_controls = function($element) {
-    /* For dynamic reloading via AJAX, the handler is overwritten in init_inline_report(). */
+    /* init_report_paginate_controls() is relevant for reports which are loaded with the page.
+       For dynamic reloading via AJAX, see init_inline_report(). */
     $element.find('select').change(function(event) { window.location = event.target.value; });
   };
 
-  ns.inline_report_set_event_handlers_for_ajax = function(url, container_div) {
+  ns.inline_report_load_into_container = function(url, container_div, data = {}) {
     $.ajax({
       url:        url,
       success:    function (rsp) {
         $(container_div).html(rsp);
-        ns.init_inline_report(container_div);
+        ns.init_inline_report($(container_div));
       },
-      data:       {},
+      data:       data,
     });
   };
 
-  ns.init_inline_report = function($element) {
+  ns.init_inline_report = function($container_div) {
     /* redirect links to reload report in-place */
 
-    $element.find('.paginate').find('a').click(function(event) {
+    $container_div.find('a.report-generator-header-link').click(function (event) {
       event.preventDefault();
-      ns.inline_report_set_event_handlers_for_ajax(event.target.href, $element);
+      ns.inline_report_load_into_container(event.target.href, $container_div);
     });
-    $element.find('.paginate').find('select').change(function(event) {
-      ns.inline_report_set_event_handlers_for_ajax(event.target.value, $element);
-    });
-    $element.find('a.report-generator-header-link').click(function(event){
+    $container_div.find('.paginate').find('a').click(function (event) {
       event.preventDefault();
-      ns.inline_report_set_event_handlers_for_ajax(event.target.href, $element);
+      ns.inline_report_load_into_container(event.target.href, $container_div);
+    });
+    $container_div.find('.paginate').find('select').change(function (event) {
+      ns.inline_report_load_into_container(event.target.value, $container_div);
     });
   };
 
