@@ -184,6 +184,9 @@ Kleinere neue Features und Detailverbesserungen:
 - Falls eine Ware in einem Erzeugnis verbaut wurde, wird das Erzeugnis im
   Lagerbuchungsbericht zusätzlich als Link zum Erzeugnis angezeigt.
 
+- Beim Blättern der Berichte kann die Anzahl der Treffer pro Seite ausgewählt
+  werden.
+
 Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
 
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
