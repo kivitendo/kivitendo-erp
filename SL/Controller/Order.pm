@@ -519,7 +519,7 @@ sub action_save_and_show_email_dialog {
     my $val = $self->order->can($html_name)
             ? $self->order->$html_name
             : $::locale->quote_special_chars('html', $self->order->$name // '');
-    $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
+    $email_form->{message} =~ s{&lt;%\Q$name\E%&gt;}{$val}g;
   }
 
   my %files = $self->get_files_for_email_dialog();

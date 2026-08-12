@@ -2331,7 +2331,7 @@ sub show_sales_purchase_email_dialog {
       my $val = $invoice->can($html_name)
               ? $invoice->$html_name
               : $::locale->quote_special_chars('html', $invoice->$name // '');
-      $email_form->{message} =~ s{<%\Q$name\E%>}{$val}g;
+      $email_form->{message} =~ s{&lt;%\Q$name\E%&gt;}{$val}g;
     }
   }
 
