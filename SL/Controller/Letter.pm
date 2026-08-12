@@ -9,6 +9,7 @@ use POSIX qw(strftime);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CT;
+use SL::DB::Default;
 use SL::DB::Employee;
 use SL::DB::Language;
 use SL::DB::Letter;
@@ -22,6 +23,7 @@ use SL::Locale::String qw(t8);
 use SL::Mailer;
 use SL::IS;
 use SL::Presenter::Tag qw(select_tag);
+use SL::Presenter::EscapedText;
 use SL::ReportGenerator;
 use SL::Webdav;
 use SL::Webdav::File;
@@ -245,6 +247,8 @@ sub action_print_letter {
       $mail->{attachments}  = [{ path => $result{file_name},
                                  name => $params{email}->{attachment_filename} }];
       $mail->{message}      =~ s/\r//g;
+      my $style             =  SL::Presenter::EscapedText::escape(SL::DB::Default->get->email_paragraph_style_body);
+      $mail->{message}      =~ s{<p>}{<p style="$style">}g if $style;
       $mail->{message}     .=  $::form->create_email_signature();
       $mail->{record_id}    =  $letter->id;
       $mail->{content_type} = 'text/html';
