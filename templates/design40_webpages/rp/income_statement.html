@@ -5,8 +5,8 @@
 
 <div class="wrapper">
 
-[% L.button_tag('', LxERP.t8('Show charts'),  id="show_charts_button",  class="hide noprint") %]
-[% L.button_tag('', LxERP.t8('Hide charts'),  id="hide_charts_button",  class="hide noprint") %]
+[% L.button_tag('', LxERP.t8('Show charts'),  id="show_charts_button",  class="noprint") %]
+[% L.button_tag('', LxERP.t8('Hide charts'),  id="hide_charts_button",  class="noprint") %]
 
 <h3>[% period %]<br><big>[% accounting_method %]<br></big><i>[% report_date %]</i></h3>
 
@@ -76,8 +76,8 @@
 
 <br>
 
-[% L.button_tag('', LxERP.t8('Show chart list'), id="show_chartlist_button", class="hide noprint") %]
-[% L.button_tag('', LxERP.t8('Hide chart list'), id="hide_chartlist_button", class="hide noprint") %]
+[% L.button_tag('', LxERP.t8('Show chart list'), id="show_chartlist_button", class="noprint") %]
+[% L.button_tag('', LxERP.t8('Hide chart list'), id="hide_chartlist_button", class="noprint") %]
 
 <div id="chartlist">
 <div>[% 'Chart list' | $T8 %]</div>
