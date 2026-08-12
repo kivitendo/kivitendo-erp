@@ -1282,14 +1282,14 @@ sub generate_email_body {
   }
 
   $body .= GenericTranslations->get(translation_type => "salutation_punctuation_mark", language_id => $self->{language_id});
+  # Salutations are plain-text fields and must be HTML quoted
   $body  = '<p>' . $::locale->quote_special_chars('HTML', $body) . '</p>';
 
   my $translation_type = $params{translation_type} // "preset_text_$self->{formname}";
   my $main_body        = GenericTranslations->get(translation_type => $translation_type,                  language_id => $self->{language_id});
   $main_body           = GenericTranslations->get(translation_type => $params{fallback_translation_type}, language_id => $self->{language_id}) if !$main_body && $params{fallback_translation_type};
+  # The main body is HTML and must be appended as-is (and not quoted)
   $body               .= $main_body;
-
-  $body = $main::locale->unquote_special_chars('HTML', $body);
 
   $main::lxdebug->leave_sub();
   return $body;
