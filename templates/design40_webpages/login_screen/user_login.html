@@ -31,19 +31,19 @@
 
     <table class="tbl-horizontal login">
       <caption>[% 'User login' | $T8 %]</caption>
-      <colgroup><col class="wi-small"><col class="wi-normal"></colgroup>
+      <colgroup><col class="wi-small"><col class="wi-lightwide"></colgroup>
       <tbody>
         <tr>
           <th>[% 'Login Name' | $T8 %]</th>
-          <td>[% L.input_tag('{AUTH}login', FORM.$auth_login, id='username', class='initial_focus wi-normal') %]</td>
+          <td>[% L.input_tag('{AUTH}login', FORM.$auth_login, id='username', class='initial_focus wi-lightwide') %]</td>
         </tr>
         <tr>
           <th>[% 'Password' | $T8 %]</th>
-          <td>[% L.input_tag('{AUTH}password', '', type='password', class='wi-normal') %]</td>
+          <td>[% L.input_tag('{AUTH}password', '', type='password', class='wi-lightwide') %]</td>
         </tr>
         <tr>
           <th>[% 'Client' | $T8 %]</th>
-          <td>[% L.select_tag('{AUTH}client_id', SELF.clients, title_key='name', default=SELF.default_client_id, class='wi-normal') %]</td>
+          <td>[% L.select_tag('{AUTH}client_id', SELF.clients, title_key='name', default=SELF.default_client_id, class='wi-lightwide') %]</td>
         </tr>
         <tr>
           <th>&nbsp;</th>
