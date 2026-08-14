@@ -423,6 +423,8 @@
           </listitem>
         </itemizedlist>
 
+        <para>In der Version v4.1.0 sind keine neuen Pakete hinzugekommen.</para>
+
         <para>In der Version v4.0.0 ist folgendes Paket hinzugekommen:
           <literal>CryptX</literal>
         </para>
