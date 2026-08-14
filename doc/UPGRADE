@@ -5,6 +5,8 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 Upgrade auf v4.0.1
 
+Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
+
 Wichtige Hinweise:
 
 - Die Webserver-Konfiguration muss, wie im Abschnitt "Konfiguration für
@@ -49,7 +51,6 @@ Wichtige Hinweise:
 
 - Die Authentifizierung über Cookies mit API-Token für das alte CRM-Menü wurde
   entfernt.
-
 
 Upgrade auf v4.0.0
 
