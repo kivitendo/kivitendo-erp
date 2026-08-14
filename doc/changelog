@@ -8,7 +8,7 @@ Größere neue Features:
 
 - Inventur-Zählungen erfassen und abgleichen: Zwischeninventur
   Inventur-Zählungen lassen sich, auch eingeschränkt auf einzelne Lagerplätze,
-  zwischenspeichern. Erfasste Zählungen können Abgeglichen werden, wobei
+  zwischenspeichern. Erfasste Zählungen können abgeglichen werden, wobei
   zunächst ein Bericht über Ist- und Soll-Werte der Zählung zur Kontrolle
   gezeigt wird und bei erfolgter Bestätigung Lager-Korrekturbuchungen erfolgen.
   Im Gegensatz zum Anlegen von Inventurbuchungen über Lager->Inventur eigenen
@@ -193,14 +193,26 @@ Kleinere neue Features und Detailverbesserungen:
 - Beim Blättern der Berichte kann die Anzahl der Treffer pro Seite ausgewählt
   werden.
 
-Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
-
 - XRechnung: beim Herunterladen der XRechnung-XML-Datei beginnt der
   Dateiname nun mit »xrechnung_« und nicht mehr mit »factur-x_«.
 
-Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
+- In Rechnungsbelegen lassen sich durch anhaken mehrere Positionen
+  gleichzeitig löschen.
 
-## Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
+Bugfixes (Tracker: https://www.kivitendo.de/redmine/projects/forum/issues/):
+
+Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
+#839 rose_auto_create_models: MetaSetups Auth-Tabellen ohne foreign keys
+#828 Wiederkehrende Rechnungen; Speichern mit "An Ansprechperson schicken" kaputt
+#821 sql/Pg-upgrade2/shared_contacts.sql schlägt fehl bei mehren Haupt-Ansprechpersonen an einem Kunden/Lieferanten
+#780 Login Felder bei Kivitendo fehlerhaft
+#758 Marge in Prozent bei Erzeugnisbestandteilen in Erzeugnisstammdaten wird nicht aktualisiert
+#698 live Backup: pg_dump blockiert kivitendos Dispatcher-Prozess und DB Handle
+#682 lessc -x deprecated
+#681 Zwischensumme Berechnung ist falsch master #b7fc893
+#649 Lagerbuchungsbericht: Anzahl der Zeilen bei Paginierung angeben können oder höher setzen
+
+Änderungshistorie laut Github  (https://github.com/kivitendo/kivitendo-erp/)
 
 #631 2025 linked customer vendor
 #645 CAMT.053 - Erste Version
@@ -213,8 +225,8 @@ Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 #706 2026 remove algorithm checkdigits override
 #707 202602 zugferd ship to trade party 2
 #711 test: neuer Test um zu prüfen ob irgendwo in den sql/Pg-upgrade Tests SL::DB::Object verwendet wird
-
-
+#712 F factur x validation in recurring orders
+... und viele weitere gemergete PRs
 
 2025-11-17 - Release 4.0.0
 
