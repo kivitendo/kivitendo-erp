@@ -132,8 +132,9 @@ als freundliche Checkliste zum Ausdrucken und Erweitern.
   - ggf. muss hier noch dobudish installiert werden, s.a. Entwicklerdokumentation ->
     Dokumentation erstellen. Ansonsten reicht dieser Aufruf:
     $ scripts/build_doc.sh
-  - prüfen, ob neu entstandene Dateien indoc/ html (neue Kapitel / neue Bilder)
-    noch zum git-Repo hinzugefügt/eingecheckt werden müssen
+  - prüfen, ob neu entstandene Dateien in public/doc/html
+    (neue Kapitel / neue Bilder) noch zum git-Repo hinzugefügt/eingecheckt
+    werden müssen
 
 * scripts/rose_auto_create_model.pl update machen.
 
