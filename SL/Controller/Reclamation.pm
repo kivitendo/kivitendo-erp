@@ -288,50 +288,45 @@ sub action_print {
     return $self->js->flash('error', t8('Media \'#1\' is not supported yet/anymore.', $media))->render;
   }
 
-  # create a form for generate_attachment_filename
-  my $form   = Form->new;
-  $form->{record_number} = $self->reclamation->record_number;
-  $form->{type}          = $self->type;
-  $form->{format}        = $format;
-  $form->{formname}      = $formname;
-  $form->{language}      = '_' . $self->reclamation->language->template_code if $self->reclamation->language;
-  my $pdf_filename       = $form->generate_attachment_filename();
+  my $doc;
+  my @errors = SL::Model::Record->generate_doc($self->reclamation, \$doc,
+                                               format     => $format,
+                                               formname   => $formname,
+                                               media      => $media,
+                                               groupitems => $groupitems,
+                                               printer_id => $printer_id);
 
-  my $pdf;
-  my @errors = generate_pdf($self->reclamation, \$pdf, {
-                              format     => $format,
-                              formname   => $formname,
-                              language   => $self->reclamation->language,
-                              printer_id => $printer_id,
-                              groupitems => $groupitems,
-                            });
   if (scalar @errors) {
-    return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
+    return $self->js->flash('error', t8('Generating the document failed: #1', $errors[0]))->render;
   }
 
+  my $doc_filename = SL::Model::Record->generate_doc_filename($self->reclamation,
+                                                              format   => $format,
+                                                              formname => $formname);
+
   if ($media eq 'screen') { # screen/download
-    $self->js->flash('info', t8('The PDF has been created'));
+    $self->js->flash('info', t8('The document has been created.'));
     $self->send_file(
-      \$pdf,
-      type         => SL::MIME->mime_type_from_ext($pdf_filename),
-      name         => $pdf_filename,
+      \$doc,
+      type         => SL::MIME->mime_type_from_ext($doc_filename),
+      name         => $doc_filename,
       js_no_render => 1,
     );
   } elsif ($media eq 'printer') { # printer
-    my $printer_id = $::form->{print_options}->{printer_id};
     SL::DB::Printer->new(id => $printer_id)->load->print_document(
       copies  => $copies,
-      content => $pdf,
+      content => $doc,
     );
-    $self->js->flash('info', t8('The PDF has been printed'));
+    $self->js->flash('info', t8('The document has been printed.'));
   }
 
-  my @warnings = store_pdf_to_webdav_and_filemanagement($self->reclamation, $pdf, $pdf_filename);
+  my @warnings = SL::Model::Record->store_doc_to_webdav_and_filemanagement(
+    $self->reclamation, $doc,
+    filename => $doc_filename);
+
   if (scalar @warnings) {
     $self->js->flash('warning', $_) for @warnings;
   }
-
-  $self->save_history('PRINTED');
 
   $self->js
     ->run('kivi.ActionBar.setEnabled', '#save_and_email_action')
@@ -345,32 +340,18 @@ sub action_preview_pdf {
 
   $self->js_reset_reclamation_and_item_ids_after_save;
 
-  my $format      = 'pdf';
-  my $media       = 'screen';
-  my $formname    = $self->type;
-
   # only pdf
-  # create a form for generate_attachment_filename
-  my $form   = Form->new;
-  $form->{record_number} = $self->reclamation->record_number;
-  $form->{type}          = $self->type;
-  $form->{format}        = $format;
-  $form->{formname}      = $formname;
-  $form->{language}      = '_' . $self->reclamation->language->template_code if $self->reclamation->language;
-  my $pdf_filename       = $form->generate_attachment_filename();
-
   my $pdf;
-  my @errors = generate_pdf($self->reclamation, \$pdf, {
-                             format     => $format,
-                             formname   => $formname,
-                             language   => $self->reclamation->language,
-                           });
+  my @errors = SL::Model::Record->generate_doc($self->reclamation, \$pdf,
+                                               media   => 'screen',
+                                               preview => 1);
   if (scalar @errors) {
     return $self->js->flash('error', t8('Conversion to PDF failed: #1', $errors[0]))->render;
   }
-  $self->save_history('PREVIEWED');
+
   $self->js->flash('info', t8('The PDF has been previewed'));
   # screen/download
+  my $pdf_filename = SL::Model::Record->generate_doc_filename($self->reclamation);
   $self->send_file(
     \$pdf,
     type         => SL::MIME->mime_type_from_ext($pdf_filename),
@@ -411,7 +392,9 @@ sub action_save_and_show_email_dialog {
   $email_form->{bcc} = join ', ', grep $_, $cv->bcc;
   # TODO: get addresses from shipto, if any
   $email_form->{subject}             = $form->generate_email_subject();
-  $email_form->{attachment_filename} = $form->generate_attachment_filename();
+  $email_form->{attachment_filename} = SL::Model::Record->generate_doc_filename($self->reclamation,
+                                                                                format   => $form->{format},
+                                                                                formname => $form->{formname});
   $email_form->{message}             = $form->generate_email_body();
   $email_form->{js_send_function}    = 'kivi.Reclamation.send_email()';
 
@@ -501,29 +484,27 @@ sub action_send_email {
   if (   $::form->{attachment_policy} ne 'no_file'
     && !($::form->{attachment_policy} eq 'old_file' && $attfile)
   ) {
-    my $pdf;
-    my @errors = generate_pdf(
-      $self->reclamation, \$pdf, {
-        media      => $::form->{media},
-        format     => $::form->{print_options}->{format},
-        formname   => $::form->{print_options}->{formname},
-        language   => $self->reclamation->language,
-        printer_id => $::form->{print_options}->{printer_id},
-        groupitems => $::form->{print_options}->{groupitems},
-      });
+    my $doc;
+    my @errors = SL::Model::Record->generate_doc($self->reclamation, \$doc,
+                                                 media      => $::form->{media},
+                                                 format     => $::form->{print_options}->{format},
+                                                 formname   => $::form->{print_options}->{formname},
+                                                 printer_id => $::form->{print_options}->{printer_id},
+                                                 groupitems => $::form->{print_options}->{groupitems});
     if (scalar @errors) {
       $::form->error(t8('Generating the document failed: #1', $errors[0]));
     }
 
-    my @warnings = store_pdf_to_webdav_and_filemanagement(
-      $self->reclamation, $pdf, $::form->{attachment_filename}
-    );
+    my @warnings = SL::Model::Record->store_doc_to_webdav_and_filemanagement(
+      $self->reclamation, $doc,
+      filename => $::form->{attachment_filename});
+
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
     }
 
     my $sfile = SL::SessionFile::Random->new(mode => "w");
-    $sfile->fh->print($pdf);
+    $sfile->fh->print($doc);
     $sfile->fh->close;
 
     $::form->{tmpfile} = $sfile->file_name;
@@ -533,7 +514,7 @@ sub action_send_email {
 
   $::form->{id} = $self->reclamation->id; # this is used in SL::Mailer to
                                           # create a linked record to the mail
-  $::form->send_email(\%::myconfig, 'pdf');
+  $::form->send_email(\%::myconfig, $::form->{print_options}->{format});
 
   flash_later('info', t8('The email has been sent.'));
   $self->save_history('MAILED');
@@ -2205,81 +2186,6 @@ sub _setup_search_action_bar {
   }
 }
 
-sub generate_pdf {
-  my ($reclamation, $pdf_ref, $params) = @_;
-
-  my @errors = ();
-
-  my $print_form = Form->new('');
-  $print_form->{type}        = $reclamation->type;
-  $print_form->{formname}    = $params->{formname} || $reclamation->type;
-  $print_form->{format}      = $params->{format}   || 'pdf';
-  $print_form->{media}       = $params->{media}    || 'file';
-  $print_form->{groupitems}  = $params->{groupitems};
-  $print_form->{printer_id}  = $params->{printer_id};
-  $print_form->{language_id} = $params->{language} ? $params->{language}->id : undef;
-  $print_form->{media}       = 'file'       if $print_form->{media} eq 'screen';
-
-  $reclamation->language($params->{language});
-
-  # Make reclamation available in template
-  $print_form->{reclamation} = $reclamation;
-
-  my $template_ext;
-  my $template_type;
-  my $variable_content_types;
-  if ($print_form->{format} =~ /(opendocument|oasis)/i) {
-    $template_ext  = 'odt';
-    $template_type = 'OpenDocument';
-
-    # add variables for printing with the built-in parser
-    $reclamation->flatten_to_form($print_form, format_amounts => 1);
-    $reclamation->add_legacy_template_arrays($print_form);
-
-    $variable_content_types = {
-      longdescription => 'html',
-      notes           => 'html',
-      $::form->get_variable_content_types_for_cvars,
-    }
-  }
-
-  # search for the template
-  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
-    name        => $print_form->{formname},
-    extension   => $template_ext,
-    email       => $print_form->{media} eq 'email',
-    language    => $params->{language},
-    printer_id  => $print_form->{printer_id},
-  );
-
-  if (!defined $template_file) {
-    push @errors, t8(
-      'Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.',
-      join ', ',
-      map { "'$_'"} @template_files
-    );
-  }
-
-  return @errors if scalar @errors;
-
-  $print_form->throw_on_error(sub {
-    eval {
-      $print_form->prepare_for_printing;
-
-      $$pdf_ref = SL::Helper::CreatePDF->create_pdf(
-        format        => $print_form->{format},
-        template_type => $template_type,
-        template      => $template_file,
-        variables     => $print_form,
-        variable_content_types => $variable_content_types,
-      );
-      1;
-    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
-  });
-
-  return @errors;
-}
-
 sub get_files_for_email_dialog {
   my ($self) = @_;
 
@@ -2358,46 +2264,6 @@ sub save_history {
     snumbers    => 'record_number_' . $self->reclamation->record_number,
     addition    => $addition,
   )->save;
-}
-
-sub store_pdf_to_webdav_and_filemanagement {
-  my($reclamation, $content, $filename) = @_;
-
-  my @errors;
-
-  # copy file to webdav folder
-  if ($reclamation->record_number && $::instance_conf->get_webdav_documents) {
-    my $webdav = SL::Webdav->new(
-      type     => $reclamation->type,
-      number   => $reclamation->record_number,
-    );
-    my $webdav_file = SL::Webdav::File->new(
-      webdav   => $webdav,
-      filename => $filename,
-    );
-    eval {
-      $webdav_file->store(data => \$content);
-      1;
-    } or do {
-      push @errors, t8('Storing PDF to webdav folder failed: #1', $@);
-    };
-  }
-  if ($reclamation->id && $::instance_conf->get_doc_storage) {
-    eval {
-      SL::File->save(object_id     => $reclamation->id,
-                     object_type   => $reclamation->type,
-                     mime_type     => 'application/pdf',
-                     source        => 'created',
-                     file_type     => 'document',
-                     file_name     => $filename,
-                     file_contents => $content);
-      1;
-    } or do {
-      push @errors, t8('Storing PDF in storage backend failed: #1', $@);
-    };
-  }
-
-  return @errors;
 }
 
 sub init_type_data {
