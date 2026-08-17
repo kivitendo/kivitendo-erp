@@ -27,8 +27,10 @@ sub query_autocomplete {
   $search_term    = join ' *', split(//, $search_term);
 
   foreach my $model (qw(Customer Vendor)) {
-    my $manager = 'SL::DB::Manager::' . $model;
-    my $result  = $manager->get_all(
+    my $class    = 'SL::DB::' . $model;
+    my $contacts = $class->contacts_rel_name;
+    my $manager  = 'SL::DB::Manager::' . $model;
+    my $result   = $manager->get_all(
       query => [ or => [ 'obsolete' => 0, 'obsolete' => undef ],
                  or => [ phone                     => { imatch => $search_term },
                          fax                       => { imatch => $search_term },
@@ -41,7 +43,7 @@ sub query_autocomplete {
                          'contacts.cp_satfax'      => { imatch => $search_term },
                          'contacts.cp_privatphone' => { imatch => $search_term },
                  ] ],
-      with_objects => ['contacts']);
+      with_objects => [$contacts]);
 
     push @results, map {
       value => $_->displayable_name,
