@@ -40,7 +40,7 @@ SL::DB::PartClassification
 
 =head1 SYNOPSIS
 
-Additional to the article types "part", "assembly", "service" and "assortement"
+Additional to the article types "part", "assembly", "service" and "assortment"
 the parts classification specifies other ortogonal attributes
 
 =head1 DESCRIPTION

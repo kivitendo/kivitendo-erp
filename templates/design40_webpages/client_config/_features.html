@@ -449,12 +449,17 @@
       <tr>
         <th>[% LxERP.t8("Item input position for quotations and orders") %]</th>
         <td>[% L.select_tag("defaults.order_item_input_position", [ [ 0, LxERP.t8('above the positions'), ], [ 1, LxERP.t8('below the positions') ] ], default=SELF.defaults.order_item_input_position) %]</td>
-        <td>[% LxERP.t8("Controls whether the default item input is above (default) or below the positions list in orders and quotations. Can be overridden by user preferences.") %]</td>
+        <td class="long-desc">[% LxERP.t8("Controls whether the default item input is above (default) or below the positions list in orders and quotations. Can be overridden by user preferences.") %]</td>
       </tr>
       <tr>
         <th>[% LxERP.t8("Overdue interval in days for TODO list") %]</th>
         <td>[% L.input_tag("defaults.todo_oe_overdue_days_as_number", SELF.defaults.todo_oe_overdue_days_as_number, class="numeric wi-small") %]</td>
-        <td>[% LxERP.t8("Quotations and orders are considered overdue for the TODO list if they are not closed and the valid until or the reqdate exceeded the specified number of days.") %]</td>
+        <td class="long-desc">[% LxERP.t8("Quotations and orders are considered overdue for the TODO list if they are not closed and the valid until or the reqdate exceeded the specified number of days.") %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Inherit assortment price from master data' | $T8 %]</th>
+        <td>[% L.yes_no_tag("defaults.inherit_assortment_price_from_master_data", SELF.defaults.inherit_assortment_price_from_master_data) %]</td>
+        <td class="long-desc">[% 'When an assortment is added to sales or purchase records, inherit the price of the assortment from master data. Otherwise, only the components carry the price and the assortment\'s price is 0.' | $T8 %]</td>
       </tr>
       <tr>
         <th class="caption" colspan="3">[% 'Show certain sales and purchase documents' | $T8 %]</th>
