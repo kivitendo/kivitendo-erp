@@ -21,7 +21,7 @@
       error: function(e) { alert(e) },
     });
   }
-[%- UNLESS SELF.background_job.data_as_hash.errors %]
+[%- UNLESS SELF.background_job.data_as_hash.errors.as_list.size %]
   $(document).ready(function(){
     $('#progress_description').html('[% SELF.status_text | html %]');
     $('#progressbar').progressbar({ value: [% SELF.background_job.data_as_hash.progress.progress * 1 %] });
