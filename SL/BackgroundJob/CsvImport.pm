@@ -90,7 +90,7 @@ sub run {
       foreach my $k (@keys) {
         die 'JSON field value is not a string or number: ' . $k if ref($row->{$k});
       }
-      $csv->print($sfile->fh, [map { $row->{$_} } @keys]);
+      $csv->print($sfile->fh, [map { ($row->{$_} =~ s{[\r\n]+}{ }gr) } @keys]);
     }
     $sfile->fh->close;
 
