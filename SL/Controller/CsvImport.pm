@@ -433,7 +433,7 @@ sub test_and_import_deferred {
     profile_id    => $::form->{background_job_profile_id} || 'INSERT_PROFILE_ID_HERE',
     test          => 0,
     http_json_url => 'https://my-cool-crm.nodomain:443/api/v1/customers.json',
-    http_headers  => { 'Content-Type' => 'application/json', 'Authorization' => 'Basic user:pass' },
+    http_headers  => { Accept => 'application/json', Authorization => 'Basic user:pass' },
   });
 
   if ($self->task_server->is_running) {

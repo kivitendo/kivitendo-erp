@@ -9,6 +9,7 @@ use Text::CSV_XS;
 use SL::JSON;
 use SL::YAML;
 use SL::DB::CsvImportProfile;
+use SL::DB::Employee;
 use SL::SessionFile::Random;
 
 sub create_job {
@@ -51,11 +52,14 @@ sub run {
   my $result        = '';
   my $http_json_url = $job->data_as_hash->{http_json_url};
 
-  $job->set_data(errors => [])->save;
-
   if ($http_json_url) {
+    $job->set_data(
+      employee_id => SL::DB::Manager::Employee->current->id,
+      errors      => [],
+    )->save;
+
     die 'CSV import profile does not exist' unless $self->profile;
-    my $client = REST::Client->new();
+    my $client = REST::Client->new({ timeout => 300 });
 
     my $headers_hash = $job->data_as_hash->{http_headers} // {};
     $client->addHeader($_, $headers_hash->{$_}) for keys %$headers_hash;
@@ -104,6 +108,9 @@ sub run {
     $self->profile->set('file_name', $csv_filename);
 
     $result .= "Loaded CSV: $csv_filename\n";
+
+    my $report_id = $job->data_as_hash->{report_id};
+    $result .= "Report: controller.pl?action=CsvImport/report&id=$report_id\n";
   }
 
   $result .= $self->do_import;
