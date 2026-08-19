@@ -1370,8 +1370,13 @@ sub ap_transactions {
       };
     }
 
-    $row->{invnumber}->{link} = build_std_url("script=" . ($ap->{invoice} ? 'ir.pl' : 'ap.pl'), 'action=edit')
+    if ($::instance_conf->get_feature_experimental_invoice) {
+      $row->{invnumber}->{link} = build_std_url('script=controller.pl', 'action=Invoice/edit', 'id=' . E($ap->{id}) . '&type=' . ($ap->{invoice} ? 'purchase_invoice' : 'ap_transaction'))
+         . "&callback=${callback}";
+    } else {
+      $row->{invnumber}->{link} = build_std_url("script=" . ($ap->{invoice} ? 'ir.pl' : 'ap.pl'), 'action=edit')
       . "&id=" . E($ap->{id}) . "&callback=${callback}";
+    }
 
     if ($form->{l_items}) {
       my $items = SL::DB::Manager::InvoiceItem->get_all_sorted(where => [id => $ap->{item_ids}]);
