@@ -28,7 +28,7 @@ namespace('kivi.File', function(ns) {
                                , height: 200
                                , modal:  true
                                , close: function() {
-                                 $dlg.remove().appendTo('#' + parent_id);
+                                 $dlg.hide();
                                }
                               }
     });
@@ -71,7 +71,7 @@ namespace('kivi.File', function(ns) {
                   , height: 200
                   , modal:  true
                   , close: function() {
-                    $dlg.remove().appendTo('#' + parent_id);
+                    $dlg.hide();
                   } }
       }
     );
