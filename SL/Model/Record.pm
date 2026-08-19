@@ -361,7 +361,6 @@ sub clone_for_save_as_new {
 sub generate_doc_filename {
   my ($class, $record, %params) = @_;
 
-  my $language = $params{language} || $record->language;
   my $format   = $params{format}   || 'pdf';
   my $formname = $params{formname} || $record->type;
 
@@ -371,7 +370,7 @@ sub generate_doc_filename {
   $form->{type}                                     = $record->type;
   $form->{format}                                   = $format;
   $form->{formname}                                 = $formname;
-  $form->{language}                                 = '_' . $language->template_code if $language;
+  $form->{language}                                 = '_' . $record->language->template_code if $record->language;
 
   $form->generate_attachment_filename();
 }
@@ -385,7 +384,6 @@ sub generate_doc {
   my $formname                     = $params{formname} || $record->type;
   my $format                       = $params{format}   || 'pdf';
   my $media                        = $params{media}    || 'file';
-  my $language                     = $params{language} || $record->language;
   my $groupitems                   = $params{groupitems};
   my $printer_id                   = $params{printer_id};
 
@@ -396,19 +394,11 @@ sub generate_doc {
   $print_form->{formname}    = $formname;
   $print_form->{format}      = $format;
   $print_form->{media}       = $media;
-  $print_form->{language}    = $language->template_code if $language;
-  $print_form->{language_id} = $language->id            if $language;
+  $print_form->{language}    = $record->language->template_code if $record->language;
+  $print_form->{language_id} = $record->language_id;
   $print_form->{groupitems}  = $groupitems;
   $print_form->{printer_id}  = $printer_id;
   $print_form->{media}       = 'file' if $media eq 'screen';
-
-  # Todo / to check:
-  # Should this be done in the controller or calling method?
-  # If it is needed at all anymore.
-  # I suspect this was here because in former times the language
-  # could be selected when printing (print options). But now it is
-  # set the in the main documents form.
-  $record->language($language) if $language;
 
   # Keep items which should be printed.
   if ($only_selected_item_positions) {
@@ -446,7 +436,7 @@ sub generate_doc {
     name        => $formname,
     extension   => $template_ext,
     email       => $media eq 'email',
-    language    => $language,
+    language    => $record->language,
     printer_id  => $printer_id,
   );
 
@@ -764,11 +754,6 @@ Params can be:
 
 =over 2
 
-=item C<language>
-
-A language object. The name is generated with respect to that language.
-Defaults to the record's language.
-
 =item C<format>
 
 The format of the document (C<pdf>, C<html>, C<opendocument>, ...).
@@ -820,11 +805,6 @@ The format of the document (C<pdf>, C<html>, C<opendocument>, ...).
 =item C<media>
 
 Defaults to C<file>.
-
-=item C<language>
-
-A language object. The document is generated with respect to that language.
-Defaults to the record's language.
 
 =item C<groupitems>
 
