@@ -476,8 +476,9 @@ sub generate_doc {
 sub store_doc_to_webdav_and_filemanagement {
   my ($class, $record, $content, %params) = @_;
 
-  my $filename = $params{filename} || $class->generate_doc_filename($record);
-  my $variant  = $params{variant}  || $record->record_type;
+  my $filename     = $params{filename} || $class->generate_doc_filename($record);
+  my $variant      = $params{variant}  || $record->record_type;
+  my $file_obj_ref = $params{file_obj_ref};
 
   my @errors;
 
@@ -510,6 +511,8 @@ sub store_doc_to_webdav_and_filemanagement {
                                  file_name     => $filename,
                                  file_contents => $content,
                                  print_variant => $variant);
+
+      $$file_obj_ref = $file_obj if defined $file_obj_ref;
 
       1;
 
