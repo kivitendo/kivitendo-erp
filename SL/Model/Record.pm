@@ -20,9 +20,15 @@ use SL::DB::DeliveryOrder::TypeData qw(:types);
 use SL::DB::Reclamation::TypeData qw(:types);
 use SL::DB::Helper::Record qw(get_class_from_type);
 
-use SL::Util qw(trim);
+use SL::File;
+use SL::Helper::CreatePDF;
 use SL::Locale::String qw(t8);
+use SL::MIME;
 use SL::PriceSource;
+use SL::Util qw(trim);
+use SL::Webdav;
+
+use English qw(-no_match_vars);
 
 
 sub update_after_new {
@@ -352,6 +358,172 @@ sub clone_for_save_as_new {
   return $new_record;
 }
 
+sub generate_doc_filename {
+  my ($class, $record, %params) = @_;
+
+  my $format   = $params{format}   || 'pdf';
+  my $formname = $params{formname} || $record->type;
+
+  # create a form for generate_attachment_filename
+  my $form  = Form->new;
+  $form->{$record->type_data->properties('nr_key')} = $record->record_number;
+  $form->{type}                                     = $record->type;
+  $form->{format}                                   = $format;
+  $form->{formname}                                 = $formname;
+  $form->{language}                                 = '_' . $record->language->template_code if $record->language;
+
+  $form->generate_attachment_filename();
+}
+
+sub generate_doc {
+  my ($class, $record, $doc_ref, %params) = @_;
+
+  my $preview                      = $params{preview};
+  my $only_selected_item_positions = $params{only_selected_item_positions};
+  my $selected_item_positions      = $params{selected_item_positions};
+  my $formname                     = $params{formname} || $record->type;
+  my $format                       = $params{format}   || 'pdf';
+  my $media                        = $params{media}    || 'file';
+  my $groupitems                   = $params{groupitems};
+  my $printer_id                   = $params{printer_id};
+
+  my @errors = ();
+
+  my $print_form = Form->new('');
+  $print_form->{type}        = $record->type;
+  $print_form->{formname}    = $formname;
+  $print_form->{format}      = $format;
+  $print_form->{media}       = $media;
+  $print_form->{language}    = $record->language->template_code if $record->language;
+  $print_form->{language_id} = $record->language_id;
+  $print_form->{groupitems}  = $groupitems;
+  $print_form->{printer_id}  = $printer_id;
+  $print_form->{media}       = 'file' if $media eq 'screen';
+
+  # Keep items which should be printed.
+  if ($only_selected_item_positions) {
+    my %keep = map { $_ => 1 } @{ $selected_item_positions || [] };
+    $record->items([ grep { $keep{$_->position} } @{ $record->items } ]);
+  }
+
+  # add variables for printing with the built-in parser
+  # Todo / to check:
+  # Should this depend on type data?
+  # (At the end it depends on the print template and not on the format
+  # or the type of document.)
+  $record->flatten_to_form($print_form, format_amounts => 1);
+  $record->add_legacy_template_arrays($print_form) if $record->can('add_legacy_template_arrays');
+
+  # Make record available in template
+  my $record_name             =  ref($record);
+  $record_name                =~ s{SL::DB::}{};
+  $record_name                =  lc($record_name);
+  $print_form->{$record_name} =  $record; # special name
+  $print_form->{record}       =  $record; # and a generic name
+
+  my $template_ext;
+  my $template_type;
+  if ($format =~ /(opendocument|oasis)/i) {
+    $template_ext  = 'odt';
+    $template_type = 'OpenDocument';
+  } elsif ($format =~ m{html}i) {
+    $template_ext  = 'html';
+    $template_type = 'HTML';
+  }
+
+  # search for the template
+  my ($template_file, @template_files) = SL::Helper::CreatePDF->find_template(
+    name        => $formname,
+    extension   => $template_ext,
+    email       => $media eq 'email',
+    language    => $record->language,
+    printer_id  => $printer_id,
+  );
+
+  if (!defined $template_file) {
+    push @errors, t8('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files);
+  }
+
+  return @errors if scalar @errors;
+
+  $print_form->throw_on_error(sub {
+    eval {
+      $print_form->prepare_for_printing;
+
+      $$doc_ref = SL::Helper::CreatePDF->create_pdf(
+        format        => $format,
+        template_type => $template_type,
+        template      => $template_file,
+        variables     => $print_form,
+        variable_content_types => {
+          longdescription => 'html',
+          partnotes       => 'html',
+          notes           => 'html',
+          $::form->get_variable_content_types_for_cvars,
+        },
+      );
+      1;
+    } || push @errors, ref($EVAL_ERROR) eq 'SL::X::FormError' ? $EVAL_ERROR->error : $EVAL_ERROR;
+  });
+
+  if ($record->id && !scalar @errors) {
+    _save_history($record, $params{preview} ? 'PREVIEWED' : 'PRINTED');
+  }
+
+  return @errors;
+}
+
+sub store_doc_to_webdav_and_filemanagement {
+  my ($class, $record, $content, %params) = @_;
+
+  my $filename     = $params{filename} || $class->generate_doc_filename($record);
+  my $variant      = $params{variant}  || $record->record_type;
+  my $file_obj_ref = $params{file_obj_ref};
+
+  my @errors;
+
+  # copy file to webdav folder
+  if ($record->record_number && $::instance_conf->get_webdav_documents) {
+    my $webdav = SL::Webdav->new(
+      type     => $record->record_type,
+      number   => $record->record_number,
+    );
+    my $webdav_file = SL::Webdav::File->new(
+      webdav   => $webdav,
+      filename => $filename,
+    );
+    eval {
+      $webdav_file->store(data => \$content);
+      1;
+    } or do {
+      push @errors, t8('Storing the document to the WebDAV folder failed: #1', $@);
+    };
+  }
+  my $file_obj;
+  if ($record->id && $::instance_conf->get_doc_storage) {
+    eval {
+      my $mime_type = $params{mime_type} || SL::MIME->mime_type_from_ext($filename);
+      $file_obj = SL::File->save(object_id     => $record->id,
+                                 object_type   => $record->record_type,
+                                 mime_type     => $mime_type,
+                                 source        => 'created',
+                                 file_type     => 'document',
+                                 file_name     => $filename,
+                                 file_contents => $content,
+                                 print_variant => $variant);
+
+      $$file_obj_ref = $file_obj if defined $file_obj_ref;
+
+      1;
+
+    } or do {
+      push @errors, t8('Storing the document in the storage backend failed: #1', $@);
+    };
+  }
+
+  return @errors;
+}
+
 
 1;
 
@@ -573,6 +745,99 @@ Expects a record and an addition reason for the history (SAVED,DELETED,...)
 =item C<_get_history_snumbers>
 
 Expects a record, returns snumber for the history entry.
+
+=item C<generate_doc_filename>
+
+Expects a record and can have params. Returns a file name for generating
+(print) documents.
+It is calling C<SL::Form-E<gt>generate_attachment_filename()> on a newly
+created form.
+
+Params can be:
+
+=over 2
+
+=item C<format>
+
+The format of the document (C<pdf>, C<html>, C<opendocument>, ...).
+This is used to get the extension of the file name. Defaults to C<pdf>.
+
+=item C<formname>
+
+The formname (variant) of the document.
+Defaults to the record's type.
+
+=back
+
+=item C<generate_doc>
+
+Expects a record, a reference to a variable for the returned document
+and can have params. Returns the contents of the print representation of
+the record in the variable reference and an array of errors (if any).
+On success the record's history is written.
+
+It is calling C<SL::Form-E<gt>prepare_for_printing()> on a newly
+created form and some other helper functions.
+
+Params can be:
+
+=over 2
+
+=item C<preview>
+
+If truish, request a preview. This changes the C<addition> written to
+the record's history.
+
+=item C<only_selected_item_positions>
+
+...
+
+=item C<selected_item_positions>
+
+...
+
+=item C<formname>
+
+The formname (variant) of the document.
+Defaults to the record's type.
+
+=item C<format>
+
+The format of the document (C<pdf>, C<html>, C<opendocument>, ...).
+
+=item C<media>
+
+Defaults to C<file>.
+
+=item C<groupitems>
+
+...
+
+=item C<printer_id>
+
+...
+
+=back
+
+=item C<store_doc_to_webdav_and_filemanagement>
+
+Expects a record, a content and can have params. This stores the content
+to webdav and/or file management with respect to the client configuration's
+settings. Returns an array of errors (if any).
+
+Params can be:
+
+=over 2
+
+=item C<filename>
+
+Defaults to the filename generated by C<generate_doc_filename()>.
+
+=item C<variant>
+
+Defaults to the record's type.
+
+=back
 
 =back
 

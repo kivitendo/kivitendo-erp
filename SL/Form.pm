@@ -3222,7 +3222,7 @@ sub prepare_for_printing {
   # Translate units
   if (($self->{language} // '') ne '') {
     my $template_arrays = $self->{TEMPLATE_ARRAYS} || $self;
-    for my $idx (0..scalar(@{ $template_arrays->{unit} }) - 1) {
+    for my $idx (0..scalar(@{ $template_arrays->{unit} || [] }) - 1) {
       $template_arrays->{unit}->[$idx] = AM->translate_units($self, $self->{language}, $template_arrays->{unit}->[$idx], $template_arrays->{qty}->[$idx])
     }
   }
