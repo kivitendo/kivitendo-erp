@@ -30,6 +30,11 @@ sub price_from_source {
 
   my $customerprice = SL::DB::Manager::PartCustomerPrice->find_by(id => $spec);
 
+  return SL::PriceSource::Price->new(
+    price_source => $self,
+    missing      => t8('This customer price does not exist anymore'),
+  ) if !$customerprice;
+
   return $self->make_price_from_customerprice($customerprice);
 
 }

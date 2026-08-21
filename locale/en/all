@@ -4539,6 +4539,7 @@ $self->{texts} = {
   'This could have happened for two reasons:' => '',
   'This customer has already been added.' => '',
   'This customer number is already in use.' => '',
+  'This customer price does not exist anymore' => '',
   'This customer wants a postal invoices.' => '',
   'This discount has since gone down' => '',
   'This discount has since gone up' => '',
