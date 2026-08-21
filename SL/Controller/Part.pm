@@ -2022,7 +2022,7 @@ calculated and the totals updated. Uses C<recalc_item_totals>.
 
 =item C<action_add_assortment_item>
 
-Adds a new assortment item from a part picker seleciton to the assortment item list
+Adds a new assortment item from a part picker selection to the assortment item list
 
 If the item already exists in the assortment the item isn't added and a Flash
 error shown.
@@ -2034,7 +2034,7 @@ totals.
 
 =item C<action_add_assembly_item>
 
-Adds a new assembly item from a part picker seleciton to the assembly item list
+Adds a new assembly item from a part picker selection to the assembly item list
 
 If the item already exists in the assembly a flash info is generated, but the
 item is added.

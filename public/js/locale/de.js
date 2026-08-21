@@ -75,7 +75,7 @@ namespace("kivi").setupLocale({
 "Error":"Fehler",
 "Error: #1":"Fehler: #1",
 "Error: Name missing":"Fehler: Name fehlt",
-"Error: This is not a sales reclamation.":"Fehler: Dies ist keine Verkaufreklamaiton.",
+"Error: This is not a sales reclamation.":"Fehler: Dies ist keine Verkaufreklamation.",
 "Feb":"Feb",
 "February":"Februar",
 "File upload":"Datei Upload",

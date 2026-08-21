@@ -492,7 +492,7 @@ sub action_send_email {
   my $attfile;
   if ($::form->{attachment_policy} eq 'old_file') {
     $attfile = SL::File->get_all(
-      object_id     => $self->reclamaiton->id,
+      object_id     => $self->reclamation->id,
       object_type   => $self->type,
       print_variant => $::form->{formname},
     );
