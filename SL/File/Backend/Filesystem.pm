@@ -63,7 +63,10 @@ sub save {
   # Do not save and do not create a new version of the document if file size of last version is the same.
   if ($dbfile->source eq 'created' && $self->get_version_count(dbfile => $dbfile)) {
     my $new_file_size  = $params{file_path} ? stat($params{file_path})->size : length($params{file_contents});
-    my $last_file_size = stat($self->_filesystem_path($dbfile))->size;
+
+    # When the database but not the file system is copied for testing purposes, old files can be missing
+    my $last_stat      = stat($self->_filesystem_path($dbfile));
+    my $last_file_size = $last_stat ? $last_stat->size : 0;
 
     return 1 if $last_file_size == $new_file_size;
   }
