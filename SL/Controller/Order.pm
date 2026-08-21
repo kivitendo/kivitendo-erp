@@ -595,6 +595,8 @@ sub action_send_email {
     $::form->error(t8('Re-sending a final version was requested, but the latest version of the document could not be found'));
   }
 
+  my $file_obj;
+
   if ( !$self->is_final_version
     &&   $::form->{attachment_policy} ne 'no_file'
     && !($::form->{attachment_policy} eq 'old_file' && $attfile)
@@ -612,8 +614,9 @@ sub action_send_email {
 
     my @warnings = SL::Model::Record->store_doc_to_webdav_and_filemanagement(
       $self->order, $doc,
-      filename => $::form->{attachment_filename},
-      variant  => $::form->{formname});
+      filename     => $::form->{attachment_filename},
+      variant      => $::form->{formname},
+      file_obj_ref => \$file_obj);
 
     if (scalar @warnings) {
       flash_later('warning', $_) for @warnings;
@@ -660,7 +663,8 @@ sub action_send_email {
       #       for the nyi case DMS/CMIS we need a gloid or whatever the system offers (elo_id for ELO)
       #       DMS kivi version should have a record_link to email_journal
       #       the record link has to refer to the correct version -> helper table file <-> file_version
-      $file_id = $self->{file_id} || $::form->{file_id};
+      $file_id   = $file_obj->id       if $file_obj;
+      $file_id ||= $::form->{file_id};
       $::form->error("No file id") unless $file_id;
     }
 
