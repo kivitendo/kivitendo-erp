@@ -64,9 +64,11 @@ sub save {
   if ($dbfile->source eq 'created' && $self->get_version_count(dbfile => $dbfile)) {
     my $new_file_size  = $params{file_path} ? stat($params{file_path})->size : length($params{file_contents});
 
-    # When the database but not the file system is copied for testing purposes, old files can be missing
     my $last_stat      = stat($self->_filesystem_path($dbfile));
-    my $last_file_size = $last_stat ? $last_stat->size : 0;
+    unless ($last_stat) {
+      die 'Invalid state of the document folder. The last version of this record is missing. Please contact your kivitendo admin. The missing file is: ' . $self->_filesystem_path($dbfile);
+    }
+    my $last_file_size = $last_stat->size;
 
     return 1 if $last_file_size == $new_file_size;
   }
