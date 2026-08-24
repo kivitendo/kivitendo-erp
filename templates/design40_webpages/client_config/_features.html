@@ -416,6 +416,21 @@
        </td>
       </tr>
       <tr>
+       <th>[% LxERP.t8("Attach linked delivery orders documents to Factur-X/ZUGFeRD data") %]</th>
+       <td>[% L.select_tag("defaults.zugferd_attach_linked_sales_delivery_orders", SELF.zugferd_attach_linked_sales_delivery_orders_options,
+                           value_key='value', title_key='title', default=SELF.defaults.zugferd_attach_linked_sales_delivery_orders) %]</td>
+       <td class="long-desc">
+         [% "If enabled PDF documents of linked delivery orders will be embedded in Factur-X/ZUGFeRD data." | $T8 %]
+         [% "Options" | $T8 %]:<br>
+         <ul>
+          <li>[% "No"             | $T8 %]: [% "Do not attach documents." | $T8 %]</li>
+          <li>[% "Only if exists" | $T8 %]: [% "Attach last version of an already generated document. If no generated version exists, do not attach anything." | $T8 %]</li>
+          <li>[% "Yes"            | $T8 %]: [% "Attach last version of an already generated document. Create a new one if none exists." | $T8 %]</li>
+          <li>[% "Create always"  | $T8 %]: [% "Always create a new document version and attach this." | $T8 %]</li>
+         </ul>
+       </td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8("Create sales invoices with Swiss QR-bill") %]</th>
         <td>[% L.select_tag("defaults.create_qrbill_invoices", [ [ 0, LxERP.t8('Do not create QR-bill invoices') ], [ 1, LxERP.t8('Create variant QR-IBAN with QR reference') ], [ 2, LxERP.t8('Create variant IBAN without reference') ] ], default=SELF.defaults.create_qrbill_invoices) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled sales invoices created using OpenDocument/OASIS format will include data for Swiss QR-Bill creation.") %]</td>
