@@ -8,6 +8,14 @@ Größere neue Features:
 
 Mittelgroße neue Features:
 
+- Factur-X/ZUGFeRD/XRechnung: Es gibt jetzt die Möglichkeit,
+  rechnungsbegründende Dokumente an den Export anzuhängen. Die
+  Dokumente werden als Binär-Daten eingebettet (BG-24 / BT-125).
+  Als Dokumente können beliebige bei der Rechnung unter Dokumente bzw.
+  Dateianhänge vorhandene Dokumente gewählt werden.
+  Zudem lässt sich in der Mandantenkonfiguration einstellen, ob automatisch
+  Dokumente von verknüpften Lieferscheinen angehängt werden sollen.
+
 Kleinere neue Features und Detailverbesserungen:
 
 Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
