@@ -305,8 +305,8 @@ sub _additional_referenced_document {
   $params{xml}->dataElement("ram:Name",             _u8($params{name}))    if $params{name};
 
   if ($params{filename}) {
-    my $content = $params{content} || File::Slurp::read_file($params{file});
-    my $data    = MIME::Base64::encode($content);
+    my $content = $params{content} // File::Slurp::read_file($params{file}, binmode => ':raw');
+    my $data    = MIME::Base64::encode($content, '');
     $params{xml}->dataElement("ram:AttachmentBinaryObject",
                               $data,
                               mimeCode => $params{mime_code},
