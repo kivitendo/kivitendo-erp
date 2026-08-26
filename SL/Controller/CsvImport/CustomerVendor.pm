@@ -213,7 +213,7 @@ sub check_country {
 
   if ($entry->{raw_data}{country_id} || $entry->{raw_data}{country}) {
     return $self->check_country_optional($entry, 'country_id', 'country');
-  } else {
+  } elsif ($self->controller->profile->get('default_country_id')) {
     my $object = $entry->{object};
     my $country_id = $self->controller->profile->get('default_country_id');
 
@@ -221,6 +221,10 @@ sub check_country {
     $self->clone_methods->{country_id} = 1;
 
     return 1;
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Country is missing and no default country is set');
+
+    return 0;
   }
 }
 

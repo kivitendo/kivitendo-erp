@@ -1643,6 +1643,7 @@ $self->{texts} = {
   'Error: A quantity or a target quantity must be given.' => '',
   'Error: Bin #1 is not from warehouse #2' => '',
   'Error: Bin not found'        => '',
+  'Error: Country is missing and no default country is set' => '',
   'Error: Country not found: #1' => '',
   'Error: Country not found: value #1 in #2' => '',
   'Error: Customer is ambiguous' => '',
