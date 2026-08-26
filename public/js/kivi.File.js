@@ -437,7 +437,7 @@ namespace('kivi.File', function(ns) {
                                   guid   : guid
                                 },
                         id:     'zugferd_option_dialog',
-                        dialog: { title: kivi.t8('Edit ZUGFeRD/Factur-X option') }
+                        dialog: { title: kivi.t8('Edit ZUGFeRD/Factur-X options') }
                       });
 
   };

@@ -36,7 +36,7 @@
       <th>[%  LxERP.t8('Date') %]</th>
       <th>[%  source.file_title %]</th>
       [%- IF show_zugferd_options %]
-        <th>[% 'Attach to ZUGFeRD/Factur-X invoice' | $T8 %]</th>
+        <th colspan="2">[% 'Attach to ZUGFeRD/Factur-X invoice' | $T8 %]</th>
       [%- END %]
       [% IF file_type == 'image' %]
         <th>[%  LxERP.t8('Title') %]</th>
@@ -73,14 +73,16 @@
         </td>
         [%- IF show_zugferd_options %]
           <td>
+           [% 'Active' | $T8 %]: <span id="zugferd_option_attach_[% file.file_version.guid %]">[% file.file_version.zugferd_option.attach ? LxERP.t8('Yes') : LxERP.t8('No') %]</span><br>
+           [% 'Document ID' | $T8 %]: <span id="zugferd_option_doc_id_[% file.file_version.guid %]">[% file.file_version.zugferd_option.doc_id | html %]</span><br>
+           [% 'Document Name' | $T8 %]: <span id="zugferd_option_doc_name_[% file.file_version.guid %]">[% file.file_version.zugferd_option.doc_name | html %]</span>
+          </td>
+          <td>
            [% L.img_tag(src="image/pencil.png",
                         alt=LxERP.t8('Edit'),
                         title=LxERP.t8('Edit'),
                         onclick="kivi.File.edit_zugferd_option('" _ file.file_version.guid _ "')",
                         class='row-icon') %]
-           [% 'Active' | $T8 %]: <span id="zugferd_option_attach_[% file.file_version.guid %]">[% file.file_version.zugferd_option.attach ? LxERP.t8('Yes') : LxERP.t8('No') %]</span><br>
-           [% 'Document Id' | $T8 %]: <span id="zugferd_option_doc_id_[% file.file_version.guid %]">[% file.file_version.zugferd_option.doc_id | html %]</span><br>
-           [% 'Document Name' | $T8 %]: <span id="zugferd_option_doc_name_[% file.file_version.guid %]">[% file.file_version.zugferd_option.doc_name | html %]</span>
           </td>
         [%- END %]
         [% IF file_type == 'image' %]
