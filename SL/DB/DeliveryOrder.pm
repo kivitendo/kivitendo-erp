@@ -161,7 +161,7 @@ sub preceding_purchase_order_confirmations {
 
   my @lrs = ();
   if ($self->id) {
-    @lrs = grep { $_->record_type eq PURCHASE_ORDER_CONFIRMATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
+    @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq PURCHASE_ORDER_CONFIRMATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
       my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
