@@ -66,7 +66,7 @@ __END__
 =head1 NAME
 
 SL::VATIDNr - Helper routines for dealing with VAT ID numbers
-("Umsatzsteuer-Identifikationsnummern", "UStID-Nr" in German) and
+("Umsatzsteuer-Identifikationsnummern", "USt-IdNr." in German) and
 Switzerland's enterprise identification numbers (UIDs)
 
 =head1 SYNOPSIS
