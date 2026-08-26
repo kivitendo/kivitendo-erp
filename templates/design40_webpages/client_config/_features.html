@@ -420,7 +420,7 @@
        <td>[% L.select_tag("defaults.zugferd_attach_linked_sales_delivery_orders", SELF.zugferd_attach_linked_sales_delivery_orders_options,
                            value_key='value', title_key='title', default=SELF.defaults.zugferd_attach_linked_sales_delivery_orders) %]</td>
        <td class="long-desc">
-         [% "If enabled PDF documents of linked delivery orders will be embedded in Factur-X/ZUGFeRD data." | $T8 %]
+         [% "If enabled PDF documents of linked delivery orders will be embedded in Factur-X/ZUGFeRD data (BG-24 / BT-125). This is useful for invoice-justifying documents." | $T8 %]
          [% "Options" | $T8 %]:<br>
          <ul>
           <li>[% "No"             | $T8 %]: [% "Do not attach documents." | $T8 %]</li>
