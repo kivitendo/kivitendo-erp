@@ -64,10 +64,10 @@ sub data_keys {
     'invnumber',     # The invoice's number
     'net_total',     # The invoice's sum total without tax
     'taxnumber',     # The creditor's tax number (Steuernummer in Germany). May be present if
-                     # there is no VAT ID (USTiD in Germany).
+                     # there is no VAT ID (USt-IdNr. in Germany).
     'transdate',     # The date the invoice was issued in YYYY-MM-DD format.
     'type',          # Numeric invoice type code, e.g. 380
-    'ustid',         # The creditor's UStID.
+    'ustid',         # The creditor's USt-IdNr.
     'vendor_name',   # The vendor's company name
   );
   return \@keys;
