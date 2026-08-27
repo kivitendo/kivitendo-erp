@@ -1132,6 +1132,7 @@ sub get_formname_translation {
     final_invoice               => $main::locale->text('Final Invoice'),
     pick_list                   => $main::locale->text('Pick List'),
     proforma                    => $main::locale->text('Proforma Invoice'),
+    payment_in_advance          => $main::locale->text('Payment in Advance'),
     purchase_order              => $main::locale->text('Purchase Order'),
     purchase_order_confirmation => $main::locale->text('Purchase Order Confirmation'),
     request_quotation           => $main::locale->text('RFQ'),
