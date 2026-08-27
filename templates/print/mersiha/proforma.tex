@@ -12,6 +12,11 @@
 \input{insettings.tex}
 
 
+<%if template_meta.formname == "payment_in_advance"%>
+  \renewcommand{\proformarechnung}{\vorkassenrechnung}
+<%end%>
+
+
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\proformarechnung}{<%ordnumber%>}{<%invdate%>}
 
