@@ -39,7 +39,7 @@ UPDATE ar SET record_type = 'credit_note'
 UPDATE ar SET record_type = 'invoice_storno'
   WHERE record_type IS NULL and amount <= 0 and storno_id IS NOT NULL;
 UPDATE ar SET record_type = 'invoice'
-  WHERE record_type IS NULL and amount >= 0;
+  WHERE record_type IS NULL;
 
 ALTER TABLE ar ALTER COLUMN record_type SET NOT NULL;
 
