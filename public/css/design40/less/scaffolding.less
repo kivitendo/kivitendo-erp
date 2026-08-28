@@ -82,17 +82,12 @@ body {
 
   // see also menu_actionbar.less
   .layout-actionbar  {
-    display: block;
+    flex-basis: content;
+    flex-grow: 0;
+    flex-shrink: 0;
     z-index: @zindex-actionbar;
-    //float: left !important;
-    float: right !important;
-    width: fit-content;
-    height: 25px;
-    //left: 656px ;
-    right: 0.2em ;
+    height: 33px;
     margin: 0 0.4em 0 0;
-    padding: 0;
-    background: none;
 
     & ~ div:first {
       padding-top: 25px;
