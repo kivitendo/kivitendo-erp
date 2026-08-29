@@ -18,6 +18,17 @@ Mittelgroße neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+Entfernte Features:
+
+- Das Skript scripts/csv-import-from-shell.sh wurde entfernt
+  Das Skript hatte nicht mehr zuverlässig funktioniert; wir raten zudem
+  ausdrücklich davon ab, die Weboberfläche als Ersatz für eine API fernzubedienen.
+  Als Ersatz für die Funktionalität kommt in Frage:
+  - Fremdsysteme mit kivitendo integrieren, so dass kivitendo als führendes System
+    jede Änderung direkt per API Call ins Fremdsystem synchronisiert.
+  - Background-Job zur periodischen Synchronisierung implementieren oder den
+    CsvImport Background Job dafür anpassen.
+
 Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
 

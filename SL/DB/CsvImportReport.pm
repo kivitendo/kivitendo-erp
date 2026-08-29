@@ -72,6 +72,10 @@ sub destroy {
         LIMIT 1
 SQL
 
+      # Profiles the user saved under a name are retained.
+      my $profile_is_named = $self->profile && ($self->profile->name ne '');
+      return 1 if $profile_is_named;
+
       if (!$is_profile_used_elsewhere) {
         do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
         do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
