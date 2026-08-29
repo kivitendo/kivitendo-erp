@@ -8,22 +8,22 @@
 /locale/*/missing
 /locale/*/lost
 /spool/*
-/templates/demo*
-/users/*_finanzamt.ini
-/users/.cache/
-/users/.fonts.cache*
-/users/.openoffice.org2/
-/users/.recently-used
-/users/.texmf-var
-/users/console_history
-/users/datev-export*
-/users/kivitendo-print*
-/users/pid/
-/users/session_files/
-/users/templates-cache/
-/users/templates-cache-for-tests/
-/users/texmf/
+
 /webdav/*
 crm
 pod2html*
 tags
+
+/users/*
+!/users/gdpdu-*.dtd
+!/users/html2ps-config
+!/users/.openoffice.org2
+!/users/.openoffice.org2/**
+
+# autogenerierte Dateien verschiedener Editoren
+## vi
+.*.sw?
+.sw?
+
+# emacs
+*~
