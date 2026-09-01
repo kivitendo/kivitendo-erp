@@ -446,7 +446,7 @@ sub parse {
   if ($is_qr_bill) {
     # get placeholder path from odt XML
     my $qr_placeholder_path;
-    my $dom = XML::LibXML->load_xml(string => $contents);
+    my $dom = XML::LibXML->load_xml(string => $contents, expand_entities => 0);
     my @nodelist = $dom->getElementsByTagName("draw:frame");
     for my $node (@nodelist) {
       my $attr = $node->getAttribute('draw:name');
