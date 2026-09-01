@@ -77,7 +77,7 @@ sub action_list {
   my $transferred = $::form->{filter}->{transferred_eq_ignore_empty} ne '' ? $::form->{filter}->{transferred_eq_ignore_empty} : '';
   my $sort_by = $::form->{sort_by} ? $::form->{sort_by} : 'order_date';
   $sort_by .=$::form->{sort_dir} ? ' DESC' : ' ASC';
-  my $shop_orders = SL::DB::Manager::ShopOrder->get_all( %filter, sort_by => $sort_by );
+  my $shop_orders = SL::DB::Manager::ShopOrder->get_all( %filter, with_objects => [ 'customer_country', 'billing_country', 'delivery_country'], sort_by => $sort_by );
 
   foreach my $shop_order(@{ $shop_orders }){
     $shop_order->{open_invoices} = $shop_order->check_for_open_invoices;
