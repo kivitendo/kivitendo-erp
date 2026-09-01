@@ -59,7 +59,7 @@
 
 <div class="toggle_panel control-panel [% toggle_class %]" [% display_on %]>
   <a href="#" onClick='javascript:$(".[% toggle_class %]").toggle()' class="button toggle on neutral with-panel">[% button_open %]</a>
-  <div class="toggle_panel_block">
+  <div class="toggle_panel_block clearfix">
      [% IF block_name && block_name != ''   %]
       [%
         #Dumper.dump_html(block_name) ;
