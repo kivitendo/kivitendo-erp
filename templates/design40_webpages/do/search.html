@@ -148,30 +148,33 @@
   </tbody>
 </table>
 
+<table class="tbl-horizontal">
+  <caption>[% 'Status' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th><label for="open">[% 'Open' | $T8 %]</label></th>
+      <td><input type="checkbox" name="open" value="1" id="open" checked></td>
+    </tr>
+    <tr>
+      <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
+      <td><input type="checkbox" name="closed" value="1" id="closed"></td>
+    </tr>
+    <tr>
+      <th><label for="notdelivered">[% 'Not delivered' | $T8 %]</label></th>
+      <td><input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked></td>
+    </tr>
+    <tr>
+      <th><label for="delivered">[% 'Delivered' | $T8 %]</label></th>
+      <td><input name="delivered" id="delivered" type="checkbox" value="1" checked></td>
+    </tr>
+  </tbody>
+</table>
 
 </div><!-- ./wrapper -->
 
 <div class="form-addition control-panel wrapper">
   <h3>[% 'Include in Report' | $T8 %]</h3>
-  <div class="list col wi-small">
-    <h4>[% 'Status' | $T8 %]</h4>
-    <div>
-      <input type="checkbox" name="open" value="1" id="open" checked>
-      <label for="open">[% 'Open' | $T8 %]</label>
-    </div>
-    <div>
-      <input type="checkbox" name="closed" value="1" id="closed">
-      <label for="closed">[% 'Closed' | $T8 %]</label>
-    </div>
-    <div>
-      <input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked>
-      <label for="notdelivered">[% 'Not delivered' | $T8 %]</label>
-    </div>
-    <div>
-      <input name="delivered" id="delivered" type="checkbox" value="1" checked>
-      <label for="delivered">[% 'Delivered' | $T8 %]</label>
-    </div>
-  </div>
   <div class="list col">
     <h4>[% 'Numbers & IDs' | $T8 %]</h4>
     <div>
