@@ -2975,6 +2975,7 @@ $self->{texts} = {
   'Payment bookings disallowed. After the booking this record may be suggested with the amount of \'#1\' or otherwise has to be choosen manually. No automatic payment booking will be done to chart \'#2\'.' => '',
   'Payment date missing!'       => '',
   'Payment description'         => '',
+  'Payment in Advance'          => '',
   'Payment list'                => '',
   'Payment posted!'             => '',
   'Payment terms'               => '',
