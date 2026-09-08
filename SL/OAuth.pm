@@ -3,11 +3,13 @@ package SL::OAuth;
 use strict;
 
 use List::MoreUtils qw(all);
+use SL::Locale::String;
 use SL::Controller::OAuth::Atlassian;
 use SL::Controller::OAuth::GoogleCal;
 use SL::Controller::OAuth::Microsoft;
 use SL::DB::OAuthToken;
 use SL::JSON qw(from_json);
+use Try::Tiny;
 
 my %providers = (
   atlassian_jira  => 'SL::Controller::OAuth::Atlassian',
@@ -60,11 +62,24 @@ sub refresh {
 
   my $ret = $provider->refresh($tok);
 
+  my @errors;
   my $response_code = $ret->responseCode();
-  SL::X::OAuth::RefreshFailed->throw(token => $tok) unless ($response_code >= 200 && $response_code <= 299);
+  my $content = try {
+    return from_json($ret->responseContent());
+  } catch {
+    push @errors, t8('invalid JSON format received');
+    return {};
+  };
+  push @errors, t8('Provider returned error: #1=#2', 'HTTP Status', $response_code)        unless ($response_code >= 200 && $response_code <= 299);
+  push @errors, t8('Provider returned error: #1=#2', 'error',      $content->{error})      if     ($content->{error});
+  push @errors, t8('Provider returned error: #1=#2', 'error_code', $content->{error_code}) if     ($content->{error_code});
+  push @errors, t8('Provider returned error: #1=#2', 'error_description', $content->{error_description}) if ($content->{error_description});
+  push @errors, t8('Provider did not send required parameter: #1', 'access_token')         unless ($content->{access_token});
+  push @errors, t8('Provider did not send required parameter: #1', 'expires_in')           unless ($content->{expires_in} =~ m/^\d+$/);
 
-  my $content = from_json($ret->responseContent());
-  SL::X::OAuth::RefreshFailed->throw(token => $tok) if exists $content->{error_code};
+  if (@errors) {
+    SL::X::OAuth::RefreshFailed->throw(token => $tok, message => join(', ', @errors));
+  }
 
   $tok->set_access_refresh_token($content);
   $tok->save;

@@ -36,7 +36,7 @@ sub action_ajax_list {
     1;
   } or do {
     my ($type, $msg, $url) = ref($EVAL_ERROR) eq 'SL::X::OAuth::MissingToken'  ? ('info',  t8('Create an OAuth token for #1 first', $EVAL_ERROR->registration), $self->url_for(controller => 'OAuth', action => 'new', registration => $EVAL_ERROR->registration))
-                           : ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed' ? ('error', t8('OAuth token refresh failed, token ID #1', $EVAL_ERROR->token->id), undef)
+                           : ref($EVAL_ERROR) eq 'SL::X::OAuth::RefreshFailed' ? ('error', t8('OAuth token refresh failed, token ID #1: #2', $EVAL_ERROR->token->id, $EVAL_ERROR->message), undef)
                            : ('error', $EVAL_ERROR, undef);
 
     return $self->render('ticket_system/message', { layout => 0 }, type => $type, message => $msg, url => $url);
