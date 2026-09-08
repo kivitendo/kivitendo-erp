@@ -260,7 +260,16 @@ sub handle_request {
                      . '?action=' . uri_encode('OAuthAuthorization/authcode')
                      . '&code='   . uri_encode($::form->{code})
                      . '&state='  . uri_encode($::form->{state});
-    print $::request->cgi->redirect($redirect_url);
+
+    # A 302 redirect via `print $::request->cgi->redirect($redirect_url);` did not work
+    # with Firefox and the SameSite=Strict cookie policy.
+
+    print "Status: 200 Ok\r\n";
+    print "Content-Type: text/html\r\n";
+    print "\r\n";
+    print "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0;url='$redirect_url'\" /></head>";
+    print "<body>You are redirected to <a href=\"$redirect_url\">OAuthAuthorizaztion/authcode</a></body></html>\n";
+
     return $self->end_request;
   }
 
