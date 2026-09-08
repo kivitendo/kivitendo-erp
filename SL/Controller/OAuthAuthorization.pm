@@ -22,6 +22,13 @@ use Try::Tiny;
 sub action_authcode {
   my ($self) = @_;
 
+  if ($::form->{oaerror} || $::form->{error_description}) {
+    flash_later('error', t8('Provider returned error: #1=#2', 'error',      $::form->{oaerror}))    if $::form->{oaerror};
+    flash_later('error', t8('Provider returned error: #1=#2', 'error_code', $::form->{error_code})) if $::form->{error_code};
+    $self->redirect_to(controller => 'OAuth', action => 'list');
+    return;
+  }
+
   my $search_state = $::form->{state} or die 'Request has no state parameter';
   my $auth_code    = $::form->{code}  or die 'Request has no code parameter';
 

@@ -259,7 +259,9 @@ sub handle_request {
     my $redirect_url = 'controller.pl'
                      . '?action=' . uri_encode('OAuthAuthorization/authcode')
                      . '&code='   . uri_encode($::form->{code})
-                     . '&state='  . uri_encode($::form->{state});
+                     . '&state='  . uri_encode($::form->{state})
+                     . '&oaerror=' . uri_encode($::form->{error})
+                     . '&error_description=' . uri_encode($::form->{error_description});
 
     # A 302 redirect via `print $::request->cgi->redirect($redirect_url);` did not work
     # with Firefox and the SameSite=Strict cookie policy.
