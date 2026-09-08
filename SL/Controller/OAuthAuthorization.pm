@@ -22,22 +22,26 @@ use Try::Tiny;
 sub action_authcode {
   my ($self) = @_;
 
-  if ($::form->{oaerror} || $::form->{error_description}) {
-    flash_later('error', t8('Provider returned error: #1=#2', 'error',      $::form->{oaerror}))    if $::form->{oaerror};
-    flash_later('error', t8('Provider returned error: #1=#2', 'error_code', $::form->{error_code})) if $::form->{error_code};
+  my @errors;
+  my $auth_code    = $::form->{code};
+  my $search_state = $::form->{state};
+
+  push @errors, t8('Provider returned error: #1=#2', 'error', $::form->{oaerror})          if     $::form->{oaerror};
+  push @errors, t8('Provider returned error: #1=#2', 'error_description', $::form->{error_description}) if $::form->{error_description};
+  push @errors, t8('Provider did not send required parameter: #1', 'code')                 unless $auth_code;
+  push @errors, t8('Provider did not send required parameter: #1', 'state')                unless $search_state;
+
+  if (@errors) {
+    flash_later('error', $_) foreach (@errors);
     $self->redirect_to(controller => 'OAuth', action => 'list');
     return;
   }
-
-  my $search_state = $::form->{state} or die 'Request has no state parameter';
-  my $auth_code    = $::form->{code}  or die 'Request has no code parameter';
 
   my $tok = SL::DB::Manager::OAuthToken->find_by(tokenstate => $search_state) or die 'unknown state';
   my $provider = SL::OAuth::providers()->{$tok->registration} or die 'unknown provider';
 
   my $ret = $provider->access_token($tok, $auth_code);
 
-  my @errors;
   my $response_code = $ret->responseCode();
   my $content = try {
     return from_json($ret->responseContent);
