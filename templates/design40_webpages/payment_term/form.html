@@ -25,26 +25,26 @@
     </tr>
     <tr>
       <td> [%- 'Skonto Terms' | $T8 %] </td>
-      <td> 
+      <td>
       <input type="text" name="payment_term.terms_skonto_as_number" value="[%- HTML.escape(SELF.payment_term.terms_skonto_as_number) %]" size="6">
       </td>
     </tr>
     <tr>
       <td> [%- 'Skonto' | $T8 %] </td>
-      <td> 
+      <td>
       <input type="text" name="payment_term.percent_skonto_as_percent" value="[%- HTML.escape(SELF.payment_term.percent_skonto_as_percent) %]" size="6">
       % </td>
     </tr>
-    [% IF SELF.payment_term.id %] 
+    [% IF SELF.payment_term.id %]
     <tr>
       <td> [% 'Obsolete' | $T8 %] </td>
       <td> [% L.checkbox_tag('payment_term.obsolete', checked = SELF.payment_term.obsolete, for_submit=1) %] </td>
     </tr>
-    [% END %] 
+    [% END %]
   </tbody>
 </table>
 
-   
+
 <table class="tbl-horizontal">
   <caption> [%- 'Long Description' | $T8 %] </caption>
   <tbody>
@@ -56,25 +56,25 @@
       <th> [% LxERP.t8("Texts for invoices") %] </th>
       <td> [% P.input_tag("payment_term.description_long_invoice", SELF.payment_term.description_long_invoice, size="60", "data-validate"="required", "data-title"=LxERP.t8("Long Description for invoices")) %] </td>
     </tr>
-    [%- FOREACH language = SELF.languages %] 
+    [%- FOREACH language = SELF.languages %]
     <tr><th class="caption" colspan="2">[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</th></tr>
     <tr>
       <th> [% LxERP.t8("Texts for quotations & orders") %] </th>
-      <td> 
+      <td>
       <input type="text" name="translation_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long', language, 1)) %]" size="60">
       </td>
       </tr>
       <tr>
       <th> [% LxERP.t8("Texts for invoices") %] </th>
-      <td> 
+      <td>
       <input type="text" name="translation_invoice_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long_invoice', language, 1)) %]" size="60">
       </td>
     </tr>
-    [%- END %] 
+    [%- END %]
   </tbody>
 </table>
-[% P.hidden_tag("id", SELF.payment_term.id) %] 
-    
+[% P.hidden_tag("id", SELF.payment_term.id) %]
+
 </div>
 
 
@@ -83,7 +83,7 @@
 <div class="instructions">
 <p>[% LxERP.t8("You can use the following strings in the long description and all translations. They will be replaced by their actual values by kivitendo before they're output.") %]</p>
 <p>[% LxERP.t8("As of version 3.7 most of the variables are also availabe as a print variable.") %]</p>
-    
+
 
 <table class="tbl-list-plain">
   <thead>
@@ -164,7 +164,7 @@
   </tbody>
 </table>
 
-    
+
 </div>
 
 </form>

@@ -147,7 +147,7 @@ sub action_reconcile {
     flash_later('error', t8('Stock counting does not contain any counted items'));
     return $self->redirect_to($::form->{callback});
   }
-  
+
   my $comment = t8('correction from stock counting (counting "#1")', $counting->name);
 
   my $transfer_error;

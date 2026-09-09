@@ -13,7 +13,7 @@
     [% LxERP.t8('You can either create a new database or chose an existing database.') %]
     [% LxERP.t8('In the latter case the tables needed by kivitendo will be created in that database.') %]
   </p>
- 
+
   [% IF !superuser.have_privileges %]
     <p>
       [% LxERP.t8("Database superuser privileges are required for parts of the database modifications.") %]
@@ -21,7 +21,7 @@
     </p>
   [% END %]
 
- 
+
   <table class="tbl-horizontal">
     <tbody>
       <tr>
@@ -32,7 +32,7 @@
         <th>[% LxERP.t8('Create Dataset') %]</th>
         <td>[% L.input_tag('db', FORM.db, class="initial_focus") %]</td>
       </tr>
-      [% IF !superuser.have_privileges %] 
+      [% IF !superuser.have_privileges %]
         <tr>
           <th>[% LxERP.t8("Database Superuser") %]</th>
           <td>[% L.input_tag("database_superuser_user", superuser.username) %]</td>
@@ -41,7 +41,7 @@
           <th>[% LxERP.t8("Password") %]</th>
           <td>[% L.input_tag("database_superuser_password", superuser.password, type="password") %]</td>
         </tr>
-      [% END %] 
+      [% END %]
       <tr>
         <th>[% LxERP.t8('Default currency') %]</th>
         <td>[% L.input_tag('defaultcurrency', FORM.defaultcurrency) %]</td>

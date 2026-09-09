@@ -11,16 +11,16 @@
 [% L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id, 'data-is-template'=(SELF.requirement_spec.is_template ? 1 : 0)) %]
 
 <div id="requirement_spec_tabs" class="tabwidget">
- 
+
 <ul>
   <li id="tab-header-function-block"><a href="#function-blocks-tab">[% LxERP.t8("Content") %]</a></li>
   <li id="tab-header-basic-settings"><a href="controller.pl?action=RequirementSpec/ajax_show_basic_settings&id=[% HTML.url(SELF.requirement_spec.id) %]">[% LxERP.t8("Basic settings") %]</a></li>
   <li id="tab-header-time-cost-estimate"><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[% LxERP.t8("Time and price estimate") %]</a></li>
   <li id="tab-header-additional-parts"><a href="controller.pl?action=RequirementSpecPart/show&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[% LxERP.t8("Additional articles") %]</a></li>
-  [% UNLESS SELF.requirement_spec.is_template %] 
+  [% UNLESS SELF.requirement_spec.is_template %]
     <li id="tab-header-versions"><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[% LxERP.t8("Versions") %]</a></li>
     <li id="tab-header-quotations-orders"><a href="[% SELF.url_for(controller='RequirementSpecOrder', action='list', requirement_spec_id=SELF.requirement_spec.id) %]">[% LxERP.t8("Quotations and orders") %]</a></li>
-  [% END %] 
+  [% END %]
 </ul>
 
 <div id="function-blocks-tab" class="section-context-menu">

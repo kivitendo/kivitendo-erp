@@ -51,7 +51,7 @@
 <h2>[% 'Profit and loss accounts' | $T8 %]</h2>
 
 <p>
-[% IF profit_loss_sum < 0 %] [% THEN %][% 'Loss' | $T8 %] [% ELSE %] [% 'Profit' | $T8 %] [% END %]:   
+[% IF profit_loss_sum < 0 %] [% THEN %][% 'Loss' | $T8 %] [% ELSE %] [% 'Profit' | $T8 %] [% END %]:
 [% LxERP.format_amount(profit_loss_sum, dec) %]
 </p>
 
