@@ -5,15 +5,15 @@
 <h1>[% HTML.escape(title) %]</h1>
 
 <div class="wrapper">
-[% IF !SELF.all_clients.size %] 
+[% IF !SELF.all_clients.size %]
   <div class="error">
-    [% LxERP.t8("Error") %]: [% LxERP.t8("No clients have been created yet.") %] 
+    [% LxERP.t8("Error") %]: [% LxERP.t8("No clients have been created yet.") %]
   </div>
-[% ELSE %] 
+[% ELSE %]
   <p> [% LxERP.t8("Client to configure the printers for") %]: [% L.select_tag('client.id', SELF.all_clients, id='client_id', title_key='name', default=SELF.client.id) %] </p>
-  [% IF !SELF.all_printers.size %] 
+  [% IF !SELF.all_printers.size %]
     <p> [% LxERP.t8("No printers have been created yet.") %] </p>
-  [% ELSE %] 
+  [% ELSE %]
   <table class="tbl-list">
     <thead>
       <tr>
@@ -23,13 +23,13 @@
       </tr>
     </thead>
     <tbody>
-      [% FOREACH printer = SELF.all_printers %] 
+      [% FOREACH printer = SELF.all_printers %]
       <tr valign="top" class="listrow">
         <td><a href="[% SELF.url_for(action='edit_printer', 'client.id'=SELF.client.id, id=printer.id) %]">[% HTML.escape(printer.printer_description) %]</a></td>
         <td>[% HTML.escape(printer.printer_command) %]</td>
         <td>[% HTML.escape(printer.template_code) %]</td>
       </tr>
-      [% END %] 
+      [% END %]
     </tbody>
   </table>
   [% END %]
@@ -45,5 +45,3 @@
   });
 -->
 </script>
-
-

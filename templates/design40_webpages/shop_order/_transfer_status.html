@@ -24,12 +24,12 @@
       <th>[% LxERP.t8("Current status:") %]</th>
       <td>
         [% IF !data.status %]
-          [% LxERP.t8("waiting for job to be started") %] 
-        [% ELSIF data.status == 1 %] 
+          [% LxERP.t8("waiting for job to be started") %]
+        [% ELSIF data.status == 1 %]
           [% LxERP.t8("Converting to deliveryorder") %]
-        [% ELSE %] 
-          [% LxERP.t8("Done.") %] 
-        [% END %] 
+        [% ELSE %]
+          [% LxERP.t8("Done.") %]
+        [% END %]
       </td>
     </tr>
     <tr>

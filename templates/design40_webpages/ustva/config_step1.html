@@ -16,12 +16,12 @@
     [% method_local %]
   [% END %]
 </fieldset>
-       
+
 <fieldset>
   <legend><b>[% 'Tax Period' | $T8 %]</b></legend>
-  <input name="fa_voranmeld" id="month" type="radio" value="month" [% checked_monthly %]> 
+  <input name="fa_voranmeld" id="month" type="radio" value="month" [% checked_monthly %]>
     <label for="month">[% 'month' | $T8 %]</label> <br>
-  <input name="fa_voranmeld" id="quarter" type="radio" value="quarter" [% checked_quarterly %]> 
+  <input name="fa_voranmeld" id="quarter" type="radio" value="quarter" [% checked_quarterly %]>
     <label for="quarter">[% 'quarter' | $T8 %]</label><br>
   <input name="fa_dauerfrist" id="fa_dauerfrist" type="checkbox" value="1" [% checked_dauerfristverlaengerung %]>
     <label for="">[% 'Extension Of Time' | $T8 %]</label>
@@ -45,7 +45,7 @@
         <td><input type="text" name="fa_steuerberater_name" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_name) %]"></td>
         <td><input type="text" name="fa_steuerberater_street" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_street) %]"></td>
         <td><input type="text" name="fa_steuerberater_city" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_city) %]"></td>
-        <td><input type="text" name="fa_steuerberater_tel" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_tel) %]"> 
+        <td><input type="text" name="fa_steuerberater_tel" id="steuerberater" size="25" value="[% HTML.escape(fa_steuerberater_tel) %]">
       </tr>
     </tbody>
   </table>

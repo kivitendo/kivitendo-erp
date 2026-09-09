@@ -1,6 +1,6 @@
 [% USE LxERP %]
 [% USE L %]
-[% USE T8 %]  
+[% USE T8 %]
 <div class="wrapper">
 
 <form method="post" action="controller.pl" id="filter_form">
@@ -13,7 +13,7 @@
     </tr>
     <tr>
       <th>[% LxERP.t8("Break down by") %]</th>
-      <td> 
+      <td>
         [% L.checkbox_tag("params.type",           value=1, checked=FORM.params.type,           label=LxERP.t8("Basis of calculation")) %] <br>
         [% L.checkbox_tag("params.salesman",       value=1, checked=FORM.params.salesman,       label=LxERP.t8("Salesman")) %] <br>
         [% L.checkbox_tag("params.buchungsgruppe", value=1, checked=FORM.params.buchungsgruppe, label=LxERP.t8("Booking group")) %]<br>
@@ -25,4 +25,3 @@
 </form>
 
 </div><!-- /.wrapper -->
-

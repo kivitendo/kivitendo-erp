@@ -74,10 +74,10 @@
 <form method="post" action="controller.pl" name="shop_orders_list" id="shoporderslist"><!-- PENDENT: FORM nicht erlaubt hier -->
   <tbody>
   [% FOREACH shop_order = SHOPORDERS %]
-    [% IF shop_order.kivi_customer.id && shop_order.kivi_customer.order_lock == 0 && shop_order.open_invoices == 0 %] 
-      [% SET transferable = 1 %] [% SET transferable_class = 'class="shop_transferable"' %] 
-    [% ELSE %] 
-      [% SET transferable = 0 %] 
+    [% IF shop_order.kivi_customer.id && shop_order.kivi_customer.order_lock == 0 && shop_order.open_invoices == 0 %]
+      [% SET transferable = 1 %] [% SET transferable_class = 'class="shop_transferable"' %]
+    [% ELSE %]
+      [% SET transferable = 0 %]
       [% SET transferable_class = '' %]
     [% END %]
   <tr>
@@ -101,9 +101,9 @@
       <br>[% HTML.escape(shop_order.billing_email) %]
       <br>[% IF shop_order.open_invoices > 0 || shop_order.customer.order_lock == 1 %][% SET alertclass = 'class="shop_alert"' %][% ELSE %][% SET alertclass = '' %][% END %]<span [% alertclass %]>&nbsp;&nbsp;[% 'Customernumber' | $T8 %] [% HTML.escape(shop_order.kivi_customer.customernumber) %] -- [% 'Invoices' | $T8 %] [% shop_order.open_invoices %]&nbsp;&nbsp;</span>
     </td>
-    [% IF (shop_order.delivery_lastname != shop_order.billing_lastname || shop_order.delivery_firstname != shop_order.billing_firstname || shop_order.delivery_street != shop_order.billing_street || shop_order.delivery_city != shop_order.billing_city) %] 
+    [% IF (shop_order.delivery_lastname != shop_order.billing_lastname || shop_order.delivery_firstname != shop_order.billing_firstname || shop_order.delivery_street != shop_order.billing_street || shop_order.delivery_city != shop_order.billing_city) %]
       [% SET deliveryclass = 'class="shop_delivery"' %]
-    [% ELSE %] 
+    [% ELSE %]
       [% SET deliveryclass = '' %]
     [% END %]
     <td [% deliveryclass %]>

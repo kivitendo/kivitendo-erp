@@ -24,12 +24,12 @@
     <th>[% LxERP.t8('Login Name') %]</th>
     <td>[% L.input_tag("user.login", SELF.user.login, class="initial_focus wi-wide") %]</td>
   </tr>
-  [% IF AUTH.can_change_password %] 
+  [% IF AUTH.can_change_password %]
   <tr>
     <th>[% LxERP.t8("New Password") %]</th>
     <td>[% L.input_tag("new_password", "", type="password", class="wi-wide") %]</td>
   </tr>
-  [% END %] 
+  [% END %]
   <tr>
     <th>[% LxERP.t8("Name") %]</th>
     <td>[% L.input_tag("user.config_values.name", props.name, class="wi-wide") %]</td>
