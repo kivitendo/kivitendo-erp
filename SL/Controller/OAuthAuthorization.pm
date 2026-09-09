@@ -46,7 +46,7 @@ sub action_authcode {
   my $content = try {
     return from_json($ret->responseContent);
   } catch {
-    push @errors, t8('invalid JSON format received');
+    push @errors, t8('invalid JSON format received: #1', $ret->responseContent());
     return {};
   };
   push @errors, t8('Provider returned error: #1=#2', 'HTTP Status', $response_code)        unless ($response_code >= 200 && $response_code <= 299);
