@@ -58,10 +58,7 @@
 
 
   \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
-    <%if warehouse%>%
-      &\bfseries\lager%
-    <%end warehouse%>%
-    &\bfseries\lagerplatz&\bfseries\lieferungMit}]
+    &\bfseries\lieferungMit}]
     <%ordnumber%>%
     &%
     <%if shippingdate%>%
@@ -71,19 +68,31 @@
     <%orddate%>%
     <%end shippingdate%>%
     & <%employee%>%
-    <%if warehouse%>%
-      & <%warehouse%>%
-    <%end warehouse%>%
-    & <%shippingpoint%> & <%shipvia%> \\
+    & <%shipvia%> \\
   \end{SimpleTabular}
 
   \bigskip
 
-  \begin{SimpleTabular}[colspec=rlXrcll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\menge&\bfseries\lagerausgang&&\bfseries\lagerplatz}]%
+  \begin{SimpleTabular}[colspec=rrXllrc,headline={
+    \bfseries\position &
+    \bfseries\artikelnummer &
+    \bfseries\beschreibung &
+    \bfseries\lager &
+    \bfseries\lagerplatz &
+    \bfseries\menge &
+    \bfseries[ × ]
+  }]%
     <%foreach number%>%
-      <%runningnumber%> & <%number%> & <%description%> &%
-      <%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\%
-    <%end number%>%
+      <%foreach si_number%>
+        <%if __first__%> %
+          <%runningnumber%> & <%number%> & \textbf{<%description%>} &
+        <%else%> %
+          & & &
+        <%end%> %
+        <%si_warehouse%> & <%si_bin%> & <%si_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} \\ %
+      <%end%> %
+      \\
+    <%end%>
   \end{SimpleTabular}
 
 \end{letter}
