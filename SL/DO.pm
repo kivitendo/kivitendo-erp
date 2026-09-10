@@ -35,7 +35,7 @@
 package DO;
 
 use Carp;
-use List::Util qw(max);
+use List::Util qw(max sum);
 use Text::ParseWords;
 
 use SL::AM;
@@ -46,6 +46,7 @@ use SL::DB::DeliveryOrder::TypeData qw(:types is_valid_type);
 use SL::DB::Status;
 use SL::DB::ValidityToken;
 use SL::DBUtils;
+use SL::Helper::Inventory qw(:ALL);
 use SL::Helper::ShippedQty;
 use SL::HTML::Restrict;
 use SL::RecordLinks;
@@ -699,7 +700,7 @@ sub order_details {
        weight weight_nofmt lineweight lineweight_nofmt
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_bestbefore
-       si_qty si_qty_nofmt si_unit
+       si_qty si_qty_nofmt si_unit si_nominal_qty
        partsgroup);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @prepared_arrays);
@@ -789,6 +790,14 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$si_position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
       push @{ $form->{TEMPLATE_ARRAYS}{si_qty_nofmt}[$si_position-1] },     $si->{qty} * 1;
       push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$si_position-1] },          $si->{unit};
+
+      my $nominal_stock = sum map { $_->{qty} }
+                          grep { $_->{chargenumber} eq $si->{chargenumber} && $_->{bestbefore} eq $si->{bestbefore} }
+                          @{ get_stock(by => [ qw(bin part chargenumber bestbefore) ], bin => $si->{bin_id}, part => $form->{"id_$i"}) };
+      my $si_unit_obj   = SL::DB::Unit->load_cached($si->{unit});
+      my $part          = SL::DB::Part->load_cached($form->{"id_$i"});
+      $nominal_stock    = $part->unit_obj->convert_to($nominal_stock, $si_unit_obj);
+      push @{ $form->{TEMPLATE_ARRAYS}{si_nominal_qty}[$si_position-1] },   $form->format_amount($myconfig, $nominal_stock);
     }
 
     if ($form->{"part_type_$i"} eq 'assembly') {
