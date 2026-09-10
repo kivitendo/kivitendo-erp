@@ -1,5 +1,5 @@
-\documentclass[twoside,parskip=half-]{scrartcl}
-\usepackage[reffields,backaddress=false,addrfield=topaligned,nofooter]{kiviletter}
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
 
 % Variablen, die in settings verwendet werden
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
@@ -10,41 +10,29 @@
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
-\KOMAoptions{fontsize=10pt}
-\begin{document}
+
+% laufende Kopfzeile:
+\ourhead{\kundennummer}{<%customernumber%>}{\lieferschein}{<%donumber%>}{<%transdate%>}
+
+\setkomavar{info0}[\vorgangsbez]        {<%transaction_description%>}
+\setkomavar{info1}[\datum]              {<%transdate%>}
+\setkomavar{info2}[\ihreBestellnummer]  {<%cusordnumber%>}
+\setkomavar{info3}[\lieferschein{}~\nr] {<%donumber%>}
+\setkomavar{info4}[\auftragsnummer]     {<%ordnumber%>}
+\setkomavar{info5}[\projektnummer]      {<%globalprojectnumber%>}
+\setkomavar{info6}[\ansprechpartner]    {<%employee_name%>}
+\setkomavar{info7}[\textTelefon]        {<%employee_tel%>}
+\setkomavar{info8}[\textEmail]          {<%employee_email%>}
+\setkomavar{fromname}                   {<%employee_name%>}
 
 \setkomavar{title}{\sammelliste}
 
-\setkomavar{firsthead}{
-  \normalsize
-  \noindent\begin{tabular}[t]{@{}l@{}}
-    <%company%>\strut \\
-    <%address%>
-  \end{tabular}
-  \hfill
-  \begin{tabular}[t]{rr@{}}
-    Tel & < %tel%>\\
-    Fax & < %fax%>%
-  \end{tabular}
-  \rule{\linewidth}{\heavyrulewidth}
-}
-
+\KOMAoptions{addrfield=false}
 \makeatletter
-\setkomavar{location}{
-\normalsize
-<%shiptocontact%>%
-<%if shiptophone%>%
-  \\\textTelefon : <%shiptophone%>
-<%end shiptophone%>%
-<%if shiptofax%>%
-  \\\textFaxNr : <%shiptofax%>
-<%end shiptofax%>%
-\\%
-<%shiptoemail%>%
-}
+\@setplength{refvpos}{70mm}
 \makeatother
 
-\setkomavar{backaddress}{\lieferanschrift}
+\begin{document}
 
 \begin{letter}{\strut%
     <%shiptoname%>\ifhmode\\\fi
@@ -54,24 +42,7 @@
     <%shiptocountry%>%
   }
 
-  %\opening{}
-
-
-  \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
-    &\bfseries\lieferungMit}]
-    <%ordnumber%>%
-    &%
-    <%if shippingdate%>%
-      <%shippingdate%>%
-    <%end shippingdate%>%
-    <%if not shippingdate%>%
-    <%orddate%>%
-    <%end shippingdate%>%
-    & <%employee%>%
-    & <%shipvia%> \\
-  \end{SimpleTabular}
-
-  \bigskip
+  \opening{}
 
   \begin{SimpleTabular}[colspec=rrXllrc,headline={
     \bfseries\position &
