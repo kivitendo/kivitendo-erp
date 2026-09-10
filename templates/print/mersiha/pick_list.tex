@@ -81,13 +81,15 @@
 
   \opening{}
 
-  \begin{SimpleTabular}[colspec=rrXllrc,headline={
+  \begin{SimpleTabular}[colspec=rrXlllrrc,headline={
     \bfseries\position &
     \bfseries\artikelnummer &
     \bfseries\beschreibung &
     \bfseries\lager &
     \bfseries\lagerplatz &
+    \bfseries\charge &
     \bfseries\menge &
+    \bfseries\sollbestand &
     \bfseries[ × ]
   }]%
     <%foreach number%>%
@@ -97,7 +99,7 @@
         <%else%> %
           & & &
         <%end%> %
-        <%si_warehouse%> & <%si_bin%> & <%si_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} \\ %
+        <%si_warehouse%> & <%si_bin%> & <%si_chargenumber%> & <%si_qty%> <%si_unit%> & <%si_nominal_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} \\ %
       <%end%> %
       \\
     <%end%>
