@@ -1022,11 +1022,15 @@ sub post {
           };
         }
         if ($form->{id} && $::instance_conf->get_doc_storage) {
+          my $file_content = do { local $/; my $fh = $file->fh; <$fh> };
+          my $mime_type    = ($file_content =~ m/^%PDF/)   ? 'application/pdf'
+                           : ($file_content =~ m/^<\?xml/) ? 'application/xml'
+                           : undef;
           eval {
             SL::File->save(
               object_id     => $form->{id},
               object_type   => 'purchase_invoice',
-              mime_type     => 'application/pdf',
+              mime_type     => $mime_type,
               source        => 'uploaded',
               file_type     => 'document',
               file_name     => $file_name,
