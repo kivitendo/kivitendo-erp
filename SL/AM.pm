@@ -1205,8 +1205,6 @@ sub save_warehouse {
 
   my ($self, $myconfig, $form) = @_;
 
-  croak('Need at least one new bin') unless $form->{number_of_new_bins} > 0;
-
   SL::DB->client->with_transaction(sub {
     my $dbh = SL::DB->client->dbh;
 

@@ -1343,7 +1343,6 @@ sub save_warehouse {
   $main::auth->assert('config');
 
   $form->isblank("description", $locale->text('Description missing!'));
-  $form->isblank("number_of_new_bins", $locale->text('Number')  . $locale->text(' missing!'));
 
   $form->{number_of_new_bins} = $form->parse_amount(\%myconfig, $form->{number_of_new_bins});
 
