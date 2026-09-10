@@ -12,7 +12,11 @@
 
 
 % laufende Kopfzeile:
-\ourhead{\kundennummer}{<%customernumber%>}{\lieferschein}{<%donumber%>}{<%transdate%>}
+<%if vc=="vendor"%>
+  \ourhead{\lieferantennummer}{<%vendornumber%>}{\sammelliste}{<%donumber%>}{<%transdate%>}
+<%else%>
+  \ourhead{\kundennummer}{<%customernumber%>}{\sammelliste}{<%donumber%>}{<%transdate%>}
+<%end%>
 
 \setkomavar{info0}[\vorgangsbez]        {<%transaction_description%>}
 \setkomavar{info1}[\datum]              {<%transdate%>}
@@ -27,19 +31,52 @@
 
 \setkomavar{title}{\sammelliste}
 
-\KOMAoptions{addrfield=false}
+%\KOMAoptions{addrfield=false}
 \makeatletter
-\@setplength{refvpos}{70mm}
+\@setplength{refvpos}{80mm}
 \makeatother
+
+<%if shiptoname%>%
+\makeatletter
+\begin{lrbox}\shippingAddressBox
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut\abweichendeLieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    <%shiptoname%>\par
+    <%shiptodepartment_1%>\par
+    <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
+    <%shiptostreet%>\par
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
+  }
+\end{lrbox}
+\makeatother
+<%end shiptoname%>%
 
 \begin{document}
 
 \begin{letter}{\strut%
-    <%shiptoname%>\ifhmode\\\fi
-    <%shiptostreet%>\ifhmode\\\fi
-    <%shiptozipcode%>\ifhmode\\\fi
-    <%shiptocity%>\ifhmode\\\fi
+  <%if vc=="vendor"%> % This is printed from a purchase delivery order
+    <%name%>              \strut\\
+    <%department_1%>      \ifhmode\\\fi
+    <%department_2%>      \ifhmode\\\fi
+    <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+    <%street%>            \ifhmode\\\fi
+    <%zipcode%> <%city%>  \ifhmode\\\fi
+    <%country%>           %
+  <%else%>            % This is printed from a sales delivery order
+    <%shiptoname%>        \strut\\
+    <%shiptostreet%>      \ifhmode\\\fi
+    <%shiptozipcode%>     \ifhmode\\\fi
+    <%shiptocity%>        \ifhmode\\\fi
     <%shiptocountry%>%
+  <%end%>%
   }
 
   \opening{}
