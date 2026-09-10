@@ -3,6 +3,9 @@
 
 % Variablen, die in settings verwendet werden
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
@@ -49,7 +52,7 @@
     <%country%>          %
   }
 
-  \opening{}
+  %\opening{}
 
   \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
     <%if warehouse%>%
