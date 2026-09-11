@@ -239,6 +239,27 @@ sub handle_all_requests {
   }
 }
 
+sub forward_to_oauth {
+  # OAuth providers redirect the browser to 'oauth.pl' and the SameSite=strict policy prevents
+  # the browser to include our session cookie. It is safe to redirect the browser to ourselfes,
+  # avoiding the policy violation, provided that only known-safe query parameters are included.
+  my $redirect_url = 'controller.pl'
+                   . '?action=' . uri_encode('OAuthAuthorization/authcode')
+                   . '&code='   . uri_encode($::form->{code})
+                   . '&state='  . uri_encode($::form->{state})
+                   . '&oaerror=' . uri_encode($::form->{error})
+                   . '&error_description=' . uri_encode($::form->{error_description});
+
+  # A 302 redirect via `print $::request->cgi->redirect($redirect_url);` did not work
+  # with Firefox and the SameSite=Strict cookie policy.
+
+  print qq|Status: 200 Ok\r\n| .
+        qq|Content-Type: text/html\r\n| .
+        qq|\r\n| .
+        qq|<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url='$redirect_url'" /></head>| .
+        qq|<body>You are redirected to <a href="$redirect_url">OAuthAuthorization/authcode</a></body></html>\n|;
+}
+
 sub handle_request {
   my $self         = shift;
   $self->{request} = shift;
@@ -251,29 +272,6 @@ sub handle_request {
   my $session_result = $self->pre_request_initialization;
 
   $::request->read_cgi_input($::form);
-
-  if ($ENV{SCRIPT_NAME} =~ m/oauth\.pl/) {
-    # OAuth providers redirect the browser to 'oauth.pl' and the SameSite=strict policy prevents
-    # the browser to include our session cookie. It is safe to redirect the browser to ourselfes,
-    # avoiding the policy violation, provided that only known-safe query parameters are included.
-    my $redirect_url = 'controller.pl'
-                     . '?action=' . uri_encode('OAuthAuthorization/authcode')
-                     . '&code='   . uri_encode($::form->{code})
-                     . '&state='  . uri_encode($::form->{state})
-                     . '&oaerror=' . uri_encode($::form->{error})
-                     . '&error_description=' . uri_encode($::form->{error_description});
-
-    # A 302 redirect via `print $::request->cgi->redirect($redirect_url);` did not work
-    # with Firefox and the SameSite=Strict cookie policy.
-
-    print "Status: 200 Ok\r\n";
-    print "Content-Type: text/html\r\n";
-    print "\r\n";
-    print "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0;url='$redirect_url'\" /></head>";
-    print "<body>You are redirected to <a href=\"$redirect_url\">OAuthAuthorizaztion/authcode</a></body></html>\n";
-
-    return $self->end_request;
-  }
 
   my %routing;
   eval { %routing = $self->_route_request($ENV{SCRIPT_NAME}); 1; } or return;
@@ -291,12 +289,18 @@ sub handle_request {
 
     $::form->{script} = $script . $suffix;
 
+  } elsif ($routing_type eq 'oauth') {
+
   } else {
     _require_controller($script_name);
     $::form->{script} = "controller.pl";
   }
 
   eval {
+    if ($routing_type eq 'oauth') {
+      $self->forward_to_oauth();
+      return 1;
+    }
     pre_request_checks(script => $script, action => $action, routing_type => $routing_type, script_name => $script_name);
 
     if (   SL::System::InstallationLock->is_locked
@@ -507,6 +511,7 @@ sub _route_request {
 
   return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        $self->_route_dispatcher_request)
        : $script_name =~ m/controller\.pl/  ? (type => 'controller', $self->_route_controller_request)
+       : $script_name =~ m/oauth\.pl$/      ? (type => 'oauth',      controller => undef, action => undef)
        :                                      (type => 'old',        controller => $script_name, action => $::form->{action});
 }
 
