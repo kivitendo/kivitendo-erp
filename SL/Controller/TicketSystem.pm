@@ -5,6 +5,9 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use English qw(-no_match_vars);
+use SL::DB::Customer;
+use SL::DB::Default;
+use SL::DB::Vendor;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String qw(t8);
 use SL::TicketSystem::Jira;
