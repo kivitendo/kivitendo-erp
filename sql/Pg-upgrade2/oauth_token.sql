@@ -1,6 +1,6 @@
 -- @tag: oauth2_tokens
 -- @description: Tabelle für OAuth2 Tokens
--- @depends: release_3_9_2
+-- @depends: release_4_1_0
 
 CREATE TABLE oauth_token (
   id                      SERIAL PRIMARY KEY,
