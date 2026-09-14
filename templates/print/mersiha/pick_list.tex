@@ -1,86 +1,108 @@
-\documentclass[twoside,parskip=half-]{scrartcl}
-\usepackage[reffields,backaddress=false,addrfield=topaligned,nofooter]{kiviletter}
+\documentclass[paper=a4,fontsize=10pt]{scrartcl}
+\usepackage{kiviletter}
 
 % Variablen, die in settings verwendet werden
 \newcommand{\lxlangcode} {<%template_meta.language.template_code%>}
+\newcommand{\lxmedia} {<%media%>}
+\newcommand{\lxcurrency} {<%currency%>}
+\newcommand{\kivicompany} {<%employee_company%>}
 
 % settings: Einstellungen, Logo, Briefpapier, Kopfzeile, Fusszeile
 \input{insettings.tex}
 
-\KOMAoptions{fontsize=10pt}
-\begin{document}
+
+% laufende Kopfzeile:
+<%if vc=="vendor"%>
+  \ourhead{\lieferantennummer}{<%vendornumber%>}{\sammelliste}{<%donumber%>}{<%transdate%>}
+<%else%>
+  \ourhead{\kundennummer}{<%customernumber%>}{\sammelliste}{<%donumber%>}{<%transdate%>}
+<%end%>
+
+\setkomavar{info0}[\vorgangsbez]        {<%transaction_description%>}
+\setkomavar{info1}[\datum]              {<%transdate%>}
+\setkomavar{info2}[\ihreBestellnummer]  {<%cusordnumber%>}
+\setkomavar{info3}[\lieferschein{}~\nr] {<%donumber%>}
+\setkomavar{info4}[\auftragsnummer]     {<%ordnumber%>}
+\setkomavar{info5}[\projektnummer]      {<%globalprojectnumber%>}
+\setkomavar{info6}[\ansprechpartner]    {<%employee_name%>}
+\setkomavar{info7}[\textTelefon]        {<%employee_tel%>}
+\setkomavar{info8}[\textEmail]          {<%employee_email%>}
+\setkomavar{fromname}                   {<%employee_name%>}
 
 \setkomavar{title}{\sammelliste}
 
-\setkomavar{firsthead}{
-  \normalsize
-  \noindent\begin{tabular}[t]{@{}l@{}}
-    <%company%>\strut \\
-    <%address%>
-  \end{tabular}
-  \hfill
-  \begin{tabular}[t]{rr@{}}
-    Tel & < %tel%>\\
-    Fax & < %fax%>%
-  \end{tabular}
-  \rule{\linewidth}{\heavyrulewidth}
-}
-
+%\KOMAoptions{addrfield=false}
 \makeatletter
-\setkomavar{location}{
-\normalsize
-<%shiptocontact%>%
-<%if shiptophone%>%
-  \\\textTelefon : <%shiptophone%>
-<%end shiptophone%>%
-<%if shiptofax%>%
-  \\\textFaxNr : <%shiptofax%>
-<%end shiptofax%>%
-\\%
-<%shiptoemail%>%
-}
+\@setplength{refvpos}{80mm}
 \makeatother
 
-\setkomavar{backaddress}{\lieferanschrift}
+<%if shiptoname%>%
+\makeatletter
+\begin{lrbox}\shippingAddressBox
+  \parbox{\useplength{toaddrwidth}}{
+    \backaddr@format{\scriptsize\usekomafont{backaddress}%
+      \strut\abweichendeLieferadresse
+    }
+    \par\smallskip
+    \setlength{\parskip}{\z@}
+    \par
+    \normalsize
+    <%shiptoname%>\par
+    <%shiptodepartment_1%>\par
+    <%shiptodepartment_2%>\par
+    <%if shiptocontact%> <%shiptocontact%><%else%><%cp_title%> <%cp_givenname%> <%cp_name%><%end if%>\par
+    <%shiptostreet%>\par
+    <%shiptozipcode%> <%shiptocity%>\par
+    <%shiptocountry%>
+  }
+\end{lrbox}
+\makeatother
+<%end shiptoname%>%
+
+\begin{document}
 
 \begin{letter}{\strut%
-    <%shiptoname%>\ifhmode\\\fi
-    <%shiptostreet%>\ifhmode\\\fi
-    <%shiptozipcode%>\ifhmode\\\fi
-    <%shiptocity%>\ifhmode\\\fi
+  <%if vc=="vendor"%> % This is printed from a purchase delivery order
+    <%name%>              \strut\\
+    <%department_1%>      \ifhmode\\\fi
+    <%department_2%>      \ifhmode\\\fi
+    <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+    <%street%>            \ifhmode\\\fi
+    <%zipcode%> <%city%>  \ifhmode\\\fi
+    <%country%>           %
+  <%else%>            % This is printed from a sales delivery order
+    <%shiptoname%>        \strut\\
+    <%shiptostreet%>      \ifhmode\\\fi
+    <%shiptozipcode%>     \ifhmode\\\fi
+    <%shiptocity%>        \ifhmode\\\fi
     <%shiptocountry%>%
+  <%end%>%
   }
 
   \opening{}
 
-
-  \begin{SimpleTabular}[colspec=*6X,headline={\bfseries\bestellnummer&\bfseries\datum&\bfseries\kontakt
-    <%if warehouse%>%
-      &\bfseries\lager%
-    <%end warehouse%>%
-    &\bfseries\lagerplatz&\bfseries\lieferungMit}]
-    <%ordnumber%>%
-    &%
-    <%if shippingdate%>%
-      <%shippingdate%>%
-    <%end shippingdate%>%
-    <%if not shippingdate%>%
-    <%orddate%>%
-    <%end shippingdate%>%
-    & <%employee%>%
-    <%if warehouse%>%
-      & <%warehouse%>%
-    <%end warehouse%>%
-    & <%shippingpoint%> & <%shipvia%> \\
-  \end{SimpleTabular}
-
-  \bigskip
-
-  \begin{SimpleTabular}[colspec=rlXrcll,headline={\bfseries\position&\bfseries\nummer&\bfseries\beschreibung&\bfseries\menge&\bfseries\lagerausgang&&\bfseries\lagerplatz}]%
+  \begin{SimpleTabular}[colspec=rrXlllrrc,headline={
+    \bfseries\position &
+    \bfseries\artikelnummer &
+    \bfseries\beschreibung &
+    \bfseries\lager &
+    \bfseries\lagerplatz &
+    \bfseries\charge &
+    \bfseries\menge &
+    \bfseries\sollbestand &
+    \bfseries[ × ]
+  }]%
     <%foreach number%>%
-      <%runningnumber%> & <%number%> & <%description%> &%
-      <%qty%> & [\hspace{1cm}] & <%unit%> & <%bin%> \\%
-    <%end number%>%
+      <%foreach si_number%>
+        <%if __first__%> %
+          <%runningnumber%> & <%number%> & \textbf{<%description%>} &
+        <%else%> %
+          & & &
+        <%end%> %
+        <%si_warehouse%> & <%si_bin%> & <%si_chargenumber%> & <%si_qty%> <%si_unit%> & <%si_nominal_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} \\ %
+      <%end%> %
+      \\
+    <%end%>
   \end{SimpleTabular}
 
 \end{letter}
