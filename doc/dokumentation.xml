@@ -3188,6 +3188,27 @@ storno_invoice.tex*</literallayout> </td>
           <para>*: symbolischer Link
           </para>
 
+          <para>Beim Drucken eines Beleges lässt sich im Druckdialog abhängig
+          vom Belegtyp eine von mehreren Druckvarianten auswählen.</para>
+          <table>
+            <title>Druckvarianten der Belegtypen (sofern Varianten vorhanden sind)</title>
+            <tr>
+              <td>Lieferschein</td>
+              <td>Sammelliste</td>
+              <td>pick_list.tex</td>
+            </tr>
+            <tr>
+              <td>Lieferantenauftrag</td>
+              <td>Lagerliste</td>
+              <td>bin_list.tex</td>
+            </tr>
+            <tr>
+              <td>Auftragsbestätigung, Rechnung</td>
+              <td>Proforma</td>
+              <td>proforma.tex</td>
+            </tr>
+          </table>
+
           <para>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
           <programlisting>deutsch.tex
 englisch.tex
@@ -7329,6 +7350,17 @@ insettings.tex</programlisting>
 
               <listitem>
                 <para>Anzahl bzw. Menge</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>si_nominal_qty</varname></term>
+
+              <listitem>
+                <para>Der Soll-Bestand dieser Kombination aus Artikel, Charge,
+                Mindesthaltbarkeit und Lagerplatz in kivitendo in der Einheit
+                si_unit. Kann z.B. in der Sammelliste gedruckt werden, um beim
+                Einlagern direkt Abweichungen erkennen zu können.</para>
               </listitem>
             </varlistentry>
 
