@@ -167,7 +167,10 @@ namespace('kivi.DeliveryOrder', function(ns) {
         row_ui_id:     pos,
         next_button:   next_button,
       },
-      dialog: { title: kivi.t8('Transfer stock') }
+      dialog: { title: kivi.t8('Transfer stock') },
+      load: function () {
+        kivi.reinit_widgets(); // required to render L.date_tag("bestbefore", ...)
+      }
     });
   };
 
