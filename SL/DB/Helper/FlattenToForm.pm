@@ -146,6 +146,7 @@ sub prepare_stock_info {
       qty                           => $_->qty,
       warehouse_id                  => $_->warehouse_id,
       bin_id                        => $_->bin_id,
+      (bestbefore                   => ($_->bestbefore && $_->bestbefore->to_kivitendo)) x !! $_->bestbefore,
       chargenumber                  => $_->chargenumber,
       unit                          => $_->unit,
     }, $item->delivery_order_stock_entries
