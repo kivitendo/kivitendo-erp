@@ -73,6 +73,7 @@ sub new_from {
       SL::DB::ReclamationItem
       SL::DB::OrderItem
       SL::DB::DeliveryOrderItem
+      SL::DB::InvoiceItem
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -158,7 +159,31 @@ sub new_from {
     );
     $item_args{custom_variables} = \@custom_variables;
     # }}} for vim folds
+  } elsif (ref($source) eq 'SL::DB::InvoiceItem') {
+    map { $item_args{$_} = $source->$_ } # {{{ for vim folds
+    qw(
+      active_discount_source
+      active_price_source
+      base_qty
+      description
+      discount
+      lastcost
+      longdescription
+      parts_id
+      position
+      price_factor
+      price_factor_id
+      pricegroup_id
+      project_id
+      qty
+      sellprice
+      serialnumber
+      unit
+    );
+    $item_args{custom_variables} = \@custom_variables;
+    # }}} for vim folds
   }
+
 
   my $item = $class->new(%item_args);
 
