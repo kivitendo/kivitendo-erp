@@ -569,6 +569,13 @@ sub setup_is_action_bar {
           disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
           only_if  => ($::instance_conf->get_show_sales_reclamation && $::form->{type} eq 'invoice' && !$::form->{storno}),
         ],
+        action => [
+          t8('RMA Delivery Order'),
+          submit   => [ '#form', { action => "rma_delivery_order" } ],
+          checks   => [ 'kivi.validate_form' ],
+          disabled => !$form->{id} ? t8('This invoice has not been posted yet.') : undef,
+          only_if  => $form->{type} eq "credit_note",
+        ],
       ], # end of combobox "Workflow"
 
       combobox => [
@@ -1692,7 +1699,7 @@ sub dispatcher {
   for my $action (qw(
     print update ship_to storno post_payment use_as_new credit_note
     delete post order preview post_and_e_mail print_and_post
-    mark_as_paid
+    mark_as_paid rma_delivery_order
   )) {
     if ($::form->{"action_$action"}) {
       call_sub($action);

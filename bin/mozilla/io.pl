@@ -1109,6 +1109,55 @@ sub order {
   $::dispatcher->end_request;
 }
 
+sub rma_delivery_order {
+  $main::lxdebug->enter_sub();
+
+  $::form->{email_journal_id}    = delete $::form->{workflow_email_journal_id};
+  $::form->{email_attachment_id} = delete $::form->{workflow_email_attachment_id};
+  $::form->{callback}            = delete $::form->{workflow_email_callback};
+
+  _order();
+  $::form->{formname} = $::form->{type} = 'rma_delivery_order';
+
+  # At this point, the record is saved and the exchangerate contains
+  # an unformatted value. _make_record uses RDBO attributes (i.e. _as_number)
+  # to assign values and thus expects an formatted value.
+  $::form->{exchangerate} = $::form->format_amount(\%::myconfig, $::form->{exchangerate});
+
+  my $order = _make_record();
+
+  $order->currency(SL::DB::Currency->new(name => $::form->{currency})->load) if $::form->{currency};
+  $order->globalproject_id(undef)                                            if !$order->globalproject_id;
+  $order->payment_id(undef)                                                  if !$order->payment_id;
+
+  my $row = 1;
+  foreach my $item (@{$order->items_sorted}) {
+    $item->custom_variables([]);
+
+    $item->price_factor_id(undef) if !$item->price_factor_id;
+    $item->project_id(undef)      if !$item->project_id;
+
+    # autovivify all cvars that are not in the form (cvars_by_config can do it).
+    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
+     foreach my $var (@{ $item->cvars_by_config }) {
+      my $key = 'ic_cvar_' . $var->config->name . '_' . $row;
+      $var->unparsed_value($::form->{$key});
+      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
+    }
+    $item->parse_custom_variable_values;
+
+    $row++;
+  }
+
+  require SL::Controller::DeliveryOrder;
+  my $c = SL::Controller::DeliveryOrder->new(order => $order);
+  $c->reinit_after_new_order();
+  $c->action_add();
+
+  $main::lxdebug->leave_sub();
+  $::dispatcher->end_request;
+}
+
 sub _order {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -2071,6 +2120,7 @@ sub _make_record_item {
     purchase_invoice        => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',
     sales_delivery_order    => 'DeliveryOrderItem',
+    rma_delivery_order      => 'DeliveryOrderItem',
   }->{$::form->{type}};
 
   return unless $class;
@@ -2145,6 +2195,7 @@ sub _make_record {
     request_quotation       => 'Order',
     purchase_delivery_order => 'DeliveryOrder',
     sales_delivery_order    => 'DeliveryOrder',
+    rma_delivery_order      => 'DeliveryOrder',
   }->{$::form->{type}};
 
   if ($::form->{type} =~ /invoice|credit_note/) {
