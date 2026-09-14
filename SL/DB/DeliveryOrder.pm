@@ -64,8 +64,8 @@ sub _before_save_set_donumber {
 sub _after_save_link_records {
   my ($self) = @_;
 
-  my @allowed_record_sources = qw(SL::DB::Reclamation SL::DB::Order);
-  my @allowed_item_sources = qw(SL::DB::ReclamationItem SL::DB::OrderItem);
+  my @allowed_record_sources = qw(SL::DB::Reclamation SL::DB::Order SL::DB::Invoice);
+  my @allowed_item_sources = qw(SL::DB::ReclamationItem SL::DB::OrderItem SL::DB::InvoiceItem);
 
   SL::DB::Helper::RecordLink::link_records(
     $self,
@@ -200,6 +200,7 @@ sub new_from {
     SL::DB::Reclamation
     SL::DB::Order
     SL::DB::DeliveryOrder
+    SL::DB::Invoice
   );
   unless( $allowed_sources{ref $source} ) {
     croak("Unsupported source object type '" . ref($source) . "'");
@@ -305,6 +306,32 @@ sub new_from {
       transaction_description
       vendor_confirmation_number
       vendor_id
+    );
+    # }}} for vim folds
+  } elsif ( ref($source) eq 'SL::DB::Invoice' ) {
+    map{ ( $record_args{$_} = $source->$_ ) } # {{{ for vim folds
+    qw(
+      billing_address_id
+      cp_id
+      currency_id
+      cusordnumber
+      customer_id
+      delivery_term_id
+      department_id
+      donumber
+      globalproject_id
+      intnotes
+      language_id
+      notes
+      ordnumber
+      payment_id
+      salesman_id
+      shippingpoint
+      shipto_id
+      shipvia
+      taxincluded
+      taxzone_id
+      transaction_description
     );
     # }}} for vim folds
   }

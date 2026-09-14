@@ -1109,6 +1109,25 @@ sub order {
   $::dispatcher->end_request;
 }
 
+sub rma_delivery_order {
+  $main::lxdebug->enter_sub();
+
+  require SL::Controller::DeliveryOrder;
+  my $c = SL::Controller::DeliveryOrder->new();
+  $c->redirect_to(
+    controller          => 'DeliveryOrder',
+    action              => 'add_from_record',
+    type                => 'rma_delivery_order',
+    from_id             => $::form->{id},
+    from_type           => 'credit_note',
+    email_journal_id    => $::form->{workflow_email_journal_id},
+    email_attachment_id => $::form->{workflow_email_attachment_id},
+    callback            => $::form->{workflow_email_callback},
+  );
+
+  $main::lxdebug->leave_sub();
+}
+
 sub _order {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -2071,6 +2090,7 @@ sub _make_record_item {
     purchase_invoice        => 'InvoiceItem',
     purchase_delivery_order => 'DeliveryOrderItem',
     sales_delivery_order    => 'DeliveryOrderItem',
+    rma_delivery_order      => 'DeliveryOrderItem',
   }->{$::form->{type}};
 
   return unless $class;
@@ -2145,6 +2165,7 @@ sub _make_record {
     request_quotation       => 'Order',
     purchase_delivery_order => 'DeliveryOrder',
     sales_delivery_order    => 'DeliveryOrder',
+    rma_delivery_order      => 'DeliveryOrder',
   }->{$::form->{type}};
 
   if ($::form->{type} =~ /invoice|credit_note/) {
