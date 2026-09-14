@@ -860,8 +860,10 @@ sub preceding_sales_order_intakes {
     @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq SALES_ORDER_INTAKE_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
-      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      push @lrs, $order if $order->record_type eq SALES_ORDER_INTAKE_TYPE();
+      foreach my $id (split / /, $self->{RECORD_ID()}) {
+        my $order = SL::DB::Order->load_cached($id);
+        push @lrs, $order if $order->record_type eq SALES_ORDER_INTAKE_TYPE();
+      }
     }
   }
 
@@ -876,8 +878,10 @@ sub preceding_purchase_orders {
     @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq PURCHASE_ORDER_TYPE() } @{$self->linked_records(from => 'SL::DB::Order')};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
-      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      push @lrs, $order if $order->record_type eq PURCHASE_ORDER_TYPE();
+      foreach my $id (split / /, $self->{RECORD_ID()}) {
+        my $order = SL::DB::Order->load_cached($id);
+        push @lrs, $order if $order->record_type eq PURCHASE_ORDER_TYPE();
+      }
     }
   }
 
@@ -892,12 +896,14 @@ sub preceding_purchase_quotation_intakes {
     @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE() } @{$self->linked_records(from => 'SL::DB::Order', recursive => 1)};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
-      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      if ($order->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE()) {
-        push @lrs, $order;
+      foreach my $id (split / /, $self->{RECORD_ID()}) {
+        my $order = SL::DB::Order->load_cached($id);
+        if ($order->record_type eq PURCHASE_QUOTATION_INTAKE_TYPE()) {
+          push @lrs, $order;
 
-      } elsif ($order->record_type eq PURCHASE_ORDER_TYPE()) {
-        @lrs = @{ $order->preceding_purchase_quotation_intakes() || [] };
+        } elsif ($order->record_type eq PURCHASE_ORDER_TYPE()) {
+          @lrs = @{ $order->preceding_purchase_quotation_intakes() || [] };
+        }
       }
     }
   }
@@ -913,13 +919,7 @@ sub preceding_request_quotations {
     @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq REQUEST_QUOTATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order', recursive => 1)};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
-      my @from_record_ids;
-      unless ($self->{RECORD_ID()} =~ m/^[0-9]*$/) {
-        @from_record_ids = split / /, $self->{RECORD_ID()};
-      } else {
-        @from_record_ids = ($self->{RECORD_ID()});
-      }
-      foreach my $id (@from_record_ids) {
+      foreach my $id (split / /, $self->{RECORD_ID()}) {
         my $order = SL::DB::Order->load_cached($id);
         if ($order->record_type eq REQUEST_QUOTATION_TYPE()) {
           push @lrs, $order;
