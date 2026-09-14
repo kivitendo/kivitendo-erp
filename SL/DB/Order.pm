@@ -687,13 +687,14 @@ sub new_from_multi {
 
   my $is_purchase = any { !$_->is_sales } @$sources;
 
-  croak("Unsupported object type in sources")                             if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
+  croak("Unsupported object type in sources")                               if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
   if ($is_purchase) {
-    croak("Cannot create order for purchase records")                     if any {  $_->is_sales }                                 @$sources;
+    croak("Cannot create order for purchase records")                       if any {  $_->is_sales }                                 @$sources;
+    croak("Cannot create order from source records of different vendors")   if any { $_->vendor_id != $sources->[0]->vendor_id }     @$sources;
   } else {
-    croak("Cannot create order for purchase records")                     if any { !$_->is_sales }                                 @$sources;
+    croak("Cannot create order for purchase records")                       if any { !$_->is_sales }                                 @$sources;
+    croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
   }
-  croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
 
   # bb: todo: check shipto: is it enough to check the ids or do we have to compare the entries?
   if (delete $params{check_same_shipto}) {
@@ -1092,8 +1093,8 @@ order.
 
 Creates a new C<SL::DB::Order> instance from multiple sources and copies as
 much information from C<$sources> as possible.
-At the moment only sales orders can be combined and they must be of the same
-customer.
+At the moment, sales orders and purchase request quotations can be combined
+and they must be of the same customer resp. vendor.
 
 The new order is created from the first one using C<new_from> and the positions
 of all orders are added to the new order. The orders can be sorted with the
