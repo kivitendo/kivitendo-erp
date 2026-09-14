@@ -194,7 +194,7 @@ sub action_edit {
 
 # edit a collective order (consisting of one or more existing orders)
 sub action_edit_collective {
-  my ($self) = @_;
+  my ($self, $target_order_type) = @_;
 
   # collect order ids
   my @multi_ids = map {
@@ -207,17 +207,9 @@ sub action_edit_collective {
     return;
   }
 
-  # fall back to save as new if only one id is given
-  if (scalar @multi_ids == 1) {
-    $self->order(SL::DB::Order->new(id => $multi_ids[0])->load);
-    $self->action_save_as_new();
-    return;
-  }
-
   # make new order from given orders
   my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
-  my $target_type = SALES_ORDER_TYPE();
-  my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_type, sort_sources_by => 'transdate');
+  my $order = SL::Model::Record->new_from_workflow_multi(\@multi_orders, $target_order_type, sort_sources_by => 'transdate');
   $self->order($order);
   $self->reinit_after_new_order();
 
