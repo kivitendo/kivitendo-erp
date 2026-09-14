@@ -2590,6 +2590,7 @@ $self->{texts} = {
   'New filter for tax accounts' => '',
   'New invoice'                 => '',
   'New name'                    => '',
+  'New purchase order'          => '',
   'New row, description'        => '',
   'New row, partnumber'         => '',
   'New row, qty'                => '',

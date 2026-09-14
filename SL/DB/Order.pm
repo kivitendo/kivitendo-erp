@@ -685,9 +685,16 @@ sub new_from {
 sub new_from_multi {
   my ($class, $sources, %params) = @_;
 
-  croak("Unsupported object type in sources")                             if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
-  croak("Cannot create order for purchase records")                       if any { !$_->is_sales }                                 @$sources;
-  croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
+  my $is_purchase = any { !$_->is_sales } @$sources;
+
+  croak("Unsupported object type in sources")                               if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
+  if ($is_purchase) {
+    croak("Cannot create order for purchase records")                       if any {  $_->is_sales }                                 @$sources;
+    croak("Cannot create order from source records of different vendors")   if any { $_->vendor_id != $sources->[0]->vendor_id }     @$sources;
+  } else {
+    croak("Cannot create order for purchase records")                       if any { !$_->is_sales }                                 @$sources;
+    croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
+  }
 
   # bb: todo: check shipto: is it enough to check the ids or do we have to compare the entries?
   if (delete $params{check_same_shipto}) {
@@ -746,7 +753,7 @@ sub new_from_multi {
   push @items, @{$_->items_sorted} for @$sources;
   # make order from first source and all items
   my $order = $class->new_from($sources->[0],
-                               destination_type => SALES_ORDER_TYPE(),
+                               destination_type => $is_purchase ? PURCHASE_ORDER_TYPE() : SALES_ORDER_TYPE(),
                                attributes       => \%attributes,
                                items            => \@items,
                                %params);
@@ -906,12 +913,20 @@ sub preceding_request_quotations {
     @lrs = grep { 'SL::DB::Order' eq ref($_) && $_->record_type eq REQUEST_QUOTATION_TYPE() } @{$self->linked_records(from => 'SL::DB::Order', recursive => 1)};
   } else {
     if ('SL::DB::Order' eq $self->{RECORD_TYPE_REF()}) {
-      my $order = SL::DB::Order->load_cached($self->{RECORD_ID()});
-      if ($order->record_type eq REQUEST_QUOTATION_TYPE()) {
-        push @lrs, $order;
+      my @from_record_ids;
+      unless ($self->{RECORD_ID()} =~ m/^[0-9]*$/) {
+        @from_record_ids = split / /, $self->{RECORD_ID()};
+      } else {
+        @from_record_ids = ($self->{RECORD_ID()});
+      }
+      foreach my $id (@from_record_ids) {
+        my $order = SL::DB::Order->load_cached($id);
+        if ($order->record_type eq REQUEST_QUOTATION_TYPE()) {
+          push @lrs, $order;
 
-      } elsif (any { $order->record_type eq $_ } (PURCHASE_ORDER_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())) {
-        @lrs = @{ $order->preceding_request_quotations() || [] };
+        } elsif (any { $order->record_type eq $_ } (PURCHASE_ORDER_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())) {
+          @lrs = @{ $order->preceding_request_quotations() || [] };
+        }
       }
     }
   }
@@ -1070,8 +1085,8 @@ order.
 
 Creates a new C<SL::DB::Order> instance from multiple sources and copies as
 much information from C<$sources> as possible.
-At the moment only sales orders can be combined and they must be of the same
-customer.
+At the moment, sales orders and purchase request quotations can be combined
+and they must be of the same customer resp. vendor.
 
 The new order is created from the first one using C<new_from> and the positions
 of all orders are added to the new order. The orders can be sorted with the
