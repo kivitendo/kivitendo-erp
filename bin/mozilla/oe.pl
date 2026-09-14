@@ -57,6 +57,7 @@ use Data::Dumper;
 
 use SL::Controller::Order;
 use SL::DB::Customer;
+use SL::DB::Order::TypeData qw(:types);
 use SL::DB::TaxZone;
 use SL::DB::PaymentTerm;
 use SL::DB::DeliveryTerm;
@@ -124,13 +125,14 @@ sub check_oe_conversion_to_sales_invoice_allowed {
   return 0;
 }
 
-sub new_sales_order {
+sub new_order {
+  my (%params) = @_;
   $main::lxdebug->enter_sub();
 
   check_oe_access();
 
   my $c = SL::Controller::Order->new;
-  $c->action_edit_collective();
+  $c->action_edit_collective($::form->{to_type});
 
   $main::lxdebug->leave_sub();
   $::dispatcher->end_request;
@@ -267,7 +269,7 @@ sub setup_oe_search_action_bar {
 sub setup_oe_orders_action_bar {
   my %params = @_;
 
-  return unless $::form->{type} eq 'sales_order';
+  return unless any { $_ eq $::form->{type} } (SALES_ORDER_TYPE(), REQUEST_QUOTATION_TYPE());
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
@@ -277,13 +279,21 @@ sub setup_oe_orders_action_bar {
         ],
         action => [
           t8('New sales order'),
-          submit    => [ '#form', { action => 'new_sales_order' } ],
+          submit    => [ '#form', { action => 'new_order', to_type => SALES_ORDER_TYPE() } ],
           checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+          only_if => $::form->{type} eq SALES_ORDER_TYPE(),
         ],
         action => [
           t8('Convert to delivery orders'),
-          submit => [ '#form', { action => 'convert_to_delivery_orders' } ],
-          checks => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+          submit  => [ '#form', { action => 'convert_to_delivery_orders' } ],
+          checks  => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+          only_if => $::form->{type} eq SALES_ORDER_TYPE(),
+        ],
+        action => [
+          t8('New purchase order'),
+          submit    => [ '#form', { action => 'new_order', to_type => PURCHASE_ORDER_TYPE() } ],
+          checks    => [ [ 'kivi.check_if_entries_selected', '[name^=multi_id_]' ] ],
+          only_if => $::form->{type} eq REQUEST_QUOTATION_TYPE(),
         ],
       ],
     );
@@ -445,7 +455,7 @@ sub orders {
   );
 
   # only show checkboxes if gotten here via sales_order form.
-  my $allow_multiple_orders = $form->{type} eq 'sales_order';
+  my $allow_multiple_orders = any { $_ eq $form->{type} } qw(sales_order request_quotation);
   if ($allow_multiple_orders) {
     unshift @columns, "ids";
   }
