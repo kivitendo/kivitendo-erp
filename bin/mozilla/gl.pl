@@ -99,7 +99,8 @@ sub load_record_template {
 
   die "invalid template type" unless $template->template_type eq 'gl_transaction';
 
-  $template->substitute_variables;
+  my $reference_date = $::form->{form_defaults}{valutadate} ? $::locale->parse_date_to_object($::form->{form_defaults}{valutadate}) : undef;
+  $template->substitute_variables($reference_date);
   my $payment_suggestion =  $::form->{form_defaults}->{amount_1};
 
   # Clean the current $::form before rebuilding it from the template.
