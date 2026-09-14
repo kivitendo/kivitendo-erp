@@ -237,6 +237,15 @@
     action: add
     type: credit_note
 - parent: ar
+  id: ar_add_rma_delivery_order
+  name: Add RMA Delivery Order
+  icon: delivery_order_add
+  order: 650
+  access: sales_delivery_order_edit
+  params:
+    action: DeliveryOrder/add
+    type: rma_delivery_order
+- parent: ar
   id: ar_add_dunning
   name: Add Dunning
   icon: dunning_add
@@ -317,6 +326,16 @@
   params:
     action: Reclamation/list
     type: sales_reclamation
+- parent: ar_reports
+  id: ar_reports_rma_delivery_orders
+  name: RMA Delivery Orders
+  icon: delivery_order_report
+  order: 475
+  access: sales_delivery_order_edit | sales_delivery_order_view
+  module: do.pl
+  params:
+    action: search
+    type: rma_delivery_order
 - parent: ar_reports
   id: ar_reports_invoices_credit_notes_ar_transactions
   name: Invoices, Credit Notes & AR Transactions
