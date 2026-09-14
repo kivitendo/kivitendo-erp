@@ -207,13 +207,6 @@ sub action_edit_collective {
     return;
   }
 
-  # fall back to save as new if only one id is given
-  if (scalar @multi_ids == 1) {
-    $self->order(SL::DB::Order->new(id => $multi_ids[0])->load);
-    $self->action_save_as_new();
-    return;
-  }
-
   # make new order from given orders
   my @multi_orders = map { SL::DB::Order->new(id => $_)->load } @multi_ids;
   my $target_type = SALES_ORDER_TYPE();
