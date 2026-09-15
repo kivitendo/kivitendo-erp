@@ -10,8 +10,7 @@ use Carp;
 use SL::DB::MetaSetup::Country;
 use SL::DB::Manager::Country;
 use SL::DB::Helper::ActsAsList (column_name => 'sortorder');
-use SL::DB::CountryLanguage;
-use SL::DB::Language;
+use SL::DB::Manager::Language;
 
 __PACKAGE__->meta->add_relationship(
   languages => {
@@ -29,10 +28,14 @@ sub can_be_deleted {
 }
 
 sub description_localized {
-  my $self = shift;
-  my $language_code = shift;
+  my ($self, $language_code, %params) = @_;
 
-  croak "Method is not a setter" if @_;
+  if ($params{override_language_id}) {
+    require SL::DB::CountryLanguage;
+
+    my $cl = SL::DB::Manager::CountryLanguage->get_first(where => [ country_id => $self->id, language_id => $params{override_language_id} ]);
+    return $cl->localized if $cl && $cl->localized;
+  }
 
   my $column = $self->description_column_localized($language_code);
 
@@ -51,10 +54,13 @@ sub description_column_localized {
 
 sub all_languages {
   my ($self) = @_;
+
+  require SL::DB::CountryLanguage;
+
   my $all_languages = SL::DB::Manager::Language->get_all_sorted;
 
   return [ map {
-    SL::DB::Manager::CountryLanguage->get_first(where => [ country_id => $self->id, language_id => $_->id ])
+    SL::DB::Manager::CountryLanguage->find_by(country_id => $self->id, language_id => $_->id)
     //
     SL::DB::CountryLanguage->new(country_id => $self->id, language_id => $_->id)
   } @$all_languages
