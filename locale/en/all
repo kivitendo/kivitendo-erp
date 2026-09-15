@@ -1763,6 +1763,7 @@ $self->{texts} = {
   'Ertrag'                      => '',
   'Ertrag prozentual'           => '',
   'Escape character'            => '',
+  'Estimate of Cost'            => '',
   'Everyone can log in.'        => '',
   'Exact'                       => '',
   'Example'                     => '',

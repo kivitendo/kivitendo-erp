@@ -64,8 +64,10 @@ sub get_print_options {
       opthash("payment_in_advance",  $form->{PD}{payment_in_advance},  $locale->text('Payment in Advance')),
       opthash("ic_supply",           $form->{PD}{ic_supply},            $locale->text('Intra-Community supply')),
     ) : undef,
-    ($form->{type} =~ /sales_quotation$/) ?
-      opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')) : undef,
+    ($form->{type} =~ /sales_quotation$/) ? (
+      opthash('sales_quotation',     $form->{PD}{sales_quotation},     $locale->text('Quotation')),
+      opthash('sales_estimate',      $form->{PD}{sales_estimate},      $locale->text('Estimate of Cost')),
+    ) : undef,
     ($form->{type} =~ /request_quotation$/) ?
       opthash('request_quotation',   $form->{PD}{request_quotation},   $locale->text('Request for Quotation')) : undef,
     ($form->{type} eq 'purchase_quotation_intake') ? (

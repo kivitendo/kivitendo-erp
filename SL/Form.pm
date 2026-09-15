@@ -1140,6 +1140,7 @@ sub get_formname_translation {
     sales_order_intake          => $main::locale->text('Sales Order Intake'),
     sales_order                 => $main::locale->text('Confirmation'),
     sales_quotation             => $main::locale->text('Quotation'),
+    sales_estimate              => $main::locale->text('Estimate of Cost'),
     storno_invoice              => $main::locale->text('Storno Invoice'),
     sales_delivery_order        => $main::locale->text('Delivery Order'),
     purchase_delivery_order     => $main::locale->text('Delivery Order'),
