@@ -1,4 +1,4 @@
-package SL::Controller::OAuth::Base;
+package SL::OAuthProvider::Base;
 
 use strict;
 use REST::Client;

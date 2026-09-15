@@ -1,7 +1,7 @@
-package SL::Controller::OAuth::Microsoft;
+package SL::OAuthProvider::Microsoft;
 
 use strict;
-use parent qw(SL::Controller::OAuth::Base);
+use parent qw(SL::OAuthProvider::Base);
 use Crypt::PRNG qw(random_bytes_b64 random_bytes_b64u);
 
 

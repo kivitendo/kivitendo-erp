@@ -4,17 +4,17 @@ use strict;
 
 use List::MoreUtils qw(all);
 use SL::Locale::String;
-use SL::Controller::OAuth::Atlassian;
-use SL::Controller::OAuth::GoogleCal;
-use SL::Controller::OAuth::Microsoft;
+use SL::OAuthProvider::Atlassian;
+use SL::OAuthProvider::GoogleCal;
+use SL::OAuthProvider::Microsoft;
 use SL::DB::OAuthToken;
 use SL::JSON qw(from_json);
 use Try::Tiny;
 
 my %providers = (
-  atlassian_jira  => 'SL::Controller::OAuth::Atlassian',
-  google_cal      => 'SL::Controller::OAuth::GoogleCal',
-  microsoft_email => 'SL::Controller::OAuth::Microsoft',
+  atlassian_jira  => 'SL::OAuthProvider::Atlassian',
+  google_cal      => 'SL::OAuthProvider::GoogleCal',
+  microsoft_email => 'SL::OAuthProvider::Microsoft',
 );
 
 
