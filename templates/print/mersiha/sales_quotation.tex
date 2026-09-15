@@ -12,6 +12,11 @@
 \input{insettings.tex}
 
 
+<%if template_meta.formname == "sales_estimate"%>
+  \renewcommand{\angebot}{\kostenvoranschlag}
+<%end%>
+
+
 % laufende Kopfzeile:
 \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%transdate%>}
 
