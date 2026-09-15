@@ -1770,6 +1770,7 @@ $self->{texts} = {
   'Ertrag'                      => 'Ertrag',
   'Ertrag prozentual'           => 'Ertrag prozentual',
   'Escape character'            => 'Escape-Zeichen',
+  'Estimate of Cost'            => 'Kostenvoranschlag',
   'Everyone can log in.'        => 'Alle können sich anmelden.',
   'Exact'                       => 'Genau',
   'Example'                     => 'Beispiel',
