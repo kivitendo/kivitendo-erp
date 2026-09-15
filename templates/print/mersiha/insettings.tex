@@ -15,7 +15,8 @@
     { de } { \main@language{ngerman} \input{deutsch.tex} }
     {    } { \main@language{ngerman} \input{deutsch.tex} }
   } {
-    \PackageError{}{lxlangcode #1 not defined in insettings.tex}
+    \PackageWarning{}{lxlangcode #1 not defined in insettings.tex}
+    \main@language{ngerman} \input{deutsch.tex}
   }
 }
 \ExplSyntaxOff

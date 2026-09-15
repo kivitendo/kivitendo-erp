@@ -677,38 +677,30 @@ sub customer_details {
 
   # get rest for the customer
   my $template_code = $language_id && SL::DB::Language->new(id => $language_id)->load->template_code;
-  my $country_description_key = SL::DB::Country->description_column_localized($template_code);
 
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         cu.name AS currency, ctc.$country_description_key AS country, cpc.$country_description_key AS cp_country
+         cu.name AS currency
        FROM customer ct
        LEFT JOIN currencies        cu  ON (ct.currency_id = cu.id)
        LEFT JOIN customer_contacts cc  ON (ct.id = cc.customer_id)
        LEFT JOIN contacts          cp  ON (cc.contact_id = cp.cp_id)
-       LEFT JOIN countries         ctc ON (ct.country_id = ctc.id)
-       LEFT JOIN countries         cpc ON (cp.cp_country_id = cpc.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
+
   # we have no values, probably a invalid contact person. hotfix and first idea for issue #10
-  if (!$ref) {
-    my $customer = SL::DB::Manager::Customer->find_by(id => $::form->{customer_id});
-    if ($customer) {
-      $ref->{name} = $customer->name;
-      $ref->{street} = $customer->street;
-      $ref->{zipcode} = $customer->zipcode;
-      $ref->{country} = $customer->country->$country_description_key;
-      $ref->{gln} = $customer->gln;
-    }
-    my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
-    if ($contact) {
-      $ref->{cp_name} = $contact->cp_name;
-      $ref->{cp_givenname} = $contact->cp_givenname;
-      $ref->{cp_gender} = $contact->cp_gender;
-    }
+  if (1) {
+    my $customer       = SL::DB::Customer->load_cached($form->{customer_id});
+    $ref->{country}    = $customer->country->description_localized($template_code, override_language_id => $language_id);
+    $ref->{$_}         = $customer->$_ for qw(name street zipcode gln);
+  }
+  if ($form->{cp_id}) {
+    my $contact        = SL::DB::Contact->load_cached($form->{cp_id});
+    $ref->{cp_country} = $contact->cp_country->description_localized($template_code, override_language_id => $language_id) if $contact->cp_country;
+    $ref->{$_}         = $contact->$_ for qw(cp_name cp_givenname cp_gender);
   }
   # remove id,notes (double of customernotes) and taxincluded before copy back
   delete @$ref{qw(id taxincluded notes)};

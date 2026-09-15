@@ -14,6 +14,18 @@
         <th> [% LxERP.t8("Description") %] (EN) </th>
         <td> [% L.input_tag("object.description_en", SELF.object.description_en, class='wi-wider', "data-validate"="required") %] </td>
       </tr>
+      [% FOR lang=SELF.object.all_languages %]
+      <tr>
+        <td>
+          [% L.hidden_tag("object.languages[+].language_id", lang.language.id) %]
+          [% L.hidden_tag("object.languages[].country_id", lang.country.id) %]
+          [% HTML.escape(lang.language.description) %]
+        </td>
+        <td>
+          [% L.input_tag("object.languages[].localized", lang.localized, class='wi-wider') %]
+        </td>
+      </tr>
+      [% END %]
     </tbody>
   </table>
 </div>
