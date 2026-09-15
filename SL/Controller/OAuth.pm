@@ -112,25 +112,30 @@ sub setup_add_action_bar {
 sub setup_list_action_bar {
   my ($self) = @_;
 
-  my $providers = SL::OAuth::configured_providers();
-  my @btns = map { (
+  my $all_providers        = SL::OAuth::providers();
+  my $configured_providers = SL::OAuth::configured_providers();
+  my @add_token_btns       = map { (
     link => [
-      t8('Add') . ': ' . $providers->{$_}->title(),
-      link => $self->url_for(action => 'new', registration => $providers->{$_}->type()),
+      $all_providers->{$_}->title(),
+      link     => $self->url_for(action => 'new', registration => $all_providers->{$_}->type()),
+      disabled => $configured_providers->{$_} ? undef : t8('not configured'),
     ]
-  ) } sort(keys(%$providers));
+  ) } sort(keys(%$all_providers));
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('Delete'),
-        submit   => [ '#form', { action => "OAuth/delete" } ],
-        confirm  => t8('Do you really want to delete this object?'),
+      combobox => [
+        action => [ t8('Add') ],
+        @add_token_btns,
       ],
 
       'separator',
 
-      @btns);
+      action => [
+        t8('Delete'),
+        submit   => [ '#form', { action => "OAuth/delete" } ],
+        confirm  => t8('Do you really want to delete this object?'),
+      ]);
   }
 }
 
