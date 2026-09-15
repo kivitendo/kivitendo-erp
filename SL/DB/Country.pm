@@ -10,7 +10,17 @@ use Carp;
 use SL::DB::MetaSetup::Country;
 use SL::DB::Manager::Country;
 use SL::DB::Helper::ActsAsList (column_name => 'sortorder');
+use SL::DB::CountryLanguage;
+use SL::DB::Language;
 
+__PACKAGE__->meta->add_relationship(
+  languages => {
+    type         => 'one to many',
+    class        => 'SL::DB::CountryLanguage',
+    column_map   => { id      => 'country_id' },
+    #manager_args => { sort_by => 'lower(additional_billing_addresses.name)' },
+  },
+);
 __PACKAGE__->meta->initialize;
 __PACKAGE__->before_delete('can_be_deleted');
 
@@ -37,6 +47,18 @@ sub description_column_localized {
   return 'description_' .
     ($language_code =~ m/^de$/i ? 'de' :
      $language_code =~ m/^en$/i ? 'en' : 'de');
+}
+
+sub all_languages {
+  my ($self) = @_;
+  my $all_languages = SL::DB::Manager::Language->get_all_sorted;
+
+  return [ map {
+    SL::DB::Manager::CountryLanguage->get_first(where => [ country_id => $self->id, language_id => $_->id ])
+    //
+    SL::DB::CountryLanguage->new(country_id => $self->id, language_id => $_->id)
+  } @$all_languages
+  ];
 }
 
 1;
