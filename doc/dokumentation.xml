@@ -3192,21 +3192,35 @@ storno_invoice.tex*</literallayout> </td>
           vom Belegtyp eine von mehreren Druckvarianten auswählen.</para>
           <table>
             <title>Druckvarianten der Belegtypen (sofern Varianten vorhanden sind)</title>
-            <tr>
-              <td>Lieferschein</td>
-              <td>Sammelliste</td>
-              <td>pick_list.tex</td>
-            </tr>
-            <tr>
-              <td>Lieferantenauftrag</td>
-              <td>Lagerliste</td>
-              <td>bin_list.tex</td>
-            </tr>
-            <tr>
-              <td>Auftragsbestätigung, Rechnung</td>
-              <td>Proforma</td>
-              <td>proforma.tex</td>
-            </tr>
+            <thead>
+              <tr>
+                <th>Belegtyp</th>
+                <th>Druckvariante</th>
+                <th>LaTeX-Vorlage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lieferschein</td>
+                <td>Sammelliste</td>
+                <td>pick_list.tex</td>
+              </tr>
+              <tr>
+                <td>Lieferantenauftrag</td>
+                <td>Lagerliste</td>
+                <td>bin_list.tex</td>
+              </tr>
+              <tr>
+                <td>Angebot</td>
+                <td>Kostenvoranschlag</td>
+                <td>sales_estimate.tex</td>
+              </tr>
+              <tr>
+                <td>Auftragsbestätigung, Rechnung</td>
+                <td>Proforma</td>
+                <td>proforma.tex</td>
+              </tr>
+            </tbody>
           </table>
 
           <para>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
