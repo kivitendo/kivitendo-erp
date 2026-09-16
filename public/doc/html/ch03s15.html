@@ -1,0 +1,81 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>3.15. Ticketsystem-Schnittstelle</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo 4.1.0: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03s14.html" title="3.14. Zeiterfassung"><link rel="next" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.15. Ticketsystem-Schnittstelle</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s14.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.15. Ticketsystem-Schnittstelle"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="features.ticketsystem"></a>3.15. Ticketsystem-Schnittstelle</h2></div></div></div><p>
+        kivitendo kann in den Kunden- und Lieferanten-Stammdaten
+        zugehörige Tickets aus einem Ticketsystem (Issue Tracker)
+        abrufen und diese in einem Tab anzeigen.  Dazu ist in der
+        Mandantenkonfiguration -&gt; Features -&gt; Experimentelle Features
+        -&gt; Ticket System Anbieter zunächst ein Anbieter auszuwählen.
+        Ferner ist anbieterabhängig weitere Konfiguration erforderlich.
+      </p><div class="sect2" title="3.15.1. Atlassian Jira"><div class="titlepage"><div><div><h3 class="title"><a name="d0e9075"></a>3.15.1. Atlassian Jira</h3></div></div></div><p>
+          Diese Implementierung funktioniert mit Atlassian Jira Cloud.
+          (Die on-premises Variante von Jira hat eine andere API.)
+        </p><p>
+          Zu den Tickets werden folgende sortierbare Spalten angezeigt:
+          Schlüssel, Zusammenfassung, Priorität, Status, Ersteller,
+          Zugewiesen, Erstellt am, Erneuert am.  Über den Link in der
+          Spalte Schlüssel kann zu Jira gesprungen werden.
+        </p><p>
+          Implementiert ist Authentifizierung via OAuth2 Tokens.  In Jira
+          muss kivitendo zunächst als App angelegt werden.  Dabei werden
+          <code class="literal">client_id</code>, <code class="literal">client_secret</code>
+          und <code class="literal">redirect_uri</code> vergeben.  Zu beachten
+          ist, dass <code class="literal">redirect_uri</code> diejenige
+          URL sein muss, unter welcher kivitendo zum Anlegen der
+          OAuth-Tokens vom Benutzer aufgerufen wird, gefolgt vom
+          Endpunkt <code class="literal">/oauth.pl</code>.  Alle drei Parameter
+          sind in der <code class="literal">kivitendo.conf</code> im Abschnitt
+          <code class="literal">[oauth2_atlassian_jira]</code> einzustellen,
+          wie unten exemplarisch gezeigt ist.
+        </p><p>
+          Die App muss in Jira mit einem Benutzer oder mit mehreren
+          Benutzern verknüpft werden:
+
+          </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+              ein einziger Jira-Benutzer, dessen Token mandantenweit
+              alle kivitendo Benutzer zum Abruf von Tickets nutzen; oder
+            </li><li class="listitem">
+              jeder kivitendo Benutzer bezieht sein eigenes Token
+              für Jira, welches nur er selbst nutzen darf, um Tickets
+              abzurufen
+            </li></ul></div><p>
+
+          Die OAuth Tokens werden in kivitendo unter Programm -&gt; OAuth
+          Tokens angelegt.  Ist in kivitendo ein mandantenweites Token
+          und ein nutzerbezogenes Token für einen bestimmten Nutzer
+          vorhanden, so wird das nutzerbezogene Token bevorzugt.
+        </p><p>
+          Nicht notwendig, aber für die Geschwindigkeit der Abfragen
+          vorteilhaft, ist es, die <code class="literal">cloud_id</code>
+          und <code class="literal">cloud_url</code> der gewünschten Jira
+          Instanz ebenfalls in der <code class="literal">kivitendo.conf</code>
+          einzustellen.  (Zum Finden dieser Parameter nutzen Entwickler
+          die Konsole und rufen <code class="literal">accessible_resources</code>
+          aus <code class="literal">SL/TicketSystem/Jira.pm</code> auf.)  Fehlt diese
+          Angabe, so wird die von Jira als erstes zurückgegebene Cloud
+          verwendet, wozu für jede Abfrage ein zweiter HTTP-Request
+          nötig ist.
+        </p><p>
+          Exemplarischer Konfigurationsabschnitt in
+          <code class="literal">kivitendo.conf</code>:
+          </p><pre class="programlisting">[oauth2_atlassian_jira]
+
+client_id     = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+client_secret = xxxxxxx-xxxxx-xxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxx
+redirect_uri  = http://kiviserver.lan/oauth.pl
+
+# optional:
+[atlassian_jira]
+
+cloud_id  = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+cloud_url = https://firma.atlassian.net
+          </pre><p>
+        
+            </p><p>
+          Beim Kopieren einer Produktivdatenbank für
+          Testzwecke sollten die OAuth Tokens ausgelassen
+          werden, da beim Refresh im Testsystem die Tokens im
+          Produktivsystem ungültig würden.  Siehe hierzu die Option
+          <code class="literal">--exclude-table-data=oauth_token</code> in
+          <code class="literal">man pg_dump(1)</code>.
+        </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s14.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.14. Zeiterfassung&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;Kapitel 4. Entwicklerdokumentation</td></tr></table></div></body></html>

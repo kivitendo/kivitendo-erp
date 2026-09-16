@@ -279,7 +279,48 @@ storno_invoice.tex*</p></div>
                         <td> statement.tex </td>
   
                      </tr></tbody></table><p>*: symbolischer Link
-          </p><p>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
+          </p><p>Beim Drucken eines Beleges lässt sich im Druckdialog abhängig
+          vom Belegtyp eine von mehreren Druckvarianten auswählen.</p><table id="d0e3383">Druckvarianten der Belegtypen (sofern Varianten vorhanden sind)<thead><tr>
+                
+                        <th>Belegtyp</th>
+                
+                        <th>Druckvariante</th>
+                
+                        <th>LaTeX-Vorlage</th>
+              
+                     </tr></thead><tbody><tr>
+                
+                        <td>Lieferschein</td>
+                
+                        <td>Sammelliste</td>
+                
+                        <td>pick_list.tex</td>
+              
+                     </tr><tr>
+                
+                        <td>Lieferantenauftrag</td>
+                
+                        <td>Lagerliste</td>
+                
+                        <td>bin_list.tex</td>
+              
+                     </tr><tr>
+                
+                        <td>Angebot</td>
+                
+                        <td>Kostenvoranschlag</td>
+                
+                        <td>sales_estimate.tex</td>
+              
+                     </tr><tr>
+                
+                        <td>Auftragsbestätigung, Rechnung</td>
+                
+                        <td>Proforma</td>
+                
+                        <td>proforma.tex</td>
+              
+                     </tr></tbody></table><p>Desweiteren werden das Logo oder ein Briefbogen, die Daten im Identitätsbereich in der Fußzeile, einschließlich Kontodaten für verschiede Währungen, und Übersetzungen aller Begriffe zentral eingestellt und sind dann für alle Belege wirksam. Dies passiert in den Dateien:
           </p><pre class="programlisting">deutsch.tex
 englisch.tex
 firma/chf_account.tex
@@ -288,7 +329,7 @@ firma/usd_account.tex
 firma/ident.tex
 insettings.tex</pre><p>
           
-               </p></div><div class="simplesect" title="2.14.3.2. Infobox"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3386"></a>2.14.3.2. Infobox</h4></div></div></div><p>
+               </p></div><div class="simplesect" title="2.14.3.2. Infobox"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3448"></a>2.14.3.2. Infobox</h4></div></div></div><p>
             Die Infobox oben rechts auf den Belegen (auch genannt Absenderergänzung) wird über LaTeX KOMA-script Variablen befüllt.
             Dies ist flexibler als im Druckvorlagensatz marei gestaltet.
             In der Datei <code class="literal">insettings.tex</code> sind die KOMA-script Variablen <code class="literal">info0</code> bis <code class="literal">info9</code> definiert.
@@ -310,7 +351,7 @@ insettings.tex</pre><p>
             Dieser Kunde möchte die Vorgangsbezeichnung nicht mit ausgeben, weshalb die erste Zeile auskommentiert ist. Weiterhin ist exemplarisch der Verkäufer anstelle des Bearbeiters der Ansprechpartner. Daher wird mit <code class="literal">&lt;%salesman_name%&gt;</code> anstelle von <code class="literal">&lt;%employee_name%&gt;</code> gearbeitet. Telefon und E-Mail verhalten sich analog dazu.
           </p><p>Weil <code class="literal">info0</code> bis <code class="literal">info11</code> in aufsteigender Reihenfolge ausgegeben werden, lässt sich über die Ziffern 0 bis 11 die Reihenfolge der Felder in der Infobox steuern.
           Bei vielen Industriekunden benötigen bestimmte Belegtypen abweichende Informationen oder andere Übersetzungstexte in der Infobox; all dies lässt sich durch Anpassung obigen LaTeX-Codes erreichen.
-          </p></div><div class="simplesect" title="2.14.3.3. Tipps für Kundenanpassungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3420"></a>2.14.3.3. Tipps für Kundenanpassungen</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+          </p></div><div class="simplesect" title="2.14.3.3. Tipps für Kundenanpassungen"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3482"></a>2.14.3.3. Tipps für Kundenanpassungen</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
               Logo mit absoluter Positionierung als Briefbogen einfügen: In <code class="literal">insettings.tex</code> einfügen:
               </p><pre class="programlisting">\DeclareNewLayer[page,background,hoffset=125mm,voffset=12mm,
   contents={\includegraphics[width=75mm]{logo-mit-text}}
