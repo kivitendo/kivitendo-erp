@@ -1205,6 +1205,8 @@ sub save_warehouse {
 
   my ($self, $myconfig, $form) = @_;
 
+  my $err_msg;
+
   SL::DB->client->with_transaction(sub {
     my $dbh = SL::DB->client->dbh;
 
@@ -1223,6 +1225,7 @@ sub save_warehouse {
 
     if (0 < $form->{number_of_new_bins}) {
       my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{id});
+
       $query = qq|INSERT INTO bin (warehouse_id, description) VALUES (?, ?)|;
       $sth   = prepare_query($form, $dbh, $query);
 
@@ -1232,8 +1235,16 @@ sub save_warehouse {
 
       $sth->finish();
     }
+
+    my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{id});
+    unless ($num_existing_bins > 0) {
+      $err_msg = $::locale->text('Need at least one bin');
+      $dbh->rollback;
+      return 0;
+    }
+
     1;
-  }) or do { die SL::DB->client->error };
+  }) or do { $err_msg ? $form->error($err_msg) : die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
@@ -1242,6 +1253,8 @@ sub save_bins {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+
+  my $err_msg;
 
   SL::DB->client->with_transaction(sub {
     my $dbh = SL::DB->client->dbh;
@@ -1265,8 +1278,16 @@ sub save_bins {
     }
 
     $sth->finish();
+
+    my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{warehouse_id});
+    unless ($num_existing_bins > 0) {
+      $err_msg = $::locale->text('Need at least one bin');
+      $dbh->rollback;
+      return 0;
+    }
+
     1;
-  }) or do { die SL::DB->client->error };
+  }) or do { $err_msg ? $form->error($err_msg) : die SL::DB->client->error };
 
   $main::lxdebug->leave_sub();
 }
