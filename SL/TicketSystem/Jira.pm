@@ -50,13 +50,10 @@ sub options_with_defaults {
 sub get_tickets {
   my ($self, $params) = @_;
 
-  my $q_order  = $params->{sort_by};
-  my $q_dir    = $params->{sort_dir} ? 'ASC' : 'DESC';
-  my $q_search = $params->{search_string};
-
   # Security: sanitize JQL contents
-  $q_order  =~ s/[^a-z0-9]//g;
-  $q_search =~ s/"/\\"/g;
+  my $q_order  = $params->{sort_by}       =~ s/[^a-z0-9]//gr;
+  my $q_dir    = $params->{sort_dir}      ? 'ASC' : 'DESC';
+  my $q_search = $params->{search_string} =~ s/(["\\])/\\$1/gr;
 
   my $jql = 'reporter in organizationMembers("' . $q_search . '")';
   $jql   .= ' AND statusCategory != Done' unless ($params->{include_closed});
