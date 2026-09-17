@@ -28,9 +28,9 @@ sub flatten_to_form {
   };
 
   my $language_code = $self->language ? $self->language->template_code : undef;
-  $form->{country} = $self->$vc->country->description_localized($language_code) if $self->$vc;
+  $form->{country} = $self->$vc->country->description_localized($language_code, override_language_id => $form->{language_id}) if $self->$vc;
   $form->{country_id} = $self->$vc->country->id if $self->$vc;
-  $form->{billing_address_country} = $self->billing_address->country->description_localized($language_code) if $self->billing_address && $self->billing_address->country;
+  $form->{billing_address_country} = $self->billing_address->country->description_localized($language_code, override_language_id => $form->{language_id}) if $self->billing_address && $self->billing_address->country;
   $form->{billing_address_country_id} = $self->billing_address->country->id if $self->billing_address && $self->billing_address->country;
 
   if (_has($self, 'transdate')) {
@@ -55,7 +55,7 @@ sub flatten_to_form {
   _copy($self->$vc,                     $form, '',              '', 0, @vc_fields);
   _copy($self->$vc,                     $form, $vc,             '', 0, @vc_prefixed_fields);
   _copy($self->contact,                 $form, '',              '', 0, grep { /^cp_/    } map { $_->name } SL::DB::Contact->meta->columns) if _has($self, 'cp_id');
-  $form->{cp_country} = $self->contact->cp_country->description_localized($language_code) if _has($self, 'cp_id') && $self->contact->cp_country;
+  $form->{cp_country} = $self->contact->cp_country->description_localized($language_code, override_language_id => $form->{language_id}) if _has($self, 'cp_id') && $self->contact->cp_country;
   $form->{cp_country_id} = $self->contact->cp_country->id if _has($self, 'cp_id') && $self->contact->cp_country;
   _copy($self->globalproject,           $form, 'globalproject', '', 0, qw(number description))                                             if _has($self, 'globalproject_id');
   _copy($self->employee,                $form, 'employee_',     '', 0, map { $_->name } SL::DB::Employee->meta->columns)                   if _has($self, 'employee_id');
@@ -69,7 +69,7 @@ sub flatten_to_form {
   if ($shipto) {
     _copy($shipto,                  $form, '',            '', 0, grep { m{^shipto(?!_id$)} } map { $_->name } SL::DB::Shipto->meta->columns);
     _copy_custom_variables($shipto, $form, 'shiptocvar_', '');
-    $form->{shiptocountry}     = $shipto->shiptocountry->description_localized($language_code) if $shipto->shiptocountry;
+    $form->{shiptocountry}     = $shipto->shiptocountry->description_localized($language_code, override_language_id => $form->{language_id}) if $shipto->shiptocountry;
     $form->{shiptocountry_id}     = $shipto->shiptocountry->id if $shipto->shiptocountry;
   }
 
