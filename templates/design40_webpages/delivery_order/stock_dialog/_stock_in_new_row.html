@@ -23,7 +23,7 @@
 
  <td>[% L.input_tag("chargenumber", "", class="numeric data-chargenumber wi-small") %]</td>
  [%- IF INSTANCE_CONF.get_show_bestbefore %]
- <td>[% L.date_tag('bestbefore', "", class="data-bestbefore wi-small") %]</td>
+ <td>[% L.date_tag('rows[]bestbefore', "", class="data-bestbefore wi-small") %]</td>
  [%- END %]
  <td>[% L.input_tag("qty", LxERP.format_amount(remaining_qty) , class="numeric data-qty wi-small") %]</td>
  <td>[% L.select_tag("unit", PART.unit_obj.convertible_units, value_key="name", default=PART.unit, class="data-unit wi-small") %]</td>
