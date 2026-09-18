@@ -79,7 +79,8 @@ sub _set_value {
     $method = 'bool_value';
 
   } elsif ($type =~ m{^(?:date|timestamp)}) {
-    $method = 'timestamp_value' ;
+    $method = 'timestamp_value';
+    $value  = undef if !$value;
 
   } elsif ($type =~ m{^(?:multiselect)}) {
     $value = 'ARRAY' ne ref $value ? undef : '##' . join('##', @$value) . '##';
