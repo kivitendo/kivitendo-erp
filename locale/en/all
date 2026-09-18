@@ -2172,6 +2172,7 @@ $self->{texts} = {
   'Include a link to the record itself' => '',
   'Include column headings'     => '',
   'Include empty bins'          => '',
+  'Include future payments'     => '',
   'Include in Report'           => '',
   'Include in drop-down menus'  => '',
   'Include invalid warehouses ' => '',
