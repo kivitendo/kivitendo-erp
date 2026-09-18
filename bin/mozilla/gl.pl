@@ -402,6 +402,8 @@ sub search {
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
   $::form->{ALL_DEPARTMENTS} = SL::DB::Manager::Department->get_all_sorted;
 
+  $::request->layout->add_javascripts("kivi.Validator.js");
+
   setup_gl_search_action_bar();
 
   $::form->{title} = t8('Journal');
@@ -490,7 +492,7 @@ sub generate_report {
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
-  my @hidden_variables = qw(accno source reference description notes project_id datefrom dateto employee_id datesort category l_subtotal department_id transaction_description);
+  my @hidden_variables = qw(accno source reference description notes project_id datefrom dateto employee_id datesort category l_subtotal department_id transaction_description id netamount total);
   push @hidden_variables, map { "l_${_}" } @columns;
 
   my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
@@ -502,6 +504,9 @@ sub generate_report {
   push @options,      $locale->text('Description')             . " : $form->{description}"                        if ($form->{description});
   push @options,      $locale->text('Notes')                   . " : $form->{notes}"                              if ($form->{notes});
   push @options,      $locale->text('Transaction description') . " : $form->{transaction_description}"            if $form->{transaction_description};
+  push @options,      $locale->text('ID')                      . " : $form->{id}"                                 if $form->{id};
+  push @options,      $locale->text('Net amount')              . " : $form->{netamount}"                          if $form->{netamount};
+  push @options,      $locale->text('Total amount')            . " : $form->{total}"                              if $form->{total};
   push @options,      $locale->text('Employee')                . " : $employee"                                   if $employee;
   my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Transdate') :  $locale->text('Gldate');
   push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
@@ -1176,6 +1181,7 @@ sub setup_gl_search_action_bar {
       action => [
         t8('Search'),
         submit    => [ '#form', { action => 'continue', nextsub => 'generate_report' } ],
+        checks    => [ 'kivi.validate_form' ],
         accesskey => 'enter',
       ],
     );
