@@ -1256,8 +1256,8 @@ sub aging {
   # todate == freier zeitrau und fordate == stichtag
   # duedate_where == nur fällige rechnungen anzeigen
 
-  my ($review_of_aging_list, $todate, $fromdate, $fromwhere, $fordate,
-      $duedate_where);
+  my ($review_of_aging_list, @review_of_aging_list_values, $todate, $fromwhere, @fromwherevalues,
+      $duedate_where, @duedate_values);
 
   if ($form->{reporttype} eq 'custom') {  # altersstrukturliste, nur fällige
 
@@ -1269,53 +1269,68 @@ sub aging {
     # falls es dennoch per Benutzereingabe gelöscht wird, lieber wieder vorbelegen
     # ferner muss für die spätere DB-Abfrage muss todate gesetzt sein.
     $form->{fordate}  = $form->current_date($myconfig) unless ($form->{fordate});
-    $fordate          = conv_dateq($form->{fordate});
-    $todate           = $fordate;
+    $todate           = $form->{fordate};
 
     if ($form->{review_of_aging_list}) { # falls die liste leer ist, alles anzeigen
       if ($form->{review_of_aging_list} =~ m "-") {             # ..  periode von bis
         my @period = split(/-/, $form->{review_of_aging_list}); # ... von periode bis periode
-        $review_of_aging_list = " AND $period[0] <  (date $fordate) - duedate
-                                  AND (date $fordate) - duedate  < $period[1]";
+        $review_of_aging_list        = " AND ? < date (?) - duedate
+                                         AND date (?) - duedate < ?";
+        @review_of_aging_list_values = (conv_i($period[0]),  conv_date($form->{fordate}),
+                                        conv_date($form->{fordate}), conv_i($period[1]));
       } else {
         $form->{review_of_aging_list} =~ s/[^0-9]//g;   # größer 120 das substitute ist nur für das '>' zeichen
-        $review_of_aging_list = " AND $form->{review_of_aging_list} < (date $fordate) - duedate";
+        $review_of_aging_list = " AND ? < date (?) - duedate";
+        @review_of_aging_list_values = ($form->{review_of_aging_list}, conv_date($form->{fordate}));
       }
     }
-    $duedate_where = $form->{ignore_duedate} ? '' : " AND (date $fordate) - duedate >= 0 ";
+    $duedate_where  = $form->{ignore_duedate} ? '' : " AND date (?) - duedate >= 0 ";
+    @duedate_values = $form->{ignore_duedate} ? () : (conv_date($form->{fordate}));
   } elsif ($form->{reporttype} eq 'free') {  # freier zeitraum, nur rechnungsdatum und OHNE review_of_aging_list
     $form->{todate}  = $form->current_date($myconfig) unless ($form->{todate});
-    $todate = conv_dateq($form->{todate});
-    $fromdate = conv_dateq($form->{fromdate});
-    $fromwhere = ($form->{fromdate} ne "") ? " AND (transdate >= (date $fromdate)) " : "";
+    $todate          = $form->{todate};
+    $fromwhere       = ($form->{fromdate} ne "") ? " AND (transdate::DATE >= (?)) " : "";
+    @fromwherevalues = ($form->{fromdate} ne "") ? (conv_date($form->{fromdate})) : ();
   } else { die "Invalid param for report type"; }
   my $where = " 1 = 1 ";
   my ($name, $null);
 
+  # Two queries are constructed: one for customers/vendors with outstanding payments
+  # and one for the details
+  my $cv_where = '(1=1)';
+  my $details_where = '(1=1)';
+  my (@cv_values, @details_values);
+
   if ($form->{$ct_id}) {
-    $where .= qq| AND (ct.id = | . conv_i($form->{$ct_id}) . qq|)|;
+    $cv_where     .= qq| AND (ct.id = ?)|;
+    push @cv_values,     conv_i($form->{$ct_id});
   } elsif ($form->{ $form->{ct} }) {
-    $where .= qq| AND (ct.name ILIKE | . $dbh->quote(like($form->{$ct})) . qq|)|;
+    $cv_where     .= qq| AND (ct.name ILIKE ?)|;
+    push @cv_values,     like($form->{$ct});
   }
 
   my $dpt_join;
-  my $where_dpt;
   if ($form->{department}) {
     my ($null, $department_id) = split /--/, $form->{department};
-    $dpt_join = qq| JOIN department d ON (a.department_id = d.id) |;
-    $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
-    $where_dpt = qq| AND (${arap}.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
+    $dpt_join       = qq| JOIN department d ON (a.department_id = d.id) |;
+    $cv_where      .= qq| AND (a.department_id = ?) |;
+    $details_where .= qq| AND (${arap}.department_id = ?) |;
+    push @cv_values,      conv_i($department_id);
+    push @details_values, conv_i($department_id);
   }
   my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
 
-  # exclude future payments
-  my $ifp         = " AND ((a.paid != a.amount) OR ((a.datepaid >" . $todate . ") AND (datepaid is NOT NULL)))";
-  my $ifp_details = " ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null)) ";
-
-  # include future payments, i.e. show only current open debits/credits
   if ($form->{reporttype} eq 'free' && $form->{include_future_payments}) {
-    $ifp         = " AND ((a.paid != a.amount)) ";
-    $ifp_details = " (paid != amount) ";
+    # include future payments, i.e. show only current open debits/credits
+    $cv_where         .= ' AND (a.paid != a.amount) ';
+    $details_where    .= ' AND (paid != amount) ';
+
+  } else {
+    # exclude future payments
+    $cv_where         .= ' AND (a.paid != a.amount OR (a.datepaid::DATE > ? AND datepaid IS NOT NULL)) ';
+    $details_where    .= ' AND (paid != amount OR (datepaid::DATE > ? AND datepaid IS NOT NULL)) ';
+    push @cv_values,      conv_date($todate);
+    push @details_values, conv_date($todate);
   }
 
   my $q_details = qq|
@@ -1324,7 +1339,7 @@ sub aging {
       street, zipcode, city, countries.$country_description_key AS country, contact, email,
       phone as customerphone, fax as customerfax, ${ct}number,
       "invnumber", "transdate", "type",
-      (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate <= (date $todate)),0)) as "open", "amount",
+      (amount - COALESCE((SELECT sum(amount)*$ml FROM acc_trans WHERE chart_link ilike '%paid%' AND acc_trans.trans_id=${arap}.id AND acc_trans.transdate::DATE <= ?),0)) as "open", "amount",
       "duedate", invoice, ${arap}.id, date_part('days', now() - duedate) as overduedays, datepaid, (amount - paid) as current_open,
       (SELECT $buysell
        FROM exchangerate
@@ -1332,35 +1347,42 @@ sub aging {
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
     LEFT JOIN countries ON (${ct}.country_id = countries.id)
-    WHERE $ifp_details
+    WHERE
+      $details_where
       AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
-      $where_dpt
-      AND (${ct}.id = ?)
-      AND (transdate <= (date $todate) $fromwhere )
+      AND (transdate::DATE <= ? $fromwhere )
       $review_of_aging_list
       $duedate_where
+      AND (${ct}.id = ?)
     ORDER BY ctid, transdate, invnumber |;
 
   my $sth_details = prepare_query($form, $dbh, $q_details);
+  @details_values = (conv_date($todate),
+                     @details_values,
+                     conv_date($todate), @fromwherevalues,
+                     @review_of_aging_list_values,
+                     @duedate_values);
 
   # select outstanding vendors or customers, depends on $ct
   my $query =
     qq|SELECT DISTINCT ct.id, ct.name
        FROM $ct ct, $arap a
        $dpt_join
-       WHERE $where
+       WHERE $cv_where
          AND (a.${ct_id} = ct.id)
-         $ifp
-         AND (a.transdate <= $todate $fromwhere)
+         AND (a.transdate <= ? $fromwhere)
        ORDER BY ct.name|;
 
-  my $sth = prepare_execute_query($form, $dbh, $query);
+  @cv_values = (@cv_values,
+                conv_date($todate), @fromwherevalues);
+
+  my $sth = prepare_execute_query($form, $dbh, $query, @cv_values);
 
   $form->{AG} = [];
   # for each company that has some stuff outstanding
   while (my ($id) = $sth->fetchrow_array) {
-    do_statement($form, $sth_details, $q_details, $id);
+    do_statement($form, $sth_details, $q_details, @details_values, $id);
 
     while (my $ref = $sth_details->fetchrow_hashref("NAME_lc")) {
       $ref->{module} = ($ref->{invoice}) ? $invoice : $arap;
