@@ -170,15 +170,16 @@ sub set_defaults {
 
   # use values from form, then report generator form, then fallback
   my %fallback = (
-    #accno         => $self->accounts_list->[0]->{accno},
-    chart_id      => '',
-    reporttype    => 'custom',
-    year          => DateTime->today->year,
-    duetyp        => '13',
+    #accno                => $self->accounts_list->[0]->{accno},
+    chart_id             => '',
+    reporttype           => 'custom',
+    year                 => DateTime->today->year,
+    duetyp               => '13',
     dateperiod_from_date => '',
-    dateperiod_to_date => '',
-    show_subtotals => 0,
-    sort          => 'transdate',
+    dateperiod_to_date   => '',
+    show_subtotals       => 0,
+    show_unbalanced      => 0,
+    sort                 => 'transdate',
   );
   my %defaults;
   for (keys %fallback) {
@@ -242,7 +243,7 @@ sub prepare_report {
   $self->report->set_columns(%column_defs);
   $self->report->set_column_order(@columns);
 
-  my @hidden_variables = qw(accno chart_id show_subtotals sort);
+  my @hidden_variables = qw(accno chart_id show_subtotals sort show_unbalanced);
   populate_hidden_variables('dateperiod', \@hidden_variables);
 
   $self->report->set_export_options(qw(list), @hidden_variables);
@@ -495,6 +496,7 @@ sub get_top_info_text {
     push @text, $::locale->text('Project Number') . " : $::form->{projectnumber}<br>";
   }
   push @text, join " ", t8('Period:'), $::form->{fromdate}, t8('to'), $::form->{todate};
+  push @text, $::locale->text('Before and within the period, show only unbalanced entries') . ': ' . ($::form->{show_unbalanced} ? $::locale->text('Yes') : $::locale->text('No'));
   push @text, join " ", t8('Report date:'), $::locale->format_date_object(DateTime->now_local);
   push @text, join " ", t8('Company:'), $::instance_conf->get_company;
   join "\n", @text;

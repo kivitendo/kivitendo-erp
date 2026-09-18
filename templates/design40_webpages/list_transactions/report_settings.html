@@ -16,7 +16,10 @@
     [% P.date_period.picker('dateperiod', defaults.dateperiod_from_date,
                                           defaults.dateperiod_to_date,
                                           dialog_defaults => defaults.dialog) %]
-
+    <h3>[% "Before and within the period, show only unbalanced entries" | $T8 %]</h3>
+    <div class="wi-verywide">[% L.checkbox_tag('show_unbalanced', checked => defaults.show_unbalanced,
+                                               label => LxERP.t8('Before and within the period, show only unbalanced entries'));
+                                P.context_help_tag(LxERP.t8('This simplifies the search for unreconciled vendor and customer bookings during the balance carryforward.')) %]</div>
     <h3>[% "Options" | $T8 %]</h3>
     <div class="wi-lightwide">[% L.checkbox_tag('show_subtotals', checked => defaults.show_subtotals,
                                               label => LxERP.t8('Show subtotals')) %]</div>
