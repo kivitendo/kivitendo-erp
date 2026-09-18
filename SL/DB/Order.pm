@@ -902,7 +902,7 @@ sub preceding_purchase_quotation_intakes {
           push @lrs, $order;
 
         } elsif ($order->record_type eq PURCHASE_ORDER_TYPE()) {
-          @lrs = @{ $order->preceding_purchase_quotation_intakes() || [] };
+          push @lrs, @{ $order->preceding_purchase_quotation_intakes() || [] };
         }
       }
     }
@@ -925,7 +925,7 @@ sub preceding_request_quotations {
           push @lrs, $order;
 
         } elsif (any { $order->record_type eq $_ } (PURCHASE_ORDER_TYPE(), PURCHASE_QUOTATION_INTAKE_TYPE())) {
-          @lrs = @{ $order->preceding_request_quotations() || [] };
+          push @lrs, @{ $order->preceding_request_quotations() || [] };
         }
       }
     }
