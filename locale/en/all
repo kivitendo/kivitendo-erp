@@ -2485,6 +2485,7 @@ $self->{texts} = {
   'Mass Create Print Sales Invoice from Delivery Order' => '',
   'Master Data'                 => '',
   'Master Data Bin Text Deleted' => '',
+  'Master Data Number'          => '',
   'Match Sales Invoice Serial numbers with inventory charge numbers?' => '',
   'Matching Price Rules can apply in one of three types:' => '',
   'Maximal amount difference'   => '',

@@ -215,10 +215,11 @@ sub prepare_report {
 
   $self->report(SL::ReportGenerator->new(\%::myconfig, $::form));
 
-  my @columns     = qw(transdate reference description gegenkonto debit credit ustkonto ustrate balance);
+  my @columns     = qw(transdate reference number description gegenkonto debit credit ustkonto ustrate balance);
   my %column_defs = (
     transdate   => { text => t8('Date'), },
     reference   => { text => t8('Reference'), },
+    number      => { text => t8('Master Data Number'), },
     description => { text => t8('Description'), },
     debit       => { text => t8('Debit'), },
     credit      => { text => t8('Credit'), },
@@ -310,6 +311,7 @@ sub set_report_data {
     my %data = (
       transdate   => { data => $tr->{transdate}, },
       reference   => { data => $tr->{reference}, link => $reference_link },
+      number      => { data => $tr->{number}  },
       description => { data => $tr->{description}, },
       gegenkonto  => { data => $gegenkonto_string, },
       debit       => { data => $debit },
@@ -403,6 +405,7 @@ sub set_report_custom_headers {
   push @custom_headers, [
     { text => t8('Date'), }, # link => $link . "&sort=transdate", },
     { text => t8('Reference'), }, #'link' => $link . "&sort=reference",  },
+    { text => t8('Master Data Number'), },
     { text => t8('Description'), }, #'link' => $link . "&sort=description",  },
     { text => t8('Gegenkonto'), },
     { text => t8('Debit'), },
