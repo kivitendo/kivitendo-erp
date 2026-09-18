@@ -223,6 +223,11 @@
     <td colspan="2">[% L.date_tag('fordate', today) %]</td>
     </tr>
     <tr>
+      <th></th>
+      <th>[% 'Ignore' | $T8 %] [% 'Due Date' | $T8 %][% ', if set' | $T8 %]</th>
+      <td colspan="2"><input name="ignore_duedate" type="checkbox" value="Y"></td>
+    </tr>
+    <tr>
       <th colspan="4">
         <input name="reporttype" type="radio" value="free">
         [% 'Free report period' | $T8 %] ([% 'Invoice Date' | $T8 %])
