@@ -1306,7 +1306,18 @@ sub aging {
     $where_dpt = qq| AND (${arap}.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
   my $country_description_key = SL::DB::Country->description_column_localized($::myconfig{countrycode});
- my $q_details = qq|
+
+  # exclude future payments
+  my $ifp         = " AND ((a.paid != a.amount) OR ((a.datepaid >" . $todate . ") AND (datepaid is NOT NULL)))";
+  my $ifp_details = " ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null)) ";
+
+  # include future payments, i.e. show only current open debits/credits
+  if ($form->{reporttype} eq 'free' && $form->{include_future_payments}) {
+    $ifp         = " AND ((a.paid != a.amount)) ";
+    $ifp_details = " (paid != amount) ";
+  }
+
+  my $q_details = qq|
 
     SELECT ${ct}.id AS ctid, ${ct}.name,
       street, zipcode, city, countries.$country_description_key AS country, contact, email,
@@ -1320,7 +1331,7 @@ sub aging {
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
     LEFT JOIN countries ON (${ct}.country_id = countries.id)
-    WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
+    WHERE $ifp_details
       AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
       $where_dpt
@@ -1339,7 +1350,7 @@ sub aging {
        $dpt_join
        WHERE $where
          AND (a.${ct_id} = ct.id)
-         AND ((a.paid != a.amount) OR ((a.datepaid > $todate) AND (datepaid is NOT NULL)))
+         $ifp
          AND (a.transdate <= $todate $fromwhere)
        ORDER BY ct.name|;
 
