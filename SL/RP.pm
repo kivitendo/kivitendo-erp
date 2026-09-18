@@ -1282,7 +1282,7 @@ sub aging {
         $review_of_aging_list = " AND $form->{review_of_aging_list} < (date $fordate) - duedate";
       }
     }
-    $duedate_where = " AND (date $fordate) - duedate >= 0 ";
+    $duedate_where = $form->{ignore_duedate} ? '' : " AND (date $fordate) - duedate >= 0 ";
   } elsif ($form->{reporttype} eq 'free') {  # freier zeitraum, nur rechnungsdatum und OHNE review_of_aging_list
     $form->{todate}  = $form->current_date($myconfig) unless ($form->{todate});
     $todate = conv_dateq($form->{todate});
