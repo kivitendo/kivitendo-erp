@@ -922,9 +922,7 @@ sub _copy_form_to_cvars {
 
   foreach my $cvar (@{ $params{target}->cvars_by_config }) {
     my $value = $params{source}->{$cvar->config->name};
-    $value    = $::form->parse_amount(\%::myconfig, $value) if $cvar->config->type eq 'number';
-
-    $cvar->value($value);
+    $cvar->unparsed_value($value);
   }
 }
 
@@ -1291,22 +1289,8 @@ sub _prepare_cvar_configs_for_ajaj {
       my $cvar   = $_;
       my $result = { type => $cvar->config->type };
 
-      if ($cvar->config->type eq 'number') {
-        $result->{value} = $::form->format_amount(\%::myconfig, $cvar->value, -2);
-
-      } elsif ($result->{type} eq 'date') {
-        $result->{value} = $cvar->value ? $cvar->value->to_kivitendo : undef;
-
-      } elsif ($result->{type} =~ m{customer|vendor|part}) {
-        my $object       = $cvar->value;
-        my $method       = $result->{type} eq 'part' ? 'description' : 'name';
-
-        $result->{id}    = int($cvar->number_value) || undef;
-        $result->{value} = $object ? $object->$method // '' : '';
-
-      } else {
-        $result->{value} = $cvar->value;
-      }
+      $result->{value}         = ref($cvar->value) ? undef : $cvar->value;
+      $result->{value_as_text} = $cvar->value_as_text;
 
       ( $cvar->config->name => $result )
 
