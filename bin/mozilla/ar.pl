@@ -1155,6 +1155,7 @@ sub ar_transactions {
     show_marked_as_closed show_not_mailed shippingpoint shipvia taxzone_id
     payment_id shiptoname shiptodepartment_1 shiptodepartment_2 shiptostreet
     shiptozipcode shiptocity shiptocountry fulltext parts_serialnumber
+    insertdatefrom insertdateto
   );
   push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
@@ -1290,6 +1291,12 @@ sub ar_transactions {
   }
   if ($form->{datepaidto}) {
     push @options, $locale->text('Date Paid') . " " . $locale->text('to') . " " . $locale->date(\%myconfig, $form->{datepaidto}, 1);
+  }
+  if ($form->{insertdatefrom}) {
+    push @options, $locale->text('Insert Date') . " " . $locale->text('from') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1);
+  }
+  if ($form->{insertdateto}) {
+    push @options, $locale->text('Insert Date') . " " . $locale->text('to') . " " . $locale->date(\%myconfig, $form->{insertdateto}, 1);
   }
   if ($form->{open}) {
     push @options, $locale->text('Open');
