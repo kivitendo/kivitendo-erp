@@ -242,6 +242,13 @@
         <input type="hidden" name="action" value='[% nextsub %]'>
       </td>
     </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Include future payments' | $T8 %]</th>
+      <td colspan="2">
+        <input name="include_future_payments" class="checkbox" value="Y" type="checkbox">
+      </td>
+    </tr>
   [% END   #IF is_aging %]
   [% IF is_payments %]
     <input type="hidden" name="nextsub" value="list_payments">
