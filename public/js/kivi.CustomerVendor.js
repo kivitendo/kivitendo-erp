@@ -64,10 +64,10 @@ namespace('kivi.CustomerVendor', function(ns) {
         $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
 
       else if ((cvar.type == 'customer') || (cvar.type == 'vendor'))
-        kivi.CustomerVendor.Picker($ctrl).set_item({ id: cvar.id, name: cvar.value });
+        $ctrl.data('customer_vendor_picker').set_item({ id: cvar.id, name: cvar.value });
 
       else if (cvar.type == 'part')
-        kivi.Part.Picker($ctrl).set_item({ id: cvar.id, name: cvar.value });
+        $ctrl.data('part_picker').set_item({ id: cvar.id, name: cvar.value });
 
       else
         $ctrl.val(cvar.value).change();
