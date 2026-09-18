@@ -4753,6 +4753,7 @@ $self->{texts} = {
   'Total Fees'                  => '',
   'Total Sales Orders Value'    => '',
   'Total Stock'                 => '',
+  'Total amount'                => '',
   'Total number of entries'     => '',
   'Total stock value'           => '',
   'Total sum'                   => '',
