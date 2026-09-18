@@ -40,6 +40,7 @@ use Data::Dumper;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 use List::Util qw(sum);
 use List::UtilsBy qw(partition_by sort_by);
+use Params::Validate qw(:all);
 use SL::DB;
 use SL::DB::Country;
 
@@ -1211,6 +1212,22 @@ sub aging {
 
   my ($self, $myconfig, $form) = @_;
 
+  # validate user input and params
+  validate_pos(
+      @_, { isa => 'RP' }, { type => HASHREF },
+          { isa => 'Form',
+            callbacks => {
+                'valid reporttype' => sub { die "expecting free or custom, got:" . $_[0]->{reporttype} unless $_[0]->{reporttype} =~ m/^(free|custom)$/ },
+                'valid aging list' => sub { die " got:" . $_[0]->{review_of_aging_list} unless $_[0]->{review_of_aging_list} =~ m/^(|0-30|30-60|60-90|90-120|> 120)$/ },
+                'valid fordate'    => sub { die "invalid for date, got:"  . $_[0]->{fordate} unless $_[0]->{fordate}   eq ''
+                                                                            || ref $::locale->parse_date_to_object($_[0]->{fordate})  eq 'DateTime'     },
+                'valid todate'     => sub { die "invalid to date, got:"   . $_[0]->{todate} unless $_[0]->{todate}     eq ''
+                                                                            || ref $::locale->parse_date_to_object($_[0]->{todate})   eq 'DateTime'     },
+                'valid fromdate'   => sub { die "invalid from date, got:" . $_[0]->{fromdate} unless $_[0]->{fromdate} eq ''
+                                                                            || ref $::locale->parse_date_to_object($_[0]->{fromdate}) eq 'DateTime'     },
+            },
+          }
+        );
   # connect to database
   my $dbh     = SL::DB->client->dbh;
 
@@ -1266,12 +1283,12 @@ sub aging {
       }
     }
     $duedate_where = " AND (date $fordate) - duedate >= 0 ";
-  } else {  # freier zeitraum, nur rechnungsdatum und OHNE review_of_aging_list
+  } elsif ($form->{reporttype} eq 'free') {  # freier zeitraum, nur rechnungsdatum und OHNE review_of_aging_list
     $form->{todate}  = $form->current_date($myconfig) unless ($form->{todate});
     $todate = conv_dateq($form->{todate});
     $fromdate = conv_dateq($form->{fromdate});
     $fromwhere = ($form->{fromdate} ne "") ? " AND (transdate >= (date $fromdate)) " : "";
-  }
+  } else { die "Invalid param for report type"; }
   my $where = " 1 = 1 ";
   my ($name, $null);
 
