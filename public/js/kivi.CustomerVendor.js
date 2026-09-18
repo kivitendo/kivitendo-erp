@@ -64,13 +64,13 @@ namespace('kivi.CustomerVendor', function(ns) {
         $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
 
       else if ((cvar.type == 'customer') || (cvar.type == 'vendor'))
-        $ctrl.data('customer_vendor_picker').set_item({ id: cvar.id, name: cvar.value });
+        $ctrl.data('customer_vendor_picker').set_item({ id: cvar.value, name: cvar.value_as_text });
 
       else if (cvar.type == 'part')
-        $ctrl.data('part_picker').set_item({ id: cvar.id, name: cvar.value });
+        $ctrl.data('part_picker').set_item({ id: cvar.value, name: cvar.value_as_text });
 
       else
-        $ctrl.val(cvar.value).change();
+        $ctrl.val(cvar.value_as_text).change();
     }
   };
 
