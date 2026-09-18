@@ -40,7 +40,6 @@ use Data::Dumper;
 use SL::DB::Helper::AccountingPeriod qw(get_balance_starting_date);
 use List::Util qw(sum);
 use List::UtilsBy qw(partition_by sort_by);
-use Params::Validate qw(:all);
 use SL::DB;
 use SL::DB::Country;
 
@@ -1212,21 +1211,6 @@ sub aging {
 
   my ($self, $myconfig, $form) = @_;
 
-  # validate user input and params
-  validate_pos(
-      @_, { isa => 'RP' }, { type => HASHREF },
-          { isa => 'Form',
-            callbacks => {
-                'valid reporttype' => sub { die "expecting free or custom, got:" . $_[0]->{reporttype} unless $_[0]->{reporttype} =~ m/^(free|custom)$/ },
-                'valid fordate'    => sub { die "invalid for date, got:"  . $_[0]->{fordate} unless $_[0]->{fordate}   eq ''
-                                                                            || ref $::locale->parse_date_to_object($_[0]->{fordate})  eq 'DateTime'     },
-                'valid todate'     => sub { die "invalid to date, got:"   . $_[0]->{todate} unless $_[0]->{todate}     eq ''
-                                                                            || ref $::locale->parse_date_to_object($_[0]->{todate})   eq 'DateTime'     },
-                'valid fromdate'   => sub { die "invalid from date, got:" . $_[0]->{fromdate} unless $_[0]->{fromdate} eq ''
-                                                                            || ref $::locale->parse_date_to_object($_[0]->{fromdate}) eq 'DateTime'     },
-            },
-          }
-        );
   # connect to database
   my $dbh     = SL::DB->client->dbh;
 
