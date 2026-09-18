@@ -198,6 +198,12 @@ sub all_transactions {
     @project_values = (conv_i($form->{project_id}));
   }
 
+  my ($unbalanced_accounts, @unbalanced_accounts_value);
+  if ($form->{show_unbalanced}) {
+    $unbalanced_accounts = qq| AND ( a.paid <> a.amount OR a.datepaid >= ?) |;
+    @unbalanced_accounts_value = (conv_date($form->{todate}));
+  }
+
   if ($form->{accno}) {
 
     # get category for account
@@ -282,7 +288,7 @@ sub all_transactions {
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
-      qq|WHERE | . $where . $dpt_where . $project .
+      qq|WHERE | . $where . $dpt_where . $project . $unbalanced_accounts .
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.customer_id = c.id | .
@@ -295,15 +301,16 @@ sub all_transactions {
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
       qq|FROM acc_trans ac, vendor v, ap a | .
       $dpt_join .
-      qq|WHERE | . $where . $dpt_where . $project .
+      qq|WHERE | . $where . $dpt_where . $project . $unbalanced_accounts .
+
       qq| AND ac.chart_id = ? | .
       qq| AND ac.trans_id = a.id | .
       qq| AND a.vendor_id = v.id | .
       qq| AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)|;
     push(@values,
          @where_values, @department_values, @project_values, $id,
-         @where_values, @department_values, @project_values, $id,
-         @where_values, @department_values, @project_values, $id);
+         @where_values, @department_values, @project_values, @unbalanced_accounts_value, $id,
+         @where_values, @department_values, @project_values, @unbalanced_accounts_value, $id);
 
     $union = qq|UNION ALL |;
 

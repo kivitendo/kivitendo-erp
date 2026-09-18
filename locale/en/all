@@ -3865,6 +3865,7 @@ $self->{texts} = {
   'Show old dunnings'           => '',
   'Show only marked as paid invoices' => '',
   'Show only not mailed invoices' => '',
+  'Show only unbalanced entries' => '',
   'Show order'                  => '',
   'Show overdue purchase orders...' => '',
   'Show overdue requests for quotations...' => '',

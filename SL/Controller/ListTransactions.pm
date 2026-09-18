@@ -242,7 +242,7 @@ sub prepare_report {
   $self->report->set_columns(%column_defs);
   $self->report->set_column_order(@columns);
 
-  my @hidden_variables = qw(accno chart_id show_subtotals sort);
+  my @hidden_variables = qw(accno chart_id show_subtotals sort show_unbalanced);
   populate_hidden_variables('dateperiod', \@hidden_variables);
 
   $self->report->set_export_options(qw(list), @hidden_variables);
