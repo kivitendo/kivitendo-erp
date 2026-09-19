@@ -4,12 +4,17 @@
 
  <input type="hidden" name="todate" value="[% HTML.escape(todate) %]">
  <input type="hidden" name="fromdate" value="[% HTML.escape(fromdate) %]">
+ <input type="hidden" name="fordate" value="[% HTML.escape(fordate) %]">
  <input type="hidden" name="title" value="[% HTML.escape(title) %]">
  <input type="hidden" name="arap" value="[% HTML.escape(arap) %]">
  <input type="hidden" name="ct" value="[% HTML.escape(ct) %]">
  <input type="hidden" name="customer" value="[% HTML.escape(customer) %]">
  <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
  <input type="hidden" name="department" value="[% HTML.escape(department) %]">
+ <input type="hidden" name="reporttype" value="[% HTML.escape(reporttype) %]">
+ <input type="hidden" name="ignore_duedate" value="[% HTML.escape(ignore_duedate) %]">
+ <input type="hidden" name="include_future_payments" value="[% HTML.escape(include_future_payments) %]">
+ <input type="hidden" name="rowcount" value="[% row_idx %]">
  [% L.hidden_tag("formname", "statement") %]
 
 <div id="email_inputs" class="hidden"></div>
