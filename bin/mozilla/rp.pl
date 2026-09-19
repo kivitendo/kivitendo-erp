@@ -1029,7 +1029,7 @@ sub aging {
   $report->set_options('std_column_visibility' => 1);
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  my @hidden_variables = qw(todate customer vendor arap title ct fordate reporttype department fromdate);
+  my @hidden_variables = qw(todate customer vendor arap title ct fordate reporttype department fromdate include_future_payments ignore_duedate);
   $report->set_export_options('generate_' . ($form->{arap} eq 'ar' ? 'ar' : 'ap') . '_aging', @hidden_variables);
 
   my @options;
@@ -1063,8 +1063,11 @@ sub aging {
       push @options, $locale->text('for Period') . " " . $locale->text('Bis') . " " .
       $locale->date(\%myconfig, $form->{todate}, 1);
     }
+    push @options, $locale->text('Include future payments') . " : " .
+                   ($form->{include_future_payments} ? $locale->text('Yes') : $locale->text('No'));
   } elsif ($form->{reporttype} eq 'custom') {
     push @options, $locale->text('Reference day') . " " . $locale->date(\%myconfig, $form->{fordate}, 1);
+    push @options, $locale->text('Ingore') . " " . $locale->text('Due Date') if $form->{ignore_duedate};
   } else {
     die "Unknown reporttype for aging";
   }

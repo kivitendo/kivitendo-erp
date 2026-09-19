@@ -223,6 +223,11 @@
     <td colspan="2">[% L.date_tag('fordate', today) %]</td>
     </tr>
     <tr>
+      <th></th>
+      <th>[% 'Ignore' | $T8 %] [% 'Due Date' | $T8 %][% ', if set' | $T8 %]</th>
+      <td colspan="2"><input name="ignore_duedate" type="checkbox" value="Y"></td>
+    </tr>
+    <tr>
       <th colspan="4">
         <input name="reporttype" type="radio" value="free">
         [% 'Free report period' | $T8 %] ([% 'Invoice Date' | $T8 %])
@@ -240,6 +245,13 @@
         <input type="hidden" name="media" value="screen">
         <input type="hidden" name="nextsub" value='[% nextsub %]'>
         <input type="hidden" name="action" value='[% nextsub %]'>
+      </td>
+    </tr>
+    <tr>
+      <th></th>
+      <th>[% 'Include future payments' | $T8 %]</th>
+      <td colspan="2">
+        <input name="include_future_payments" class="checkbox" value="Y" type="checkbox">
       </td>
     </tr>
   [% END   #IF is_aging %]
