@@ -10,6 +10,9 @@
  <input type="hidden" name="customer" value="[% HTML.escape(customer) %]">
  <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
  <input type="hidden" name="department" value="[% HTML.escape(department) %]">
+ <input type="hidden" name="reporttype" value="[% HTML.escape(reporttype) %]">
+ <input type="hidden" name="ignore_duedate" value="[% HTML.escape(ignore_duedate) %]">
+ <input type="hidden" name="include_future_payments" value="[% HTML.escape(include_future_payments) %]">
  [% L.hidden_tag("formname", "statement") %]
 
 <div id="email_inputs" class="hidden"></div>
