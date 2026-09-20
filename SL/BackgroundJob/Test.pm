@@ -11,6 +11,7 @@ sub run {
   my $data            = $db_obj->data_as_hash;
 
   $::lxdebug->message(0, "Test job ID " . $db_obj->id . " is being executed on node " . SL::System::TaskServer::node_id() . ".");
+  $::lxdebug->dump   (0, "Test job ID " . $db_obj->id . ": data ", $data);
 
   die "Oh cruel world: " . $data->{exception} if $data->{exception};
 
