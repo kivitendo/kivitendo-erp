@@ -4,7 +4,7 @@ use strict;
 
 use SL::HTML::Restrict;
 use SL::Locale::String qw(t8);
-use SL::Presenter::EscapedText qw(escape);
+use SL::Presenter::EscapedText qw(escape escape_js);
 use SL::Util qw(trim);
 use Scalar::Util qw(blessed);
 
@@ -536,8 +536,6 @@ sub input_email_tag {
 sub input_phone_tag {
   my ($name, $value, %params) = @_;
 
-  my $show_icon = $value || delete($params{show_icon_always});
-
   # _set_id_attribute removes the no_id param
   my $no_id_wanted = $params{no_id};
   _set_id_attribute(\%params, $name);
@@ -547,15 +545,14 @@ sub input_phone_tag {
 
   my $html = input_tag_trim($name, $value, %params);
 
-  my $link_id   = $params{id} ? $params{id} . '_link' : undef;
   $value = trim($value);
   if ($cti_enabled && $value) {
     $html .= html_tag('button', img_tag(src => 'image/icons/16x16/phone.png'),
       onclick => "event.preventDefault();" .
                  "\$.post('controller.pl?action=CTI/call&number=" .
-                 escape($value). "', [], kivi.eval_json_result);",
+                 escape_js($value). "', [], kivi.eval_json_result);",
       title   => t8('Call'),
-      class   => 'neutral'
+      class   => 'neutral',
     );
   }
 
