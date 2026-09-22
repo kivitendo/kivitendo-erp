@@ -109,7 +109,7 @@
                         ITEM.sellprice_as_number,
                         size = 10,
                         disabled=(EDIT_PRICE? '' : 1),
-                        class="recalc reformat_number numeric wi-verysmall") %]
+                        class="recalc reformat_number numeric wi-small") %]
       </div>
       <div name="not_editable_price" [% IF EDIT_PRICE %]style="display:none"[% END %]>
         [% L.div_tag(ITEM.sellprice_as_number, name="sellprice_text", class="numeric plain-data") %]  <!-- PENDENT: plain-data in DIV noch dem CSS hinzufuegen -->
