@@ -1420,6 +1420,13 @@
   params:
     action: PaymentTerm/list
 - parent: system
+  id: system_lead_times
+  name: Lead Times
+  order: 2050
+  params:
+    action: SimpleSystemSetting/list
+    type: lead_time
+- parent: system
   id: system_delivery_terms
   name: Delivery Terms
   order: 2100

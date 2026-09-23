@@ -10,12 +10,13 @@ use SL::Locale::String;
 use SL::DB::Default;
 use SL::DB::PartsGroup;
 use SL::DB::Warehouse;
+use SL::DB::Manager::Language;
 use SL::System::Process;
 use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(type config) ],
-  'scalar --get_set_init' => [ qw(defaults object all_objects class manager_class list_attributes list_url supports_reordering) ],
+  'scalar --get_set_init' => [ qw(defaults object all_languages all_objects class manager_class list_attributes list_url supports_reordering) ],
 );
 
 __PACKAGE__->run_before('check_type_and_auth');
@@ -135,6 +136,22 @@ my %supported_types = (
       {                            title => t8('Date Format'),   formatter => sub { $_[0]->output_dateformat   || t8('use program settings') } },
       {                            title => t8('Long Dates'),    formatter => sub { $_[0]->output_longdates ? t8('yes') : t8('no') } },
       {                            title => t8('Obsolete'),      formatter => sub { $_[0]->obsolete  ? t8('yes') : t8('no') } },
+    ],
+  },
+
+  lead_time => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_lead_time_form")
+    class  => 'LeadTime',
+    auth   => 'config',
+    titles => {
+      list => t8('Lead Times'),
+      add  => t8('Add lead time'),
+      edit => t8('Edit lead time'),
+    },
+    list_attributes => [
+      { method => 'description',      title => t8('Description') },
+      { method => 'obsolete',         title => t8('Obsolete') },
+      { method => 'description_long', title => t8('Long Description') },
     ],
   },
 
@@ -449,6 +466,7 @@ sub setup_javascript {
 sub init_class               { "SL::DB::"          . $_[0]->config->{class}                  }
 sub init_manager_class       { "SL::DB::Manager::" . $_[0]->config->{class}                  }
 sub init_object              { $_[0]->class->new(id => $::form->{id})->load                  }
+sub init_all_languages       { SL::DB::Manager::Language->get_all_sorted                     }
 sub init_all_objects         { $_[0]->manager_class->get_all_sorted                          }
 sub init_list_url            { $_[0]->url_for(action => 'list', type => $_[0]->type)         }
 sub init_supports_reordering { $_[0]->class->new->can('reorder_list')                        }
