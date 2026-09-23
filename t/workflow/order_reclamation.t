@@ -286,6 +286,7 @@ my @different_record_values = qw(
   ordnumber record_number
   intake
   vendor_confirmation_number
+  lead_time_id
 );
 my @different_record_item_values = qw(
   id trans_id reclamation_id itime mtime
