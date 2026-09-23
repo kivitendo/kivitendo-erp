@@ -756,7 +756,8 @@ sub _retrieve {
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id, o.billing_address_id,
            o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id,
-           o.itime::DATE AS insertdate, o.order_probability, o.expected_billing_date
+           o.itime::DATE AS insertdate, o.order_probability, o.expected_billing_date,
+           o.lead_time_id
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
@@ -1350,6 +1351,8 @@ sub order_details {
   $form->{department}    = SL::DB::Manager::Department->find_by(id => $form->{department_id})->description if $form->{department_id};
   $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
   $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+  $form->{lead_time}     = SL::DB::Manager::LeadTime->find_by(id => $form->{lead_time_id} || undef);
+  $form->{lead_time}->description_long($form->{lead_time}->translated_attribute('description_long', $form->{language_id})) if $form->{lead_time} && $form->{language_id};
 
   $form->{order}     = SL::DB::Manager::Order->find_by(id => $form->{id}) if $form->{id};
   $form->{rfqnumber} = join( ', ',  map { $_->quonumber } @{$form->{order}->preceding_request_quotations()})  if $form->{order};
