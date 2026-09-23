@@ -129,6 +129,10 @@
     \medskip
   <%end notes%>%
 
+  <%if lead_time%>
+    \lieferzeit ~<%lead_time.description_long%>\\
+  <%end%>
+
   <%if delivery_term%>%
     \lieferung ~<%delivery_term.description_long%>\\
   <%end delivery_term%>%
