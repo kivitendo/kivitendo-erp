@@ -68,7 +68,7 @@ I<generic_translations>
 Declaration:
 
   package SL::DB::SomeObject;
-  use SL::DB::Helper::Translated;
+  use SL::DB::Helper::TranslatedAttributes;
 
 Usage:
 
