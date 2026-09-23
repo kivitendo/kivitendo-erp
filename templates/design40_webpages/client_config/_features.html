@@ -310,6 +310,11 @@
        <td class="long-desc">[% LxERP.t8("If enabled a warning will be shown in sales and purchase orders if there the delivery date is empty.") %]</td>
       </tr>
       <tr>
+       <th>[% LxERP.t8("Warn before saving sales quotations without a lead time") %]</th>
+       <td>[% L.yes_no_tag("defaults.quotation_warn_no_lead_time", SELF.defaults.quotation_warn_no_lead_time) %]</td>
+       <td class="long-desc">[% LxERP.t8("If enabled a warning will be shown in sales quotations if no lead time is selected.") %]</td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8("Warn before saving sales orders with missing customer order number (new controller only)") %]</th>
         <td>[% L.yes_no_tag("defaults.order_warn_no_cusordnumber", SELF.defaults.order_warn_no_cusordnumber) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled a warning will be shown in sales delivery orders if the customer order number is missing.") %]</td>

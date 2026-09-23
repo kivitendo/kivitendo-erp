@@ -36,6 +36,15 @@ namespace('kivi.Order', function(ns) {
     return true;
   };
 
+  ns.check_lead_time = function() {
+    if ($('#order_lead_time_id').val() === '') {
+      alert(kivi.t8('Please select a lead time.'));
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   ns.check_valid_reqdate = function() {
     if ($('#order_reqdate_as_date').val() === '') {
       alert(kivi.t8('Please select a delivery date.'));
@@ -50,10 +59,12 @@ namespace('kivi.Order', function(ns) {
 
     const action             = params.action;
     const warn_on_duplicates = params.warn_on_duplicates;
+    const warn_on_lead_time  = params.warn_on_lead_time;
     const warn_on_reqdate    = params.warn_on_reqdate;
     const form_params        = params.form_params;
 
     if (warn_on_duplicates && !ns.check_duplicate_parts()) return;
+    if (warn_on_lead_time  && !ns.check_lead_time())       return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     var data = $('#order_form').serializeArray();

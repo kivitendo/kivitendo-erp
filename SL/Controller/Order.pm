@@ -2352,6 +2352,7 @@ sub setup_edit_action_bar {
   );
   push @valid, "kivi.Order.check_duplicate_parts" if $::instance_conf->get_order_warn_duplicate_parts;
   push @valid, "kivi.Order.check_valid_reqdate"   if $::instance_conf->get_order_warn_no_deliverydate;
+  push @valid, "kivi.Order.check_lead_time"       if $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE();
   my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
   my @req_cusordnumber   = qw(kivi.Order.check_cusordnumber_presence)           x(( any {$self->type eq $_} (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE()) ) && $::instance_conf->get_order_warn_no_cusordnumber);
 
@@ -2380,6 +2381,7 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices', ['kivi.validate_form','#order_form'],
@@ -2393,6 +2395,7 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'back_to_caller', value => 1 },
