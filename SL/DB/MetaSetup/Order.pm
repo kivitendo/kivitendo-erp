@@ -30,6 +30,7 @@ __PACKAGE__->meta->columns(
   intnotes                   => { type => 'text' },
   itime                      => { type => 'timestamp', default => 'now()' },
   language_id                => { type => 'integer' },
+  lead_time_id               => { type => 'integer' },
   marge_percent              => { type => 'numeric', precision => 15, scale => 5 },
   marge_total                => { type => 'numeric', precision => 15, scale => 5 },
   mtime                      => { type => 'timestamp' },
@@ -120,6 +121,11 @@ __PACKAGE__->meta->foreign_keys(
   language => {
     class       => 'SL::DB::Language',
     key_columns => { language_id => 'id' },
+  },
+
+  lead_time => {
+    class       => 'SL::DB::LeadTime',
+    key_columns => { lead_time_id => 'id' },
   },
 
   order_status => {
