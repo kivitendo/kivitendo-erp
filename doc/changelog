@@ -27,6 +27,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Verschiedene E-Mail-relevante Felder in der Mandantenkonfiguration sind nun
   in einem eigenen Reiter zu finden.
 
+- Ein neues Feld »Lieferzeit« mit frei definierbaren Auswahloptionen steht auf den
+  Angebots-Belegtypen zur Verfügung und kann mit einstellbaren
+  Übersetzungstexten gedruckt werden.
+
 
 Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
