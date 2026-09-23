@@ -188,6 +188,7 @@ __PACKAGE__->meta->columns(
   purchase_reclamation_show_delete            => { type => 'boolean', default => 'true', not_null => 1 },
   qrbill_copy_invnumber                       => { type => 'boolean', default => 'false' },
   quick_search_modules                        => { type => 'array' },
+  quotation_warn_no_lead_time                 => { type => 'boolean', default => 'false', not_null => 1 },
   rdonumber                                   => { type => 'text' },
   reclamation_warn_duplicate_parts            => { type => 'boolean', default => 'true', not_null => 1 },
   reclamation_warn_no_reqdate                 => { type => 'boolean', default => 'true', not_null => 1 },

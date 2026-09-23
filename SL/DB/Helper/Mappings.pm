@@ -164,6 +164,7 @@ my %kivitendo_package_names = (
   inventory                      => 'inventory',
   invoice                        => 'invoice_item',
   language                       => 'language',
+  lead_times                     => 'lead_time',
   letter                         => 'letter',
   letter_draft                   => 'letter_draft',
   makemodel                      => 'make_model',
