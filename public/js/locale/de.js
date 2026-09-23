@@ -132,6 +132,7 @@ namespace("kivi").setupLocale({
 "Please select a customer.":"Bitte wählen Sie einen Kunden aus.",
 "Please select a deadline date.":"Bitte wählen Sie ein Datum für die Fristsetzung aus.",
 "Please select a delivery date.":"Bitte einen Liefertermin auswählen",
+"Please select a lead time.":"Bitte wählen Sie eine Lieferzeit aus.",
 "Please select a vendor.":"Bitte wählen Sie einen Lieferanten aus.",
 "Powered by Graphhopper API & Openstreetmap":"Powered by Graphhopper API & Openstreetmap",
 "Previous month":"vorheriger Monat",
