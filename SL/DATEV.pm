@@ -1377,10 +1377,13 @@ two mismatching number length domains.
 
 Returns 1 if DMS feature is enabled and Backend is Filesystem
 
-=item check_all_bookings_have_documents
+=item first_bookings_without_documents
 
-Returns 1 if all ar and ap transactions for this period have a document entry in files.
-Therefore all ar and ap transactions may be exported.
+Returns an empty array ref if all ar and ap transactions for this period have a
+document entry in files.  Therefore all ar and ap transactions may be exported.
+For each transaction without a document in files, a HTML link to the record is
+included in the returned array ref, to be displayed to the user in an error
+message.
 Note: DATEV accepts only PDF and for some gl bookings a document makes no sense
 
 
