@@ -12,8 +12,8 @@ __PACKAGE__->meta->columns(
   description      => { type => 'text' },
   description_long => { type => 'text' },
   id               => { type => 'serial', not_null => 1 },
-  itime            => { type => 'timestamp', default => 'now()' },
-  mtime            => { type => 'timestamp' },
+  itime            => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime            => { type => 'timestamp', default => 'now()', not_null => 1 },
   obsolete         => { type => 'boolean', default => 'false', not_null => 1 },
   sortkey          => { type => 'integer', not_null => 1 },
 );
