@@ -2353,6 +2353,7 @@ sub setup_edit_action_bar {
   push @valid, "kivi.Order.check_duplicate_parts" if $::instance_conf->get_order_warn_duplicate_parts;
   push @valid, "kivi.Order.check_valid_reqdate"   if $::instance_conf->get_order_warn_no_deliverydate;
   push @valid, "kivi.Order.check_lead_time"       if $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE();
+  my @req_lead_time      = qw(kivi.Order.check_lead_time)                       x!!($::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE());
   my @req_trans_cost_art = qw(kivi.Order.check_transport_cost_article_presence) x!!$::instance_conf->get_transport_cost_reminder_article_number_id;
   my @req_cusordnumber   = qw(kivi.Order.check_cusordnumber_presence)           x(( any {$self->type eq $_} (SALES_ORDER_INTAKE_TYPE(), SALES_ORDER_TYPE()) ) && $::instance_conf->get_order_warn_no_cusordnumber);
 
@@ -2458,6 +2459,7 @@ sub setup_edit_action_bar {
         action => [
           t8('Save and Sales Order Intake'),
           call     => [ 'kivi.submit_ajax_form', $self->url_for(action => "save_and_order_workflow", to_type => SALES_ORDER_INTAKE_TYPE()), '#order_form' ],
+          checks   => [ @valid, @req_trans_cost_art, @req_lead_time ],
           only_if  => $self->type_data->show_menu('save_and_sales_order_intake'),
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
@@ -2488,13 +2490,14 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'to_type', value => SALES_DELIVERY_ORDER_TYPE() },
               ],
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
-                         @req_trans_cost_art, @req_cusordnumber,
+                         @req_trans_cost_art, @req_cusordnumber, @req_lead_time,
           ],
           only_if   => $self->type_data->show_menu('save_and_sales_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
@@ -2504,13 +2507,14 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'to_type', value => PURCHASE_DELIVERY_ORDER_TYPE() },
               ],
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
-                         @req_trans_cost_art, @req_cusordnumber,
+                         @req_trans_cost_art, @req_cusordnumber, @req_lead_time,
           ],
           only_if   => $self->type_data->show_menu('save_and_purchase_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
@@ -2521,12 +2525,13 @@ sub setup_edit_action_bar {
             'kivi.Order.show_purchase_delivery_order_select_items', {
               action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'to_type', value => PURCHASE_DELIVERY_ORDER_TYPE() },
               ],
             }],
-          checks    => [ @req_trans_cost_art, @req_cusordnumber ],
+          checks    => [ @req_trans_cost_art, @req_cusordnumber, @req_lead_time ],
           only_if   => $self->type_data->show_menu('save_and_purchase_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
         ],
@@ -2535,13 +2540,14 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'to_type', value => SUPPLIER_DELIVERY_ORDER_TYPE() },
               ],
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
-                         @req_trans_cost_art, @req_cusordnumber,
+                         @req_trans_cost_art, @req_cusordnumber, @req_lead_time,
           ],
           only_if   => $self->type_data->show_menu('save_and_supplier_delivery_order'),
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
@@ -2551,6 +2557,7 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save_and_new_record',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
               form_params        => [
                 { name => 'to_type',
@@ -2566,10 +2573,11 @@ sub setup_edit_action_bar {
           call      => [ 'kivi.Order.save', {
               action             => 'save_and_invoice',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
           checks    => [ 'kivi.Order.check_save_active_periodic_invoices',
-                         @req_trans_cost_art, @req_cusordnumber,
+                         @req_trans_cost_art, @req_cusordnumber, @req_lead_time,
           ],
           disabled  => !$may_edit_create ? t8('You do not have the permissions to access this function.') : undef,
           only_if   => $self->type_data->show_menu('save_and_invoice'),
@@ -2624,9 +2632,10 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.Order.save', {
               action             => 'preview_pdf',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
-          checks   => [ @req_trans_cost_art, @req_cusordnumber ],
+          checks   => [ @req_trans_cost_art, @req_cusordnumber, @req_lead_time ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
           only_if  => $self->type_data->show_menu('save_and_print'),
@@ -2635,9 +2644,10 @@ sub setup_edit_action_bar {
           t8('Save and print'),
           accesskey => 'alt+P',
           call     => [ 'kivi.Order.show_print_options', { warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+                                                           warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
                                                            warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate },
           ],
-          checks   => [ @req_trans_cost_art, @req_cusordnumber ],
+          checks   => [ @req_trans_cost_art, @req_cusordnumber, @req_lead_time ],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')
                     : $is_final_version ? t8('This record is the final version. Please create a new sub-version') : undef,
           only_if  => $self->type_data->show_menu('save_and_print'),
@@ -2649,6 +2659,7 @@ sub setup_edit_action_bar {
           call     => [ 'kivi.Order.save', {
               action             => 'save_and_show_email_dialog',
               warn_on_duplicates => $::instance_conf->get_order_warn_duplicate_parts,
+              warn_on_lead_time  => $::instance_conf->get_quotation_warn_no_lead_time && $self->type eq SALES_QUOTATION_TYPE(),
               warn_on_reqdate    => $::instance_conf->get_order_warn_no_deliverydate,
             }],
           disabled => !$may_edit_create ? t8('You do not have the permissions to access this function.')

@@ -97,9 +97,11 @@ namespace('kivi.Order', function(ns) {
     if (!ns.check_cv()) return;
 
     const warn_on_duplicates = params.warn_on_duplicates;
+    const warn_on_lead_time  = params.warn_on_lead_time;
     const warn_on_reqdate    = params.warn_on_reqdate;
 
     if (warn_on_duplicates && !ns.check_duplicate_parts(kivi.t8("Do you really want to print?"))) return;
+    if (warn_on_lead_time  && !ns.check_lead_time())       return;
     if (warn_on_reqdate    && !ns.check_valid_reqdate())   return;
 
     kivi.popup_dialog({
