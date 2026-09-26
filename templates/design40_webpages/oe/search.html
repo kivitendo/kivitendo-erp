@@ -26,7 +26,7 @@
     </tr>
     <tr>
       <th>[% 'Status' | $T8 %]</th>
-      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, class="wi-lightwide") %]</td>
+      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, class="wi-normal") %]</td>
     </tr>
     [% IF type == 'sales_order' OR type == 'purchase_order' %]
     <tr>
