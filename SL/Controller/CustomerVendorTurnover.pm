@@ -84,7 +84,7 @@ LEFT JOIN ar a ON a.id = d.trans_id
 LEFT JOIN customer c ON a.customer_id = c.id
     WHERE c.id = ?
  GROUP BY EXTRACT (YEAR FROM d.transdate), c.id
- ORDER BY date_part DESC
+ ORDER BY EXTRACT (YEAR FROM d.transdate) DESC
 SQL
 
   $self->{dun_statistic} = selectall_hashref_query($::form, $dbh, $query, $cv);
