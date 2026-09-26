@@ -35,6 +35,9 @@
           <th>[% 'Department' | $T8 %]</th>
           <td>[% L.select_tag('department_id', ALL_DEPARTMENTS, title_key = 'description', with_empty = 1) %]</td>
         </tr>
+        [% IF CT_CUSTOM_VARIABLES.size %]
+          [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
+        [% END %]
       </tbody>
     </table>
 
@@ -144,16 +147,6 @@
          <th>[% 'Steuersatz' | $T8 %]</th>
          <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description') %]</td>
         </tr>
-      </tbody>
-    </table>
-
-    <table class="tbl-horizontal">
-      <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
-      <caption>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</caption>
-      <tbody>
-        [% IF CT_CUSTOM_VARIABLES.size %]
-          [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
-        [% END %]
       </tbody>
     </table>
 
