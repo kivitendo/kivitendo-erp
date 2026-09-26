@@ -8,20 +8,20 @@
 
 <div class="wrapper">
 
-   <table class="tbl-horizontal">
-     <caption>[% 'Status' | $T8 %]</caption>
-     <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
-     <tbody>
-       <tr>
-         <th>[% 'Open' | $T8 %]</th>
-         <td><input name="open" id="open" type="checkbox" value="Y" checked></td>
-       </tr>
-       <tr>
-         <th>[% 'Closed' | $T8 %]</th>
-         <td><input name="closed" id="closed" type="checkbox" value="Y"></td>
-       </tr>
-     </tbody>
-   </table>
+    <table class="tbl-horizontal">
+      <caption>[% 'Status' | $T8 %]</caption>
+      <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+      <tbody>
+        <tr>
+          <th><label for="open">[% 'Open' | $T8 %]</label></th>
+          <td><input name="open" id="open" type="checkbox" value="Y" checked></td>
+        </tr>
+        <tr>
+          <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
+          <td><input name="closed" id="closed" type="checkbox" value="Y"></td>
+        </tr>
+      </tbody>
+    </table>
 
     <table class="tbl-horizontal">
       <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
