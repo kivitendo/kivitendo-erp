@@ -17,11 +17,11 @@
   <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
   <tbody>
     <tr>
-      <th>[% 'Open' | $T8 %]</th>
+      <th><label for="open">[% 'Open' | $T8 %]</label></th>
       <td>[% P.checkbox_tag('open', value="Y", checked=open, for_submit=1) %]</td>
     </tr>
     <tr>
-      <th>[% 'Closed' | $T8 %]</th>
+      <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
       <td>[% P.checkbox_tag('closed', value="Y", checked=closed, for_submit=1) %]</td>
     </tr>
   </tbody>
