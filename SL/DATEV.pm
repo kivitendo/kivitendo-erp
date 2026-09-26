@@ -1108,7 +1108,7 @@ sub check_document_export {
 
 }
 
-sub check_all_bookings_have_documents {
+sub first_bookings_without_documents {
   my $self   = shift;
   my %params = @_;
 
@@ -1126,11 +1126,24 @@ sub check_all_bookings_have_documents {
   where $fromto
   and object_id is null
   and trans_id not in (select id from gl)
-  LIMIT 1|;
+  LIMIT 100|;
 
-  my ($booking_has_no_document)  = selectrow_query($::form, SL::DB->client->dbh, $query);
-  return defined $booking_has_no_document ? 0 : 1;
+  my $first_bookings_without_documents = selectall_hashref_query($::form, SL::DB->client->dbh, $query, ());
+  return [] unless scalar @$first_bookings_without_documents;
 
+  my @trans_ids = map { $_->{trans_id} } @{$first_bookings_without_documents};
+  my $acc_trans_objs = SL::DB::Manager::AccTransaction->get_all(
+    distinct => 1,
+    select   => [ qw(trans_id) ],
+    sort_by  => 'trans_id',
+    where    => [ trans_id => \@trans_ids ],
+  );
+
+  return [ map {
+      $_->get_type eq 'ap' ? $_->ap->presenter->show() :
+      $_->get_type eq 'ar' ? $_->ar->presenter->show() :
+                             ''
+    } @$acc_trans_objs ];
 }
 
 
@@ -1364,10 +1377,13 @@ two mismatching number length domains.
 
 Returns 1 if DMS feature is enabled and Backend is Filesystem
 
-=item check_all_bookings_have_documents
+=item first_bookings_without_documents
 
-Returns 1 if all ar and ap transactions for this period have a document entry in files.
-Therefore all ar and ap transactions may be exported.
+Returns an empty array ref if all ar and ap transactions for this period have a
+document entry in files.  Therefore all ar and ap transactions may be exported.
+For each transaction without a document in files, a HTML link to the record is
+included in the returned array ref, to be displayed to the user in an error
+message.
 Note: DATEV accepts only PDF and for some gl bookings a document makes no sense
 
 
