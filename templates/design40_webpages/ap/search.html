@@ -13,6 +13,21 @@
 <div class="wrapper">
 
 <table class="tbl-horizontal">
+  <caption>[% 'Status' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
+  <tbody>
+    <tr>
+      <th>[% 'Open' | $T8 %]</th>
+      <td>[% P.checkbox_tag('open', value="Y", checked=open, for_submit=1) %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Closed' | $T8 %]</th>
+      <td>[% P.checkbox_tag('closed', value="Y", checked=closed, for_submit=1) %]</td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
   <caption>[% 'Vendor & Order' | $T8 %]</caption>
   <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
   <tbody>
@@ -100,21 +115,6 @@
     <tr>
       <th>[% 'Payment Term' | $T8 %]</th>
       <td>[% P.select_tag('payment_id', ALL_PAYMENT_TERMS, default=payment_id, with_empty=1, title_key='description', class="wi-normal") %]</td>
-    </tr>
-  </tbody>
-</table>
-
-<table class="tbl-horizontal">
-  <caption>[% 'Status' | $T8 %]</caption>
-  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
-  <tbody>
-    <tr>
-      <th>[% 'Open' | $T8 %]</th>
-      <td>[% P.checkbox_tag('open', value="Y", checked=open, for_submit=1) %]</td>
-    </tr>
-    <tr>
-      <th>[% 'Closed' | $T8 %]</th>
-      <td>[% P.checkbox_tag('closed', value="Y", checked=closed, for_submit=1) %]</td>
     </tr>
   </tbody>
 </table>

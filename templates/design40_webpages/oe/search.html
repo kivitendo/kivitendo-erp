@@ -14,6 +14,43 @@
 <div class="wrapper">
 
 <table class="tbl-horizontal">
+  <caption>[% 'Status' | $T8 %]</caption>
+  <tbody>
+    <tr>
+      <th>[% 'Open' | $T8 %]</th>
+      <td><input type="checkbox" name="open" value="1" id="open" checked></td>
+    </tr>
+    <tr>
+      <th>[% 'Closed' | $T8 %]</th>
+      <td><input type="checkbox" name="closed" value="1" id="closed"></td>
+    </tr>
+    <tr>
+      <th>[% 'Status' | $T8 %]</th>
+      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, class="wi-lightwide") %]</td>
+    </tr>
+    [% IF type == 'sales_order' OR type == 'purchase_order' %]
+    <tr>
+      <th>[% 'Not delivered' | $T8 %]</th>
+      <td><input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked></td>
+    </tr>
+    <tr>
+      <th>[% 'Delivery Order(s) for full qty created' | $T8 %]</th>
+      <td><input name="delivered" id="delivered" type="checkbox" value="1" checked></td>
+    </tr>
+    [% END %] [% IF type == 'sales_order' %]
+    <tr>
+      <th>[% 'Periodic invoices active' | $T8 %]</th>
+      <td>[% L.checkbox_tag("periodic_invoices_active") %]</td>
+    </tr>
+    <tr>
+      <th>[% 'Periodic invoices inactive' | $T8 %]</th>
+      <td>[% L.checkbox_tag("periodic_invoices_inactive") %]</td>
+    </tr>
+    [% END %]
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
   <caption>[% HTML.escape(vclabel) %]</caption>
   <tbody>
     <tr>
@@ -188,43 +225,6 @@
       <th>[% 'Country' | $T8 %]</th>
       <td>[% P.country.picker("shiptocountry_id", "", with_empty = 1, class = 'wi-normal') %]</td>
     </tr>
-  </tbody>
-</table>
-
-<table class="tbl-horizontal">
-  <caption>[% 'Status' | $T8 %]</caption>
-  <tbody>
-    <tr>
-      <th>[% 'Open' | $T8 %]</th>
-      <td><input type="checkbox" name="open" value="1" id="open" checked></td>
-    </tr>
-    <tr>
-      <th>[% 'Closed' | $T8 %]</th>
-      <td><input type="checkbox" name="closed" value="1" id="closed"></td>
-    </tr>
-    <tr>
-      <th>[% 'Status' | $T8 %]</th>
-      <td>[% L.select_tag('order_status_id', ALL_ORDER_STATUSES, default = order_status_id, title_key = 'name', with_empty = 1, class="wi-lightwide") %]</td>
-    </tr>
-    [% IF type == 'sales_order' OR type == 'purchase_order' %]
-    <tr>
-      <th>[% 'Not delivered' | $T8 %]</th>
-      <td><input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked></td>
-    </tr>
-    <tr>
-      <th>[% 'Delivery Order(s) for full qty created' | $T8 %]</th>
-      <td><input name="delivered" id="delivered" type="checkbox" value="1" checked></td>
-    </tr>
-    [% END %] [% IF type == 'sales_order' %]
-    <tr>
-      <th>[% 'Periodic invoices active' | $T8 %]</th>
-      <td>[% L.checkbox_tag("periodic_invoices_active") %]</td>
-    </tr>
-    <tr>
-      <th>[% 'Periodic invoices inactive' | $T8 %]</th>
-      <td>[% L.checkbox_tag("periodic_invoices_inactive") %]</td>
-    </tr>
-    [% END %]
   </tbody>
 </table>
 </div><!-- /.wrapper -->

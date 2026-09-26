@@ -17,6 +17,29 @@
 <div class="wrapper">
 
 <table class="tbl-horizontal">
+  <caption>[% 'Status' | $T8 %]</caption>
+  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
+  <tbody>
+    <tr>
+      <th><label for="open">[% 'Open' | $T8 %]</label></th>
+      <td><input type="checkbox" name="open" value="1" id="open" checked></td>
+    </tr>
+    <tr>
+      <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
+      <td><input type="checkbox" name="closed" value="1" id="closed"></td>
+    </tr>
+    <tr>
+      <th><label for="notdelivered">[% 'Not delivered' | $T8 %]</label></th>
+      <td><input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked></td>
+    </tr>
+    <tr>
+      <th><label for="delivered">[% 'Delivered' | $T8 %]</label></th>
+      <td><input name="delivered" id="delivered" type="checkbox" value="1" checked></td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="tbl-horizontal">
   <caption>[% 'Customer' | $T8 %]</caption>
   <colgroup> <col class="wi-mediumsmall"><col class="wi-wide"> </colgroup>
   <tbody>
@@ -144,29 +167,6 @@
       <th>[% 'Charge Number' | $T8 %]</th>
       <td> <input type="text" name="chargenumber" class="fixed_width wi-mediumsmall">
       </td>
-    </tr>
-  </tbody>
-</table>
-
-<table class="tbl-horizontal">
-  <caption>[% 'Status' | $T8 %]</caption>
-  <colgroup> <col class="wi-small"><col class="wi-lightwide"> </colgroup>
-  <tbody>
-    <tr>
-      <th><label for="open">[% 'Open' | $T8 %]</label></th>
-      <td><input type="checkbox" name="open" value="1" id="open" checked></td>
-    </tr>
-    <tr>
-      <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
-      <td><input type="checkbox" name="closed" value="1" id="closed"></td>
-    </tr>
-    <tr>
-      <th><label for="notdelivered">[% 'Not delivered' | $T8 %]</label></th>
-      <td><input name="notdelivered" id="notdelivered" type="checkbox" value="1" checked></td>
-    </tr>
-    <tr>
-      <th><label for="delivered">[% 'Delivered' | $T8 %]</label></th>
-      <td><input name="delivered" id="delivered" type="checkbox" value="1" checked></td>
     </tr>
   </tbody>
 </table>
