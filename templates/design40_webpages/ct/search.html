@@ -10,6 +10,28 @@
 <div class="wrapper">
 
     <table class="tbl-horizontal">
+      <caption> [% 'Status' | $T8 %] </caption>
+      <tbody>
+        <tr>
+          <th>[% 'Scope' | $T8 %] </th>
+          <td>
+            <input name="status" type="radio" value="all" checked id="chckb1"> <label for="chckb1">[% 'All' | $T8 %]</label>
+            <input name="status" type="radio" value="orphaned" id="chckb2"> <label for="chckb2">[% 'Orphaned (no records)' | $T8 %]</label>
+            <input name="status" type="radio" value="quotations_at_best" id="chckb3"> <label for="chckb3">[% 'Orphaned (quotations at best)' | $T8 %]</label>
+          </td>
+        </tr>
+        <tr>
+          <th>[% 'Validity' | $T8 %] </th>
+          <td>
+            <input name="obsolete" type="radio" value="all" id="rd1"> <label for="rd1">[% 'All' | $T8 %]</label>
+            <input name="obsolete" type="radio" value="Y" id="rd2"> <label for="rd2">[% 'Obsolete' | $T8 %]</label>
+            <input name="obsolete" type="radio" value="N" checked id="rd3"> <label for="rd3">[% 'Not obsolete' | $T8 %]</label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="tbl-horizontal">
       <caption> [% IF IS_CUSTOMER %][% 'Customer & Contact' | $T8 %][% ELSE %][% 'Vendor & Contact' | $T8 %][% END %] </caption>
       <tbody>
         <tr>
@@ -114,22 +136,6 @@
           <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', class="wi-lightwide") %]</td>
         </tr>
       [% CUSTOM_VARIABLES_FILTER_CODE %]
-      <tr>
-        <th>[% 'Scope' | $T8 %] </th>
-        <td>
-          <input name="status" type="radio" value="all" checked id="chckb1"> <label for="chckb1">[% 'All' | $T8 %]</label>
-          <input name="status" type="radio" value="orphaned" id="chckb2"> <label for="chckb2">[% 'Orphaned (no records)' | $T8 %]</label>
-          <input name="status" type="radio" value="quotations_at_best" id="chckb3"> <label for="chckb3">[% 'Orphaned (quotations at best)' | $T8 %]</label>
-        </td>
-      </tr>
-      <tr>
-        <th>[% 'Validity' | $T8 %] </th>
-        <td>
-          <input name="obsolete" type="radio" value="all" id="rd1"> <label for="rd1">[% 'All' | $T8 %]</label>
-          <input name="obsolete" type="radio" value="Y" id="rd2"> <label for="rd2">[% 'Obsolete' | $T8 %]</label>
-          <input name="obsolete" type="radio" value="N" checked id="rd3"> <label for="rd3">[% 'Not obsolete' | $T8 %]</label>
-        </td>
-      </tr>
     </tbody>
   </table>
 
