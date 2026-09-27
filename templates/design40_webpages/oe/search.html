@@ -64,6 +64,9 @@
       <td>[% L.select_tag('business_id', ALL_BUSINESS_TYPES, title_key = 'description', with_empty = 1, class="wi-normal") %]</td>
     </tr>
     [% END %]
+    [% IF CT_CUSTOM_VARIABLES.size %]
+      [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
+    [% END %]
   </tbody>
 </table>
 
@@ -148,12 +151,6 @@
       <th>[% 'Order probability' | $T8 %]</th>
       <td>[% L.select_tag('order_probability_op', [[ 'ge', '>=' ], [ 'le', '<=' ]]) %] [% L.select_tag('order_probability_value', ORDER_PROBABILITIES, title='title', with_empty=1) %]</td>
     </tr>
-    [% END %]
-    [% IF CT_CUSTOM_VARIABLES.size %]
-      <tr>
-        <th class="caption" colspan="2">[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</th>
-      </tr>
-      [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
     [% END %]
   </tbody>
 </table>
