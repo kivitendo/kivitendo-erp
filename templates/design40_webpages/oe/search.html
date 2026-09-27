@@ -47,12 +47,9 @@
       <td>[% L.checkbox_tag("periodic_invoices_inactive") %]</td>
     </tr>
     [% END %]
-  </tbody>
-</table>
-
-<table class="tbl-horizontal">
-  <caption>[% HTML.escape(vclabel) %]</caption>
-  <tbody>
+    <tr>
+      <th class="caption" colspan="2">[% HTML.escape(vclabel) %]</th>
+    </tr>
     <tr>
       <th>[% HTML.escape(vclabel) %]</th>
       <td>[% L.input_tag(vc, $vcdefault, class="initial_focus wi-normal") %]</td>
