@@ -24,13 +24,9 @@
       <th><label for="closed">[% 'Closed' | $T8 %]</label></th>
       <td>[% P.checkbox_tag('closed', value="Y", checked=closed, for_submit=1) %]</td>
     </tr>
-  </tbody>
-</table>
-
-<table class="tbl-horizontal">
-  <caption>[% 'Vendor & Order' | $T8 %]</caption>
-  <colgroup> <col class="wi-small"><col class="wi-wide"> </colgroup>
-  <tbody>
+    <tr>
+      <th class="caption" colspan="2">[% 'Vendor & Order' | $T8 %]</th>
+    </tr>
     <tr>
       <th>[% 'Vendor' | $T8 %]</th>
       <td>[% P.input_tag("vendor", vendor, class="initial_focus wi-normal", value) %]</td>
