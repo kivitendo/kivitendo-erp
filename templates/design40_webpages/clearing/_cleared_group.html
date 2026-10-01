@@ -1,0 +1,53 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE T8 -%][%- USE L -%]
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <tbody>
+      <tr>
+        <th>[% 'Cleared at' | $T8 %]</th>
+        <td>[% HTML.escape(cleared_at) %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Cleared by' | $T8 %]</th>
+        <td>[% HTML.escape(cleared_group.employee.safe_name) %]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="wrapper">
+  <table class="tbl-list">
+    <thead>
+      <tr>
+        <th>[% 'Transdate' | $T8 %]</th>
+        <th>[% 'Reference' | $T8 %]</th>
+        <th class="right">[% 'Debit' | $T8 %]</th>
+        <th class="right">[% 'Credit' | $T8 %]</th>
+        <th>[% 'Contra accounts' | $T8 %]</th>
+      </tr>
+    </thead>
+    <tbody>
+    [%- FOREACH booking = bookings %]
+      <tr class="listrow">
+        <td>[% HTML.escape(booking.transdate_formatted) %]</td>
+        <td><a href="[% HTML.escape(booking.record_url) %]" target="_blank">[% HTML.escape(booking.reference) %]</a></td>
+        <td class="numeric">[% IF booking.debit %][% LxERP.format_amount(booking.debit, 2) %][% END %]</td>
+        <td class="numeric">[% IF booking.credit %][% LxERP.format_amount(booking.credit, 2) %][% END %]</td>
+        <td>[% HTML.escape(booking.gegen_chart_accnos) %]</td>
+      </tr>
+    [%- END %]
+    </tbody>
+    <tfoot>
+      <tr class="listtotal">
+        <th colspan="2">[% 'Total' | $T8 %]</th>
+        <th class="numeric">[% LxERP.format_amount(sums.debit, 2) %]</th>
+        <th class="numeric">[% LxERP.format_amount(sums.credit, 2) %]</th>
+        <th></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="buttons">
+    [% L.button_tag('kivi.Clearing.remove_cleared_group(' _ cleared_group.id _ ')', LxERP.t8('Undo clearing')) %]
+    [% L.button_tag('$("#clearing_group_dialog").dialog("close")', LxERP.t8('Close'), class='neutral') %]
+  </div>
+</div>

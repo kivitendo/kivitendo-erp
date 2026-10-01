@@ -1,0 +1,81 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE T8 -%][%- USE L -%][%- USE P -%]
+
+<style type="text/css">
+  #clearing_bookings tbody tr.listrow         { cursor: pointer; }
+  #clearing_bookings tr.clearing_selected td  { background-color: #fdeaa7; }
+  #clearing_bookings tr.clearing_cleared td   { color: #888; }
+  #clearing_bookings th.clearing_sortable     { cursor: pointer; text-decoration: underline dotted; }
+</style>
+
+
+<form id="clearing_filter" method="post" action="controller.pl" onsubmit="kivi.Clearing.load_list(); return false;">
+<div class="wrapper">
+  <table class="tbl-horizontal">
+    <caption>[% 'Filter' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <th>[% 'Chart' | $T8 %]</th>
+        <td>[% P.chart.picker('filter.chart_id', SELF.chart.id, type='clearing', class='wi-wide') %]</td>
+      </tr>
+      <tr>
+        <th>[% 'Transdate' | $T8 %]</th>
+        <td>
+          [% 'From' | $T8 %] [% L.date_tag('filter.fromdate', SELF.fromdate) %]
+          [% 'Until' | $T8 %] [% L.date_tag('filter.todate', SELF.todate) %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Project' | $T8 %]</th>
+        <td>[% P.project.picker('filter.project_id', SELF.project_id, active='both', valid='both', description_style='both', class='wi-wide') %]</td>
+      </tr>
+      [%- IF SELF.all_departments.size %]
+      <tr>
+        <th>[% 'Department' | $T8 %]</th>
+        <td>[% L.select_tag('filter.department_id', SELF.all_departments, default=SELF.department_id, title_key='description', with_empty=1, class='wi-wide') %]</td>
+      </tr>
+      [%- END %]
+      <tr>
+        <th>[% 'Load cleared bookings' | $T8 %]</th>
+        <td>[% L.checkbox_tag('filter.load_cleared', value=1, checked=SELF.load_cleared) %]</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <table class="tbl-horizontal">
+    <caption>[% 'Clearing options' | $T8 %]</caption>
+    <tbody>
+      <tr>
+        <th>[% 'When selecting a booking, only show bookings with matching' | $T8 %]</th>
+        <td>
+          [% L.checkbox_tag('clearing_match_amount',    label=LxERP.t8('Contra Amount'), class='clearing_option') %]<br>
+          [% L.checkbox_tag('clearing_match_date',      label=LxERP.t8('Date'),          class='clearing_option') %]<br>
+          [% L.checkbox_tag('clearing_match_reference', label=LxERP.t8('Reference'),     class='clearing_option') %]<br>
+          [% L.checkbox_tag('clearing_match_project',   label=LxERP.t8('Project'),       class='clearing_option') %]<br>
+          [% L.checkbox_tag('clearing_match_employee',  label=LxERP.t8('Employee'),      class='clearing_option') %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Tolerance' | $T8 %]</th>
+        <td>
+          [% L.checkbox_tag('clearing_fuzzy_amount', label=LxERP.t8('Amount'), class='clearing_option') %]
+          ± [% L.input_tag('clearing_fuzzy_amount_percent', 10, size=3, class='numeric clearing_option') %] %<br>
+          [% L.checkbox_tag('clearing_fuzzy_date', label=LxERP.t8('Date'), class='clearing_option') %]
+          ± [% L.input_tag('clearing_fuzzy_date_days', 2, size=3, class='numeric clearing_option') %] [% 'Days' | $T8 %]
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Automatic clearing' | $T8 %]</th>
+        <td>[% L.checkbox_tag('clearing_automatic', label=LxERP.t8('Clear bookings as soon as the selected bookings add up to 0'), class='clearing_option') %]</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</form>
+
+<div id="clearing_list"></div>
+
+[%- IF SELF.chart %]
+<script type="text/javascript"><!--
+  $(function() { kivi.Clearing.load_list(); });
+--></script>
+[%- END %]

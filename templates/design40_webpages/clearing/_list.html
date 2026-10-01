@@ -1,0 +1,81 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE T8 -%][%- USE L -%]
+<div class="wrapper">
+<p>
+  [% HTML.escape(SELF.chart.displayable_name) %]:
+  [% LxERP.t8('#1 bookings loaded', bookings.size) %]
+  &middot;
+  [% L.link(SELF.url_for(controller='ca.pl', action='list_transactions', method='cash', accno=SELF.chart.accno, description=SELF.chart.description, fromdate=SELF.fromdate.to_kivitendo, todate=SELF.todate.to_kivitendo), LxERP.t8('List Transactions'), target='_blank') %]
+</p>
+
+<table id="clearing_bookings" class="tbl-list">
+  <thead>
+    <tr>
+      <th>[% L.checkbox_tag('clearing_select_all_visible', title=LxERP.t8('Select all shown bookings')) %]</th>
+      <th class="clearing_sortable" data-sort-key="transdate">[% 'Transdate' | $T8 %]</th>
+      <th class="clearing_sortable" data-sort-key="reference">[% 'Reference' | $T8 %]</th>
+      <th class="clearing_sortable right" data-sort-key="amount">[% 'Debit' | $T8 %]</th>
+      <th class="clearing_sortable right" data-sort-key="amount">[% 'Credit' | $T8 %]</th>
+      <th class="clearing_sortable" data-sort-key="contra">[% 'Contra accounts' | $T8 %]</th>
+      <th class="clearing_sortable" data-sort-key="employee">[% 'Employee' | $T8 %]</th>
+      <th class="clearing_sortable" data-sort-key="project">[% 'Project' | $T8 %]</th>
+      <th class="clearing_sortable center" data-sort-key="group_id">[% 'Cleared' | $T8 %]</th>
+    </tr>
+    <tr id="clearing_column_filters">
+      <th></th>
+      <th>[% L.date_tag('clearing_search_transdate', '', class='clearing_column_filter') %]</th>
+      <th>[% L.input_tag('clearing_search_reference', '', size=12, class='clearing_column_filter') %]</th>
+      <th colspan="2">[% L.input_tag('clearing_search_amount', '', size=12, class='numeric clearing_column_filter', title=LxERP.t8('Amount')) %]</th>
+      <th>[% L.input_tag('clearing_search_contra', '', size=8, class='clearing_column_filter') %]</th>
+      <th>[% L.input_tag('clearing_search_employee', '', size=10, class='clearing_column_filter') %]</th>
+      <th>[% L.input_tag('clearing_search_project', '', size=10, class='clearing_column_filter') %]</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+  [%- FOREACH booking = bookings %]
+    <tr class="listrow[% IF booking.cleared_group_id %] clearing_cleared[% END %]"
+        data-id="[% HTML.escape(booking.acc_trans_id) %]"
+        data-amount="[% HTML.escape(booking.amount) %]"
+        data-transdate="[% HTML.escape(booking.transdate_iso) %]"
+        data-reference="[% HTML.escape(booking.reference) %]"
+        data-contra="[% HTML.escape(booking.gegen_chart_accnos) %]"
+        data-employee="[% HTML.escape(booking.employee) %]"
+        data-project="[% HTML.escape(booking.projectnumber) %]"
+        data-project-id="[% HTML.escape(booking.project_id) %]"
+        data-group-id="[% HTML.escape(booking.cleared_group_id) %]">
+      <td><input type="checkbox" class="clearing_select"[% IF booking.cleared_group_id %] disabled[% END %]></td>
+      <td>[% HTML.escape(booking.transdate_formatted) %]</td>
+      <td><a href="[% HTML.escape(booking.record_url) %]" target="_blank">[% HTML.escape(booking.reference) %]</a></td>
+      <td class="numeric">[% IF booking.debit %][% LxERP.format_amount(booking.debit, 2) %][% END %]</td>
+      <td class="numeric">[% IF booking.credit %][% LxERP.format_amount(booking.credit, 2) %][% END %]</td>
+      <td>[% HTML.escape(booking.gegen_chart_accnos) %]</td>
+      <td>[% HTML.escape(booking.employee) %]</td>
+      <td>[% IF booking.projectnumber %][% HTML.escape(booking.projectnumber) %] [% HTML.escape(booking.projectdescription) %][% END %]</td>
+      <td class="center clearing_group_cell">[% IF booking.cleared_group_id %]<a href="#" class="clearing_show_group">&#10003;</a>[% END %]</td>
+    </tr>
+  [%- END %]
+  </tbody>
+
+  <tfoot>
+    <tr class="listtotal">
+      <th colspan="3">[% 'Total' | $T8 %] ([% 'all' | $T8 %])</th>
+      <th class="numeric">[% LxERP.format_amount(sums.debit, 2) %]</th>
+      <th class="numeric">[% LxERP.format_amount(sums.credit, 2) %]</th>
+      <th colspan="4">[% 'Balance' | $T8 %]: [% LxERP.format_amount(sums.balance, 2) %]</th>
+    </tr>
+    <tr class="listtotal">
+      <th colspan="3">[% 'Total' | $T8 %] ([% 'shown' | $T8 %]: <span id="clearing_visible_count"></span>)</th>
+      <th class="numeric" id="clearing_visible_debit"></th>
+      <th class="numeric" id="clearing_visible_credit"></th>
+      <th colspan="4">[% 'Balance' | $T8 %]: <span id="clearing_visible_balance"></span></th>
+    </tr>
+    <tr class="listtotal">
+      <th colspan="3">[% 'Total' | $T8 %] ([% 'selected' | $T8 %]: <span id="clearing_selected_count"></span>)</th>
+      <th class="numeric" id="clearing_selected_debit"></th>
+      <th class="numeric" id="clearing_selected_credit"></th>
+      <th colspan="4">[% 'Balance' | $T8 %]: <span id="clearing_selected_balance"></span></th>
+    </tr>
+  </tfoot>
+</table>
+</div>
