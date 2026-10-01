@@ -189,6 +189,8 @@ namespace('kivi.Clearing', function(ns) {
     ns.selection_changed($row);
   };
 
+  // Selecting all shown bookings never clears them automatically, even if
+  // "automatic clearing" is active: the user has to confirm with the button.
   ns.select_all_visible = function() {
     rows().filter(':visible').each(function() {
       var $checkbox = $(this).find('.clearing_select');
@@ -197,7 +199,7 @@ namespace('kivi.Clearing', function(ns) {
         $(this).addClass('clearing_selected');
       }
     });
-    ns.selection_changed();
+    ns.apply_filters();
   };
 
   ns.deselect_all = function() {
