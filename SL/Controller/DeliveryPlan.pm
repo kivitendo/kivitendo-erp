@@ -30,6 +30,7 @@ my %sort_columns = (
   not_shipped_qty   => t8('not shipped'),
   status            => t8('Status'),
   ordnumber         => t8('Order'),
+  cusordnumber      => t8('Customer Order Number'),
   customer          => t8('Customer'),
   vendor            => t8('Vendor'),
   microfiche        => t8('Microfiche'),
@@ -58,9 +59,9 @@ sub prepare_report {
   $report->{title} = t8('Delivery Plan');
   $self->{report}  = $report;
 
-  my @columns     = qw(reqdate customer vendor ordnumber status transaction_description partnumber description microfiche qty shipped_qty not_shipped_qty);
+  my @columns     = qw(reqdate customer vendor ordnumber cusordnumber status transaction_description partnumber description microfiche qty shipped_qty not_shipped_qty);
 
-  my @sortable    = qw(reqdate customer vendor ordnumber transaction_description partnumber description);
+  my @sortable    = qw(reqdate customer vendor ordnumber cusordnumber transaction_description partnumber description);
 
   my %column_defs = (
     reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
@@ -75,6 +76,7 @@ sub prepare_report {
     not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]{shipped_qty}, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
+    cusordnumber      => {      sub => sub { $_[0]->order->cusordnumber                                                      } },
     vendor            => {      sub => sub { $_[0]->order->vendor->name                                                      },
                             visible => $vc eq 'vendor',
                            obj_link => sub { $self->link_to($_[0]->order->vendor)                                            } },
@@ -139,6 +141,7 @@ sub make_filter_summary {
     [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
     [ $filter->{order}{"transaction_description:substr::ilike"},      $::locale->text('Transaction description')                            ],
     [ $filter->{order}{globalproject}{"projectnumber:substr::ilike"}, $::locale->text('Document Project Number')                            ],
+    [ $filter->{order}{"cusordnumber:substr::ilike"},                 $::locale->text('Customer Order Number')                              ],
     [ $filter->{part}{"partnumber:substr::ilike"},                    $::locale->text('Part Number')                                        ],
     [ $filter->{"description:substr::ilike"},                         $::locale->text('Part Description')                                   ],
     [ $filter->{"reqdate:date::ge"},                                  $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
