@@ -170,14 +170,14 @@
         </td>
       </tr>
       <tr>
-        <td colspan="2">
-          <span class="label above">[% 'Lead Time' | $T8 %]</span>
+        <th>[% 'Lead Time' | $T8 %]</th>
+        <td>
           [% L.select_tag('order.lead_time_id',
                             SELF.all_lead_times,
                             default = SELF.order.lead_time_id,
                             with_empty = 1,
                             title_key = 'description',
-                            class = 'wi-mediumsmall-lightwide') %]
+                            class = 'wi-lightwide') %]
         </td>
       </tr>
       <tr id="taxincluded_row_id" [% IF !SELF.taxes.size %]class="hidden"[% END %]>
