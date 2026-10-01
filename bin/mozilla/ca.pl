@@ -353,10 +353,11 @@ sub list_transactions {
 
   my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort method);
 
-  my $chart_has_clearing = SL::DB::Manager::Chart->get_first(
+  my $chart_for_clearing = SL::DB::Manager::Chart->get_first(
     where  => [ accno => $form->{accno} ],
     select => [ qw(clearing) ]
-  )->clearing;
+  );
+  my $chart_has_clearing = $chart_for_clearing && $chart_for_clearing->clearing;
 
   if ( $chart_has_clearing ) {
     $column_defs{'cleared'} = { 'text' => $locale->text('Cleared') };
