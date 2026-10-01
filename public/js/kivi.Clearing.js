@@ -145,8 +145,14 @@ namespace('kivi.Clearing', function(ns) {
   };
 
   ns.update_sums = function() {
+    var all      = sum_up(rows());
     var visible  = sum_up(rows().filter(':visible'));
     var selected = sum_up(selected_rows());
+
+    $('#clearing_all_count').text(all.count);
+    $('#clearing_all_debit').text(format_cents(all.debit));
+    $('#clearing_all_credit').text(format_cents(all.credit));
+    $('#clearing_all_balance').text(format_cents(all.balance));
 
     $('#clearing_visible_count').text(visible.count);
     $('#clearing_visible_debit').text(format_cents(visible.debit));

@@ -21,7 +21,6 @@ $self->{texts} = {
   '#1 OAuth tokens deleted'     => '#1 OAuth Tokens gelöscht',
   '#1 additional part(s)'       => '#1 zusätzliche(r) Artikel',
   '#1 bank transaction bookings undone.' => '#1 Bankbewegung(en) rückgängig gemacht',
-  '#1 bookings loaded'          => '#1 Buchungen geladen',
   '#1 bytes'                    => '#1 Bytes',
   '#1 dunnings have been deleted' => '#1 Mahnung(en) wurden gelöscht',
   '#1 equal or less than #2'    => '#1 gleich oder kleiner als #2',

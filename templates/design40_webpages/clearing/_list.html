@@ -1,8 +1,7 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE T8 -%][%- USE L -%]
 <div class="wrapper">
 <p>
-  [% HTML.escape(SELF.chart.displayable_name) %]:
-  [% LxERP.t8('#1 bookings loaded', bookings.size) %]
+  [% HTML.escape(SELF.chart.displayable_name) %]
   &middot;
   [% L.link(SELF.url_for(controller='ca.pl', action='list_transactions', method='cash', accno=SELF.chart.accno, description=SELF.chart.description, fromdate=SELF.fromdate.to_kivitendo, todate=SELF.todate.to_kivitendo), LxERP.t8('List Transactions'), target='_blank') %]
 </p>
@@ -59,10 +58,10 @@
 
   <tfoot>
     <tr class="listtotal">
-      <th colspan="3">[% 'Total' | $T8 %] ([% 'all' | $T8 %])</th>
-      <th class="numeric">[% LxERP.format_amount(sums.debit, 2) %]</th>
-      <th class="numeric">[% LxERP.format_amount(sums.credit, 2) %]</th>
-      <th colspan="4">[% 'Balance' | $T8 %]: [% LxERP.format_amount(sums.balance, 2) %]</th>
+      <th colspan="3">[% 'Total' | $T8 %] ([% 'all' | $T8 %]: <span id="clearing_all_count">[% bookings.size %]</span>)</th>
+      <th class="numeric" id="clearing_all_debit">[% LxERP.format_amount(sums.debit, 2) %]</th>
+      <th class="numeric" id="clearing_all_credit">[% LxERP.format_amount(sums.credit, 2) %]</th>
+      <th colspan="4">[% 'Balance' | $T8 %]: <span id="clearing_all_balance">[% LxERP.format_amount(sums.balance, 2) %]</span></th>
     </tr>
     <tr class="listtotal">
       <th colspan="3">[% 'Total' | $T8 %] ([% 'shown' | $T8 %]: <span id="clearing_visible_count"></span>)</th>
