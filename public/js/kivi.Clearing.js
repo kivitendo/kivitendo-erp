@@ -23,7 +23,7 @@ namespace('kivi.Clearing', function(ns) {
   };
 
   var iso_date = function(date) {
-    if (!date) return undefined;
+    if (!date || isNaN(date.getTime())) return undefined;
     return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
   };
 
