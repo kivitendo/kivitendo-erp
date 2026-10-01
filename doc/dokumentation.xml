@@ -4936,6 +4936,90 @@ insettings.tex</programlisting>
       </sect2>
     </sect1>
 
+    <sect1 id="features.clearing" xreflabel="Ausziffern">
+      <title>Ausziffern von Buchungen</title>
+
+      <para>Auf Konten wie »Durchlaufende Posten« oder »Geldtransit«
+      sollen sich die Buchungen mit der Zeit zu 0 ausgleichen. Beim
+      Ausziffern werden Buchungen eines solchen Kontos, deren Beträge in
+      Summe 0 ergeben, zu einer Gruppe zusammengefasst und als erledigt
+      markiert. So lassen sich die Buchungen schnell finden, zu denen
+      noch keine Gegenbuchung existiert.</para>
+
+      <sect2 id="features.clearing.einrichtung">
+        <title>Einrichtung</title>
+        <para>Das Ausziffern muss für jedes Konto einzeln aktiviert
+        werden. Dazu wird in den Kontenstammdaten die Option
+        »Ausziffern« gesetzt. Nur diese Konten stehen in der Maske zum
+        Ausziffern zur Auswahl. Für die Maske wird das Recht für die
+        Dialogbuchungen (Finanzbuchhaltung) benötigt.</para>
+      </sect2>
+
+      <sect2 id="features.clearing.maske">
+        <title>Buchungen ausziffern</title>
+        <para>Die Maske findet sich unter <emphasis>Finanzbuchhaltung →
+        Ausziffern</emphasis>. Außerdem führt in der Buchungsliste eines
+        für das Ausziffern aktivierten Kontos ein Link im Spaltenkopf
+        »Ausgeziffert« dorthin. Die Buchungsliste zeigt in dieser
+        Spalte an, welche Buchungen bereits ausgeziffert sind.</para>
+
+        <para>Nach Auswahl des Kontos werden die noch nicht
+        ausgezifferten Buchungen angezeigt, optional eingeschränkt auf
+        einen Zeitraum, ein Projekt oder eine Abteilung. Mit »Ausgezifferte
+        Buchungen laden« werden auch die bereits ausgezifferten Buchungen
+        angezeigt. Es werden höchstens 1500 Buchungen geladen.</para>
+
+        <para>Buchungen werden per Klick auf die Zeile oder die
+        Checkbox ausgewählt. Die Summen für alle, die angezeigten und die
+        ausgewählten Buchungen werden laufend aktualisiert. Ergeben die
+        ausgewählten Buchungen in Summe 0, können sie mit »Buchungen
+        ausziffern« oder der Eingabetaste ausgeziffert werden. Die
+        Escape-Taste hebt die Auswahl auf.</para>
+
+        <para>Zum Suchen passender Buchungen stehen folgende Hilfen zur
+        Verfügung:
+        <itemizedlist>
+          <listitem>
+            <para>Spaltenfilter für Datum, Referenz, Betrag, Gegenkonten,
+            Bearbeiter und Projekt</para>
+          </listitem>
+          <listitem>
+            <para>Optionen, mit denen nach Auswahl einer Buchung nur noch
+            Buchungen mit passendem Gegenbetrag, Datum, Referenz, Projekt
+            oder Bearbeiter angezeigt werden. Der Gegenbetrag ist der
+            Betrag, der den Saldo der aktuellen Auswahl ausgleicht.</para>
+          </listitem>
+          <listitem>
+            <para>Toleranzen für Betrag (in Prozent) und Datum (in
+            Tagen), die für die Spaltenfilter und die Optionen gelten</para>
+          </listitem>
+          <listitem>
+            <para>Automatisches Ausziffern, sobald die ausgewählten
+            Buchungen in Summe 0 ergeben</para>
+          </listitem>
+        </itemizedlist>
+        </para>
+
+        <para>Ein Klick auf das Häkchen einer ausgezifferten Buchung
+        zeigt die Ausziffergruppe mit Datum und Bearbeiter an. Dort kann
+        die Auszifferung wieder aufgehoben werden.</para>
+      </sect2>
+
+      <sect2 id="features.clearing.aenderungen">
+        <title>Änderungen an ausgezifferten Buchungen</title>
+        <para>Dialogbuchungen mit ausgezifferten Buchungen können nicht
+        storniert oder gelöscht werden, solange die Auszifferung nicht
+        aufgehoben wurde.</para>
+
+        <para>Wird eine ausgezifferte Buchung auf anderem Weg gelöscht
+        oder ihr Betrag bzw. Konto geändert, zum Beispiel weil eine
+        Debitoren- oder Kreditorenbuchung oder eine Rechnung erneut
+        gebucht, storniert oder gelöscht wird, dann wird die gesamte
+        Ausziffergruppe automatisch aufgelöst. Die betroffenen Buchungen
+        erscheinen danach wieder als offen.</para>
+      </sect2>
+    </sect1>
+
     <sect1 id="dokumentenvorlagen-und-variablen">
       <title>Dokumentenvorlagen und verfügbare Variablen</title>
 
