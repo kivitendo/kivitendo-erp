@@ -71,9 +71,9 @@ SQL
     my ($sum, $count, $all_transactions_uncleared, $number_of_distinct_charts, $all_charts_have_clearing)
       = selectfirst_array_query($::form, $db->dbh, $query, \@acc_trans_ids);
 
-    die "clearing error: sum isn't 0" unless $sum == 0;
+    die "clearing error: no acc_trans selected" unless $count;
     die "clearing error: need to select more than one transaction" unless $count > 1;
-    die "clearing error: no acc_trans selected" unless $count > 1;
+    die "clearing error: sum isn't 0" unless $sum == 0;
     die "clearing error: some bookings have already been cleared" unless $all_transactions_uncleared;
     die "clearing error: all bookings must be for the same chart" unless $number_of_distinct_charts == 1;
     die "clearing error: can only clear bookings for charts that are configured for clearing" unless $all_charts_have_clearing;

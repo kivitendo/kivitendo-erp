@@ -81,6 +81,7 @@ throws_ok { create_cleared_for_chart_and_reference($durchlaufende_posten, "unbal
 my @single = acc_trans_ids_for($durchlaufende_posten, "unbalanced");
 throws_ok { SL::Clearing::create_cleared_group([ $single[0] ]) } qr/need at least 2/, 'clearing a single booking fails';
 throws_ok { SL::Clearing::create_cleared_group([]) }             qr/need at least 2/, 'clearing no bookings fails';
+throws_ok { SL::Clearing::create_cleared_group([ 999999998, 999999999 ]) } qr/no acc_trans selected/, 'clearing unknown bookings fails';
 
 # both bookings of one gl transaction: sum is 0, but different charts
 quick_gl($geldtransit, 40, $durchlaufende_posten, 40, "two charts");
