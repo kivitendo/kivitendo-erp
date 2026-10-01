@@ -104,14 +104,6 @@ sub remove_cleared_group {
 sub load_chart_transactions {
   my ($params) = @_;
 
-  # possible params:
-  #
-  # chart_id  (necessary)
-  # fromdate
-  # todate
-  # project_id
-  # department_id
-  # load_cleared
 
   die "missing chart_id param" unless $params->{chart_id};
   my $dbh = SL::DB->client->dbh;
@@ -151,19 +143,16 @@ sub load_chart_transactions {
     push(@sql_params, delete $params{"department_id"});
   }
 
-  # if ( keys %params) {
-  #   # hash not empty, log it
-  #   $main::lxdebug->dump(0, "found illegal params in Clearing load_data", \%params);
-  # }
-
   # limit number of transactions to be loaded, so you don't overwhelm the
   # interface if you forget to set dates
-  my $LIMIT = 1500; # TODO: better way of dealing with limit.
+  my $LIMIT = $params{limit} && $params{limit} =~ m/^\d+$/ ? $params{limit} : 1500;
 
   my $sql = <<"SQL";
 select a.acc_trans_id,
+       a.trans_id,
        a.itime,
        a.amount, a.transdate,
+       coalesce(ar.invoice, ap.invoice, false) as invoice,
        case when a.amount > 0 then a.amount      else null end as credit,
        case when a.amount < 0 then a.amount * -1 else null end as debit,
        c.accno, c.description,
@@ -197,7 +186,7 @@ select a.acc_trans_id,
        $WHERE
        $PROJECT_WHERE
        $DEPARTMENT_WHERE
-order by a.transdate
+order by a.transdate, a.acc_trans_id
 limit $LIMIT
 SQL
 
@@ -211,7 +200,9 @@ sub load_cleared_group_transactions_by_group_id {
 
   my $sql = <<"SQL";
 select a.acc_trans_id,
+       a.trans_id,
        a.amount, a.transdate,
+       coalesce(ar.invoice, ap.invoice, false) as invoice,
        case when a.amount > 0 then a.amount      else null end as credit,
        case when a.amount < 0 then a.amount * -1 else null end as debit,
        c.accno, c.description,
@@ -249,3 +240,106 @@ SQL
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Clearing - Clearing of bookings on a chart
+
+=head1 SYNOPSIS
+
+  # load all uncleared bookings of a chart
+  my $bookings = SL::Clearing::load_chart_transactions({
+    chart_id => $chart->id,
+    fromdate => DateTime->new(year => 2025, month => 1, day => 1),
+  });
+
+  # clear some bookings whose amounts sum up to 0
+  my $cleared_group = SL::Clearing::create_cleared_group([ 12, 13, 14 ]);
+
+  # undo the clearing
+  SL::Clearing::remove_cleared_group($cleared_group->id);
+
+=head1 OVERVIEW
+
+On charts that are used as temporary or transit accounts (e.g.
+"Durchlaufende Posten", "Geldtransit") the bookings should add up to 0
+over time. Clearing means grouping bookings of such a chart whose amounts
+add up to 0 and marking them as done. This makes it easy to find the
+bookings that don't have a matching counterpart yet.
+
+Clearing has to be enabled for each chart individually (C<chart.clearing>).
+
+A group of cleared bookings is stored in C<cleared_group> (who cleared it
+and when), the bookings belonging to it in C<cleared>. An C<acc_trans>
+entry can only belong to one cleared group.
+
+When a cleared booking is deleted, or its amount or chart is changed (e.g.
+because an AR/AP transaction or invoice is posted again, cancelled or
+deleted), a database trigger dissolves the whole cleared group, as the
+clearing isn't valid anymore.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<create_cleared_group $acc_trans_ids>
+
+Creates a new cleared group for the C<acc_trans> entries given as an array
+ref of C<acc_trans_id>s. The current employee is saved as the one who
+cleared the bookings.
+
+Dies unless there are at least two bookings, their amounts add up to 0,
+they all belong to the same chart, that chart is enabled for clearing and
+none of the bookings has been cleared yet.
+
+Returns the new L<SL::DB::ClearedGroup> object.
+
+=item C<remove_cleared_group $cleared_group_id>
+
+Deletes the cleared group and thereby undoes the clearing of all of its
+bookings.
+
+=item C<load_chart_transactions \%params>
+
+Returns an array ref of hash refs with the bookings of a chart, ordered by
+transaction date. Each entry contains the booking's amount, debit/credit,
+transdate, reference, record type (C<gl>, C<ar>, C<ap>), whether it is an
+invoice, employee, project, the cleared group (if any) and the account
+numbers of the contra charts.
+
+Parameters:
+
+=over 2
+
+=item * C<chart_id> - mandatory
+
+=item * C<fromdate>, C<todate> - optional L<DateTime> objects
+
+=item * C<project_id>, C<department_id> - optional filters
+
+=item * C<load_cleared> - also return bookings that have already been
+cleared. Only uncleared bookings are returned by default.
+
+=item * C<limit> - maximum number of bookings, defaults to 1500
+
+=back
+
+=item C<load_cleared_group_transactions_by_group_id $cleared_group_id>
+
+Returns the bookings of a cleared group in the same format as
+L</load_chart_transactions>. Additionally contains C<itime> of the cleared
+group; C<employee> is the employee who cleared the bookings.
+
+=back
+
+=head1 AUTHOR
+
+G. Richardson E<lt>grichardson@kivitec.deE<gt>
+
+=cut
