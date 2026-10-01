@@ -40,6 +40,11 @@ namespace('kivi.Clearing', function(ns) {
     return String(haystack || '').toLowerCase().indexOf(needle.toLowerCase()) !== -1;
   };
 
+  // selected rows are highlighted with the existing td.highlight style
+  var set_highlight = function($row, on) {
+    $row.children('td').toggleClass('highlight', !!on);
+  };
+
   var rows = function() {
     return $('#clearing_bookings tbody tr.listrow');
   };
@@ -191,7 +196,7 @@ namespace('kivi.Clearing', function(ns) {
     var $checkbox = $row.find('.clearing_select');
     if ($checkbox.prop('disabled')) return;
     $checkbox.prop('checked', !$checkbox.prop('checked'));
-    $row.toggleClass('clearing_selected', $checkbox.prop('checked'));
+    set_highlight($row, $checkbox.prop('checked'));
     ns.selection_changed($row);
   };
 
@@ -202,7 +207,7 @@ namespace('kivi.Clearing', function(ns) {
       var $checkbox = $(this).find('.clearing_select');
       if (!$checkbox.prop('disabled')) {
         $checkbox.prop('checked', true);
-        $(this).addClass('clearing_selected');
+        set_highlight($(this), true);
       }
     });
     ns.apply_filters();
@@ -210,7 +215,7 @@ namespace('kivi.Clearing', function(ns) {
 
   ns.deselect_all = function() {
     rows().find('.clearing_select').prop('checked', false);
-    rows().removeClass('clearing_selected');
+    set_highlight(rows(), false);
     $('#clearing_select_all_visible').prop('checked', false);
     anchor = undefined;
     ns.apply_filters();
@@ -297,7 +302,7 @@ namespace('kivi.Clearing', function(ns) {
         return;
       }
       $row.data('group-id', cleared_group_id).attr('data-group-id', cleared_group_id);
-      $row.removeClass('clearing_selected').addClass('clearing_cleared');
+      set_highlight($row, false);
       $row.find('.clearing_select').prop('checked', false).prop('disabled', true);
       $row.find('.clearing_group_cell').html('<a href="#" class="clearing_show_group">&#10003;</a>');
     });
@@ -313,7 +318,6 @@ namespace('kivi.Clearing', function(ns) {
       if (String($row.data('group-id')) !== String(cleared_group_id)) return;
 
       $row.data('group-id', '').attr('data-group-id', '');
-      $row.removeClass('clearing_cleared');
       $row.find('.clearing_select').prop('disabled', false);
       $row.find('.clearing_group_cell').html('');
     });
@@ -336,7 +340,7 @@ namespace('kivi.Clearing', function(ns) {
 
     $list.on('change', '.clearing_select', function() {
       var $row = $(this).closest('tr');
-      $row.toggleClass('clearing_selected', $(this).prop('checked'));
+      set_highlight($row, $(this).prop('checked'));
       ns.selection_changed($row);
     });
 
@@ -356,7 +360,8 @@ namespace('kivi.Clearing', function(ns) {
       else                         ns.deselect_all();
     });
 
-    $list.on('click', '.clearing_sortable', function() {
+    $list.on('click', '.clearing_sortable', function(event) {
+      event.preventDefault();
       ns.sort_by($(this).data('sort-key'));
     });
 

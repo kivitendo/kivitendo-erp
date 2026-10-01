@@ -1,13 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE T8 -%][%- USE L -%][%- USE P -%]
 
-<style type="text/css">
-  #clearing_bookings tbody tr.listrow         { cursor: pointer; }
-  #clearing_bookings tr.clearing_selected td  { background-color: #fdeaa7; }
-  #clearing_bookings tr.clearing_cleared td   { color: #888; }
-  #clearing_bookings th.clearing_sortable     { cursor: pointer; text-decoration: underline dotted; }
-</style>
-
-
 <form id="clearing_filter" method="post" action="controller.pl" onsubmit="kivi.Clearing.load_list(); return false;">
 <div class="wrapper">
   <table class="tbl-horizontal">

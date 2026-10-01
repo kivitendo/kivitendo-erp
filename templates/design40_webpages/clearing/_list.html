@@ -10,14 +10,14 @@
   <thead>
     <tr>
       <th>[% L.checkbox_tag('clearing_select_all_visible', title=LxERP.t8('Select all shown bookings')) %]</th>
-      <th class="clearing_sortable" data-sort-key="transdate">[% 'Transdate' | $T8 %]</th>
-      <th class="clearing_sortable" data-sort-key="reference">[% 'Reference' | $T8 %]</th>
-      <th class="clearing_sortable right" data-sort-key="amount">[% 'Debit' | $T8 %]</th>
-      <th class="clearing_sortable right" data-sort-key="amount">[% 'Credit' | $T8 %]</th>
-      <th class="clearing_sortable" data-sort-key="contra">[% 'Contra accounts' | $T8 %]</th>
-      <th class="clearing_sortable" data-sort-key="employee">[% 'Employee' | $T8 %]</th>
-      <th class="clearing_sortable" data-sort-key="project">[% 'Project' | $T8 %]</th>
-      <th class="clearing_sortable center" data-sort-key="group_id">[% 'Cleared' | $T8 %]</th>
+      <th class="clearing_sortable" data-sort-key="transdate"><a href="#">[% 'Transdate' | $T8 %]</a></th>
+      <th class="clearing_sortable" data-sort-key="reference"><a href="#">[% 'Reference' | $T8 %]</a></th>
+      <th class="clearing_sortable right" data-sort-key="amount"><a href="#">[% 'Debit' | $T8 %]</a></th>
+      <th class="clearing_sortable right" data-sort-key="amount"><a href="#">[% 'Credit' | $T8 %]</a></th>
+      <th class="clearing_sortable" data-sort-key="contra"><a href="#">[% 'Contra accounts' | $T8 %]</a></th>
+      <th class="clearing_sortable" data-sort-key="employee"><a href="#">[% 'Employee' | $T8 %]</a></th>
+      <th class="clearing_sortable" data-sort-key="project"><a href="#">[% 'Project' | $T8 %]</a></th>
+      <th class="clearing_sortable center" data-sort-key="group_id"><a href="#">[% 'Cleared' | $T8 %]</a></th>
     </tr>
     <tr id="clearing_column_filters">
       <th></th>
@@ -33,7 +33,7 @@
 
   <tbody>
   [%- FOREACH booking = bookings %]
-    <tr class="listrow[% IF booking.cleared_group_id %] clearing_cleared[% END %]"
+    <tr class="listrow"
         data-id="[% HTML.escape(booking.acc_trans_id) %]"
         data-amount="[% HTML.escape(booking.amount) %]"
         data-transdate="[% HTML.escape(booking.transdate_iso) %]"
