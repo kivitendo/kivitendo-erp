@@ -1,6 +1,6 @@
-[%- USE LxERP -%][%- USE L -%]
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
 
 <div class="wrapper">
-  <p>[% LxERP.t8("Chart #1 isn't configured for clearing", SELF.chart.displayable_name) %]</p>
+  <p>[% LxERP.t8("Chart #1 isn't configured for clearing", HTML.escape(SELF.chart.displayable_name)) %]</p>
   <p>[% L.link(SELF.url_for(controller='am.pl', action='edit_account', id=SELF.chart.id), LxERP.t8('Edit chart')) %]</p>
 </div>
