@@ -73,8 +73,8 @@ foreach my $accno (@charts) {
 
 SL::Controller::PayPostingImport::parse_and_import();
 
-# get all gl imported bookings
-my $gl_bookings = SL::DB::Manager::GLTransaction->get_all(where => [imported => 1] );
+# get all gl imported bookings, in the order of the csv rows
+my $gl_bookings = SL::DB::Manager::GLTransaction->get_all(where => [imported => 1], sort_by => 'id' );
 
 # $i number of real data entries in the array (first two rows are headers)
 my $i = 2;
