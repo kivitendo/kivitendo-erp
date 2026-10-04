@@ -122,9 +122,6 @@ sub value {
 
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
-
-  } elsif ( $type eq 'multiselect' ) {
-    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
   }
 
   goto &text_value; # text, textfield, htmlfield and select
@@ -152,6 +149,33 @@ sub value_as_text {
   }
 
   goto &text_value; # text, textfield, htmlfield and select
+}
+
+sub value_normalized {
+  my $self = $_[0];
+  my $cfg  = $self->_ensure_config;
+  my $type = $cfg->type;
+
+  die 'not an accessor' if @_ > 1;
+
+  if ($type =~ m{^(?:timestamp|date)}) {
+    return '' if !$self->timestamp_value;
+    return $self->timestamp_value->to_kivitendo;
+
+  } elsif ( $type =~ m{^(?:customer|vendor|part)$}) {
+    my $class = "SL::DB::" . ucfirst($type);
+    eval "require $class";
+    my $object =  $class->_get_manager_class->find_by(id => int($self->number_value));
+    return $object;
+
+  } elsif ( $type eq 'multiselect' ) {
+    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
+
+  } elsif ($type eq 'number') {
+    return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
+  }
+
+  goto &value;
 }
 
 sub is_valid {
