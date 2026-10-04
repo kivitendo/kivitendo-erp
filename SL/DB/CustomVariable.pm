@@ -193,3 +193,50 @@ sub is_valid {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::DB::CustomVariable - database object for custom variables
+
+See also C<SL::DB::Helper::CustomVariables>.
+
+=head1 FUNCTIONS
+
+=head2 C<unparsed_value>
+
+This object method should be used to store the unparsed user input
+from a form.
+These unparsed values are parsed by C<parse_value>.
+
+=head2 C<value>
+
+This method can be used as getter and setter and dispatches to
+the type depending methods/fields of the CVar.
+
+This accessor does not parse the values. The should be given in
+database representation and returned in database representation.
+
+=head2 C<value_as_text>
+
+Returns a textual representation of the value of the CVar.
+
+=head2 C<value_normalized>
+
+Returns an object representation of the value of the CVar for
+types that store objects (part/customer/vendor/date/timestamp).
+It also handles the multiselect type and returns an array ref
+for that. The number type is formatted.
+For other types it goes to C<value>.
+These values can be used to set the field in a form.
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+=cut
