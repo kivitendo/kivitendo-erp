@@ -260,6 +260,7 @@ $self->{texts} = {
   'Add department'              => 'Abteilung hinzufügen',
   'Add document for'            => 'Dokument hinzufügen für ',
   'Add empty line (csv_import)' => 'Leere Zeile einfügen',
+  'Add existing'                => 'Bestehende hinzufügen',
   'Add function block'          => 'Funktionsblock hinzufügen',
   'Add greeting'                => 'Anrede hinzufügen',
   'Add headers from last uploaded file (csv_import)' => 'Spalten aus der hochgeladenen Datei einfügen',
