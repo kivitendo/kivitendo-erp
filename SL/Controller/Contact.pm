@@ -246,7 +246,7 @@ sub _setup_form_action_bar {
       action => [
         t8('Save'),
         call      => [ 'kivi.Contact.save' ],
-        accesskey => 'enter',
+        accesskey => 'alt+S',
       ],
 
       action => [
