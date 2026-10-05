@@ -1239,7 +1239,7 @@ sub _setup_form_action_bar {
           t8('Save'),
           submit    => [ '#form', { action => "CustomerVendor/save" } ],
           checks    => [ 'check_taxzone_and_ustid', 'kivi.CustomerVendor.confirm_customer_vendor_link' ],
-          accesskey => 'enter',
+          accesskey => 'alt+S',
           disabled  => $no_rights,
         ],
         action => [
