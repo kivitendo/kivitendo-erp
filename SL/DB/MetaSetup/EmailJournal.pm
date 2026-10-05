@@ -18,7 +18,7 @@ __PACKAGE__->meta->columns(
   headers            => { type => 'text', not_null => 1 },
   id                 => { type => 'serial', not_null => 1 },
   itime              => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime              => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime              => { type => 'timestamp' },
   obsolete           => { type => 'boolean', default => 'false', not_null => 1 },
   recipients         => { type => 'text', not_null => 1 },
   record_type        => { type => 'enum', check_in => [ 'sales_order', 'purchase_order', 'sales_quotation', 'request_quotation', 'purchase_quotation_intake', 'sales_order_intake', 'sales_delivery_order', 'purchase_delivery_order', 'supplier_delivery_order', 'rma_delivery_order', 'sales_reclamation', 'purchase_reclamation', 'invoice', 'invoice_for_advance_payment', 'invoice_for_advance_payment_storno', 'final_invoice', 'invoice_storno', 'credit_note', 'credit_note_storno', 'purchase_invoice', 'purchase_credit_note', 'ap_transaction', 'ar_transaction', 'gl_transaction', 'purchase_order_confirmation', 'catch_all' ], db_type => 'email_journal_record_type' },

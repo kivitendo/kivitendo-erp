@@ -11,7 +11,7 @@ __PACKAGE__->meta->table('requirement_spec_orders');
 __PACKAGE__->meta->columns(
   id                  => { type => 'serial', not_null => 1 },
   itime               => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime               => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime               => { type => 'timestamp' },
   order_id            => { type => 'integer', not_null => 1 },
   requirement_spec_id => { type => 'integer', not_null => 1 },
   version_id          => { type => 'integer' },

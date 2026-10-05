@@ -15,7 +15,7 @@ __PACKAGE__->meta->columns(
   employee_id             => { type => 'integer' },
   id                      => { type => 'serial', not_null => 1 },
   itime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime                   => { type => 'timestamp' },
   refresh_token           => { type => 'text' },
   registration            => { type => 'text', not_null => 1 },
   scope                   => { type => 'text' },

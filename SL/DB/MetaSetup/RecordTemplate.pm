@@ -20,7 +20,7 @@ __PACKAGE__->meta->columns(
   employee_id             => { type => 'integer' },
   id                      => { type => 'serial', not_null => 1 },
   itime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime                   => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime                   => { type => 'timestamp' },
   notes                   => { type => 'text' },
   ob_transaction          => { type => 'boolean', default => 'false', not_null => 1 },
   ordnumber               => { type => 'text' },
