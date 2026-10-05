@@ -54,7 +54,7 @@
     [% L.button_tag("kivi.RecordTemplate.delete(" _ template.id _ ")", LxERP.t8("Delete")) %]
    </td>
    <td>[% HTML.escape(template.template_name) %]</td>
-   <td>[% HTML.escape(template.mtime.to_kivitendo) %] [% HTML.escape(template.mtime.to_kivitendo_time) %]</td>
+   <td>[% HTML.escape(template.mtime ? template.mtime.to_kivitendo : template.itime.to_kivitendo) %] [% HTML.escape(template.mtime ? template.mtime.to_kivitendo_time : template.itime.to_kivitendo_time ) %]</td>
   </tr>
 [% END %]
  </tbody>
