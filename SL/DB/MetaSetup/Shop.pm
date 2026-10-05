@@ -16,7 +16,7 @@ __PACKAGE__->meta->columns(
   itime                    => { type => 'timestamp', default => 'now()' },
   last_order_number        => { type => 'integer' },
   login                    => { type => 'text' },
-  mtime                    => { type => 'timestamp', default => 'now()' },
+  mtime                    => { type => 'timestamp' },
   obsolete                 => { type => 'boolean', default => 'false', not_null => 1 },
   orders_to_fetch          => { type => 'integer' },
   password                 => { type => 'text' },

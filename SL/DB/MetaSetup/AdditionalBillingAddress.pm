@@ -22,7 +22,7 @@ __PACKAGE__->meta->columns(
   gln             => { type => 'text' },
   id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime           => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime           => { type => 'timestamp' },
   name            => { type => 'text' },
   phone           => { type => 'text' },
   street          => { type => 'text' },

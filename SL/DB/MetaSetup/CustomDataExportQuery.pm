@@ -13,7 +13,7 @@ __PACKAGE__->meta->columns(
   description  => { type => 'text', not_null => 1 },
   id           => { type => 'serial', not_null => 1 },
   itime        => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime        => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime        => { type => 'timestamp' },
   name         => { type => 'text', not_null => 1 },
   sql_query    => { type => 'text', not_null => 1 },
 );

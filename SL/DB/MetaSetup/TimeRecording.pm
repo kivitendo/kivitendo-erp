@@ -18,7 +18,7 @@ __PACKAGE__->meta->columns(
   end_time        => { type => 'timestamp' },
   id              => { type => 'serial', not_null => 1 },
   itime           => { type => 'timestamp', default => 'now()', not_null => 1 },
-  mtime           => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime           => { type => 'timestamp' },
   order_id        => { type => 'integer' },
   part_id         => { type => 'integer' },
   payroll         => { type => 'boolean', default => 'false' },

@@ -15,7 +15,7 @@ __PACKAGE__->meta->columns(
   id               => { type => 'serial', not_null => 1 },
   itime            => { type => 'timestamp', default => 'now()', not_null => 1 },
   mime_type        => { type => 'text', not_null => 1 },
-  mtime            => { type => 'timestamp', default => 'now()', not_null => 1 },
+  mtime            => { type => 'timestamp' },
   name             => { type => 'text', not_null => 1 },
   position         => { type => 'integer', not_null => 1 },
 );
