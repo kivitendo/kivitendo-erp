@@ -105,18 +105,9 @@ sub value {
     return defined($self->number_value) ? $self->number_value * 1 : undef;
   }
 
-  if ( $type eq 'customer' ) {
-    require SL::DB::Customer;
-
-    return defined($self->number_value) ? int($self->number_value) : undef;
-
-  } elsif ( $type eq 'vendor' ) {
-    require SL::DB::Vendor;
-
-    return defined($self->number_value) ? int($self->number_value) : undef;
-
-  } elsif ( $type eq 'part' ) {
-    require SL::DB::Part;
+  if ( $type =~ m{^(?:customer|vendor|part)$}) {
+    my $class = "SL::DB::" . ucfirst($type);
+    eval "require $class";
 
     return defined($self->number_value) ? int($self->number_value) : undef;
 
@@ -136,11 +127,14 @@ sub value_as_text {
 
   if ($type eq 'bool') {
     return $self->bool_value ? $::locale->text('Yes') : $::locale->text('No');
+
   } elsif ($type =~ m{^(?:timestamp|date)}) {
     return '' if !$self->timestamp_value;
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
+
   } elsif ($type eq 'number') {
     return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
+
   } elsif ( $type =~ m{^(?:customer|vendor|part)$}) {
     my $class = "SL::DB::" . ucfirst($type);
     eval "require $class";
