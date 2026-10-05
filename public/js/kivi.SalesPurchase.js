@@ -205,13 +205,13 @@ namespace('kivi.SalesPurchase', function(ns) {
     if (!$('#shipto_dialog').data('confirmed'))
       kivi.SalesPurchase.reset_shipto_fields();
 
-    $('#shipto_dialog').children().remove().appendTo('#shipto_inputs');
+    $('#shipto_inputs').append($('#shipto_dialog').children());
 
     return true;
   };
 
   this.edit_custom_shipto = function() {
-    $('#shipto_inputs').children().remove().appendTo('#shipto_dialog');
+    $('#shipto_dialog').append($('#shipto_inputs').children());
 
     kivi.popup_dialog({
       id:    'shipto_dialog',
