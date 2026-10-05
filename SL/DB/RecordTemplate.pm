@@ -27,6 +27,9 @@ sub date {
 
 sub displayable_name {
   my ($self) = @_;
+
+  return $self->template_name_to_use unless $self->mtime;
+
   return join ' ', $self->template_name_to_use, $self->mtime->to_kivitendo;
 }
 
