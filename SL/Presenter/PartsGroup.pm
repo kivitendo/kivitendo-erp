@@ -11,7 +11,7 @@ sub partsgroup_breadcrumb {
   my ( $partsgroup ) = @_;
   my $ancestors = $partsgroup->ancestors;
   my @ancestors = map{ $_->partsgroup } @{$ancestors};
-  my $breadcrumb = "<span>" . join ('->', @ancestors) . "->" . $partsgroup->partsgroup . "</span>";
+  my $breadcrumb = html_tag('span', join ('->', @ancestors) . "->" . $partsgroup->partsgroup );
   is_escaped($breadcrumb);
 }
 

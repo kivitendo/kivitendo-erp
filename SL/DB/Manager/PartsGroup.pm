@@ -30,9 +30,9 @@ sub get_hierarchy {
     next unless scalar @{ $root_pg->children };
     my $iterator = $root_pg->partsgroup_iterator_dfs;
     while ( my $pg = $iterator->() ) {
-      push(@list, $pg);
       $pg->{level} = $pg->get_level;
       $pg->{partscount} = $pg->parts_count // 0; # probably better to call this separately. Also it doesn't need to be calculated each time for dropdown
+      push(@list, $pg);
     };
   };
   @list = grep { !$_->obsolete } @list if $params{not_obsolete};

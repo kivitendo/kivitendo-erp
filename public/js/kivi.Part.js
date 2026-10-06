@@ -911,6 +911,13 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.pick_partsgroup = function() {
+    var id = $("#part_id").val();
+    kivi.popup_dialog({
+      url:    'controller.pl?action=Part/pick_partsgroup&part.id=' + id,
+      dialog: { title: kivi.t8('Partsgroups') },
+    });
+  };
   $(function(){
     $('#ic').on('focusout', '.reformat_number', function(event) {
       ns.reformat_number(event);

@@ -361,6 +361,13 @@ sub action_history {
                                   history_entries => $history_entries);
 }
 
+sub action_pick_partsgroup {
+  my ($self) = @_;
+  my $partsgroup_array = SL::DB::Manager::PartsGroup->get_hierarchy();
+  $_[0]->render('partsgroup/pick_partsgroups', { layout => 0 },
+                                  PARTSGROUPS => $partsgroup_array);
+}
+
 sub action_inventory {
   my ($self) = @_;
 

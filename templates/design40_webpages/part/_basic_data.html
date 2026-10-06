@@ -58,6 +58,12 @@
           [% L.select_tag('part.partsgroup_id', SELF.all_partsgroups, default=SELF.part.partsgroup_id, title_key='indented_name', value_key='id', with_empty=1, class='wi-wide') %]
         </td>
       </tr>
+      <tr>
+        <th>[% P.link_tag('#',LxERP.t8('Partsgroups'), onclick='kivi.part.pick_partsgroup' )%]</th>
+        <td>
+          <div>[% SELF.part.partsgroup.presenter.partsgroup_breadcrumb %]</div>[% L.button_tag('kivi.Part.pick_partsgroup()','X') %]
+        </td>
+      </tr>
       [% END %]
       [% IF SELF.all_buchungsgruppen.size %]
       <tr>
