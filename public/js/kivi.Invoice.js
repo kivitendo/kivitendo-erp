@@ -273,6 +273,20 @@ namespace('kivi.Invoice', function(ns) {
     }
   };
 
+  ns.update_duedate = function(event) {
+    var data = {
+      action:     'set_duedate',
+      type:        $('#type').val(),
+      transdate:   $('#record_transdate').val(),
+      duedate:     $('#record_duedate').val(),
+      payment_id:  $('#record_payment_id').val(),
+      customer_id: $('#record_customer_id').val(),
+      vendor_id:   $('#record_vendor_id').val(),
+      action:      'Invoice/set_duedate',
+    };
+    $.post('controller.pl', data, kivi.eval_json_result);
+  }
+
   ns.recalc_amounts_and_taxes = function() {
     if (!kivi.validate_form('#invoice_form')) return;
 
@@ -755,12 +769,16 @@ namespace('kivi.Invoice', function(ns) {
 $(function() {
   if ($('#record_customer_id').length) {
     $('#record_customer_id').change(kivi.Invoice.reload_cv_dependent_selections);
+    $('#record_customer_id').change(kivi.Invoice.update_duedate);
   } else {
     $('#record_vendor_id').change(kivi.Invoice.reload_cv_dependent_selections);
+    $('#record_vendor_id').change(kivi.Invoice.update_duedate);
   }
 
   $('#record_currency_id').change(kivi.Invoice.update_exchangerate);
-  $('#record_transdate_as_date').change(kivi.Invoice.update_exchangerate);
+  $('#record_transdate').change(kivi.Invoice.update_exchangerate);
+  $('#record_transdate').change(kivi.Invoice.update_duedate);
+  $('#record_payment_id').change(kivi.Invoice.update_duedate);
   $('#record_exchangerate_as_null_number').change(kivi.Invoice.exchangerate_changed);
 
   $('#add_item_parts_id').on('set_item:PartPicker', function() {
