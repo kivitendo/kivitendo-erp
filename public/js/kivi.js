@@ -778,6 +778,28 @@ namespace("kivi", function(ns) {
 
     return target;
   };
+
+  ns.set_cvar_val = function(selector, type, value, value_as_text) {
+    let $ctrl = $(selector);
+
+    if (type == 'bool') {
+      $ctrl.prop('checked', value == 1 ? 'checked' : '');
+
+    } else if ((type == 'customer') || (type == 'vendor')) {
+      $ctrl.data('customer_vendor_picker').set_item({ id: value, name: value_as_text });
+
+    } else if (type == 'part') {
+      $ctrl.data('part_picker').set_item({ id: value, name: value_as_text });
+
+    } else if (type == 'multiselect') {
+      const vals = value === null ? [] : value.split("##");
+      $ctrl.val(vals).change();
+
+    } else {
+      $ctrl.val(value_as_text).change();
+    }
+  };
+
 });
 
 kivi = namespace('kivi');
