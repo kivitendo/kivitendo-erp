@@ -57,25 +57,10 @@ namespace('kivi.CustomerVendor', function(ns) {
 
   this.setCustomVariablesFromAJAJ = function(cvars, prefix) {
     for (var key in cvars) {
-      var cvar  = cvars[key];
-      var $ctrl = $('#' + prefix + key);
+      const cvar  = cvars[key];
+      const selector = '#' + prefix + key;
 
-      if (cvar.type == 'bool')
-        $ctrl.prop('checked', cvar.value == 1 ? 'checked' : '');
-
-      else if ((cvar.type == 'customer') || (cvar.type == 'vendor'))
-        $ctrl.data('customer_vendor_picker').set_item({ id: cvar.value, name: cvar.value_as_text });
-
-      else if (cvar.type == 'part')
-        $ctrl.data('part_picker').set_item({ id: cvar.value, name: cvar.value_as_text });
-
-      else if (cvar.type == 'multiselect') {
-        const vals = cvar.value === null ? [] : cvar.value.split("##");
-        $ctrl.val(vals).change();
-      }
-
-      else
-        $ctrl.val(cvar.value_as_text).change();
+      kivi.set_cvar_val(selector, cvar.type, cvar.value, cvar.value_as_text);
     }
   };
 
