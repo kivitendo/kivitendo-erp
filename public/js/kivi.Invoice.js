@@ -684,7 +684,7 @@ namespace('kivi.Invoice', function(ns) {
 
   ns.update_all_rows_from_master_data = function() {
     var item_ids = $.map($('.row_entry'), function(elt) {
-      var item_id = $(elt).find('[name="item_ids[+]"]').val();
+      var item_id = $(elt).find('[name="items[+]"]').val();
       return { name: 'item_ids[]', value: item_id };
     });
 
