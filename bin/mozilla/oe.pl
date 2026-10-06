@@ -842,6 +842,7 @@ sub invoice {
   _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed') if $form->{new_invoice_type} ne 'final_invoice';
 
   $form->{cp_id} *= 1;
+  $form->{cp_id}  = undef if !$form->{cp_id};
 
   for my $i (1 .. $form->{rowcount}) {
     for (qw(ship qty sellprice basefactor discount)) {
