@@ -25,7 +25,7 @@ __PACKAGE__->meta->columns(
   marge_price_factor           => { type => 'numeric', default => 1, precision => 15, scale => 5 },
   marge_total                  => { type => 'numeric', precision => 15, scale => 5 },
   mtime                        => { type => 'timestamp' },
-  optional                     => { type => 'boolean', default => 'false' },
+  optional                     => { type => 'enum', check_in => [ 'regular', 'alternative', 'optional' ], db_type => 'position_optional_type', default => 'regular' },
   orderer_id                   => { type => 'integer' },
   ordnumber                    => { type => 'text' },
   parts_id                     => { type => 'integer' },
