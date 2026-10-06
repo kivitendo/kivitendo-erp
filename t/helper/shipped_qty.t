@@ -211,8 +211,8 @@ is ($number_of_linked_items , 6, "6 record_links for items, 3 from sales order, 
 
 note('testing optional orderitems');
 
-my $item_optional = create_order_item(part => $part3, qty => 7, optional => 1);
-ok($item_optional->{optional},       "optional order item");
+my $item_optional = create_order_item(part => $part3, qty => 7, optional => "optional");
+is($item_optional->{optional}, "optional", "optional order item");
 
 my $sales_order_opt = create_sales_order(
   save       => 1,
@@ -230,7 +230,7 @@ SL::Helper::ShippedQty
 
 is($sales_order_opt->items_sorted->[2]->{shipped_qty}, 0,  "third optional sales orderitem has no shipped_qty");
 ok(!$sales_order_opt->items_sorted->[2]->{delivered},      "third optional sales orderitem is not delivered");
-ok($sales_order_opt->items_sorted->[2]->{optional},        "third optional sales orderitem is optional");
+is($sales_order_opt->items_sorted->[2]->{optional}, 'optional', "third optional sales orderitem is optional");
 
 my $orderitem_part3_opt = SL::DB::Manager::OrderItem->find_by(parts_id => $part3->id, trans_id => $sales_order_opt->id);
 is($orderitem_part3_opt->shipped_qty, 0, "OrderItem shipped_qty method ok");
