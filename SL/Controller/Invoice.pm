@@ -561,7 +561,7 @@ sub action_add_multi_items {
 sub action_unit_changed {
   my ($self) = @_;
 
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{item_ids} };
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{items} };
   my $item = $self->record->items_sorted->[$idx];
 
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;
