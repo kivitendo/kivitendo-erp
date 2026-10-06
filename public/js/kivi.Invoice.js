@@ -570,7 +570,7 @@ namespace('kivi.Invoice', function(ns) {
   ns.price_chooser_item_row = function(clicked) {
     if (!ns.check_cv()) return;
     var row         = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="items[+]"]');
 
     var data = $('#invoice_form').serializeArray();
     data.push({ name: 'action',  value: 'Invoice/price_popup' },
