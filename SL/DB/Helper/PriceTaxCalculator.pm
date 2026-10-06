@@ -126,7 +126,7 @@ sub _calculate_item {
     $tax_amount = $linetotal * $tax_rate;
   }
   my $chart = $part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
-  unless ($data->{allow_optional_items} && $item->optional) {
+  if (!$data->{allow_optional_items} || ($item->optional eq 'regular')) {
     if ($taxkey->tax->chart_id) {
       $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id } ||= 0;
       $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id }  += $tax_amount;
@@ -154,7 +154,7 @@ sub _calculate_item {
     $item->marge_total(  $linetotal_net - $linetotal_cost) if $marge_calculations;
     $item->marge_percent($item->marge_total * 100 / $linetotal_net) if $marge_calculations;
 
-    unless ($data->{allow_optional_items} && $item->optional) {
+    if (!$data->{allow_optional_items} || ($item->optional eq 'regular')) {
       $self->marge_total(  $self->marge_total + $item->marge_total) if $marge_calculations;
       $data->{lastcost_total} += $linetotal_cost;
     }
