@@ -34,7 +34,7 @@ my %entry_xpaths = (
   ref         => './ns:Ref',
   transdate   => './ns:BookgDt/ns:Dt',
   valutadate  => './ns:ValDt/ns:Dt',
-  type_code   => './ns:Sts | ./ns:Sts/ns:Cd',
+  type_code   => './ns:Sts/ns:Cd | ./ns:Sts', # Sts in 02, Sts/Cd in 08+
   batch       => './ns:NtryDtls/ns:Btch',
   tx_details  => './ns:NtryDtls/ns:TxDtls',
 );
@@ -56,10 +56,10 @@ my %transaction_details_xpaths = (
     './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:InstrId',
   ],
   end_to_end_id     => './ns:NtryDtls/ns:TxDtls/ns:Refs/ns:EndToEndId',
-  name_cd           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Cdtr/ns:Nm',
+  name_cd           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Cdtr/ns:Pty/ns:Nm | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Cdtr/ns:Nm', # ns:Pty was added in 08
   account_number_cd => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:CdtrAcct/ns:Id/ns:IBAN | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:CdtrAcct/ns:Id/ns:Othr/ns:Id' ,
   bank_code_cd      => './ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:CdtrAgt/ns:FinInstnId/ns:BICFI',
-  name_db           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Dbtr/ns:Nm',
+  name_db           => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Dbtr/ns:Pty/ns:Nm | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:Dbtr/ns:Nm', # ns:Pty was added in 08
   account_number_db => './ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:DbtrAcct/ns:Id/ns:IBAN | ./ns:NtryDtls/ns:TxDtls/ns:RltdPties/ns:DbtrAcct/ns:Id/ns:Othr/ns:Id',
   bank_code_db      => './ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BIC | ./ns:NtryDtls/ns:TxDtls/ns:RltdAgts/ns:DbtrAgt/ns:FinInstnId/ns:BICFI',
 );
@@ -131,7 +131,7 @@ sub _parse {
   my $reference_filter = join ' | ', @{$transaction_details_xpaths{reference}};
 
   for my $entry (@entries) {
-    my $booking_type = $xc->find($entry_xpaths{type_code}, $entry);
+    my $booking_type = $xc->findvalue($entry_xpaths{type_code}, $entry);
     if (!$booking_type || $booking_type ne 'BOOK') {
       # TODO: "PDNG" (pending, not yet booked) are currently ignored
       next;
