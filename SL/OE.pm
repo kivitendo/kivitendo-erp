@@ -881,7 +881,7 @@ sub _retrieve {
       map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
 
       # Handle accounts.
-      if (!$ref->{"part_type"} eq 'part') {
+      if ($ref->{"part_type"} ne 'part') {
         map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid));
       }
       # delete($ref->{"part_inventory_accno_id"});
