@@ -48,8 +48,11 @@ sub make_request {
         @ret = "SL::Controller::$controller"->new->_run_action($action);
       }
       1;
-    } or do { my $err = $@;
-      die unless $err =~ /^END_OF_MOCK_REQUEST/;
+    } or do {
+      unless ($@ =~ m/^END_OF_MOCK_REQUEST/) {
+        $err = $@;
+        die $err;
+      }
       @ret = (1);
     }
   }
