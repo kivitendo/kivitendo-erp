@@ -20,7 +20,7 @@
         shiptofax:          "[% JavaScript.escape(vc_obj.fax) %]",
         shiptoemail:        "[% JavaScript.escape(vc_obj.email) %]"
       [% FOREACH var = cvars %]
-        , "shiptocvar_[% JavaScript.escape(var.config.name) %]": ""
+        , "shiptocvar_[% JavaScript.escape(var.config.name) %]": {type: "[% var.config.type %]", value: "", value_as_text: ""}
       [% END %]
       }
 
@@ -39,7 +39,7 @@
         shiptofax:          "[% JavaScript.escape(shipto.shiptofax) %]",
         shiptoemail:        "[% JavaScript.escape(shipto.shiptoemail) %]"
       [% FOREACH var = shipto.cvars_by_config %]
-        , "shiptocvar_[% JavaScript.escape(var.config.name) %]": "[% JavaScript.escape(var.value_as_text) %]"
+        , "shiptocvar_[% JavaScript.escape(var.config.name) %]": {type: "[% var.config.type %]", value: "[% var.value %]", value_as_text: "[% var.value_as_text %]"}
       [% END %]
       }
     [% END %]
