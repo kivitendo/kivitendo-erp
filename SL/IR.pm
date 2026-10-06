@@ -1137,7 +1137,7 @@ sub retrieve_invoice {
                                           );
     map { $ref->{"ic_cvar_$_->{name}"} = $_->{value} } @{ $cvars };
 
-    map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if !$ref->{"part_type"} eq 'part';
+    map({ delete($ref->{$_}); } qw(inventory_accno inventory_new_chart inventory_valid)) if $ref->{"part_type"} ne 'part';
 
     foreach my $type (qw(inventory income expense)) {
       while ($ref->{"${type}_new_chart"} && ($ref->{"${type}_valid"} >=0)) {
