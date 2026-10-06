@@ -13,7 +13,8 @@ sub _escape_br_html_js {
   my ($s) = @_;
 
   $s = escape($s);
-  $s =~ s/\n/<br>\n/g;
+  $s =~ s/\r?\n/<br>\n/g;
+  $s =~ s/\r/<br>\n/g;
 
   escape_js($s);
 }
