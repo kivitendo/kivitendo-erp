@@ -382,7 +382,7 @@ sub action_update_row_from_master_data {
   my ($self) = @_;
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
-    my $idx   = first_index { $_ eq $item_id } @{ $::form->{item_ids} };
+    my $idx   = first_index { $_ eq $item_id } @{ $::form->{items} };
     my $item  = $self->record->items_sorted->[$idx];
     my $texts = get_part_texts($item->part, $self->record->language_id);
 
