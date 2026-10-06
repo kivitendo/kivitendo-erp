@@ -52,6 +52,7 @@ sub escape_js {
   $text =~ s|\'|\\\'|g;
   $text =~ s|\"|\\\"|g;
   $text =~ s|\n|\\n|g;
+  $text =~ s|\r|\\r|g;
 
   __PACKAGE__->new(text => $text, is_escaped => 1);
 }
