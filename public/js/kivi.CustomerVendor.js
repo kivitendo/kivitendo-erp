@@ -69,6 +69,11 @@ namespace('kivi.CustomerVendor', function(ns) {
       else if (cvar.type == 'part')
         $ctrl.data('part_picker').set_item({ id: cvar.value, name: cvar.value_as_text });
 
+      else if (cvar.type == 'multiselect') {
+        const vals = cvar.value === null ? [] : cvar.value.split("##");
+        $ctrl.val(vals).change();
+      }
+
       else
         $ctrl.val(cvar.value_as_text).change();
     }
