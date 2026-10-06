@@ -673,7 +673,7 @@ namespace('kivi.Invoice', function(ns) {
 
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="items[+]"]');
 
     var data = $('#invoice_form').serializeArray();
     data.push({ name: 'action', value: 'Invoice/update_row_from_master_data' });
