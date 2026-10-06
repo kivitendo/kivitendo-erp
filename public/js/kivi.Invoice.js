@@ -501,7 +501,7 @@ namespace('kivi.Invoice', function(ns) {
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
       if ($(elt).data("position") == wanted_pos) {
-        insert_before_item_id = $(elt).find('[name="item_ids[+]"]').val();
+        insert_before_item_id = $(elt).find('[name="items[+]"]').val();
         return false;
       }
     });
