@@ -481,7 +481,13 @@ sub action_save_and_new_contact {
 
   my $db  = $self->is_vendor() ? 'vendor' : 'customer';
 
-  $self->redirect_to(controller => 'Contact', action => 'edit', link_with_cv_id => $self->{cv}->id, link_with_cv_db => $db);
+  $self->redirect_to(
+    controller      => 'Contact',
+    action          => 'edit',
+    link_with_cv_id => $self->{cv}->id,
+    link_with_cv_db => $db,
+    callback        => $self->url_for(action => 'edit', db => $::form->{db}, id => $self->{cv}->id),
+  );
 }
 
 sub action_delete {
