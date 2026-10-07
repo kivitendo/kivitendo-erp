@@ -1213,6 +1213,18 @@ Alias         /webdav                           /var/www/kivitendo-erp/webdav/
   Require all granted
 &lt;/Directory&gt;</programlisting>
 
+        <para>Soll kivitendo direkt unter dem top-Level Pfad / des Webservers
+        aufgerufen werden und nicht etwa unter dem Pfad /url/for/kivitendo-erp/,
+        so muss entweder das DocumentRoot auf /var/www/kivitendo-erp/public
+        gesetzt werden oder ein Alias mit Slash als Verzeichnisseparator nach
+        public/ gesetzt werden. Folgendes Beispiel illustriert dies:</para>
+
+        <programlisting># alternativ zum zweiten Alias: DocumentRoot setzen
+# DocumentRoot  /var/www/kivitendo-erp/public
+
+AliasMatch ^/[^/]+\.pl$ /var/www/kivitendo-erp/fcgi/dispatcher.fcgi
+Alias       /           /var/www/kivitendo-erp/public/</programlisting>
+
         <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
         Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
         Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
@@ -1223,6 +1235,13 @@ Alias         /webdav                           /var/www/kivitendo-erp/webdav/
         für DMS und Webdav nicht ausgeliefert werden, damit keine vertraulichen
         Daten (ohne Authentifizierung) preisgegeben werden. Es genügt, das
         Verzeichnis public/ per Webserver auszuliefern.</para>
+
+        <para><emphasis role="bold">Insbesondere ist darauf zu achten, dass das
+        DocumentRoot-Verzeichnis des Webservers keine vertraulichen Daten enthält,
+        </emphasis> so dass auch im Falle einer Fehlkonfiguration des Webservers
+        keine vertraulichen Daten leaken. Es empfiehlt sich, DocumentRoot entweder
+        auf kivitendos public-Verzeichnis oder auf ein eigens dafür angelegtes
+        leeres Verzeichnis zu setzen.</para>
 
         <para>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
         die maximale Größe eines Requests. Mit folgender Zeile wird diese
