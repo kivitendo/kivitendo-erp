@@ -34,7 +34,7 @@ my %entry_xpaths = (
   ref         => './ns:Ref',
   transdate   => './ns:BookgDt/ns:Dt',
   valutadate  => './ns:ValDt/ns:Dt',
-  type_code   => './ns:Sts/ns:Cd | ./ns:Sts', # Sts in 02, Sts/Cd in 08+
+  type_code   => './ns:Sts/ns:Cd | ./ns:Sts[not(ns:Cd)]', # Sts in 02, Sts/Cd in 08+
   batch       => './ns:NtryDtls/ns:Btch',
   tx_details  => './ns:NtryDtls/ns:TxDtls',
 );
