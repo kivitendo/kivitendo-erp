@@ -197,9 +197,8 @@ sub _check_ustid_taxnumber_unique {
 sub _save {
   my ($self) = @_;
 
-  my @errors = $self->{cv}->validate;
-  if (@errors) {
-    flash('error', $_) for @errors;
+  my $abort_with_errors = sub {
+    flash('error', $_) for @_;
     $self->_pre_render();
     $self->render(
       'customer_vendor/form',
@@ -207,6 +206,11 @@ sub _save {
       %{$self->{template_args}}
     );
     $::dispatcher->end_request;
+  };
+
+  my @errors = $self->{cv}->validate;
+  if (@errors) {
+    $abort_with_errors->(@errors);
   }
 
   $self->{cv}->greeting(trim $self->{cv}->greeting);
@@ -219,13 +223,16 @@ sub _save {
     $self->{cv}->linked_customer_vendor_rel([]);
   }
   if ($::form->{customer_vendor_link} eq 'existing') {
+    if (!$::form->{customer_vendor_link_id}) {
+        $abort_with_errors->($::locale->text('Please select an existing customer/vendor to link to.'));
+    }
     if (!$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id)) {
       $self->{cv}->linked_customer_vendor($::form->{customer_vendor_link_id});
 
       # check whether this is already linked to some other
       # this is only okay if it's self->cv, otherwise throw an error
       if ($self->{cv}->linked_customer_vendor->linked_customer_vendor && (!$self->{cv}->id || $self->{cv}->id != $self->{cv}->linked_customer_vendor->linked_customer_vendor->id)) {
-        $::form->error($::locale->text('Can not link to a customer/vendor that is already linked.'));
+        $abort_with_errors->($::locale->text('Can not link to a customer/vendor that is already linked.'));
       }
     }
   }
