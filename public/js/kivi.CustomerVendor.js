@@ -559,6 +559,6 @@ namespace('kivi.CustomerVendor', function(ns) {
     ns.init();
     ns.price_list_and_price_rules_init();
     ns.tickets_init();
-    $('#customer_vendor_link_id').change(ns.on_customer_vendor_link_change);
+    $('#customer_vendor_link, #customer_vendor_link_id, [name^="cv."]').change(ns.on_customer_vendor_link_change);
   });
 });
