@@ -3642,6 +3642,7 @@ $self->{texts} = {
   'Save and Sales Order Intake' => '',
   'Save and Sales Reclamation'  => '',
   'Save and Supplier Delivery Order' => '',
+  'Save and back'               => '',
   'Save and close'              => '',
   'Save and create new Contact' => '',
   'Save and execute'            => '',
