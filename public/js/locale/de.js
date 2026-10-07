@@ -179,6 +179,7 @@ namespace("kivi").setupLocale({
 "The login name you entered was previously used. Do you want to assign documents from the former user that had the same username to the new user?":"Der eingegebene Benutzername war schon einmal vergeben. Sollen Belege des früheren Benutzers mit dem selben Benutzernamen dem neuen Benutzer zugewiesen werden?",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",
+"The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.":"Im neu verlinkten Kunden/Lieferanten werden die meisten Felder überschrieben werden. Bitte prüfen Sie, dass das der Richtige ist.",
 "The option field is empty.":"Das Optionsfeld ist leer.",
 "The port is missing.":"Port fehlt",
 "The recipient, subject or body is missing.":"Der Empfänger, der Betreff oder der Text ist leer.",
