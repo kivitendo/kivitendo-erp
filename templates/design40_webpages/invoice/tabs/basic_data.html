@@ -287,7 +287,7 @@
         <th>[% 'Due Date' | $T8 %]</th>
         <td>
         <span class="condensed" id="duedate_container"[% IF SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% L.date_tag('record.duedate', SELF.record.duedate, class='wi-date') %]</span>
-        <span class="condensed" id="duedate_fixed"[% IF !SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate, class='wi-date') %]</span>
+        <span class="condensed" id="duedate_fixed"[% IF !SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(SELF.record.duedate_as_date, class='wi-date') %]</span>
         </td>
         <td></td>
       </tr>
