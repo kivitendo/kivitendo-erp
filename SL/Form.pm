@@ -1799,7 +1799,7 @@ sub add_shipto {
                      shiptostreet = ? AND
                      shiptozipcode = ? AND
                      shiptocity = ? AND
-                     shiptocountry_id = ? AND
+                     shiptocountry_id IS NOT DISTINCT FROM ? AND
                      shiptogln = ? AND
                      shiptocontact = ? AND
                      shiptophone = ? AND
