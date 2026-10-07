@@ -1757,7 +1757,11 @@ sub add_shipto {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
-    push(@values, $self->{"shipto${item}"});
+    if ('country_id' eq $item) {
+      push(@values, conv_i($self->{"shipto${item}"}));
+    } else {
+      push(@values, $self->{"shipto${item}"});
+    }
   }
 
   return if !$shipto;
