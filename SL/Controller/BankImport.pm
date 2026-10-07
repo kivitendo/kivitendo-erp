@@ -167,7 +167,8 @@ sub parse_and_analyze_transactions {
 
   my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
     query        => [ template_type => 'gl_transaction',
-                      chart_id      => SL::DB::BankAccount->new(id => $self->transactions->[0]->{local_bank_account_id})->load->chart_id,
+                      chart_id      => SL::DB::Manager::BankAccount->find_by_or_create(id => $self->transactions->[0]->{local_bank_account_id})->chart_id,
+
                       bank_import_template => 1,
                     ],
     with_objects => [ qw(employee record_template_items) ],
