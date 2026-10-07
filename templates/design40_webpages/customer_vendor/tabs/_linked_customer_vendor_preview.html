@@ -90,7 +90,7 @@
 [% FOREACH cvar IN new_cv.cvars_by_config %]
   [% IF cvar.config.sync_linked_cv %]
   <tr>
-    <td>[% cvar.config.description %]</td>
+    <td>[% cvar.config.description | html %]</td>
     <td>[% cvar.value_as_text | html %]</td>
     <td>[% SELF.cv.cvar_by_name(cvar.config.name).value_as_text | html %]</td>
   </tr>
