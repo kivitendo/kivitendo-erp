@@ -182,9 +182,7 @@ sub _copy_custom_variables {
   foreach my $cvar (@{ $obj->cvars_by_config }) {
     next if $cvar_validity && !$cvar_validity->{ $cvar->config_id };
 
-    my $value = ($cvar->config->type =~ m{^(?:bool|customer|vendor|part)$})
-              ? $cvar->value
-              : $cvar->value_as_text;
+    my $value = $cvar->value_normalized;
 
     $form->{ $prefix . $cvar->config->name . $postfix } = $value;
   }
