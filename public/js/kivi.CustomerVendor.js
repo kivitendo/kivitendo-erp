@@ -555,6 +555,16 @@ namespace('kivi.CustomerVendor', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   }
 
+  this.confirm_customer_vendor_link = function() {
+    if ($('#customer_vendor_link').val() !== 'existing') return true;
+    const new_id = $('#customer_vendor_link_id').val();
+    const old_id = $('#orig_customer_vendor_link_id').val();
+
+    if (!new_id || new_id == old_id) return true;
+
+    return confirm(kivi.t8('The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.'))
+  }
+
   $(function(){
     ns.init();
     ns.price_list_and_price_rules_init();
