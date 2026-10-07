@@ -9,9 +9,13 @@
       <th align="right">[% 'Description' | $T8 %]</th>
       <td>[%- L.textarea_tag("partsgroup.description", SELF.partsgroup.description, cols = 50 rows = 2, "data-title"=LxERP.t8("Description")) %]</td>
     </tr>
+    [% SET disabled = 0 %]
+    [% IF SELF.partsgroup.orphaned == 0 %]
+    [% disabled = 1 %]
+    [% END %]
     <tr>
       <th align="right">[% 'Obsolete' | $T8 %]</th>
-      <td>[% L.checkbox_tag('partsgroup.obsolete', checked = SELF.partsgroup.obsolete, for_submit=1) %]</td>
+      <td>[% L.checkbox_tag('partsgroup.obsolete', checked = SELF.partsgroup.obsolete, for_submit=1, disabled = disabled) %]</td>
     </tr>
 
     [% IF SELF.partsgroup.id %]
