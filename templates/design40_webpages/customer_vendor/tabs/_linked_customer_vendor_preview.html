@@ -1,0 +1,89 @@
+[% USE HTML %]
+[% USE T8 %]
+
+<p>[% 'The newly linked customer/vendor will have the following attributes overwritten.' | $T8 %]</p>
+
+<table>
+  <colgroup>
+    <col class="wi-small">
+    <col class="wi-lightwide">
+    <col class="wi-lightwide">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>[% 'Field' | $T8 %]</th>
+      <th>[% 'Old' | $T8 %]</th>
+      <th>[% 'New' | $T8 %]</th>
+    </tr>
+  </thead>
+  <tr>
+    <td>[% 'Name' | $T8 %]</td>
+    <td>[% new_cv.name | html %]</td>
+    <td>[% SELF.cv.name | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Street' | $T8 %]</td>
+    <td>[% new_cv.street | html %]</td>
+    <td>[% SELF.cv.street | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'City' | $T8 %]</td>
+    <td>[% new_cv.city | html %]</td>
+    <td>[% SELF.cv.city | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Zipcode' | $T8 %]</td>
+    <td>[% new_cv.zipcode | html %]</td>
+    <td>[% SELF.cv.zipcode | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Country' | $T8 %]</td>
+    <td>[% new_cv.country ? new_cv.country.name : '' | html %]</td>
+    <td>[% SELF.cv.country ? SELF.cv.country.name : '' | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Obsolete' | $T8 %]</td>
+    <td>[% new_cv.obsolete_as_bool_yn | html %]</td>
+    <td>[% SELF.cv.obsolete_as_bool_yn | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Tax number' | $T8 %]</td>
+    <td>[% new_cv.taxnumber | html %]</td>
+    <td>[% SELF.cv.taxnumber | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'VAT ID' | $T8 %]</td>
+    <td>[% new_cv.ustid | html %]</td>
+    <td>[% SELF.cv.ustid | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Currency' | $T8 %]</td>
+    <td>[% new_cv.currency ? new_cv.currency.name : '' | html %]</td>
+    <td>[% SELF.cv.currency ? SELF.cv.currency.name : '' | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Homepage' | $T8 %]</td>
+    <td>[% new_cv.homepage | html %]</td>
+    <td>[% SELF.cv.homepage | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Language' | $T8 %]</td>
+    <td>[% new_cv.language_obj ? new_cv.language_obj.description : '' | html %]</td>
+    <td>[% SELF.cv.language_obj ? SELF.cv.language_obj.description : ''| html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Phone' | $T8 %]</td>
+    <td>[% new_cv.phone | html %]</td>
+    <td>[% SELF.cv.phone | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Fax' | $T8 %]</td>
+    <td>[% new_cv.fax | html %]</td>
+    <td>[% SELF.cv.fax | html %]</td>
+  <tr>
+  <tr>
+    <td>[% 'Email' | $T8 %]</td>
+    <td>[% new_cv.email | html %]</td>
+    <td>[% SELF.cv.email | html %]</td>
+  <tr>
+</table>

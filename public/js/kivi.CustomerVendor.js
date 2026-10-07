@@ -546,9 +546,19 @@ namespace('kivi.CustomerVendor', function(ns) {
     window.open("controller.pl?action=CustomerVendor/edit&db=" + encodeURIComponent(cv_type) + "&id=" + encodeURIComponent(cv_id), '_blank');
   };
 
+  this.on_customer_vendor_link_change = function() {
+    const this_id = $('#id').val();
+    const new_id = $('#customer_vendor_link_id').val();
+
+    var data = $('#form').serializeArray();
+    data.push({ name: "action", value: "CustomerVendor/preview_customer_vendor_link_changes" });
+    $.post("controller.pl", data, kivi.eval_json_result);
+  }
+
   $(function(){
     ns.init();
     ns.price_list_and_price_rules_init();
     ns.tickets_init();
+    $('#customer_vendor_link_id').change(ns.on_customer_vendor_link_change);
   });
 });

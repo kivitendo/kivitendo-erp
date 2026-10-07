@@ -60,6 +60,7 @@ __PACKAGE__->run_before(
     'delete',
     'delete_shipto',
     'delete_additional_billing_address',
+    'preview_customer_vendor_link_changes',
   ]
 );
 
@@ -764,6 +765,31 @@ sub action_ajaj_autocomplete {
   $self->render(\ SL::JSON::to_json(\@hashes), { layout => 0, type => 'json', process => 0 });
 }
 
+sub action_preview_customer_vendor_link_changes {
+  my ($self) = @_;
+  if ($::form->{customer_vendor_link} ne 'existing') {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+  if (!$::form->{customer_vendor_link_id}) {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+
+  my $new_customer_vendor = $self->is_customer ? SL::DB::Manager::Vendor->find_by(id => $::form->{customer_vendor_link_id})
+                          : $self->is_vendor   ? SL::DB::Manager::Customer->find_by(id => $::form->{customer_vendor_link_id})
+                          : undef;
+
+  if (!$new_customer_vendor) {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+
+  my $html = $self->render('customer_vendor/tabs/_linked_customer_vendor_preview', { output => 0, layout => 0 }, new_cv => $new_customer_vendor);
+  $self->js->html('#preview_customer_vendor_link_changes', $html);
+  return $self->js->render;
+}
+
 sub action_test_page {
   $_[0]->render('customer_vendor/test_page', title => 'Customer Vendor Autocomplete Testpage');
 }
@@ -1213,6 +1239,7 @@ sub _setup_form_action_bar {
           t8('Save'),
           submit    => [ '#form', { action => "CustomerVendor/save" } ],
           checks    => [ 'check_taxzone_and_ustid' ],
+          confirm   => !$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link} eq 'existing' &&  $::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id) ? t8("The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.") : undef,
           accesskey => 'enter',
           disabled  => $no_rights,
         ],
@@ -1220,6 +1247,7 @@ sub _setup_form_action_bar {
           t8('Save and Close'),
           submit => [ '#form', { action => "CustomerVendor/save_and_close" } ],
           checks => [ 'check_taxzone_and_ustid' ],
+          confirm   => !$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link} eq 'existing' &&  $::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id) ? t8("The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.") : undef,
           disabled => $no_rights,
         ],
       ], # end of combobox "Save"
