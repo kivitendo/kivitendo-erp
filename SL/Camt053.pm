@@ -106,6 +106,39 @@ sub parse_xml {
   _parse($dom);
 }
 
+sub check_file {
+  my ($class, $filename) = @_;
+
+  my $dom = eval {
+    XML::LibXML->load_xml(location => $filename, expand_entities => 0);
+  } or do {
+    my $e = $@;
+    die "can't load camt.053 file: $e";
+  };
+
+  _check($dom);
+}
+
+sub check_xml {
+  my ($class, $xml_data) = @_;
+
+  my $dom = eval {
+    XML::LibXML->load_xml(string => $xml_data, expand_entities => 0);
+  } or do {
+    my $e = $@;
+    die "can't load camt.053 data: $e";
+  };
+
+  _check($dom);
+}
+
+sub _check {
+  my ($dom) = @_;
+
+  my $root = $dom->documentElement;
+  return $root->namespaceURI =~ $namespace_re;
+}
+
 sub _parse {
   my ($dom) = @_;
 
