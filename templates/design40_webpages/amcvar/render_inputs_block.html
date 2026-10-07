@@ -93,13 +93,16 @@
 
     [% ELSIF cvar.var.type == 'customer' %]
       [% render_cvar_tag_options.type = 'customer' %]
+      [% render_cvar_tag_options.action = "{commit_one='function(){ }'}" %]
       [% P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'vendor' %]
+      [% render_cvar_tag_options.action = "{commit_one='function(){ }'}" %]
       [% render_cvar_tag_options.type = 'vendor' %]
       [% P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'part' %]
+      [% render_cvar_tag_options.action = "{commit_one='function(){ }'}" %]
       [% P.part.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'number' %]
