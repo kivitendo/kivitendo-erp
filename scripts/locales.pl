@@ -571,7 +571,7 @@ sub scanfile {
 
   scanfile($_, 0, $scanned_files) for keys %{$cached{$file}{scan}};
   scanfile($_, 1, $scanned_files) for keys %{$cached{$file}{scannosubs}};
-  scanhtmlfile($_)                for keys %{$cached{$file}{scanh}};
+  scanhtmlfile($_, $file)         for keys %{$cached{$file}{scanh}};
 
   $referenced_html_files{$_} = 1  for keys %{$cached{$file}{scanh}};
 }
@@ -613,17 +613,18 @@ sub unescape_template_string {
 }
 
 sub scanhtmlfile {
-  my ($file) = @_;
+  my ($file, $included_from) = @_;
 
   return if defined $cached{$file};
 
+  $included_from = strip_base($included_from);
   my $template_space = $file =~ m{templates/(\w+)/} ? $1 : 'webpages';
 
   my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
   my $fh;
   if (!open($fh, '<:encoding(utf8)', $file)) {
-    print "E: template file '$file' not found\n";
+    print "E: $included_from: template file '$file' not found\n";
     return;
   }
 
@@ -708,7 +709,7 @@ sub scanhtmlfile {
   $locale{$_}     = 1            for keys %{$cached{$file}{html}};
   $submit{$_}     = 1            for keys %{$cached{$file}{submit}};
 
-  scanhtmlfile($_)               for keys %{$cached{$file}{scanh}};
+  scanhtmlfile($_, $file)        for keys %{$cached{$file}{scanh}};
 
   $referenced_html_files{$_} = 1 for keys %{$cached{$file}{scanh}};
 }
