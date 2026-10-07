@@ -49,6 +49,11 @@ __PACKAGE__->meta->add_relationship(
     column_map      => { id => 'trans_id' },
     query_args      => [ module => 'AP' ],
   },
+  exchangerate_obj  => {
+    type            => 'one to one',
+    class           => 'SL::DB::Exchangerate',
+    column_map      => { currency_id => 'currency_id', transdate => 'transdate' },
+  },
   transactions   => {
     type         => 'one to many',
     class        => 'SL::DB::AccTransaction',
@@ -105,6 +110,30 @@ sub is_sales {
   # For compatibility with Order, DeliveryOrder
   croak 'not an accessor' if @_ > 1;
   return 0;
+}
+
+sub daily_exchangerate {
+  my ($self, $val) = @_;
+
+  return 1 if $self->currency_id == $::instance_conf->get_currency_id;
+
+  my $rate = 'sell';
+
+  if (defined $val) {
+    croak t8('exchange rate has to be positive') if $val <= 0;
+    if (!$self->exchangerate_obj) {
+      $self->exchangerate_obj(SL::DB::Exchangerate->new(
+        currency_id => $self->currency_id,
+        transdate   => $self->transdate,
+        $rate       => $val,
+      ));
+    } elsif (!defined $self->exchangerate_obj->$rate) {
+      $self->exchangerate_obj->$rate($val);
+    } else {
+      croak t8('exchange rate already exists, no update allowed');
+    }
+  }
+  return $self->exchangerate_obj->$rate if $self->exchangerate_obj;
 }
 
 sub date {
