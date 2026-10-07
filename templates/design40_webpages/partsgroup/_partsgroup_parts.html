@@ -25,7 +25,7 @@
 <tr>
  <th align="right">[% 'Partsgroup' | $T8 %]</th>
  <td>[%- L.select_tag('selected_partsgroup', PARTSGROUPS, title_key='indented_name', value_key='id', with_empty=1 style='width: 200px') %]</td>
- <td>[% L.button_tag('move_parts_to_partsgroup()', LxERP.t8('Move selected parts to partsgroup')) %]</td>
+ <td>[% L.button_tag('kivi.PartsGroup.move_parts_to_partsgroup()', LxERP.t8('Move selected parts to partsgroup')) %]</td>
 </tr>
 </body>
 </table>
@@ -34,7 +34,7 @@
 <tr>
  <th align="right">[% 'Part' | $T8 %]</th>
  <td>[% P.part.picker('add_part_id', '', style='width: 300px') %]</td>
- <td>[% L.button_tag("add_part()", LxERP.t8('Insert new')) %]</td>
+ <td>[% L.button_tag("kivi.PartsGroup.add_part()", LxERP.t8('Insert new')) %]</td>
 </tr>
 </table>
 </div>
