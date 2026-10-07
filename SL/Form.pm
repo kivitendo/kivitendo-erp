@@ -1752,16 +1752,18 @@ sub add_shipto {
   my $shipto;
   my @values;
 
-  foreach my $item (qw(name department_1 department_2 street zipcode city country_id gln
+  foreach my $item (qw(name department_1 department_2 street zipcode city gln
                        contact phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
-    if ('country_id' eq $item) {
-      push(@values, conv_i($self->{"shipto${item}"}));
-    } else {
-      push(@values, $self->{"shipto${item}"});
+    push(@values, $self->{"shipto${item}"});
+  }
+  foreach my $item (qw(country_id)) {
+    if ($self->{"shipto$item"}) {
+      $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
+    push(@values, conv_i($self->{"shipto${item}"}));
   }
 
   return if !$shipto;
@@ -1799,7 +1801,7 @@ sub add_shipto {
                      shiptostreet = ? AND
                      shiptozipcode = ? AND
                      shiptocity = ? AND
-                     shiptocountry_id = ? AND
+                     shiptocountry_id IS NOT DISTINCT FROM ? AND
                      shiptogln = ? AND
                      shiptocontact = ? AND
                      shiptophone = ? AND
