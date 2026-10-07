@@ -1238,16 +1238,14 @@ sub _setup_form_action_bar {
         action => [
           t8('Save'),
           submit    => [ '#form', { action => "CustomerVendor/save" } ],
-          checks    => [ 'check_taxzone_and_ustid' ],
-          confirm   => !$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link} eq 'existing' &&  $::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id) ? t8("The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.") : undef,
+          checks    => [ 'check_taxzone_and_ustid', 'kivi.CustomerVendor.confirm_customer_vendor_link' ],
           accesskey => 'enter',
           disabled  => $no_rights,
         ],
         action => [
           t8('Save and Close'),
           submit => [ '#form', { action => "CustomerVendor/save_and_close" } ],
-          checks => [ 'check_taxzone_and_ustid' ],
-          confirm   => !$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link} eq 'existing' &&  $::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id) ? t8("The newly linked customer/vendor will have most of its attributes synced to this one. Please check that it is the correct one.") : undef,
+          checks => [ 'check_taxzone_and_ustid', 'kivi.CustomerVendor.confirm_customer_vendor_link' ],
           disabled => $no_rights,
         ],
       ], # end of combobox "Save"
