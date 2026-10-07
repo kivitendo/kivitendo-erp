@@ -3084,6 +3084,7 @@ $self->{texts} = {
   'Please select a lead time.'  => '',
   'Please select a vendor from the list below.' => '',
   'Please select a vendor.'     => '',
+  'Please select an existing customer/vendor to link to.' => '',
   'Please select positions to print' => '',
   'Please select the dataset you want to delete:' => '',
   'Please select the destination bank account for the collections:' => '',
