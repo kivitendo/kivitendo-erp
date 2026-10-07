@@ -59,9 +59,20 @@
         </td>
       </tr>
       <tr>
-        <th>[% P.link_tag('#',LxERP.t8('Partsgroups'), onclick='kivi.part.pick_partsgroup' )%]</th>
-        <td>
-          <div id="partsgroup_breadcrumb">[% SELF.part.partsgroup.presenter.partsgroup_breadcrumb %]</div>[% L.button_tag('kivi.Part.pick_partsgroup()','X') %]
+        <th>[% P.link_tag('',LxERP.t8('Partsgroups'), onclick='kivi.Part.pick_partsgroup()' )%]</th>
+        <td class="wi-wide">
+          <span id="partsgroup_breadcrumb" class='area-input'>
+            [% SELF.part.partsgroup.presenter.partsgroup_breadcrumb %]
+            <span class="switch-to-textarea" onclick="kivi.Part.pick_partsgroup()"> 
+    <!--<span>
+           [% # L.img_tag(src="image/pencil.png",
+              #          alt=LxERP.t8('Edit'),
+              #          title=LxERP.t8('Edit'),
+              #          onclick="kivi.Part.pick_partsgroup()",
+              #          class='row-icon') %]
+   </span> -->
+          </span>[% # L.button_tag('kivi.Part.pick_partsgroup()','X') %]
+          </span> 
         </td>
       </tr>
       [% END %]
