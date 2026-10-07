@@ -61,7 +61,7 @@
       <tr>
         <th>[% P.link_tag('#',LxERP.t8('Partsgroups'), onclick='kivi.part.pick_partsgroup' )%]</th>
         <td>
-          <div>[% SELF.part.partsgroup.presenter.partsgroup_breadcrumb %]</div>[% L.button_tag('kivi.Part.pick_partsgroup()','X') %]
+          <div id="partsgroup_breadcrumb">[% SELF.part.partsgroup.presenter.partsgroup_breadcrumb %]</div>[% L.button_tag('kivi.Part.pick_partsgroup()','X') %]
         </td>
       </tr>
       [% END %]

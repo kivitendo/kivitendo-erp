@@ -958,6 +958,17 @@ sub action_export_assembly_assortment_components {
 
 }
 
+sub action_save_partsgroup {
+  my ($self) = @_;
+  my $part = $self->part;
+  my $partsgroup = SL::DB::Manager::PartsGroup->find_by(id => $::form->{partsgroup_id});
+  my $ppg = $partsgroup->presenter->partsgroup_breadcrumb;
+  $part->update_attributes(partsgroup => $partsgroup);
+  $ppg = $ppg->{text};
+  $self->js->run('kivi.Part.close_partsgroup_dialog')
+           ->html('#partsgroup_breadcrumb', $ppg)->render;
+}
+
 # helper functions
 sub validate_add_items {
   scalar @{$::form->{add_items}};
