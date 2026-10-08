@@ -233,6 +233,36 @@ sub action_update_exchangerate {
   $self->render(\SL::JSON::to_json($data), { type => 'json', process => 0 });
 }
 
+sub action_set_duedate {
+  my ($self) = @_;
+
+  # this is a copy of io.pl:set_duedate to work with the Invoice controller
+
+  my $terms = $::form->{payment_id}  ? SL::DB::PaymentTerm->new(id => $::form->{payment_id}) ->load
+            : $::form->{customer_id} ? SL::DB::Customer   ->new(id => $::form->{customer_id})->load->payment
+            : $::form->{vendor_id}   ? SL::DB::Vendor     ->new(id => $::form->{vendor_id})  ->load->payment
+            :                          undef;
+
+  my $transdate = $::form->{transdate} eq 'undefined' ? DateTime->today_local
+                :                                     DateTime->from_kivitendo($::form->{transdate});
+
+  my $duedate = $terms ? $terms->calc_date(reference_date => $transdate, due_date => $::form->{duedate})->to_kivitendo
+              :          ($::form->{duedate} || $transdate->to_kivitendo);
+
+  if ($terms && $terms->auto_calculation) {
+    $self->js->hide('#duedate_container')
+             ->html('#duedate_fixed', $duedate)
+             ->show('#duedate_fixed');
+
+  } else {
+    $self->js->hide('#duedate_fixed')
+             ->show('#duedate_container');
+  }
+
+  $self->js->val('#record_duedate', $duedate)
+           ->render;
+}
+
 # redisplay item rows if they are sorted by an attribute
 sub action_reorder_items {
   my ($self) = @_;
@@ -352,7 +382,7 @@ sub action_update_row_from_master_data {
   my ($self) = @_;
 
   foreach my $item_id (@{ $::form->{item_ids} }) {
-    my $idx   = first_index { $_ eq $item_id } @{ $::form->{item_ids} };
+    my $idx   = first_index { $_ eq $item_id } @{ $::form->{items} };
     my $item  = $self->record->items_sorted->[$idx];
     my $texts = get_part_texts($item->part, $self->record->language_id);
 
@@ -531,7 +561,7 @@ sub action_add_multi_items {
 sub action_unit_changed {
   my ($self) = @_;
 
-  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{item_ids} };
+  my $idx  = first_index { $_ eq $::form->{item_id} } @{ $::form->{items} };
   my $item = $self->record->items_sorted->[$idx];
 
   my $old_unit_obj = SL::DB::Unit->new(name => $::form->{old_unit})->load;

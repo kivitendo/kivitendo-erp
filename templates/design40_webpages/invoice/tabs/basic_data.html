@@ -247,7 +247,7 @@
       <tr>
         <th>[% 'Credit Note' | $T8 %]</th>
         <!-- <th>[% 'Credit Note Number' | $T8 %]</th> -->
-        <td>[% L.date_tag('record.transdate', SELF.record.transdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("record_transdate")', class='wi-date') %]</td>
+        <td>[% L.date_tag('record.transdate', SELF.record.transdate, class='wi-date') %]</td>
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
@@ -271,7 +271,7 @@
     [% ELSE %]
       <tr>
         <th>[% 'Invoice' | $T8 %]</th>
-        <td>[% L.date_tag('record.transdate', SELF.record.transdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("transdate")', class='wi-date') %]</td>
+        <td>[% L.date_tag('record.transdate', SELF.record.transdate, class='wi-date') %]</td>
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
             [% L.input_tag("record.invnumber", SELF.record.invnumber, size="11", class="wi-small") %]
@@ -287,7 +287,7 @@
         <th>[% 'Due Date' | $T8 %]</th>
         <td>
         <span class="condensed" id="duedate_container"[% IF SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% L.date_tag('record.duedate', SELF.record.duedate, class='wi-date') %]</span>
-        <span class="condensed" id="duedate_fixed"[% IF !SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(duedate, class='wi-date') %]</span>
+        <span class="condensed" id="duedate_fixed"[% IF !SELF.record.payment_terms.auto_calculation %] style="display:none"[% END %]>[% HTML.escape(SELF.record.duedate_as_date, class='wi-date') %]</span>
         </td>
         <td></td>
       </tr>
