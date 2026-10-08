@@ -107,6 +107,14 @@ sub type_dependent_default_value {
     return $self->default_value ? [ split /##/, $self->default_value ] : [];
   }
 
+  if ($self->type eq 'bool') {
+    return !!$self->default_value;
+  }
+
+  if ($self->type =~ m{^(?:date|timestamp)}) {
+    return $self->default_value ? DateTime->from_kivitendo($self->default_value) : undef;
+  }
+
   return $self->default_value;
 }
 
