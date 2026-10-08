@@ -32,7 +32,9 @@ sub get_configs {
   }
 
   my $query    = <<SQL;
-    SELECT *, date_trunc('seconds', localtimestamp) AS current_timestamp
+    SELECT *,
+      date_trunc('seconds', localtimestamp) AS current_timestamp,
+      now()::date AS current_date
     FROM custom_variable_configs $where ORDER BY sortkey
 SQL
 
