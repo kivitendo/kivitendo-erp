@@ -83,7 +83,7 @@ sub _set_value {
     $value  = undef if !$value;
 
   } elsif ($type =~ m{^(?:multiselect)}) {
-    $value = 'ARRAY' ne ref $value ? undef : '##' . join('##', @$value) . '##';
+    $value = 'ARRAY' eq ref $value ? '##' . join('##', @$value) . '##' : ref $value ? undef : $value;
   }
 
   $self->$method($value);
