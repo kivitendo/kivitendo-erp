@@ -173,7 +173,7 @@ sub get_custom_variables {
         }
 
       } elsif ($cvar->{type} eq 'bool') {
-        $cvar->{value} = $cvar->{default_value} * 1;
+        $cvar->{value} = !!$cvar->{default_value};
 
       } elsif ($cvar->{type} eq 'number') {
         $cvar->{value} = $cvar->{default_value} * 1 if ($cvar->{default_value} ne '');
