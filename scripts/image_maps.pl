@@ -76,7 +76,9 @@ system($convert_string);
 # make css file
 {
   open my $file, ">", $css_file or die "can't write too $css_file";
-  print $file ".$class_for_map { background: url(../$image_file) ${first_width}px 0px no-repeat; padding: 0; width: ${first_width}px; height: ${first_height}px; }\n";
+  my $image_file_path_in_css = $image_file;
+  $image_file_path_in_css    =~ s{^.*public/}{};
+  print $file ".$class_for_map { background: url(../$image_file_path_in_css) ${first_width}px 0px no-repeat; padding: 0; width: ${first_width}px; height: ${first_height}px; }\n";
 
   for (@images) {
     my $name = fileparse($_->{filename}, ".png");
