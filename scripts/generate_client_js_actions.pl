@@ -3,12 +3,13 @@
 use strict;
 use warnings;
 
+use Cwd ();
 use File::Slurp;
 use FindBin;
 use List::Util qw(first max);
 use Template;
 
-my $rel_dir = $FindBin::Bin . '/..';
+my $rel_dir = Cwd::realpath($FindBin::Bin . '/..');
 my @actions;
 
 foreach (read_file("${rel_dir}/SL/ClientJS.pm")) {
@@ -60,5 +61,6 @@ foreach my $action (@actions) {
 $output .= sprintf "\n      else\%sconsole.log('Unknown action: ' + action[0]);\n", ' ' x (4 + 2 + 6 + 3 + 4 + 2 + $longest + 1);
 
 my $template = Template->new({ ABSOLUTE => 1 });
-$template->process($rel_dir . '/scripts/generate_client_js_actions.tpl', { actions => $output }, $rel_dir . '/js/client_js.js') || die $template->error(), "\n";
-print "js/client_js.js generated automatically.\n";
+my $file     = $rel_dir . '/public/js/client_js.js';
+$template->process($rel_dir . '/scripts/generate_client_js_actions.tpl', { actions => $output }, $file) || die $template->error(), "\n";
+print "${file} generated automatically.\n";
