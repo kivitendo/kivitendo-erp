@@ -280,6 +280,13 @@ namespace("kivi", function(ns) {
     }
   };
 
+  ns.set_ckeditor_val = function(element, val) {
+    const editor = $(element).data('ckeditorInstance');
+    if (editor) {
+      editor.setData(val);
+    }
+  };
+
   ns.init_tabwidget = function(element) {
     var $element   = $(element);
     var tabsParams = {};
