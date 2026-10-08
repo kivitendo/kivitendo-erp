@@ -60,6 +60,7 @@ __PACKAGE__->run_before(
     'delete',
     'delete_shipto',
     'delete_additional_billing_address',
+    'preview_customer_vendor_link_changes',
   ]
 );
 
@@ -197,9 +198,8 @@ sub _check_ustid_taxnumber_unique {
 sub _save {
   my ($self) = @_;
 
-  my @errors = $self->{cv}->validate;
-  if (@errors) {
-    flash('error', $_) for @errors;
+  my $abort_with_errors = sub {
+    flash('error', $_) for @_;
     $self->_pre_render();
     $self->render(
       'customer_vendor/form',
@@ -207,6 +207,11 @@ sub _save {
       %{$self->{template_args}}
     );
     $::dispatcher->end_request;
+  };
+
+  my @errors = $self->{cv}->validate;
+  if (@errors) {
+    $abort_with_errors->(@errors);
   }
 
   $self->{cv}->greeting(trim $self->{cv}->greeting);
@@ -219,13 +224,16 @@ sub _save {
     $self->{cv}->linked_customer_vendor_rel([]);
   }
   if ($::form->{customer_vendor_link} eq 'existing') {
+    if (!$::form->{customer_vendor_link_id}) {
+        $abort_with_errors->($::locale->text('Please select an existing customer/vendor to link to.'));
+    }
     if (!$self->{cv}->linked_customer_vendor || ($::form->{customer_vendor_link_id} != $self->{cv}->linked_customer_vendor->id)) {
       $self->{cv}->linked_customer_vendor($::form->{customer_vendor_link_id});
 
       # check whether this is already linked to some other
       # this is only okay if it's self->cv, otherwise throw an error
       if ($self->{cv}->linked_customer_vendor->linked_customer_vendor && (!$self->{cv}->id || $self->{cv}->id != $self->{cv}->linked_customer_vendor->linked_customer_vendor->id)) {
-        $::form->error($::locale->text('Can not link to a customer/vendor that is already linked.'));
+        $abort_with_errors->($::locale->text('Can not link to a customer/vendor that is already linked.'));
       }
     }
   }
@@ -757,6 +765,31 @@ sub action_ajaj_autocomplete {
   $self->render(\ SL::JSON::to_json(\@hashes), { layout => 0, type => 'json', process => 0 });
 }
 
+sub action_preview_customer_vendor_link_changes {
+  my ($self) = @_;
+  if ($::form->{customer_vendor_link} ne 'existing') {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+  if (!$::form->{customer_vendor_link_id}) {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+
+  my $new_customer_vendor = $self->is_customer ? SL::DB::Manager::Vendor->find_by(id => $::form->{customer_vendor_link_id})
+                          : $self->is_vendor   ? SL::DB::Manager::Customer->find_by(id => $::form->{customer_vendor_link_id})
+                          : undef;
+
+  if (!$new_customer_vendor) {
+    $self->js->html('#preview_customer_vendor_link_changes', '');
+    return $self->js->render;
+  }
+
+  my $html = $self->render('customer_vendor/tabs/_linked_customer_vendor_preview', { output => 0, layout => 0 }, new_cv => $new_customer_vendor);
+  $self->js->html('#preview_customer_vendor_link_changes', $html);
+  return $self->js->render;
+}
+
 sub action_test_page {
   $_[0]->render('customer_vendor/test_page', title => 'Customer Vendor Autocomplete Testpage');
 }
@@ -1205,14 +1238,14 @@ sub _setup_form_action_bar {
         action => [
           t8('Save'),
           submit    => [ '#form', { action => "CustomerVendor/save" } ],
-          checks    => [ 'check_taxzone_and_ustid' ],
+          checks    => [ 'check_taxzone_and_ustid', 'kivi.CustomerVendor.confirm_customer_vendor_link' ],
           accesskey => 'enter',
           disabled  => $no_rights,
         ],
         action => [
           t8('Save and Close'),
           submit => [ '#form', { action => "CustomerVendor/save_and_close" } ],
-          checks => [ 'check_taxzone_and_ustid' ],
+          checks => [ 'check_taxzone_and_ustid', 'kivi.CustomerVendor.confirm_customer_vendor_link' ],
           disabled => $no_rights,
         ],
       ], # end of combobox "Save"

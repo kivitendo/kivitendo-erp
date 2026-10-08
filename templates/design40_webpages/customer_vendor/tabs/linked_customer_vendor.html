@@ -46,6 +46,7 @@
             [% 'Linked Customer' | $T8 %]</th>
           [%- END %]
         <td>
+          [% P.hidden_tag('orig_customer_vendor_link_id', SELF.cv.linked_customer_vendor ? SELF.cv.linked_customer_vendor.id : '') %]
           [%- IF SELF.is_customer %]
             [% P.customer_vendor.picker('customer_vendor_link_id', SELF.cv.linked_customer_vendor, type='vendor') %]
           [%- ELSE %]
@@ -55,5 +56,7 @@
       </tr>
     </tbody>
   </table>
+
+  <div id='preview_customer_vendor_link_changes'></div>
 </div>
 </div>
