@@ -1093,7 +1093,6 @@ sub order {
      foreach my $var (@{ $item->cvars_by_config }) {
       my $key = 'ic_cvar_' . $var->config->name . '_' . $row;
       $var->unparsed_value($::form->{$key});
-      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
     }
     $item->parse_custom_variable_values;
 

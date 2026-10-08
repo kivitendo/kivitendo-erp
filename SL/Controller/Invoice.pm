@@ -1542,7 +1542,10 @@ sub setup_custom_shipto_from_form {
     my $shipto_attrs  = {map {                                  $_   => delete $form->{$_}} grep { m{^shipto}      } keys %$form};
 
     $custom_shipto->assign_attributes(%$shipto_attrs);
-    $custom_shipto->cvar_by_name($_)->value($shipto_cvars->{$_}) for keys %$shipto_cvars;
+
+    # The cvar values come from form. So they are unparsed and must be parsed before saving.
+    $custom_shipto->cvar_by_name($_)->unparsed_value($shipto_cvars->{$_}) for keys %$shipto_cvars;
+    $custom_shipto->parse_custom_variable_values;
   }
 }
 

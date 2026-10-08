@@ -154,14 +154,24 @@ namespace('kivi.SalesPurchase', function(ns) {
 
   this.copy_shipto_address = function () {
     var shipto = this.shipto_addresses[ $('#shipto_to_copy').val() ];
-    for (var key in shipto)
-      $('#' + key).val(shipto[key]);
+    for (var key in shipto) {
+      if (key.match("^shiptocvar_")) {
+        kivi.set_cvar_val('#' + key, shipto[key].type, shipto[key].value, shipto[key].value_as_text);
+      } else {
+        $('#' + key).val(shipto[key]);
+      }
+    }
   };
 
   this.clear_shipto_fields = function() {
     var shipto = this.shipto_addresses[0];
-    for (var key in shipto)
-      $('#' + key).val('');
+    for (var key in shipto) {
+      if (key.match("^shiptocvar_")) {
+        kivi.set_cvar_val('#' + key, shipto[key].type, shipto[key].value, shipto[key].value_as_text);
+      } else {
+        $('#' + key).val('');
+      }
+    }
     $('#shiptocp_gender').val('m');
   };
 
@@ -205,13 +215,13 @@ namespace('kivi.SalesPurchase', function(ns) {
     if (!$('#shipto_dialog').data('confirmed'))
       kivi.SalesPurchase.reset_shipto_fields();
 
-    $('#shipto_dialog').children().remove().appendTo('#shipto_inputs');
+    $('#shipto_inputs').append($('#shipto_dialog').children());
 
     return true;
   };
 
   this.edit_custom_shipto = function() {
-    $('#shipto_inputs').children().remove().appendTo('#shipto_dialog');
+    $('#shipto_dialog').append($('#shipto_inputs').children());
 
     kivi.popup_dialog({
       id:    'shipto_dialog',

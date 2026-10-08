@@ -81,7 +81,11 @@
             [% SET render_cvar_opts = {
                 value = option.value
                };
-               render_cvar_opts.selected = 'selected' IF option.selected;
+               SET selected = 0;
+               FOREACH v = cvar.value;
+                 IF v == option.value; SET selected = 1; LAST; END;
+               END;
+               render_cvar_opts.selected = 'selected' IF selected;
                L.html_tag('option', option.value, render_cvar_opts) %]
           [% END %]
         [% END %]
@@ -89,13 +93,16 @@
 
     [% ELSIF cvar.var.type == 'customer' %]
       [% render_cvar_tag_options.type = 'customer' %]
+      [% render_cvar_tag_options.action = "{commit_one=''}" %]
       [% P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'vendor' %]
+      [% render_cvar_tag_options.action = "{commit_one=''}" %]
       [% render_cvar_tag_options.type = 'vendor' %]
       [% P.customer_vendor.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'part' %]
+      [% render_cvar_tag_options.action = "{commit_one=''}" %]
       [% P.part.picker(cvar_tag_name, cvar.value, render_cvar_tag_options) %]
 
     [% ELSIF cvar.var.type == 'number' %]
