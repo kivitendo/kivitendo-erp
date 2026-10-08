@@ -138,11 +138,16 @@ sub action_save {
     $cv_obj->link_contact($self->contact);
   }
 
-  my $redirect_url = $self->url_for(
-    action => 'edit',
-    id     => $self->contact->cp_id,
-  );
-  $self->js->redirect_to($redirect_url)->render;
+  if (!$::form->{keep_open} && $::form->{callback}) {
+    $self->js->redirect_to($::form->{callback})->render;
+  } else {
+    my $redirect_url = $self->url_for(
+      action    => 'edit',
+      id        => $self->contact->cp_id,
+      (callback => $::form->{callback}) x !!$::form->{callback},
+    );
+    $self->js->redirect_to($redirect_url)->render;
+  }
 }
 
 sub action_delete {
@@ -243,11 +248,21 @@ sub _setup_form_action_bar {
 
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
-      action => [
-        t8('Save'),
-        call      => [ 'kivi.Contact.save' ],
-        accesskey => 'enter',
+      combobox => [
+        action => [
+          t8('Save and back'),
+          call      => [ 'kivi.Contact.save', { keep_open => 0 } ],
+          accesskey => 'alt+S',
+          only_if   => $::form->{callback},
+        ],
+        action => [
+          t8('Save and keep open'),
+          call      => [ 'kivi.Contact.save', { keep_open => 1 } ],
+          accesskey => 'alt+shift+S',
+        ],
       ],
+
+      'separator',
 
       action => [
         t8('Delete'),

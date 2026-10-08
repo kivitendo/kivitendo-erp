@@ -21,7 +21,7 @@
       [% PROCESS 'contact/_contact_row.html', cv=customer, callback=SELF.url_for(controller='CustomerVendor', action='edit', id=SELF.cv.id, db=FORM.db), main=main %]
     [% END %]
     <tr id="add_contact_row">
-      <td colspan="2">[% 'Insert new' | $T8 %]:</td>
+      <td colspan="2">[% 'Add existing' | $T8 %]:</td>
       <td colspan="9">
         [% P.contact.picker('add_contact_id', '', action = { commit_one = "kivi.Contact.on_add_contact" }, class="add_contact_input wi-wide") %]
       </td>
