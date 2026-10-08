@@ -125,6 +125,7 @@ namespace("kivi").setupLocale({
 "Ok":"",
 "Overall Net.Turnover":"",
 "Part picker":"",
+"Partsgroups":"",
 "Paste":"",
 "Paste template":"",
 "Please enter the new name:":"",
