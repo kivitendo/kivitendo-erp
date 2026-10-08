@@ -112,7 +112,9 @@ sub type_dependent_default_value {
   }
 
   if ($self->type =~ m{^(?:date|timestamp)}) {
-    return $self->default_value ? DateTime->from_kivitendo($self->default_value) : undef;
+    return   'NOW' eq $self->default_value ? DateTime->now_local
+           : $self->default_value          ? DateTime->from_kivitendo($self->default_value)
+           : undef;
   }
 
   return $self->default_value;
