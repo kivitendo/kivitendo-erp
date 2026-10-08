@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.052.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:camt.052.001.02 camt.052.001.02.xsd">
+
+<BkToCstmrAcctRpt>
+  <GrpHdr>
+    <MsgId>052D2014-01-07T06:02:02.0N140000002</MsgId>
+    <CreDtTm>2014-01-07T06:01:42.0+01:00</CreDtTm>
+    <MsgPgntn>
+      <PgNb>1</PgNb>
+      <LastPgInd>true</LastPgInd>
+    </MsgPgntn>
+  </GrpHdr>
+  <Rpt>
+    <Id>0352C5220140107060202</Id>
+    <ElctrncSeqNb>140000002</ElctrncSeqNb>
+    <CreDtTm>2014-01-07T06:01:42.0+01:00</CreDtTm>
+    <Acct>
+      <Id>
+        <IBAN>DE58740618130100033626</IBAN>
+      </Id>
+      <Ccy>EUR</Ccy>
+      <Ownr>
+        <Nm>Testkonto Nummer 2</Nm>
+      </Ownr>
+      <Svcr>
+        <FinInstnId>
+          <BIC>GENODEF1PFK</BIC>
+          <Nm>VR-Bank Rottal-Inn eG</Nm>
+          <Othr>
+            <Id>DE 129267947</Id>
+            <Issr>UmsStId</Issr>
+          </Othr>
+        </FinInstnId>
+      </Svcr>
+    </Acct>
+    <Bal>
+      <Tp>
+        <CdOrPrtry>
+          <Cd>PRCD</Cd>
+        </CdOrPrtry>
+      </Tp>
+      <Amt Ccy="EUR">13.95</Amt>
+      <CdtDbtInd>CRDT</CdtDbtInd>
+      <Dt>
+        <Dt>2014-01-07</Dt>
+      </Dt>
+    </Bal>
+    <Bal>
+      <Tp>
+        <CdOrPrtry>
+          <Cd>CLBD</Cd>
+        </CdOrPrtry>
+      </Tp>
+      <Amt Ccy="EUR">15.15</Amt>
+      <CdtDbtInd>CRDT</CdtDbtInd>
+      <Dt>
+        <Dt>2014-01-07</Dt>
+      </Dt>
+    </Bal>
+    <Ntry>
+      <Amt Ccy="EUR">1.20</Amt>
+      <CdtDbtInd>CRDT</CdtDbtInd>
+      <Sts>BOOK</Sts>
+      <BookgDt>
+        <Dt>2014-01-07</Dt>
+      </BookgDt>
+      <ValDt>
+        <Dt>2014-01-05</Dt>
+      </ValDt>
+      <AcctSvcrRef>2014010509572410000</AcctSvcrRef>
+      <BkTxCd/>
+      <NtryDtls>
+        <TxDtls>
+          <Refs>
+            <MsgId>20140107135635060183</MsgId>
+            <EndToEndId>STZV-EtE27122013-11:05-2</EndToEndId>
+            <MndtId>Mandat20131227</MndtId>
+          </Refs>
+          <BkTxCd>
+            <Prtry>
+              <Cd>NMSC+835</Cd>
+              <Issr>ZKA</Issr>
+            </Prtry>
+          </BkTxCd>
+          <RmtInf>
+            <Ustrd>Retoure SEPA Lastschrift vom 03.01.2014, Rueckgabegrund: MD06 Lastschriftwiderspruch durch den Zahlungspflichtigen EREF: STZV-EtE27122013-11</Ustrd>
+            <Ustrd>:05-2 CRED: DE79ZZZ00000000584 IBAN: DE14740618130000033626 BIC: GENODEF1PFK ABWE: Testkonto</Ustrd>
+          </RmtInf>
+          <RtrInf>
+            <OrgnlBkTxCd>
+              <Prtry>
+                <Cd>105</Cd>
+                <Issr>ZKA</Issr>
+              </Prtry>
+            </OrgnlBkTxCd>
+            <Orgtr>
+              <Id>
+                <OrgId>
+                  <BICOrBEI>GENODEF1PFK</BICOrBEI>
+                </OrgId>
+              </Id>
+            </Orgtr>
+            <Rsn>
+              <Cd>MD06</Cd>
+            </Rsn>
+          </RtrInf>
+        </TxDtls>
+      </NtryDtls>
+    </Ntry>
+  </Rpt>
+</BkToCstmrAcctRpt>
+</Document>
