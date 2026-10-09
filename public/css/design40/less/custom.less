@@ -35,14 +35,14 @@
 // This is just an exemple
 // Do run "lessc style.less ../style.css" in your terminal session with cursor on the folder /css/less
 
-// Custom overrides 
+// Custom overrides
 
 
 // --------------------------------------
 // DISABLE CAPTIONS IN HORIZONTAL TABLES
 // --------------------------------------
-// Captions are good. It is a nice guidance thru Kivitendo and captions also force 
-// programmers 
+// Captions are good. It is a nice guidance thru Kivitendo and captions also force
+// programmers
 
 
 
@@ -50,22 +50,22 @@
 //  caption,
 //  th.caption,
 //  td.caption{
-//    display: none ; // instead of: table-caption  
+//    display: none ; // instead of: table-caption
 //  }
 //}
 //
 //div.wrapper.bordered {
 //  padding: 0.6em 0 0.2em 0.4em;
 //
-//  &::before{ 
+//  &::before{
 //    content: "Detail Information"; //instead of caption in toggled wrapper
-//    z-index: 9000 ;   
+//    z-index: 9000 ;
 //  }
 //  .tbl-horizontal{ display: none ; }
 //  .toggles { margin-top: -3px; }
 //  .toggles.max {
 //    width: 100%;
-//    z-index: 9001 ; 
+//    z-index: 9001 ;
 //    margin-top: -17px;
 //    text-align: right;
 //    display: block;
@@ -173,3 +173,25 @@
 //table.tbl-list{
 //  margin: 0 auto 1.0em auto;
 //}
+
+// ============================================================
+// === LINET stuff   ==========================================
+// ============================================================
+
+// sales: optional prices
+.linet_optional_regular {
+}
+
+.linet_optional_optional, .linet_optional_alternative {
+  font-style: italic;
+}
+
+.linet_optional_optional::before, .linet_optional_alternative::before {
+  font-style: italic;
+  content: "(";
+}
+
+.linet_optional_optional::after, .linet_optional_alternative::after {
+  font-style: italic;
+  content: ")";
+}
