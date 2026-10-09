@@ -24,7 +24,9 @@
         <li><a href="#tickets">[% 'Ticket system' | $T8 %]</a></li>
       [% END %]
       <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
-      <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
+      [% IF SELF.cv.id %]
+        <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
+      [% END %]
       [% IF show_deliveries %]
         <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
       [% END %]
