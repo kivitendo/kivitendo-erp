@@ -43,7 +43,7 @@
       <b>[% 'Optional' | $T8 %]</b>&nbsp;
         [%- L.select_tag("order.orderitems[].optional",
                          [ [ 'regular', LxERP.t8('No') ], [ 'optional', LxERP.t8('Yes: optional') ], [ 'alternative', LxERP.t8('Yes: alternative') ] ],
-                         default=ITEM.optional, class="recalc") %]&nbsp;
+                         default=ITEM.optional, class="recalc optional_select") %]&nbsp;
     </td>
   </tr>
   <tr>

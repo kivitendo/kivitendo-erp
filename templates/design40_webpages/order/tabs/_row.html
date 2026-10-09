@@ -135,7 +135,7 @@
                          disabled=(EDIT_DISCOUNT? 1 : '')) %]
       </div>
     </td>
-    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric") %]</td>
+    <td>[% L.div_tag(LxERP.format_amount(ITEM.linetotal, 2, 0), name="linetotal", class="numeric linet_optional_" _ ITEM.optional) %]</td>
   </tr>
   <tr [% IF !MYCONFIG.show_form_details %]style="display:none"[% END %]>
     <td colspan="100%">
