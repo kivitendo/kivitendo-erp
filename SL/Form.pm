@@ -1126,6 +1126,8 @@ sub get_formname_translation {
   my %formname_translations = (
     ar_transaction              => $main::locale->text('AR Transaction'),
     ar_transaction_storno       => $main::locale->text('Storno AR Transaction'),
+    ap_transaction              => $main::locale->text('AP Transaction'),
+    gl_transaction              => $main::locale->text('GL Transaction'),
     bin_list                    => $main::locale->text('Bin List'),
     credit_note                 => $main::locale->text('Credit Note'),
     credit_note_storno          => $main::locale->text('Storno Credit Note'),
