@@ -171,6 +171,7 @@ sub action_add_cv {
   unless ($was_already_linked) {
     my $row_as_html = $self->p->render('contact/_cv_row', cv => $cv_obj);
     $self->js->before("#add_$::form->{cv_db}_row", $row_as_html);
+    $cv_obj->link_contact($self->contact)
   }
 
   $self->js->val(".add_$::form->{cv_db}_input", '');
@@ -191,6 +192,7 @@ sub action_add_contact {
       callback => $self->url_for(controller => 'CustomerVendor', action => 'edit', id => $cv_obj->id, db => $::form->{cv_db})
     );
     $self->js->before("#add_contact_row", $row_as_html);
+    $cv_obj->link_contact($self->contact)
   }
 
   $self->js->val(".add_contact_input", '');
