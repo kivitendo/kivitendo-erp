@@ -182,7 +182,16 @@ namespace("kivi.Validator", function(ns) {
   };
 
   ns.annotate = function($e, error) {
-      // if element is ckeditor:
+    // The element to annotate can live within a tab. If so, bring this tab to foreground first.
+    if (error && $e.parents('.ui-tabs-panel').length) {
+      let $parent_tab        = $($e.parents('.ui-tabs-panel')[0]);
+      let $parent_tab_widget = $($parent_tab.parents(".tabwidget")[0]);
+      $parent_tab_widget.tabs({
+        active: $parent_tab_widget.children('.ui-tabs-panel').index($parent_tab)
+      });
+    }
+
+    // if element is ckeditor:
     if ($e.data('ckeditorInstance')) {
       const $orig_e = $e;
       $e = $($orig_e.data('ckeditorInstance').ui.view.editable._editableElement);
