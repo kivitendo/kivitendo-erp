@@ -734,8 +734,8 @@ tag's C<id> defaults to C<name_to_id($name)>.
 =item C<input_tag_trim $name, $value, %attributes>
 
 This is a wrapper around C<input_tag> that adds ' trimmed_whitespaces' to
-$attributes{'data-validate'} and loads C<js/kivi.Validator.js>. This will trim
-the whitespaces around the input.
+$attributes{'data-validate'} and loads C<public/js/kivi.Validator.js>. This will
+trim the whitespaces around the input.
 
 =item C<input_email_tag $name, $value, %params>
 
@@ -768,7 +768,7 @@ Creates a HTML 'input type="button"' tag with a very specific onclick
 handler that submits the form given by the jQuery selector
 C<$form_selector> to the URL C<$url> (the actual JavaScript function
 called for that is C<kivi.submit_ajax_form()> in
-C<js/client_js.js>). The button's label will be C<$text>.
+C<public/js/client_js.js>). The button's label will be C<$text>.
 
 =item C<button_tag $onclick, $text, %attributes>
 

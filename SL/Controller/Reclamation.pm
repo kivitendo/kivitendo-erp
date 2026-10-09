@@ -2380,7 +2380,7 @@ Dialog for selecting price and discount sources
 
 =back
 
-=item * C<js/kivi.Reclamation.js>
+=item * C<public/js/kivi.Reclamation.js>
 
 java script functions
 

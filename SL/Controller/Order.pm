@@ -2936,7 +2936,7 @@ Dialog for selecting price and discount sources
 
 =back
 
-=item * C<js/kivi.Order.js>
+=item * C<public/js/kivi.Order.js>
 
 java script functions
 

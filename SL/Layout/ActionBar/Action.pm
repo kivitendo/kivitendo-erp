@@ -76,9 +76,9 @@ This base class for actions can be used to implement elements that can be
 added to L<SL::Layout::ActionBar>.
 
 Elements can be interactive or simply used for layout. Most of the actual
-semantics are handled in the corresponding javascript C<js/kivi.ActionBar.js>, so
-this is only used to generate the DOM elements and to provide information for
-request time logic decisions.
+semantics are handled in the corresponding javascript
+C<public/js/kivi.ActionBar.js>, so this is only used to generate the DOM
+elements and to provide information for request time logic decisions.
 
 
 =head1 SYNOPSIS

@@ -2510,7 +2510,7 @@ Displaying tax information
 
 =back
 
-=item * C<js/kivi.DeliveryOrder.js>
+=item * C<public/js/kivi.DeliveryOrder.js>
 
 java script functions
 

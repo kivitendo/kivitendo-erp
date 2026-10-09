@@ -336,7 +336,7 @@ L<SL::Layout::Dispatcher/static_javascripts>:
   }
 
 Note how these are relative to the base dirs of the currently selected
-stylesheets. Javascripts are resolved relative to the C<js/> basedir.
+stylesheets. Javascripts are resolved relative to the C<public/js/> basedir.
 
 Setting directly with C<stylesheets> and C<javascripts> is eprecated.
 
