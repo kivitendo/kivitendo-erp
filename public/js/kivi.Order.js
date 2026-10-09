@@ -319,6 +319,16 @@ namespace('kivi.Order', function(ns) {
     html_elt.html(price_str);
   };
 
+  ns.on_optional_change = function(event) {
+    var $row              = $(event.target).closest('div[name="second_row"]').closest("tbody");
+    var $linetotal        = $row.find('div[name="linetotal"]');
+    var new_optional_type = $row.find('[name="order.orderitems[].optional"]').val();
+
+    for (const optional_type of [ "regular", "optional", "alternative" ])
+      $linetotal.removeClass("linet_optional_" + optional_type);
+    $linetotal.addClass("linet_optional_" + new_optional_type);
+  };
+
   ns.on_subtotal_change = function(event) {
     $(event.target).parents('tbody.row_entry.listrow')
       .find('[name="subtotal[]"]')
@@ -399,6 +409,10 @@ namespace('kivi.Order', function(ns) {
     kivi.run_once_for('.unitselect', 'on_change_unit_with_oldval', function(elt) {
       $(elt).data('oldval', $(elt).val());
       $(elt).change(ns.unit_change);
+    });
+
+    kivi.run_once_for('.optional_select', 'on_change_optinal', function(elt) {
+      $(elt).change(ns.on_optional_change);
     });
 
     kivi.run_once_for('.kivi_orderjs_subtotal', 'on_change_subtotal_change', function(elt) {
