@@ -612,9 +612,9 @@ C<select_node>, C<deselect_node>, C<deselect_all>
 =head1 ADDING SUPPORT FOR ADDITIONAL FUNCTIONS
 
 In order to not have to maintain two files (this one and
-C<js/client_js.js>) there's a script that can parse this file's
+C<public/js/client_js.js>) there's a script that can parse this file's
 C<%supported_methods> definition and generate the file
-C<js/client_js.js> accordingly. The steps are:
+C<public/js/client_js.js> accordingly. The steps are:
 
 =over 2
 
@@ -626,14 +626,14 @@ more. In such a case the C<E<lt>ARGSE<gt>> format expands to an actual
 array (and the individual elements if the value is positive>.
 
 =item 2. Run C<scripts/generate_client_js_actions.pl>. It will
-generate C<js/client_js.js> automatically.
+generate C<public/js/client_js.js> automatically.
 
 =item 3. Reload the files in your browser (cleaning its cache can also
 help).
 
 =back
 
-The template file used for generated C<js/client_js.js> is
+The template file used for generated C<public/js/client_js.js> is
 C<scripts/generate_client_js_actions.tpl>.
 
 =head1 BUGS
