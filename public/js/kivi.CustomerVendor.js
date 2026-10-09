@@ -349,7 +349,7 @@ namespace('kivi.CustomerVendor', function(ns) {
         },
         select: function(event, ui) {
           self.set_item(ui.item);
-          if (self.o.action.commit_one) {
+          if (self.o.action.commit_one && event.which != KEY.ENTER && event.which != KEY.TAB) {
             self.run_action(self.o.action.commit_one);
           }
         },
