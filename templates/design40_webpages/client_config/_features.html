@@ -265,11 +265,6 @@
         <th class="caption" colspan="3">[% LxERP.t8("Purchasing & Sales") %]</th>
       </tr>
       <tr>
-        <th>[% LxERP.t8('Require a transaction description in purchase and sales records') %]</th>
-        <td>[% L.yes_no_tag('defaults.require_transaction_description_ps', SELF.defaults.require_transaction_description_ps) %]</td>
-        <td class="long-desc">[% LxERP.t8('If enabled purchase and sales records cannot be saved if no transaction description has been entered.') %]</td>
-      </tr>
-      <tr>
         <th>[% LxERP.t8("Only list customer's projects in sales records") %]</th>
         <td>[% L.yes_no_tag("defaults.customer_projects_only_in_sales", SELF.defaults.customer_projects_only_in_sales) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled only those projects that are assigned to the currently selected customer are offered for selection in sales records.") %]</td>
@@ -380,11 +375,27 @@
                             SELF.available_documents_with_no_positions,
                             default=SELF.defaults.allowed_documents_with_no_positions,
                             multiple=1,
-                            with_empty=1,
+                            with_empty=1, # Deselecting every item omits this multi-select from the request
                             value_key="name",
                             title_key="description",
                             id="defaults_allowed_documents_with_no_positions",
                             size=SELF.available_documents_with_no_positions.size+1) %]
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>[% 'Documents which are allowed to be saved with no transaction description' | $T8 %]</th>
+        <td colspan="2">
+          <div>
+            [% L.select_tag("defaults.allowed_documents_with_no_transaction_description[]",
+                            SELF.available_documents_with_no_transaction_description,
+                            default=SELF.defaults.allowed_documents_with_no_transaction_description,
+                            multiple=1,
+                            with_empty=1, # Deselecting every item omits this multi-select from the request
+                            value_key="name",
+                            title_key="description",
+                            id="defaults_allowed_documents_with_no_transaction_description",
+                            size=SELF.available_documents_with_no_transaction_description.size+1) %]
           </div>
         </td>
       </tr>
