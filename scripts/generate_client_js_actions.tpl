@@ -10,7 +10,7 @@ ns.eval_json_result = function(data) {
   if (!data)
     return;
 
-  if (data.error)
+  if (data.error && ns.Flash)
     return ns.Flash.display_flash('error', data.error);
 
   if ((data.js || '') !== '')
