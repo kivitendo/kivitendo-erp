@@ -31,9 +31,15 @@ namespace('kivi.Contact', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
-  ns.detach_contact_or_cv = function(clicked) {
+  ns.detach_contact_or_cv = function(clicked,db,cv_id,cp_id) {
     const row = $(clicked).parents('tr').first();
     $(row).remove();
+    let data = [];
+    data.push({ name: 'action', value: 'Contact/detach_contact_or_cv' },
+              { name: 'db',  value: db },
+              { name: 'cv_id',  value: cv_id },
+              { name: 'id',     value: cp_id });
+    $.post("controller.pl", data, kivi.eval_json_result);
   };
 
   ns.set_main_contact = function(clicked) {

@@ -150,6 +150,14 @@ sub action_save {
   }
 }
 
+sub action_detach_contact_or_cv {
+  my ($self) = @_;
+    my $cv_obj = $::form->{db} eq 'customer'
+      ? SL::DB::Customer->new(id => $::form->{cv_id})->load
+      : SL::DB::Vendor  ->new(id => $::form->{cv_id})->load;
+    $cv_obj->detach_contact($self->contact);
+}
+
 sub action_delete {
   my ($self) = @_;
 
