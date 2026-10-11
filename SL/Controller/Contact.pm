@@ -124,14 +124,14 @@ sub action_save {
   }
 
   if (!$::form->{keep_open} && $::form->{callback}) {
-    $self->js->redirect_to($::form->{callback})->render;
+    $self->redirect_to($::form->{callback});
   } else {
     my $redirect_url = $self->url_for(
       action    => 'edit',
       id        => $self->contact->cp_id,
       (callback => $::form->{callback}) x !!$::form->{callback},
     );
-    $self->js->redirect_to($redirect_url)->render;
+    $self->redirect_to($redirect_url);
   }
 }
 
