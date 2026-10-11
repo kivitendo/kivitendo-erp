@@ -11,11 +11,10 @@
 <table class="tbl-list">
   <thead>
     <tr>
-      <th colspan="9">[% 'Linked Contacts' | $T8 %]</th>
+      <th colspan="7">[% 'Linked Contacts' | $T8 %]</th>
+      <th>[% 'Email' | $T8 %]</th>
       <th>[% 'Phone1' | $T8 %]</th>
-      <th>[% 'Phone2' | $T8 %]</th>
       <th>[% 'Mobile1' | $T8 %]</th>
-      <th>[% 'Mobile2' | $T8 %]</th>
       <th>[% 'Main Contact Person' | $T8 %]</th>
     </tr>
   </thead>
@@ -26,7 +25,7 @@
     [% END %]
     <tr id="add_contact_row">
       <td colspan="2">[% 'Add existing' | $T8 %]:</td>
-      <td colspan="12">
+      <td colspan="9">
         [% P.contact.picker('add_contact_id', '', action = { commit_one = "kivi.Contact.on_add_contact" }, class="add_contact_input wi-wide") %]
       </td>
     </tr>

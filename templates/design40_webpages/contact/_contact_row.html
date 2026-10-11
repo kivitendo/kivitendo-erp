@@ -5,7 +5,6 @@
 <tr>
   <td>[%- L.hidden_tag('linked_contacts[+].cp_id', contact.cp_id) %]
       [%- L.button_tag("kivi.Contact.detach_contact_or_cv(this,'" _ FORM.db _ "'," _ SELF.cv.id _ "," _ contact.cp_id _ ")", LxERP.t8("X"), class="wi-verytiny") %]</td>
-  <td>[% contact.cp_number    | html %]</td>
   <td>[% contact.presenter.contact(callback = callback) %]</td>
   <td>[% contact.cp_title     | html %]</td>
   <td>[% contact.cp_abteilung | html %]</td>
@@ -14,8 +13,6 @@
   <td>[% contact.cp_city      | html %]</td>
   <td>[% P.link_tag('mailto:' _ contact.cp_email, contact.cp_email) %]</td>
   <td>[% contact.cp_phone1  | html %]</td>
-  <td>[% contact.cp_phone2  | html %]</td>
   <td>[% contact.cp_mobile1 | html %]</td>
-  <td>[% contact.cp_mobile2 | html %]</td>
   <td align="right">[% L.yes_no_tag('linked_contacts[].main', main, title = LxERP.t8('Main Contact Person'), onchange='kivi.Contact.set_main_contact(this)') %]</td>
 </tr>
