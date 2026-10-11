@@ -116,21 +116,6 @@ sub action_save {
   SL::DB::Manager::ContactTitle     ->delete_unused if $save_contact_title;
   SL::DB::Manager::ContactDepartment->delete_unused if $save_contact_department;
 
-  # reconcile linked customers and vendors
-  my %old_customer_ids = map { $_->id => 1 } @{$self->contact->customers};
-  my %new_customer_ids = map { $_->{cv_id} => 1 } grep { $_->{cv_db} eq 'customer' } @{$::form->{linked_contacts}};
-  my $new_customers    = %new_customer_ids ? SL::DB::Manager::Customer->get_all(query => [ id => [ keys %new_customer_ids ] ]) : [];
-
-  $_->detach_contact($self->contact) for grep { !$new_customer_ids{$_->id} } $self->contact->customers;
-  $_->link_contact($self->contact)   for grep { !$old_customer_ids{$_->id} } @$new_customers;
-
-  my %old_vendor_ids = map { $_->id => 1 } @{$self->contact->vendors};
-  my %new_vendor_ids = map { $_->{cv_id} => 1 } grep { $_->{cv_db} eq 'vendor' } @{$::form->{linked_contacts}};
-  my $new_vendors    = %new_vendor_ids ? SL::DB::Manager::Vendor->get_all(  query => [ id => [ keys %new_vendor_ids ] ]) : [];
-
-  $_->detach_contact($self->contact) for grep { !$new_vendor_ids{$_->id} } $self->contact->vendors;
-  $_->link_contact($self->contact)   for grep { !$old_vendor_ids{$_->id} } @$new_vendors;
-
   if ($::form->{link_with_cv_id}) {
     my $cv_obj = $::form->{link_with_cv_db} eq 'customer'
       ? SL::DB::Customer->new(id => $::form->{link_with_cv_id})->load
