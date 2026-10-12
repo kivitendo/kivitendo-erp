@@ -4,7 +4,7 @@
 [%- USE P %]
 <tr>
   <td>[%- L.hidden_tag('linked_contacts[+].cp_id', contact.cp_id) %]
-      [%- L.button_tag("kivi.Contact.detach_contact_or_cv(this,'" _ FORM.db _ "'," _ SELF.cv.id _ "," _ contact.cp_id _ ")", LxERP.t8("X"), class="wi-verytiny") %]</td>
+      [%- L.button_tag("kivi.Contact.detach_contact(this," _ contact.cp_id _ ")", LxERP.t8("X"), class="wi-verytiny") %]</td>
   <td>[% contact.presenter.contact(callback = callback) %]</td>
   <td>[% contact.cp_title     | html %]</td>
   <td>[% contact.cp_abteilung | html %]</td>
