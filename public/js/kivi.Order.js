@@ -325,8 +325,8 @@ namespace('kivi.Order', function(ns) {
     var new_optional_type = $row.find('[name="order.orderitems[].optional"]').val();
 
     for (const optional_type of [ "regular", "optional", "included", "alternative", "at_cost" ])
-      $linetotal.removeClass("linet_optional_" + optional_type);
-    $linetotal.addClass("linet_optional_" + new_optional_type);
+      $linetotal.removeClass("position_optional_" + optional_type);
+    $linetotal.addClass("position_optional_" + new_optional_type);
   };
 
   ns.on_subtotal_change = function(event) {
