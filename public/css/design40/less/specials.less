@@ -15,6 +15,7 @@
 // CONTENTS:
 // - ACCOUNT LIST
 // - ROW POSITION DETAILS (E.G. SALES ORDER)
+// - ROW POSITION OPTIONAL PRICES
 // - TABLE #DISPLAY ROW
 // - HORIZONTAL SCROLLBAR DISPLAY
 // ----------------------------------------------------------------------------
@@ -109,6 +110,34 @@ td.row-position-detail{
 } // /td.row-position-detail
 
 
+// --------------------------------------
+// ROW POSITION OPTIONAL PRICES
+// --------------------------------------
+.position_optional_regular {
+}
+
+.position_optional_optional,
+.position_optional_included,
+.position_optional_alternative,
+.position_optional_at_cost {
+  font-style: italic;
+}
+
+.position_optional_optional::before,
+.position_optional_included:before,
+.position_optional_alternative::before,
+.position_optional_at_cost:before {
+  font-style: italic;
+  content: "(";
+}
+
+.position_optional_optional::after,
+.position_optional_included:after,
+.position_optional_alternative::after,
+.position_optional_at_cost:after {
+  font-style: italic;
+  content: ")";
+}
 
 // --------------------------------------
 // TABLE #DISPLAY ROW
