@@ -108,6 +108,10 @@
       <%if serialnumber%>\ExtraDescription{\seriennummer: <%serialnumber%>}<%end serialnumber%>%
       <%if ean%>\ExtraDescription{\ean: <%ean%>}<%end ean%>%
       <%if projectnumber%>\ExtraDescription{\projektnummer: <%projectnumber%>}<%end projectnumber%>%
+      <%if optional == "optional"%>\ExtraDescription{\scriptsize \optional}<%end optional%>%
+      <%if optional == "included"%>\ExtraDescription{\scriptsize \inklusive}<%end included%>%
+      <%if optional == "alternative"%>\ExtraDescription{\scriptsize \alternative}<%end alternative%>%
+      <%if optional == "at_cost"%>\ExtraDescription{\scriptsize \nachaufwand}<%end at_cost%>%
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
