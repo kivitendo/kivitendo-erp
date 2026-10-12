@@ -1,5 +1,5 @@
 -- @tag: linet_order_alternative_positions
--- @description: LINET: optionale Positionen in Angboten/Aufträgen können auch Alternativpositionen sein
+-- @description: LINET: optionale Positionen in Angeboten/Aufträgen können auch Alternativpositionen sein
 -- @depends: linet_oe_position_type release_4_1_0
 
 -- Umstellung vorhandene offizielle Struktur auf enum
