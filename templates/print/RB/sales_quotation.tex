@@ -147,7 +147,10 @@
           <%if serialnumber%> && \scriptsize \seriennummer: <%serialnumber%>\\<%end serialnumber%>
           <%if ean%> && \scriptsize \ean: <%ean%>\\<%end ean%>
           <%if projectnumber%> && \scriptsize \projektnummer: <%projectnumber%>\\<%end projectnumber%>
-          <%if optional%> && \scriptsize \optional \\<%end%>
+          <%if optional == "optional"%>    && \scriptsize \optional \\<%end%>
+          <%if optional == "included"%>    && \scriptsize \inklusive \\<%end%>
+          <%if optional == "alternative"%> && \scriptsize \alternative \\<%end%>
+          <%if optional == "at_cost"%>     && \scriptsize \nachaufwand \\<%end%>
           <%if customer_make%>
             <%foreach customer_make%>
               \ifthenelse{\equal{<%customer_make%>}{<%name%>}}{&& \kundenartnr: <%customer_model%>\\}{}
