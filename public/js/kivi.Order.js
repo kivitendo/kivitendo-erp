@@ -411,7 +411,7 @@ namespace('kivi.Order', function(ns) {
       $(elt).change(ns.unit_change);
     });
 
-    kivi.run_once_for('.optional_select', 'on_change_optinal', function(elt) {
+    kivi.run_once_for('.optional_select', 'on_change_optional', function(elt) {
       $(elt).change(ns.on_optional_change);
     });
 
