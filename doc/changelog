@@ -25,6 +25,14 @@ Mittelgroße neue Features:
 - Lagerbewegungen können nun auch schon in Aufträgen vorgemerkt werden
   (Lagerbewegungsdialog). Das löst hier noch keine Lagerbewgung aus.
 
+- Positionen können nun entweder nicht optional sein ("nein") oder
+  "optional", "inklusive", "alternativ" und "nach Aufwand".
+  Die Preisberechnung verhält sich wie vorher bei "optional" (Preis wird
+  nicht berechnet). Ein nicht berechneter Preis wird in der Belegmaske durch
+  kursive Schrift und Umklammerung gekennzeichnet.
+  Die Unterscheidung soll vor allem eine bessere Steuerung in den Druckvorlagen
+  ermöglichen.
+
 Kleinere neue Features und Detailverbesserungen:
 
 - Verschiedene E-Mail-relevante Felder in der Mandantenkonfiguration sind nun
