@@ -45,7 +45,7 @@
          [% ELSE %]
          [% L.select_tag('filter.part.partsgroup_id', SELF.partsgroups,
                          default    = filter.part.partsgroup_id,
-                         title_key  = 'partsgroup',
+                         title_key  = 'indented_name',
                          value_key  = 'id',
                          with_empty = 1,
                          class      = 'wi-lightwide',
