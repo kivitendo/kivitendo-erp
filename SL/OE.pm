@@ -1174,7 +1174,7 @@ sub order_details {
         $form->{non_separate_subtotal} += $linetotal;
       }
 
-      $form->{ordtotal}         += $linetotal unless $form->{"optional_$i"};
+      $form->{ordtotal}         += $linetotal if 'regular' eq $form->{"optional_$i"};
       $form->{nodiscount_total} += $nodiscount_linetotal;
       $form->{discount_total}   += $discount;
 
@@ -1221,7 +1221,7 @@ sub order_details {
 
       map { $taxrate += $form->{"${_}_rate"} } split(/ /, $form->{"taxaccounts_$i"});
 
-      unless ($form->{"optional_$i"}) {
+      if ('regular' eq $form->{"optional_$i"}) {
         if ($form->{taxincluded}) {
 
           # calculate tax
