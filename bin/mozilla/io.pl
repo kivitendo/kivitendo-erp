@@ -2445,7 +2445,7 @@ sub _maybe_attach_zugferd_data {
         mime_type    => 'text/xml',
       }
     ];
-  } or do { $::form->error($@) };
+  } or do { my $err = $@; $::form->error($err) };
 }
 
 sub download_factur_x_xml {
@@ -2460,7 +2460,7 @@ sub download_factur_x_xml {
       || !$record->can('create_zugferd_data')
       || !$record->customer->create_zugferd_invoices_for_this_customer;
 
-  my $xml_content         = eval { $record->create_zugferd_data } or do { $::form->error($@) };
+  my $xml_content         = eval { $record->create_zugferd_data } or do { my $err = $@; $::form->error($err); };
   my %factur_x_settings   = SL::ZUGFeRD->convert_customer_setting($record->customer->create_zugferd_invoices_for_this_customer);
   my $prefix              = $factur_x_settings{profile} == SL::ZUGFeRD::PROFILE_XRECHNUNG() ? "xrechnung" : "factur-x";
   my $attachment_filename = "${prefix}_" . $::form->generate_attachment_filename;
