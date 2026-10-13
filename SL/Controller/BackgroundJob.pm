@@ -9,6 +9,7 @@ use SL::Controller::Helper::GetModels;
 use SL::DB::BackgroundJob;
 use SL::Helper::Flash;
 use SL::JSON;
+use SL::YAML;
 use SL::Locale::String;
 use SL::System::TaskServer;
 
@@ -165,6 +166,11 @@ sub create_or_update {
   my $params = delete($::form->{background_job}) || { };
 
   $self->background_job->assign_attributes(%{ $params });
+
+  my $data = $self->background_job->data_as_hash;
+  $data->{HTTP_ORIGIN} = $ENV{HTTP_ORIGIN};
+  $data->{REQUEST_URI} = $ENV{REQUEST_URI};
+  $self->background_job->data(SL::YAML::Dump($data));
 
   my @errors = $self->background_job->validate;
 
