@@ -13,6 +13,14 @@ Wichtige Hinweise:
   geschrieben wird, entstehen dadurch keine Duplikate beim Rückimport der ab
   Version 3.9.1 erzeugten SEPA-Anweisungen.
 
+- Das Feld "Optional" bei Artikelpositionen in Angeboten/Aufträgen ist nun ein
+  Auswahlfeld und spiegelt verschiedene Typen von optionalen Artikelpositionen
+  wieder. Dadurch kann in den entsprechenden Druckvorlagen nicht mehr einfach
+  auf den Wahrheitswert von "optional" geprüft werden, sondern es muss auf
+  Übereinstimmung mit einem der Typen geprüft werden.
+  Falls die mandantenspezifischen Druckvorlagen eine Prüfung auf "optional"
+  enthalten, so muss diese angepasst werden.
+
 Upgrade auf v4.1.0
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
