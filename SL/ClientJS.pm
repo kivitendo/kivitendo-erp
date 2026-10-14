@@ -113,7 +113,7 @@ my %supported_methods = (
   'set_ckeditor_val'     => 2,  # kivi.set_ckeditor_val(<TARGET>, <ARGS>)
 
   # ## other stuff ##
-  redirect_to            => 1,  # window.location.href = <TARGET>
+  redirect_to            => 1,  # kivi.safe_internal_redirect(<TARGET>)
   save_file              => 4,  # kivi.save_file(<TARGET>, <ARGS>)
 
   # flash
