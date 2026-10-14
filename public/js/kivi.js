@@ -307,8 +307,8 @@ namespace("kivi", function(ns) {
     $element.tabs(tabsParams);
   };
 
-  ns.init_text_editor5 = function($element) {
-    ClassicEditor
+  ns.init_text_editor5 = async function($element) {
+    let editor = await ClassicEditor
     .create($element.get(0), {
       toolbar: [
         'bold', 'italic', 'underline', 'strikethrough',
@@ -325,62 +325,57 @@ namespace("kivi", function(ns) {
         ui: kivi.myconfig.countrycode,
         content: kivi.myconfig.countrycode
       }
-    })
-    .then(editor => {
-      // save instance in data
-      $element.data('ckeditorInstance', editor);
-
-      // sync data if javascript changes the underlying textarea
-      // make sure to actually send change! $e.val(data) does not trigger it!
-      $element.on('change', (e) => {
-        editor.setData($element.val())
-      });
-
-      // handle auto focus
-      if ($element.hasClass('texteditor-autofocus'))
-        ns.focus_ckeditor($element);
-
-      // trigger delayed hooks on the editor
-      $element.trigger('ckeditor-ready');
-
-      // make sure blur events copy back to the textarea
-      // this catches most of the non-submit ways that ckeditor doesn't handle
-      // on its own. if you have any bugs, make sure to call updateSourceElement
-      // directly before serializing the form
-      editor.ui.focusTracker.on( 'change:isFocused', (evt, name, is_focused) => {
-        if (!is_focused) {
-          editor.updateSourceElement();
-        }
-      });
-
-      // handle inital disabled
-      if ($element.attr('disabled'))
-        editor.enableReadOnlyMode('disabled')
-
-      // handle initial height
-      const element = $element.get(0);
-      if (element.style.height || element.rows)
-        editor.editing.view.change((writer) => {
-          var height = element.style.height;
-
-          if (!height && element.rows) {
-            // ckeditor does not support height in rows, but ~30px is a good estimate.
-            // the correct way would be to either configure it, or to add a small dom
-            // element and get the line height at run-time, which is pretty overkill
-            // esp. since ckeditor itself has loads of spacing problems at high zoom
-            editor.editing.view.add
-            height = (element.rows * 30) + "px";
-          }
-          writer.setStyle(
-            "min-height",
-            height,
-            editor.editing.view.document.getRoot()
-          );
-        });
-    })
-    .catch(err => {
-      console.error(err);
     });
+    // save instance in data
+    $element.data('ckeditorInstance', editor);
+
+    // sync data if javascript changes the underlying textarea
+    // make sure to actually send change! $e.val(data) does not trigger it!
+    $element.on('change', (e) => {
+      editor.setData($element.val())
+    });
+
+    // handle auto focus
+    if ($element.hasClass('texteditor-autofocus'))
+      ns.focus_ckeditor($element);
+
+    // trigger delayed hooks on the editor
+    $element.trigger('ckeditor-ready');
+
+    // make sure blur events copy back to the textarea
+    // this catches most of the non-submit ways that ckeditor doesn't handle
+    // on its own. if you have any bugs, make sure to call updateSourceElement
+    // directly before serializing the form
+    editor.ui.focusTracker.on( 'change:isFocused', (evt, name, is_focused) => {
+      if (!is_focused) {
+        editor.updateSourceElement();
+      }
+    });
+
+    // handle inital disabled
+    if ($element.attr('disabled'))
+      editor.enableReadOnlyMode('disabled')
+
+    // handle initial height
+    const element = $element.get(0);
+    if (element.style.height || element.rows)
+      editor.editing.view.change((writer) => {
+        var height = element.style.height;
+
+        if (!height && element.rows) {
+          // ckeditor does not support height in rows, but ~30px is a good estimate.
+          // the correct way would be to either configure it, or to add a small dom
+          // element and get the line height at run-time, which is pretty overkill
+          // esp. since ckeditor itself has loads of spacing problems at high zoom
+          editor.editing.view.add
+          height = (element.rows * 30) + "px";
+        }
+        writer.setStyle(
+          "min-height",
+          height,
+          editor.editing.view.document.getRoot()
+        );
+      });
   };
 
   ns.init_report_paginate_controls = function($element) {
