@@ -119,7 +119,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'focus_ckeditor')       kivi.focus_ckeditor_when_ready(action[1]);
 
       // ## other stuff ##
-      else if (action[0] == 'redirect_to')          window.location.href = action[1];
+      else if (action[0] == 'redirect_to')          kivi.safe_internal_redirect(action[1]);
       else if (action[0] == 'save_file')            kivi.save_file(action[1], action[2], action[3], action[4]);
 
       // flash

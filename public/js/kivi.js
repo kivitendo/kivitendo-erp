@@ -638,6 +638,14 @@ namespace("kivi", function(ns) {
     return undefined;
   };
 
+  ns.safe_internal_redirect = function(target) {
+    if (target.match(/^[a-z]+\.pl(?:[?#]|$)/)) {
+      window.location.href = target;
+    } else {
+      console.error('bad protocol:', target);
+    }
+  };
+
   ns.save_file = function(base64_data, content_type, size, attachment_name) {
     // atob returns a unicode string with one codepoint per octet. revert this
     const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
