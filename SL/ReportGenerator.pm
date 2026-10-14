@@ -245,7 +245,7 @@ sub generate_with_headers {
   if ($format eq 'html') {
     my $content    = $self->generate_html_content(%params);
     my $title      = $form->{title};
-    $form->{title} = $self->{title} if ($self->{title});
+    $form->{title} = $self->{options}->{title} if ($self->{options}->{title});
     $form->header(no_layout => $params{no_layout});
     $form->{title} = $title;
 
