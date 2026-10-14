@@ -18,7 +18,7 @@ __PACKAGE__->attr_duration_minutes('inty', 'miny');
 
 package main;
 
-use Test::More tests => 130;
+use Test::More tests => 134;
 use Test::Exception;
 
 use strict;
@@ -218,6 +218,12 @@ is($item->inty,                    181,    'write as_duration_string 03:1 read r
 is($item->inty_as_minutes,         1,      'write as_duration_string 03:1 read as_minutes');
 is($item->inty_as_hours,           3,      'write as_duration_string 03:1 read as_hours');
 is($item->inty_as_duration_string, "3:01", 'write as_duration_string 03:1 read as_duration_string');
+
+$item = new_item(inty => 145); $item->inty_as_duration_string("-03:1");
+is($item->inty,                    -181,    'write as_duration_string 03:1 read raw');
+is($item->inty_as_minutes,         59,      'write as_duration_string 03:1 read as_minutes');
+is($item->inty_as_hours,           -3,      'write as_duration_string 03:1 read as_hours');
+is($item->inty_as_duration_string, "-3:01", 'write as_duration_string 03:1 read as_duration_string');
 
 local %::myconfig = (numberformat => "1.000,00");
 
