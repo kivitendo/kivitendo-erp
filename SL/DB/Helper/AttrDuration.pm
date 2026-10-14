@@ -107,8 +107,8 @@ sub _make_minutes {
       if (!defined($value) || ($value eq '')) {
         $self->$attribute(undef);
       } else {
-        croak $::locale->text("Invalid duration format") if $value !~ m{^(?:(\d*):)?(\d+)$};
-        $self->$attribute(($1 // 0) * 60 + ($2 // 0));
+        croak $::locale->text("Invalid duration format") if $value !~ m{^(-)?(?:(\d*):)?(\d+)$};
+        $self->$attribute(($1 ? -1 : 1) * (($2 // 0) * 60 + ($3 // 0)));
       }
     }
 
