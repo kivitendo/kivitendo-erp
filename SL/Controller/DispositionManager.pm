@@ -288,7 +288,7 @@ SQL
   my @ids = selectall_array_query($::form, $::form->get_standard_dbh, $query);
   return unless scalar @ids;
 
-  my $parts = SL::DB::Manager::Part->get_all( query => [ id => \@ids ] );
+  my $parts = SL::DB::Manager::Part->get_all( query => [ id => \@ids ], sort_by => 'partnumber' );
 
   my $parts_to_order = [ grep { !$_->get_open_ordered_qty } @{$parts} ];
   return $parts_to_order if !$ordered;
