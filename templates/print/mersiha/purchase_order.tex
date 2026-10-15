@@ -93,7 +93,11 @@
       &%
       <%qty%> <%unit%> &%
       <%sellprice%>&%
-      <%if optional%>\optional<%else%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end optional%>
+      <%if optional == "regular"%><%linetotal%>\,\currency<%if p_discount%>\par{\sffamily\scriptsize{(-<%p_discount%>\,\%)}}<%end p_discount%><%end regular%>
+      <%if optional == "optional"%>\optional<%end optional%>
+      <%if optional == "included"%>\inklusive<%end included%>
+      <%if optional == "alternative"%>\alternativ<%end alternative%>
+      <%if optional == "at_cost"%>\nachaufwand<%end at_cost%>
       \tabularnewline
     <%end number%>%
     }%

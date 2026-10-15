@@ -90,9 +90,9 @@ sub write_to {
       $obj->orderitems unless (defined $obj->{orderitems});
       $self->write_to($obj->{orderitems});
       if ($self->services_deliverable) {
-        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} } @{ $obj->{orderitems} };
+        $obj->{delivered} = all { $_->{delivered} } grep { ($_->{optional} eq 'regular') } @{ $obj->{orderitems} };
       } else {
-        $obj->{delivered} = all { $_->{delivered} } grep { !$_->{optional} && !$_->part->is_service } @{ $obj->{orderitems} };
+        $obj->{delivered} = all { $_->{delivered} } grep { ($_->{optional} eq 'regular') && !$_->part->is_service } @{ $obj->{orderitems} };
       }
     } else {
       die "unknown reference '@{[ ref $obj ]}' for @{[ __PACKAGE__ ]}::write_to";

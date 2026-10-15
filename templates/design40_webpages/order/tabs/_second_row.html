@@ -41,8 +41,13 @@
           [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit | html -%]
         </span>
       <b>[% 'Optional' | $T8 %]</b>&nbsp;
-        [%- L.yes_no_tag("order.orderitems[].optional", ITEM.optional
-                          class="recalc") %]&nbsp;
+        [%- L.select_tag("order.orderitems[].optional",
+                         [ [ 'regular', LxERP.t8('No') ],
+                           [ 'optional', LxERP.t8('Yes: optional') ],
+                           [ 'included', LxERP.t8('Yes: included') ],
+                           [ 'alternative', LxERP.t8('Yes: alternative') ],
+                           [ 'at_cost', LxERP.t8('Yes: at cost') ] ],
+                         default=ITEM.optional, class="recalc optional_select") %]&nbsp;
     </td>
   </tr>
   <tr>
