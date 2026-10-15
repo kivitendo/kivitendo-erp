@@ -38,10 +38,14 @@ sub parse_value {
 
   my $unparsed = delete $self->{__unparsed_value};
 
-  if ($type =~ m{^(?:customer|vendor|part|number)}) {
+  if ($type =~ m{^(?:customer|vendor|part)}) {
     return $self->number_value(!defined($unparsed) ? undef
                                : (any { ref($unparsed) eq $_ } qw(SL::DB::Customer SL::DB::Vendor SL::DB::Part)) ? $unparsed->id
                                : $unparsed * 1);
+  }
+
+  if ($type =~ m{^(?:number)}) {
+    return $self->number_value(!defined($unparsed) ? undef : $::form->parse_amount(\%::myconfig, $unparsed));
   }
 
   if ($type =~ m{^(?:bool)}) {
@@ -60,13 +64,37 @@ sub parse_value {
   $self->text_value($unparsed);
 }
 
+sub _set_value {
+  my ($self, $value) = @_;
+
+  my $type = $self->_ensure_config->type;
+
+  my $method = 'text_value';
+
+  if ($type =~ m{^(?:customer|vendor|part|number)}) {
+    $method = 'number_value';
+    $value *= 1 if defined $value;
+
+  } elsif ($type =~ m{^(?:bool)}) {
+    $method = 'bool_value';
+
+  } elsif ($type =~ m{^(?:date|timestamp)}) {
+    $method = 'timestamp_value';
+    $value  = undef if !$value;
+
+  } elsif ($type =~ m{^(?:multiselect)}) {
+    $value = 'ARRAY' eq ref $value ? '##' . join('##', @$value) . '##' : ref $value ? undef : $value;
+  }
+
+  $self->$method($value);
+}
+
 sub value {
   my $self = $_[0];
   my $type = $self->_ensure_config->type;
 
   if (scalar(@_) > 1) {
-    $self->unparsed_value($_[1]);
-    $self->parse_value;
+    $self->_set_value($_[1]);
     @_ = ($self);
   }
 
@@ -77,25 +105,14 @@ sub value {
     return defined($self->number_value) ? $self->number_value * 1 : undef;
   }
 
-  if ( $type eq 'customer' ) {
-    require SL::DB::Customer;
+  if ( $type =~ m{^(?:customer|vendor|part)$}) {
+    my $class = "SL::DB::" . ucfirst($type);
+    eval "require $class";
 
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Customer->new(id => $id)->load() : undef;
-  } elsif ( $type eq 'vendor' ) {
-    require SL::DB::Vendor;
+    return defined($self->number_value) ? int($self->number_value) : undef;
 
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Vendor->new(id => $id)->load() : undef;
-  } elsif ( $type eq 'part' ) {
-    require SL::DB::Part;
-
-    my $id = defined($self->number_value) ? int($self->number_value) : undef;
-    return $id ? SL::DB::Part->new(id => $id)->load() : undef;
   } elsif ( $type eq 'date' ) {
     return $self->timestamp_value ? $self->timestamp_value->clone->truncate(to => 'day') : undef;
-  } elsif ( $type eq 'multiselect' ) {
-    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
   }
 
   goto &text_value; # text, textfield, htmlfield and select
@@ -110,11 +127,14 @@ sub value_as_text {
 
   if ($type eq 'bool') {
     return $self->bool_value ? $::locale->text('Yes') : $::locale->text('No');
+
   } elsif ($type =~ m{^(?:timestamp|date)}) {
     return '' if !$self->timestamp_value;
     return $::locale->reformat_date( { dateformat => 'yy-mm-dd' }, $self->timestamp_value->ymd, $::myconfig{dateformat});
+
   } elsif ($type eq 'number') {
     return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
+
   } elsif ( $type =~ m{^(?:customer|vendor|part)$}) {
     my $class = "SL::DB::" . ucfirst($type);
     eval "require $class";
@@ -123,6 +143,33 @@ sub value_as_text {
   }
 
   goto &text_value; # text, textfield, htmlfield and select
+}
+
+sub value_normalized {
+  my $self = $_[0];
+  my $cfg  = $self->_ensure_config;
+  my $type = $cfg->type;
+
+  die 'not an accessor' if @_ > 1;
+
+  if ($type =~ m{^(?:timestamp|date)}) {
+    return '' if !$self->timestamp_value;
+    return $self->timestamp_value->to_kivitendo;
+
+  } elsif ( $type =~ m{^(?:customer|vendor|part)$}) {
+    my $class = "SL::DB::" . ucfirst($type);
+    eval "require $class";
+    my $object =  $class->_get_manager_class->find_by(id => int($self->number_value));
+    return $object;
+
+  } elsif ( $type eq 'multiselect' ) {
+    return $self->text_value ? [ split /##/, ($self->text_value =~ s/^##|##$//gr) ] : [];
+
+  } elsif ($type eq 'number') {
+    return $::form->format_amount(\%::myconfig, $self->number_value, $cfg->processed_options->{PRECISION});
+  }
+
+  goto &value;
 }
 
 sub is_valid {
@@ -140,3 +187,50 @@ sub is_valid {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::DB::CustomVariable - database object for custom variables
+
+See also C<SL::DB::Helper::CustomVariables>.
+
+=head1 FUNCTIONS
+
+=head2 C<unparsed_value>
+
+This object method should be used to store the unparsed user input
+from a form.
+These unparsed values are parsed by C<parse_value>.
+
+=head2 C<value>
+
+This method can be used as getter and setter and dispatches to
+the type depending methods/fields of the CVar.
+
+This accessor does not parse the values. The should be given in
+database representation and returned in database representation.
+
+=head2 C<value_as_text>
+
+Returns a textual representation of the value of the CVar.
+
+=head2 C<value_normalized>
+
+Returns an object representation of the value of the CVar for
+types that store objects (part/customer/vendor/date/timestamp).
+It also handles the multiselect type and returns an array ref
+for that. The number type is formatted.
+For other types it goes to C<value>.
+These values can be used to set the field in a form.
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+Bernd Bleßmann E<lt>bernd@kivitendo-premium.deE<gt>
+
+=cut
