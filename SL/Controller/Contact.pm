@@ -164,6 +164,8 @@ sub action_add_cv {
 
   my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
 
+  return $self->js->flash('error', t8('The object has not been saved yet.'))->render() unless $::form->{cv_id};
+
   my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
 
   my $was_already_linked = first { $_->cp_id == $self->contact->cp_id } @{ $cv_obj->contacts };
@@ -181,6 +183,8 @@ sub action_add_contact {
   my ($self) = @_;
 
   my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
+
+  return $self->js->flash('error', t8('The object has not been saved yet.'))->render() unless $::form->{cv_id};
 
   my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
 
