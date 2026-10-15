@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(pay_invoice);
-our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto booked_skonto_amount);
+our @EXPORT_OK = qw(skonto_date amount_less_skonto within_skonto_period percent_skonto reference_account open_amount skonto_amount valid_skonto_amount validate_payment_type get_payment_select_options_for_bank_transaction forex _skonto_charts_and_tax_correction skonto_project_id get_exchangerate_for_bank_transaction get_exchangerate _add_bank_fx_fees open_amount_fx open_amount_less_skonto booked_skonto_amount);
 our %EXPORT_TAGS = (
   "ALL" => [@EXPORT, @EXPORT_OK],
 );
@@ -14,6 +14,7 @@ require SL::DB::Chart;
 use Carp;
 use Data::Dumper;
 use DateTime;
+use List::MoreUtils qw(uniq);
 use List::Util qw(sum);
 use Params::Validate qw(:all);
 
@@ -247,6 +248,7 @@ sub pay_invoice {
                                                      amount     => $amount * $mult,
                                                      transdate  => $transdate_obj,
                                                      source     => $params{source},
+                                                     project_id => $skonto_booking->{project_id},
                                                      taxkey     => 0,
                                                      tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
 
@@ -618,7 +620,8 @@ sub _skonto_charts_and_tax_correction {
   $params{source} //= '';
 
 
-  my $is_sales = $self->is_sales;
+  my $is_sales   = $self->is_sales;
+  my $project_id = $self->skonto_project_id;
   my (@skonto_charts, $inv_calc, $total_skonto_rounded);
 
   $inv_calc = $self->get_tax_and_amount_by_tax_chart_id();
@@ -648,6 +651,7 @@ sub _skonto_charts_and_tax_correction {
       chart_id               => $chart_id,
       skonto_amount          => _round($skonto_netamount_unrounded + $skonto_taxamount_unrounded)
                                 * $credit_note_multiplier,
+      project_id             => $project_id,
     };
     push @skonto_charts, $rec_net;
     $total_skonto_rounded += $rec_net->{skonto_amount};
@@ -679,17 +683,19 @@ sub _skonto_charts_and_tax_correction {
          imported       => 0, # not imported
          taxincluded    => 0,
       )->add_chart_booking(
-         chart  => $debit_state ? $debit : $credit,
-         debit  => abs($skonto_taxamount_rounded),
-         source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
-         memo   => $params{memo},
-         tax_id => 0,
+         chart      => $debit_state ? $debit : $credit,
+         debit      => abs($skonto_taxamount_rounded),
+         source     => t8('Skonto Tax Correction for') . " " . $self->invnumber,
+         memo       => $params{memo},
+         tax_id     => 0,
+         project_id => $project_id,
       )->add_chart_booking(
-         chart  => $debit_state ? $credit : $debit,
-         credit => abs($skonto_taxamount_rounded),
-         source => t8('Skonto Tax Correction for') . " " . $self->invnumber,
-         memo   => $params{memo},
-         tax_id => 0,
+         chart      => $debit_state ? $credit : $debit,
+         credit     => abs($skonto_taxamount_rounded),
+         source     => t8('Skonto Tax Correction for') . " " . $self->invnumber,
+         memo       => $params{memo},
+         tax_id     => 0,
+         project_id => $project_id,
       )->post;
 
     my (%props_rl, %props_acc);
@@ -759,6 +765,23 @@ sub _skonto_charts_and_tax_correction {
 
   # return same array of skonto charts as sub skonto_charts
   return @skonto_charts;
+}
+
+sub skonto_project_id {
+  my ($self) = @_;
+
+  # Skonto reduces the booked revenue or expense of the invoice, so it gets
+  # their project. Only revenue, expense and inventory lines count, not lines
+  # of payments (bank, skonto, exchange rate differences) or taxes. If the
+  # lines have different projects, there is no single project for the skonto.
+  my @project_ids = uniq map  { $_->project_id // 0 }
+                         grep { $_->chart_link =~ m{(?:^|:)(?:AR_amount|AP_amount|IC|IC_sale|IC_income|IC_cogs|IC_expense)(?::|$)}
+                                && $_->chart_link !~ m{_paid} }
+                         @{ $self->transactions };
+
+  return $project_ids[0]         if @project_ids == 1 && $project_ids[0];
+  return $self->globalproject_id if !grep { $_ } @project_ids;
+  return undef;
 }
 
 sub within_skonto_period {
@@ -1138,12 +1161,29 @@ The chart id of the skonto amount to be booked.
 
 The total amount to be paid to the account
 
+=item C<project_id>
+
+The project for the skonto booking, see C<skonto_project_id>. The tax
+correction is booked with this project as well.
+
 =back
 
 If the invoice contains several types of taxes then skonto_charts can be used
 to calculate the relative amounts.
 
 C<_skonto_charts_and_tax_correction> generates one entry for each tax type entry.
+
+=item C<skonto_project_id>
+
+Returns the project id that skonto bookings for this invoice get, or undef.
+
+The revenue, expense and inventory lines of the invoice decide (charts linked
+as C<AR_amount>, C<AP_amount>, C<IC>, C<IC_sale>, C<IC_income>, C<IC_cogs> or
+C<IC_expense>, but not as C<AR_paid> or C<AP_paid>), lines of payments and
+taxes don't. If they all have the same
+project, this one is returned. If none of them has a project, the project of
+the invoice (C<globalproject_id>) is returned. If they have different
+projects, undef is returned, because the skonto can't be split by project.
 
 =item C<open_amount>
 

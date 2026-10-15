@@ -298,6 +298,7 @@ sub _check_and_book_skonto {
                                                     amount     => $skonto_amount * $mult,
                                                     transdate  => $transdate,
                                                     source     => $params{source},
+                                                    project_id => $skonto_booking->{project_id},
                                                     taxkey     => 0,
                                                     tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
 
