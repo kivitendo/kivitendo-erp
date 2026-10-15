@@ -110,6 +110,7 @@ my %supported_methods = (
 
   # ## ckeditor stuff ##
   'focus_ckeditor'       => 1,  # kivi.focus_ckeditor_when_ready(<TARGET>)
+  'set_ckeditor_val'     => 2,  # kivi.set_ckeditor_val(<TARGET>, <ARGS>)
 
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>

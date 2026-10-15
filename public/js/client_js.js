@@ -117,6 +117,7 @@ ns.eval_json_result = function(data) {
 
       // ## ckeditor stuff ##
       else if (action[0] == 'focus_ckeditor')       kivi.focus_ckeditor_when_ready(action[1]);
+      else if (action[0] == 'set_ckeditor_val')     kivi.set_ckeditor_val(action[1], action[2]);
 
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
