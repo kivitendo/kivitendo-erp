@@ -67,17 +67,30 @@ SQL
 
 # Skonto tax corrections: GL bookings with exactly two lines, one on a skonto
 # chart and one on a tax chart, that are linked to exactly one invoice and have
-# no project yet.
+# no project yet. Canceled corrections are left out, because their reversal
+# isn't linked to the invoice and would stay without project.
 my $gl_lines = selectall_hashref_query($::form, $dbh, <<SQL);
-  SELECT acc.acc_trans_id, rl.from_id AS trans_id, (rl.from_table = 'ap') AS is_purchase
-  FROM acc_trans acc
-  JOIN record_links rl ON (rl.to_table = 'gl' AND rl.to_id = acc.trans_id AND rl.from_table IN ('ar', 'ap'))
-  WHERE (SELECT count(*) FROM acc_trans a WHERE a.trans_id = acc.trans_id) = 2
-    AND EXISTS (SELECT 1 FROM acc_trans s WHERE s.trans_id = acc.trans_id AND s.chart_id IN ($skonto_charts))
-    AND EXISTS (SELECT 1 FROM acc_trans t WHERE t.trans_id = acc.trans_id AND t.chart_id IN (SELECT chart_id FROM tax))
-    AND NOT EXISTS (SELECT 1 FROM acc_trans p WHERE p.trans_id = acc.trans_id AND p.project_id IS NOT NULL)
-    AND (SELECT count(*) FROM record_links o
-         WHERE o.to_table = 'gl' AND o.to_id = acc.trans_id AND o.from_table IN ('ar', 'ap')) = 1
+  WITH corrections AS (
+    SELECT acc.trans_id
+    FROM acc_trans acc
+    JOIN gl ON (gl.id = acc.trans_id AND NOT gl.storno)
+    GROUP BY acc.trans_id
+    HAVING count(*) = 2
+       AND bool_or(acc.chart_id IN ($skonto_charts))
+       AND bool_or(acc.chart_id IN (SELECT chart_id FROM tax))
+       AND bool_and(acc.project_id IS NULL)
+  ),
+  links AS (
+    SELECT to_id, min(from_id) AS from_id, min(from_table) AS from_table
+    FROM record_links
+    WHERE to_table = 'gl' AND from_table IN ('ar', 'ap')
+    GROUP BY to_id
+    HAVING count(*) = 1
+  )
+  SELECT acc.acc_trans_id, links.from_id AS trans_id, (links.from_table = 'ap') AS is_purchase
+  FROM corrections
+  JOIN links         ON (links.to_id  = corrections.trans_id)
+  JOIN acc_trans acc ON (acc.trans_id = corrections.trans_id)
 SQL
 
 my %lines_by_invoice;
@@ -144,8 +157,8 @@ This script sets the project for older bookings the same way:
 purchase invoices without project
 
 =item * the lines of skonto tax corrections: GL bookings with two lines, one on
-a skonto chart and one on a tax chart, which are linked to exactly one invoice
-and have no project at all
+a skonto chart and one on a tax chart, which are linked to exactly one invoice,
+aren't canceled and have no project at all
 
 =back
 
