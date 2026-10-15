@@ -108,6 +108,11 @@ sub _replace_special_chars {
   use Text::Unidecode qw(unidecode);
   $text = unidecode($text);
 
+  # only the SEPA character set (EPC Latin) is allowed, e.g. no '_' or ';'
+  $text =~ tr#_;"[]{}<>|\\#-,'()()()//#;
+  $text =~ s# *[^A-Za-z0-9/?:().,'+ -]+ *# #g;
+  $text =~ s/^ +| +$//g;
+
   return $text;
 }
 
