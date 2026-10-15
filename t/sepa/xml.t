@@ -18,7 +18,7 @@ $sepa_xml->add_transaction({ src_iban      => 'DE46370501980026004705',
                              dst_iban      => 'DE74380601866404413013',
                              dst_bic       => 'GENODED1BRS',
                              company       => 'Årdberg "Kaffee" <AB>',
-                             reference     => "1583: Rechnung Dokument_C-74393 [x] {y} a|b\\c !#\$%*=?\@^~\t",
+                             reference     => "1583:  Rechnung Dokument_C-74393 [x] {y} a|b\\c !#\$%*=?\@^~\t",
                              amount        => 204.97,
                              end_to_end_id => 'KIVITENDO1' });
 
