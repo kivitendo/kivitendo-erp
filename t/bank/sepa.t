@@ -1,4 +1,4 @@
-use Test::More tests => 29;
+use Test::More tests => 32;
 
 use strict;
 
@@ -13,7 +13,7 @@ use SL::SEPA;
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
 use SL::Dev::Payment qw(create_payment_terms);
-use SL::Dev::Record qw(create_ar_transaction create_ap_transaction create_gl_transaction);
+use SL::Dev::Record qw(create_ar_transaction create_ap_transaction create_gl_transaction create_project);
 
 # backend classes for reset state
 
@@ -86,11 +86,14 @@ sub clear_up {
   SL::DB::Manager::Exchangerate->delete_all(all => 1);
   SL::DB::Manager::Currency->delete_all(where => [ name => 'CUR' ]);
   SL::DB::Manager::Currency->delete_all(where => [ name => 'USD' ]);
+  SL::DB::Manager::Project->delete_all(all => 1);
 }
 
 sub test_sepa_combined_skonto_and_credit_note {
 
-  my $invoice12skonto_1   = create_ap_transaction_local(netamount => -10.08, invnumber => '12skonto-1', pt_id => $payment_skonto2->id);
+  my $project             = create_project(projectnumber => 'sepa-skonto', description => 'SEPA Skonto');
+  my $invoice12skonto_1   = create_ap_transaction_local(netamount => -10.08, invnumber => '12skonto-1', pt_id => $payment_skonto2->id,
+                                                        project_id => $project->id);
 
   is(ref $invoice12skonto_1     , 'SL::DB::PurchaseInvoice', "Purchase Invoice has been created");
   is($invoice12skonto_1->amount , -12                      , "ap amount has been converted");
@@ -303,6 +306,12 @@ sub test_sepa_combined_skonto_and_credit_note {
       fail("invalid chart link state");
     }
   }
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $acc_trans_skonto }), 2, "skonto tax correction has project");
+
+  my @skonto_lines = grep { $_->chart_id == $tax_9->skonto_purchase_chart_id }
+    @{ SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice12skonto_1->id ]) };
+  is(scalar @skonto_lines, 1, "one skonto line");
+  is($skonto_lines[0]->project_id, $project->id, "skonto line has project");
 
   # 2. and subtracted from one purchase invoice
   $invoice1234_2->load();
@@ -403,6 +412,7 @@ sub create_ap_transaction_local {
     amount     => $invoice->netamount,
     chart      => $ap_amount_fremd,
     tax_id     => $tax_9->id,
+    project_id => $params{project_id},
   );
 
   $invoice->create_ap_row(chart => $ap_chart);
