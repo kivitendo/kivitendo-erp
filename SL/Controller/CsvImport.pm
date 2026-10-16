@@ -290,7 +290,7 @@ sub action_add_mapping_from_upload {
   my $header = $csv->check_header;
 
   for my $field (@$header) {
-    next if $self->mappings_for_profile->{$field};
+    next if exists $self->mappings_for_profile->{$field};
     $self->js->append(
       '#csv_import_mappings',
       $self->render('csv_import/_mapping_item', { layout => 0, output => 0 }, item => { from => $field }),
