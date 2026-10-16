@@ -10,6 +10,6 @@
   [% ELSE %]
     <td>[% L.input_tag('mappings[+].from', '') %]</td>
   [% END %]
-  <td>[% L.select_tag('mappings[].to', SELF.displayable_columns, value_key='name', title_key='name', default=item.to) %]</td>
+  <td>[% L.select_tag('mappings[].to', SELF.displayable_columns, value_key='name', title_key='name', default=item.to, with_empty=1) %]</td>
 </tr>
 
