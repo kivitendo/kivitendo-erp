@@ -365,6 +365,49 @@
   button_open   = LxERP.t8("Hide help text")
 %]
 
+[% BLOCK panel_4 %]
+  <div>
+    [% LxERP.t8('You can configure an automatic periodic fetching of JSON files via HTTP and import via a CSV import profile. To do so, create a new background job of type CsvImport with the data given below. The downloaded JSON file must have the following structure:') %]
+    <pre>[
+  { &quot;number&quot;:  &quot;10042&quot;,
+    &quot;name&quot;:    &quot;Bootsbau Schumann GmbH&quot;,
+    &quot;country&quot;: &quot;DE&quot;,
+    &quot;city&quot;:    &quot;Hamburg&quot;,
+    &quot;street&quot;:  &quot;am kivitendo Platz 1&quot;,
+    &quot;zipcode&quot;: &quot;12345&quot; },
+  { &quot;number&quot;:  &quot;10043&quot;,
+    &quot;name&quot;:    &quot;OIDA Cruises GmbH&quot;,
+    &quot;country&quot;: &quot;DE&quot;,
+    &quot;city&quot;:    &quot;Kiel&quot;,
+    &quot;street&quot;:  &quot;an der Werft 1&quot;,
+    &quot;zipcode&quot;: &quot;12346&quot; },
+  ...
+]
+    </pre>
+  </div>
+  <p>
+    [% LxERP.t8('Existing profiles') %]:
+    [% L.select_tag('background_job_profile_id', SELF.all_profiles, title_key = 'name', default = FORM.background_job_profile_id, with_empty=1, class='wi-wide') %]
+  </p>
+  [% IF SELF.background_job_params %]
+    <div class="horizontal-scroll-wrapper">
+      [% L.textarea_tag('background_job_params', SELF.background_job_params, rows=10, cols=60) %]
+    </div>
+  [% ELSE %]
+    <p>
+      [% LxERP.t8('To show the data, please run the preview first.') %]
+    </p>
+  [% END %]
+[% END # panel_4 %]
+
+[%
+  INCLUDE 'common/toggle_panel.html'
+  block_name    = 'panel_4'
+  toggle_class  = 'toggle_panel_4'
+  button_closed = LxERP.t8("Show background job configuration data")
+  button_open   = LxERP.t8("Hide background job configuration data")
+%]
+
 
 </div><!-- /.col -->
 </div><!-- /.wrapper -->
