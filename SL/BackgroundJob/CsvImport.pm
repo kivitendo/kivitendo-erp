@@ -48,69 +48,12 @@ sub run {
   my $self        = shift;
   $self->{db_obj} = shift;
 
-  my $job           = $self->{db_obj};
   my $result        = '';
+  my $job           = $self->{db_obj};
   my $http_json_url = $job->data_as_hash->{http_json_url};
 
   if ($http_json_url) {
-    $job->set_data(
-      employee_id => SL::DB::Manager::Employee->current->id,
-      errors      => [],
-    )->save;
-
-    die 'CSV import profile does not exist' unless $self->profile;
-    my $client = REST::Client->new({ timeout => 300 });
-
-    my $headers_hash = $job->data_as_hash->{http_headers} // {};
-    $client->addHeader($_, $headers_hash->{$_}) for keys %$headers_hash;
-
-    my $resp   = $client->GET($http_json_url);
-    die('HTTP ' . $resp->responseCode()) unless _http_status_code_ok($resp->responseCode());
-    my $decoded_response = SL::JSON::decode_json($resp->responseContent());
-
-    die 'Downloaded JSON is not an array'                if ref($decoded_response) ne 'ARRAY';
-    die 'Downloaded JSON array is empty'                 if scalar(@$decoded_response) == 0;
-    die 'Downloaded JSON array elements are not objects' if ref($decoded_response->[0]) ne 'HASH';
-
-    my @keys = sort keys %{$decoded_response->[0]};
-
-    my $sfile = SL::SessionFile::Random->new(mode => ">", encoding => 'UTF-8');
-
-    # JSON to CSV
-
-    my $eol         = "\n";
-    my $sep_char    = $self->profile->get('sep_char');
-    my $escape_char = $self->profile->get('escape_char');
-    my $quote_char  = $self->profile->get('quote_char');
-
-    my $csv = Text::CSV_XS->new({ 'binary'      => 1,
-                                  'sep_char'    => $sep_char,
-                                  'escape_char' => $escape_char,
-                                  'quote_char'  => $quote_char,
-                                  'eol'         => $eol, });
-
-    $csv->print($sfile->fh, [@keys]);
-    foreach my $row (@$decoded_response) {
-      foreach my $k (@keys) {
-        die 'JSON field value is not a string or number: ' . $k if ref($row->{$k});
-      }
-      $csv->print($sfile->fh, [map { ($row->{$_} =~ s{[\r\n]+}{ }gr) } @keys]);
-    }
-    $sfile->fh->close;
-
-    my $csv_filename = $sfile->file_name;
-    $result .= "Downloaded JSON and converted to CSV: " . $sfile->file_name . "\n";
-
-    # Set CSV file in profile
-
-    $job->set_data(session_id => $::auth->get_session_id)->save;
-
-    $self->profile->set('file_name', $csv_filename);
-
-    $result .= "Loaded CSV: $csv_filename\n";
-
-    my $report_id = $job->data_as_hash->{report_id};
-    $result .= "Report: controller.pl?action=CsvImport/report&id=$report_id\n";
+    $result .= $self->do_http_fetch($http_json_url);
   }
 
   $result .= $self->do_import;
@@ -179,6 +122,74 @@ sub track_progress {
   $progress->{$_} = $params{$_} for keys %params;
   $self->{db_obj}->set_data(progress => $progress);
   $self->{db_obj}->save;
+}
+
+sub do_http_fetch {
+  my ($self, $http_json_url) = @_;
+
+  my $result = '';
+  my $job    = $self->{db_obj};
+
+  $job->set_data(
+    employee_id => SL::DB::Manager::Employee->current->id,
+    errors      => [],
+  )->save;
+
+  die 'CSV import profile does not exist' unless $self->profile;
+  my $client = REST::Client->new({ timeout => 300 });
+
+  my $headers_hash = $job->data_as_hash->{http_headers} // {};
+  $client->addHeader($_, $headers_hash->{$_}) for keys %$headers_hash;
+
+  my $resp   = $client->GET($http_json_url);
+  die('HTTP ' . $resp->responseCode()) unless _http_status_code_ok($resp->responseCode());
+  my $decoded_response = SL::JSON::decode_json($resp->responseContent());
+
+  die 'Downloaded JSON is not an array'                if ref($decoded_response) ne 'ARRAY';
+  die 'Downloaded JSON array is empty'                 if scalar(@$decoded_response) == 0;
+  die 'Downloaded JSON array elements are not objects' if ref($decoded_response->[0]) ne 'HASH';
+
+  my @keys = sort keys %{$decoded_response->[0]};
+
+  my $sfile = SL::SessionFile::Random->new(mode => ">", encoding => 'UTF-8');
+
+  # JSON to CSV
+
+  my $eol         = "\n";
+  my $sep_char    = $self->profile->get('sep_char');
+  my $escape_char = $self->profile->get('escape_char');
+  my $quote_char  = $self->profile->get('quote_char');
+
+  my $csv = Text::CSV_XS->new({ 'binary'      => 1,
+                                'sep_char'    => $sep_char,
+                                'escape_char' => $escape_char,
+                                'quote_char'  => $quote_char,
+                                'eol'         => $eol, });
+
+  $csv->print($sfile->fh, [@keys]);
+  foreach my $row (@$decoded_response) {
+    foreach my $k (@keys) {
+      die 'JSON field value is not a string or number: ' . $k if ref($row->{$k});
+    }
+    $csv->print($sfile->fh, [map { ($row->{$_} =~ s{[\r\n]+}{ }gr) } @keys]);
+  }
+  $sfile->fh->close;
+
+  my $csv_filename = $sfile->file_name;
+  $result .= "Downloaded JSON and converted to CSV: " . $sfile->file_name . "\n";
+
+  # Set CSV file in profile
+
+  $job->set_data(session_id => $::auth->get_session_id)->save;
+
+  $self->profile->set('file_name', $csv_filename);
+
+  $result .= "Loaded CSV: $csv_filename\n";
+
+  my $report_id = $job->data_as_hash->{report_id};
+  $result .= "Report: controller.pl?action=CsvImport/report&id=$report_id\n";
+
+  return $result;
 }
 
 sub _http_status_code_ok { $_[0] >= 200 && $_[0] <= 299 }
