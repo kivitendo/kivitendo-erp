@@ -2,7 +2,7 @@
 
 package FU;
 
-use List::Util qw(first);
+use List::Util qw(first none);
 
 use SL::Common;
 use SL::DBUtils;
@@ -293,12 +293,14 @@ sub follow_ups {
 
   my $order_by = '';
 
-  if ($form->{sort} ne 'title') {
+  if (none { $_ eq $form->{sort} } qw(title created_for_user_name)) {
     my %sort_columns = (
-      'follow_up_date' => [ qw(fu.follow_up_date fu.id) ],
-      'created_on'     => [ qw(created_on fu.id) ],
-      'subject'        => [ qw(n.subject) ],
-      );
+      'follow_up_date'  => [ qw(fu.follow_up_date fu.id) ],
+      'created_on'      => [ qw(created_on fu.id) ],
+      'subject'         => [ qw(n.subject) ],
+      'done'            => [ qw(done fu.id) ],
+      'created_by_name' => [ qw(created_by_name fu.id) ],
+    );
 
     my $sortdir = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
     my $sortkey = $sort_columns{$form->{sort}} ? $form->{sort} : 'follow_up_date';
@@ -309,7 +311,8 @@ sub follow_ups {
                  fu.follow_up_date <= current_date AS due,
                  fu.itime::DATE                    AS created_on,
                  COALESCE(eby.name,  eby.login)    AS created_by_name,
-                 follow_up_done.follow_up_id       AS done
+                 CASE WHEN follow_up_done.follow_up_id IS NULL THEN FALSE ELSE TRUE END
+                                                   AS done
                FROM follow_ups fu
                LEFT JOIN notes    n    ON (fu.note_id          = n.id)
                LEFT JOIN employee eby  ON (n.created_by        = eby.id)
@@ -342,6 +345,11 @@ sub follow_ups {
                        sort { ($a->[0] cmp $b->[0]) * $dir_factor }
                        map  { my $fu = $follow_ups->[$_]; [ @{ $fu->{LINKS} } ? lc($fu->{LINKS}->[0]->{title}) : '', $fu ] }
                        (0 .. scalar(@{ $follow_ups }) - 1) ];
+  }
+
+  if ($form->{sort} eq 'created_for_user_name') {
+    my $dir_factor = !defined $form->{sortdir} ? 1 : $form->{sortdir} ? 1 : -1;
+    $follow_ups    = [ sort { ($a->{created_for_user_name} cmp $b->{created_for_user_name}) * $dir_factor } @$follow_ups ];
   }
 
   $main::lxdebug->leave_sub();
