@@ -74,7 +74,7 @@ foreach my $accno (@charts) {
 SL::Controller::PayPostingImport::parse_and_import();
 
 # get all gl imported bookings in the order of the import
-my $gl_bookings = SL::DB::Manager::GLTransaction->get_all(where => [imported => 1], sort_by => 'id');
+my $gl_bookings = SL::DB::Manager::GLTransaction->get_all_sorted(where => [imported => 1]);
 
 # $i number of real data entries in the array (first two rows are headers)
 my $i = 2;
@@ -87,7 +87,7 @@ foreach my $booking (@{ $gl_bookings }) {
   my $accno_credit = $current_row->[1] eq 'S' ? $current_row->[7] : $current_row->[6];
   my $accno_debit  = $current_row->[1] eq 'S' ? $current_row->[6] : $current_row->[7];
   my $amount       = $::form->parse_amount({ numberformat => '1000,00' }, $current_row->[0]);
-  my @transactions = sort { $a->acc_trans_id <=> $b->acc_trans_id } @{ $booking->transactions };
+  my @transactions = @{ SL::DB::Manager::AccTransaction->get_all_sorted(where => [ trans_id => $booking->id ]) };
 
   # gl
   is ($current_row->[13], $booking->reference, "Buchungstext correct");
