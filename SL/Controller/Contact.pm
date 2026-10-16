@@ -138,11 +138,16 @@ sub action_save {
     $cv_obj->link_contact($self->contact);
   }
 
-  my $redirect_url = $self->url_for(
-    action => 'edit',
-    id     => $self->contact->cp_id,
-  );
-  $self->js->redirect_to($redirect_url)->render;
+  if (!$::form->{keep_open} && $::form->{callback}) {
+    $self->js->redirect_to($::form->{callback})->render;
+  } else {
+    my $redirect_url = $self->url_for(
+      action    => 'edit',
+      id        => $self->contact->cp_id,
+      (callback => $::form->{callback}) x !!$::form->{callback},
+    );
+    $self->js->redirect_to($redirect_url)->render;
+  }
 }
 
 sub action_delete {
@@ -158,6 +163,8 @@ sub action_add_cv {
   my ($self) = @_;
 
   my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
+
+  return $self->js->flash('error', t8('The object has not been saved yet.'))->render() unless $::form->{cv_id};
 
   my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
 
@@ -176,6 +183,8 @@ sub action_add_contact {
   my ($self) = @_;
 
   my $class = $::form->{cv_db} eq 'customer' ? 'Customer' : 'Vendor';
+
+  return $self->js->flash('error', t8('The object has not been saved yet.'))->render() unless $::form->{cv_id};
 
   my $cv_obj = "SL::DB::$class"->new(id => $::form->{cv_id})->load;
 
@@ -245,9 +254,11 @@ sub _setup_form_action_bar {
     $bar->add(
       action => [
         t8('Save'),
-        call      => [ 'kivi.Contact.save' ],
-        accesskey => 'enter',
+        call      => [ 'kivi.Contact.save', { keep_open => $::form->{callback} ? 0 : 1 } ],
+        accesskey => 'alt+S',
       ],
+
+      'separator',
 
       action => [
         t8('Delete'),

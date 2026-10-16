@@ -44,11 +44,14 @@ namespace('kivi.Contact', function(ns) {
     });
   };
 
-  ns.save = function() {
+  ns.save = function(params) {
     if (!ns.check_contact()) return;
 
+    let keep_open = params.keep_open;
+
     let data = $('#form').serializeArray();
-    data.push({ name: 'action', value: 'Contact/save' });
+    data.push({ name: 'action',    value: 'Contact/save' });
+    data.push({ name: 'keep_open', value: keep_open });
 
     $.post("controller.pl", data, kivi.eval_json_result);
   };
@@ -240,7 +243,7 @@ namespace('kivi.Contact', function(ns) {
         },
         select: function(event, ui) {
           self.set_item(ui.item);
-          if (self.o.action.commit_one) {
+          if (self.o.action.commit_one && event.which != KEY.ENTER && event.which != KEY.TAB) {
             self.run_action(self.o.action.commit_one);
           }
         },
