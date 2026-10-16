@@ -297,7 +297,7 @@ sub follow_ups {
     my %sort_columns = (
       'follow_up_date'  => [ qw(fu.follow_up_date fu.id) ],
       'created_on'      => [ qw(created_on fu.id) ],
-      'subject'         => [ qw(n.subject) ],
+      'subject'         => [ qw(n.subject fu.id) ],
       'done'            => [ qw(done fu.id) ],
       'created_by_name' => [ qw(created_by_name fu.id) ],
     );
