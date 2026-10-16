@@ -288,10 +288,11 @@ sub report {
     'done'                  => { 'text' => $locale->text('Done'), 'visible' => $form->{done} && $form->{not_done} ? 1 : 0 },
   );
 
-  my @columns = qw(selected follow_up_date created_on subject title created_by_name created_for_user_name done);
-  my $href    = build_std_url('action=report', grep { $form->{$_} } @report_params);
+  my @columns      = qw(selected follow_up_date created_on subject title created_by_name created_for_user_name done);
+  my @sort_columns = grep { 'selected' ne $_ } @columns;
+  my $href         = build_std_url('action=report', grep { $form->{$_} } @report_params);
 
-  foreach my $name (qw(follow_up_date created_on title subject)) {
+  foreach my $name (@sort_columns) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
