@@ -391,6 +391,7 @@ sub create_from_purchase_basket {
     my $basket_items = SL::DB::Manager::PurchaseBasketItem->get_all(
       query => [ id => $basket_item_ids ],
       with_objects => ['part'],
+      sort_by => 'id',
     );
     push @orderitem_maps, map {{
         basket_item_id => $_->id,
@@ -401,7 +402,8 @@ sub create_from_purchase_basket {
   }
   if ($vendor_item_ids && scalar @{ $vendor_item_ids}) {
     my $vendor_items = SL::DB::Manager::Part->get_all(
-      query => [ id => $vendor_item_ids ] );
+      query => [ id => $vendor_item_ids ],
+      sort_by => 'id' );
     push @orderitem_maps, map {{
         basket_item_id => undef,
         part       => $_,
