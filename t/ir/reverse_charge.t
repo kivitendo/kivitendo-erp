@@ -222,6 +222,28 @@ is(SL::DB::Manager::RecordLink->get_all_count(where => [ from_table => 'ap', fro
   'links to other gl transactions stay');
 is(SL::DB::Manager::ApGl->get_all_count(where => [ ap_id => $ap->id ]), 0, 'delete_bookings removes all transactions');
 
+#####
+# price tax calculator (new invoice controller): no tax on the amount, net amount by tax
+
+my $record = SL::DB::PurchaseInvoice->new(
+  vendor_id    => $vendor->id,
+  taxzone_id   => $taxzone->id,
+  currency_id  => $::instance_conf->get_currency_id,
+  transdate    => DateTime->today_local,
+  invoice      => 1,
+  record_type  => 'purchase_invoice',
+  invoiceitems => [ SL::DB::InvoiceItem->new(parts_id => $service->id, qty => 2, sellprice => 50, unit => $service->unit, description => 'x') ],
+);
+my %data = $record->calculate_prices_and_taxes;
+
+is $record->amount    * 1, 100, 'calculator: amount without tax';
+is $record->netamount * 1, 100, 'calculator: netamount';
+is_deeply $data{taxes_by_tax_id},          {},                  'calculator: no taxes';
+is_deeply $data{reverse_charge_by_tax_id}, { $tax->id => 100 }, 'calculator: net amount for the reverse charge tax';
+
+$ap->post_reverse_charge_bookings($data{reverse_charge_by_tax_id});
+is_deeply gl_bookings($ap->id), [ [ '1574', -19 ], [ '1774', 19 ] ], 'purchase invoice books input and output tax';
+
 clear_up();
 
 done_testing();
