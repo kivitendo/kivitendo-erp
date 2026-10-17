@@ -24,6 +24,7 @@ use SL::DB::TaxzoneChart;
 use SL::DB::Vendor;
 use SL::DBUtils qw(selectall_hashref_query);
 use SL::Dev::ALL qw(:ALL);
+use SL::DATEV;
 use SL::Helper::ReverseCharge;
 use SL::IR;
 
@@ -31,7 +32,8 @@ Support::TestSetup::login();
 Support::Integration::setup();
 
 my ($tax, $taxzone, $buchungsgruppe, $expense_chart, $old_expense_chart_id, $taxkey);
-my ($part, $service, $vendor);
+my ($tax7, $buchungsgruppe7, $expense_chart7, $old_expense_chart7_id, $taxkey7);
+my ($part, $service, $part7, $vendor);
 
 sub setup {
   clear_up();
@@ -53,11 +55,28 @@ sub setup {
     taxkey_id => $tax->taxkey,
     startdate => DateTime->new(year => 2000, month => 1, day => 1),
   )->save;
+  # the same for 7 %: tax key 18 on 3420
+  $tax7            = SL::DB::Manager::Tax->find_by(taxkey => 18, '!reverse_charge_chart_id' => undef) or die "no reverse charge tax 7%";
+  $buchungsgruppe7 = SL::DB::Manager::Buchungsgruppe->find_by(description => 'Standard 7%')          or die "no buchungsgruppe 7%";
+  $expense_chart7  = SL::DB::Manager::Chart->find_by(accno => '3420')                                 or die "no chart 3420";
+
+  my $taxzone_chart7     = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone->id, buchungsgruppen_id => $buchungsgruppe7->id);
+  $old_expense_chart7_id = $taxzone_chart7->expense_accno_id;
+  $taxzone_chart7->update_attributes(expense_accno_id => $expense_chart7->id);
+
+  SL::DB::Manager::TaxKey->delete_all(where => [ chart_id => $expense_chart7->id, tax_id => $tax7->id ]);
+  $taxkey7 = SL::DB::TaxKey->new(
+    chart_id  => $expense_chart7->id,
+    tax_id    => $tax7->id,
+    taxkey_id => $tax7->taxkey,
+    startdate => DateTime->new(year => 2000, month => 1, day => 1),
+  )->save;
   SL::DB::Manager::Chart->clear_cache if SL::DB::Manager::Chart->can('clear_cache');
 
   $vendor  = new_vendor(name => 'EU vendor', taxzone_id => $taxzone->id)->save;
   $part    = new_part(   partnumber => 'rc-part',    buchungsgruppen_id => $buchungsgruppe->id)->save;
   $service = new_service(partnumber => 'rc-service', buchungsgruppen_id => $buchungsgruppe->id)->save;
+  $part7   = new_part(   partnumber => 'seven-rc',   buchungsgruppen_id => $buchungsgruppe7->id)->save;
 }
 
 sub gl_bookings {
@@ -176,6 +195,22 @@ is_deeply gl_bookings($id), [ [ '1574', -47.5 ], [ '1774', 47.5 ] ],
   'original reverse charge transaction stays';
 
 #####
+# 19 % and 7 % in one invoice: both taxes booked, DATEV check without rounding errors
+
+my $id_mixed = post_purchase_invoice(invnumber => 'rc-mixed', lines => [ [ $part, 100 ], [ $part7, 50 ] ]);
+
+is_deeply ap_bookings($id_mixed), [ [ '1600', 150, 0 ], [ '3420', -50, 18 ], [ '3425', -100, 19 ] ],
+  'mixed invoice: net amounts with tax keys 18 and 19';
+is_deeply gl_bookings($id_mixed), [ [ '1572', -3.5 ], [ '1574', -19 ], [ '1772', 3.5 ], [ '1774', 19 ] ],
+  'mixed invoice: input and output tax for both rates';
+
+my $datev = SL::DATEV->new(dbh => SL::DB->client->dbh, trans_id => $id_mixed);
+$datev->generate_datev_data;
+is_deeply [ $datev->errors ], [], 'mixed invoice: DATEV check without errors';
+is_deeply [ sort { $a <=> $b } map { abs($_->[0]->{amount}) * 1 } @{ $datev->{DATEV} } ], [ 50, 100 ],
+  'mixed invoice: DATEV exports the net amounts';
+
+#####
 # delete: reverse charge transaction is deleted, too
 
 # same price as the last cost: no price history entry, which would block deleting
@@ -263,6 +298,13 @@ sub clear_up {
 
   $taxkey->delete if $taxkey;
   undef $taxkey;
+  $taxkey7->delete if $taxkey7;
+  undef $taxkey7;
+  if ($old_expense_chart7_id) {
+    SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone->id, buchungsgruppen_id => $buchungsgruppe7->id)
+      ->update_attributes(expense_accno_id => $old_expense_chart7_id);
+    undef $old_expense_chart7_id;
+  }
   if ($old_expense_chart_id) {
     SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone->id, buchungsgruppen_id => $buchungsgruppe->id)
       ->update_attributes(expense_accno_id => $old_expense_chart_id);
