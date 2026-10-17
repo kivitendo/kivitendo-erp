@@ -39,13 +39,13 @@ use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
-use SL::DB::ApGl;
 use SL::DB::Default;
 use SL::DB::Draft;
 use SL::DB::Order;
 use SL::DB::PurchaseInvoice;
 use SL::DB::EmailJournal;
 use SL::DB::ValidityToken;
+use SL::Helper::ReverseCharge;
 use SL::Util qw(trim);
 use SL::DB;
 use Data::Dumper;
@@ -457,64 +457,26 @@ sub _post_transaction {
 sub _reverse_charge {
   my ($self, $myconfig, $form) = @_;
 
-  # delete previous bookings, if they exists (repost)
-  my $ap_gl = SL::DB::Manager::ApGl->get_first(where => [ ap_id => $form->{id} ]);
-  my $gl_id = ref $ap_gl eq 'SL::DB::ApGl' ? $ap_gl->gl_id : undef;
-
-  SL::DB::Manager::GLTransaction->delete_all(where => [ id    => $gl_id ])       if $gl_id;
-  SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $form->{id} ])  if $gl_id;
-  SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', to_table => 'gl', from_id => $form->{id} ]);
-
-  my ($i, $current_transaction);
-
-  for $i (1 .. $form->{rowcount}) {
+  my @entries;
+  for my $i (1 .. $form->{rowcount}) {
 
     my $tax = SL::DB::Manager::Tax->get_first( where => [id => $form->{"tax_id_$i"}, '!reverse_charge_chart_id' => undef ]);
     next unless ref $tax eq 'SL::DB::Tax';
 
-    # gl booking
-    my ($credit, $debit);
-    $credit   = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
-    $debit    = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
-
-    croak("No such Chart ID" . $tax->chart_id)          unless ref $credit eq 'SL::DB::Chart';
-    croak("No such Chart ID" . $tax->reverse_chart_id)  unless ref $debit  eq 'SL::DB::Chart';
-
-    my ($tmpnetamount, $tmptaxamount) = $form->calculate_tax($form->{"amount_$i"}, $tax->rate, $form->{taxincluded}, 2);
-    $current_transaction = SL::DB::GLTransaction->new(
-          employee_id    => $form->{employee_id},
-          transdate      => $form->{transdate},
-          description    => $form->{notes} || $form->{invnumber},
-          reference      => $form->{invnumber},
-          department_id  => $form->{department_id} ? $form->{department_id} : undef,
-          imported       => 0, # not imported
-          taxincluded    => 0,
-        )->add_chart_booking(
-          chart  => $tmptaxamount > 0 ? $debit : $credit,
-          debit  => abs($tmptaxamount),
-          source => "Reverse Charge for " . $form->{invnumber},
-          tax_id => 0,
-        )->add_chart_booking(
-          chart  => $tmptaxamount > 0 ? $credit : $debit,
-          credit => abs($tmptaxamount),
-          source => "Reverse Charge for " . $form->{invnumber},
-          tax_id => 0,
-      )->post;
-    # add a stable link from ap to gl
-    my %props_gl = (
-        ap_id => $form->{id},
-        gl_id => $current_transaction->id,
-      );
-    SL::DB::ApGl->new(%props_gl)->save;
-    # Record a record link from ap to gl
-    my %props_rl = (
-        from_table => 'ap',
-        from_id    => $form->{id},
-        to_table   => 'gl',
-        to_id      => $current_transaction->id,
-      );
-    SL::DB::RecordLink->new(%props_rl)->save;
+    # amounts of purchases are negative
+    my (undef, $tmptaxamount) = $form->calculate_tax($form->{"amount_$i"}, $tax->rate, $form->{taxincluded}, 2);
+    push @entries, { tax => $tax, taxamount => $tmptaxamount * -1 };
   }
+
+  SL::Helper::ReverseCharge->post_bookings(
+    ap_id         => $form->{id},
+    transdate     => $form->{transdate},
+    reference     => $form->{invnumber},
+    description   => $form->{notes} || $form->{invnumber},
+    employee_id   => $form->{employee_id},
+    department_id => $form->{department_id},
+    entries       => \@entries,
+  );
 }
 
 sub delete_transaction {
@@ -525,13 +487,7 @@ sub delete_transaction {
   SL::DB->client->with_transaction(sub {
 
     # if tax 94 reverse charge, clear all GL bookings and links
-    my $ap_gl = SL::DB::Manager::ApGl->get_first(where => [ ap_id => $form->{id} ]);
-    my $gl_id = ref $ap_gl eq 'SL::DB::ApGl' ? $ap_gl->gl_id : undef;
-
-    SL::DB::Manager::GLTransaction->delete_all(where => [ id    => $gl_id ])       if $gl_id;
-    SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $form->{id} ])  if $gl_id;
-    SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', to_table => 'gl', from_id => $form->{id} ]);
-    # done gl delete for tax 94 case
+    SL::Helper::ReverseCharge->delete_bookings($form->{id});
 
     # begin ap delete
     my $query = qq|DELETE FROM ap WHERE id = ?|;
