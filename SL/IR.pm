@@ -55,6 +55,7 @@ use SL::DB::TaxZone;
 use SL::DB::MakeModel;
 use SL::DB::PartsPriceHistory;
 use SL::DB::ValidityToken;
+use SL::Helper::ReverseCharge;
 use SL::DB;
 use SL::Presenter::Part qw(type_abbreviation classification_abbreviation);
 use List::Util qw(min);
@@ -144,6 +145,11 @@ sub _post_invoice {
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
   my $price_factor;
 
+  # the vendor gets the net amount only for reverse charge taxes, input and
+  # output tax are booked separately (see SL::Helper::ReverseCharge)
+  my $reverse_charge_taxes = SL::Helper::ReverseCharge->taxes_by_id;
+  my %reverse_charge_amounts;
+
   my @processed_invoice_ids;
   for my $i (1 .. $form->{rowcount}) {
     next unless $form->{"id_$i"};
@@ -180,6 +186,8 @@ sub _post_invoice {
     $baseqty = $form->{"qty_$i"} * $basefactor;
 
     @taxaccounts = split / /, $form->{"taxaccounts_$i"};
+    my $reverse_charge_tax = $reverse_charge_taxes->{ $form->{"expense_accno_tax_id_$i"} };
+    $form->{"${_}_rate"}   = 0 for $reverse_charge_tax ? @taxaccounts : ();
     $taxdiff     = 0;
     $allocated   = 0;
     $taxrate     = 0;
@@ -250,6 +258,8 @@ sub _post_invoice {
 
       # this is the difference for the inventory
       $invoicediff += ($amount - $linetotal);
+
+      $reverse_charge_amounts{ $reverse_charge_tax->id } += $linetotal if $reverse_charge_tax;
 
       my $inventory_key = $form->{"inventory_accno_$i"} . "_" . $form->{"expense_accno_tax_id_$i"};
       $form->{amount}{$inventory_key}{amount} -= $linetotal;
@@ -416,6 +426,8 @@ sub _post_invoice {
 
       # this is the difference for expense
       $expensediff += ($amount - $linetotal);
+
+      $reverse_charge_amounts{ $reverse_charge_tax->id } += $linetotal if $reverse_charge_tax;
 
       # add amount to expense
       my $expense_key = $form->{"expense_accno_$i"} . "_" . $form->{"expense_accno_tax_id_$i"};
@@ -907,6 +919,18 @@ SQL
     SL::DB::Manager::Draft->delete_all(where => [ id => delete($form->{draft_id}) ]);
   }
 
+  SL::Helper::ReverseCharge->post_bookings(
+    ap_id         => $form->{id},
+    transdate     => $form->{invdate},
+    reference     => $form->{invnumber},
+    description   => $form->{transaction_description} || $form->{invnumber},
+    employee_id   => $form->{employee_id},
+    department_id => $form->{department_id},
+    entries       => [ map { +{ tax       => $reverse_charge_taxes->{$_},
+                                taxamount => $reverse_charge_amounts{$_} * $reverse_charge_taxes->{$_}->rate } }
+                       sort keys %reverse_charge_amounts ],
+  );
+
   # safety check datev export
   if ($::instance_conf->get_datev_check_on_purchase_invoice) {
 
@@ -1016,6 +1040,7 @@ sub delete_invoice {
   SL::DB->client->with_transaction(sub{
 
     &reverse_invoice($dbh, $form);
+    SL::Helper::ReverseCharge->delete_bookings($form->{id});
 
     my @values = (conv_i($form->{id}));
 
@@ -1152,7 +1177,7 @@ sub retrieve_invoice {
     if ($get_default_tax) {
       my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
       my $query =
-        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
+        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id, t.reverse_charge_chart_id,
                   c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
            FROM tax t
            LEFT JOIN chart c ON (c.id = t.chart_id)
@@ -1167,7 +1192,7 @@ sub retrieve_invoice {
 
     } else { # use saved tax_id
       my $query =
-        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id,
+        qq|SELECT c.accno, t.taxdescription, t.rate, t.id as tax_id, t.reverse_charge_chart_id,
                   c.accno as taxnumber   -- taxnumber is same as accno, but still accessed as taxnumber in code
            FROM tax t
            LEFT JOIN chart c ON (c.id = t.chart_id)
@@ -1184,6 +1209,9 @@ sub retrieve_invoice {
       }
 
       $ref->{taxaccounts} .= "$ptr->{accno} ";
+
+      # reverse charge: the vendor gets the net amount only
+      $ptr->{rate} = 0 if $ptr->{reverse_charge_chart_id};
 
       if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};
@@ -1436,7 +1464,7 @@ sub retrieve_item {
     # get tax rates and description
     my $accno_id = ($form->{vc} eq "customer") ? $ref->{income_accno} : $ref->{expense_accno};
     $query =
-      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber, t.id as tax_id
+      qq|SELECT c.accno, t.taxdescription, t.rate, c.accno as taxnumber, t.id as tax_id, t.reverse_charge_chart_id
          FROM tax t
          LEFT JOIN chart c on (c.id = t.chart_id)
          WHERE t.id IN
@@ -1462,6 +1490,9 @@ sub retrieve_item {
       }
 
       $ref->{taxaccounts} .= "$ptr->{accno} ";
+
+      # reverse charge: the vendor gets the net amount only
+      $ptr->{rate} = 0 if $ptr->{reverse_charge_chart_id};
 
       if (!($form->{taxaccounts} =~ /\Q$ptr->{accno}\E/)) {
         $form->{"$ptr->{accno}_rate"}         = $ptr->{rate};

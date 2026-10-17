@@ -5479,6 +5479,7 @@ $self->{texts} = {
   'report_generator_nextsub is not defined.' => '',
   'request_quotation'           => '',
   'return_material'             => '',
+  'reverse charge, not part of the total' => '',
   'revert deleted'              => '',
   'rfq_list'                    => '',
   'rma_delivery_order_list'     => '',
