@@ -41,6 +41,7 @@ __PACKAGE__->meta->columns(
   mtime                     => { type => 'timestamp' },
   netamount                 => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },
   notes                     => { type => 'text' },
+  notes_bottom              => { type => 'text' },
   orddate                   => { type => 'date' },
   ordnumber                 => { type => 'text' },
   paid                      => { type => 'numeric', default => '0', not_null => 1, precision => 15, scale => 5 },

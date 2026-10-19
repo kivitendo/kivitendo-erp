@@ -212,6 +212,7 @@ sub transactions {
   $form->{fulltext} = trim($form->{fulltext});
   if ($form->{fulltext}) {
     my @fulltext_fields = qw(dord.notes
+                             dord.notes_bottom
                              dord.intnotes
                              dord.shippingpoint
                              dord.shipvia
@@ -465,7 +466,7 @@ sub retrieve {
   # it will be killed out and then has to be fetched from the item scope query further down
   $query =
     qq|SELECT dord.cp_id, dord.donumber, dord.ordnumber, dord.transdate, dord.reqdate, dord.tax_point,
-         dord.shippingpoint, dord.shipvia, dord.notes, dord.intnotes,
+         dord.shippingpoint, dord.shipvia, dord.notes, dord.notes_bottom, dord.intnotes,
          e.name AS employee, dord.employee_id, dord.salesman_id,
          dord.${vc}_id, cv.name AS ${vc},
          dord.closed, dord.reqdate, dord.department_id, dord.cusordnumber,
