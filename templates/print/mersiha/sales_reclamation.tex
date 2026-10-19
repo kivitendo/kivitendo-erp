@@ -88,6 +88,11 @@ $( END )$%
 
     \vkreklamationsformel
 
+    $( IF (reclamation.notes) )$%
+    $( KiviLatex.filter_html(reclamation.notes) )$%
+      \medskip
+    $( END )$%
+
     \begin{PricingTabular*}[pricetotal/colspec = K]
       % eigentliche Tabelle
       \FakeTable{
@@ -121,8 +126,8 @@ $( END )$%
       \end{PricingTotal}
     \end{PricingTabular*}
 
-  $( IF (reclamation.notes) )$%
-  $( KiviLatex.filter_html(reclamation.notes) )$%
+  $( IF (reclamation.notes_bottom) )$%
+  $( KiviLatex.filter_html(reclamation.notes_bottom) )$%
     \medskip
   $( END )$%
 
