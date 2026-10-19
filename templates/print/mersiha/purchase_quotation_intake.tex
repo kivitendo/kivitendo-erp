@@ -75,6 +75,11 @@
 
   \angebotseingangformel
 
+  <%if notes%>%
+    <%notes%>%
+    \medskip
+  <%end notes%>%
+
   \begin{PricingTabular*}[pricetotal/colspec = K]
     % eigentliche Tabelle
     \FakeTable{
@@ -104,10 +109,10 @@
     \end{PricingTotal}
   \end{PricingTabular*}
 
-  <%if notes%>%
-    <%notes%>%
+  <%if notes_bottom%>%
+    <%notes_bottom%>%
     \medskip
-  <%end notes%>%
+  <%end notes_bottom%>%
 
   <%if delivery_term%>%
     \lieferung ~<%delivery_term.description_long%>\\
