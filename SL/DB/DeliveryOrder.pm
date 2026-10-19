@@ -45,6 +45,7 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_html('notes_bottom');
 __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_donumber');
@@ -142,7 +143,8 @@ sub email_replacement_specs {
     options => [
       {name => 'cusordnumber',               title => t8('Customer Order Number')},
       {name => 'donumber',                   title => t8('Delivery Order Number')},
-      {name => 'notes',                      title => t8('Notes')},
+      {name => 'notes',                      title => t8('Notes (top)')},
+      {name => 'notes_bottom',               title => t8('Notes (bottom)')},
       {name => 'intnotes',                   title => t8('Internal Notes')},
       {name => 'ordnumber',                  title => t8('Order Confirmation Number')},
       {name => 'shippingpoint',              title => t8('Shipping Point')},
@@ -221,6 +223,7 @@ sub new_from {
       intnotes
       language_id
       notes
+      notes_bottom
       payment_id
       reqdate
       salesman_id
@@ -253,6 +256,7 @@ sub new_from {
       intnotes
       language_id
       notes
+      notes_bottom
       payment_id
       reqdate
       salesman_id
@@ -283,6 +287,7 @@ sub new_from {
       intnotes
       language_id
       notes
+      notes_bottom
       ordnumber
       oreqnumber
       payment_id
@@ -314,6 +319,7 @@ sub new_from {
       intnotes
       language_id
       notes
+      notes_bottom
       ordnumber
       payment_id
       salesman_id

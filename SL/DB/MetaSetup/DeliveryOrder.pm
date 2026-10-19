@@ -28,6 +28,7 @@ __PACKAGE__->meta->columns(
   language_id                => { type => 'integer' },
   mtime                      => { type => 'timestamp' },
   notes                      => { type => 'text' },
+  notes_bottom               => { type => 'text' },
   ordnumber                  => { type => 'text' },
   oreqnumber                 => { type => 'text' },
   payment_id                 => { type => 'integer' },

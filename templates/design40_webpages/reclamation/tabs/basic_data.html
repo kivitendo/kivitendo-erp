@@ -199,7 +199,32 @@
   <tbody>
     <tr>
       <td class="wi-wide">
-        [% L.textarea_tag('reclamation.notes', SELF.reclamation.notes, style="width: 350px; height: 150px", class="texteditor wi-wide") %]
+        [% BLOCK panel_2 %]
+          [% L.textarea_tag('reclamation.notes', SELF.reclamation.notes, rows=7, class="texteditor wi-wide") %]
+
+        [% END %]
+        [% INCLUDE 'common/toggle_panel.html'
+          block_name     = 'panel_2'
+          toggle_class   = 'toggle_panel_2'
+          display_status = SELF.reclamation.notes ? 'open' : 'closed'
+          button_closed  = LxERP.t8("Show top notes")
+          button_open    = LxERP.t8("Hide top notes")
+        %]
+      </td>
+    </tr>
+    <tr>
+      <td class="wi-wide">
+        [% BLOCK panel_3 %]
+          [% L.textarea_tag('reclamation.notes_bottom', SELF.reclamation.notes_bottom, rows=7, class="texteditor wi-wide") %]
+
+        [% END %]
+        [% INCLUDE 'common/toggle_panel.html'
+          block_name     = 'panel_3'
+          toggle_class   = 'toggle_panel_3'
+          display_status = SELF.reclamation.notes_bottom ? 'open' : 'closed'
+          button_closed  = LxERP.t8("Show bottom notes")
+          button_open    = LxERP.t8("Hide bottom notes")
+        %]
       </td>
     </tr>
     <tr>

@@ -472,6 +472,7 @@ sub generate_doc {
           longdescription => 'html',
           partnotes       => 'html',
           notes           => 'html',
+          notes_bottom    => 'html',
           $::form->get_variable_content_types_for_cvars,
         },
       );

@@ -81,6 +81,7 @@ SL::DB::Helper::Attr::make(__PACKAGE__, daily_exchangerate => 'numeric');
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_html('notes_bottom');
 __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_ord_quo_number');
@@ -531,7 +532,7 @@ sub new_from {
   my %args;
   if (ref($source) eq 'SL::DB::Order') {
     %args = ( map({ ( $_ => $source->$_ ) } qw(amount cp_id currency_id cusordnumber customer_id delivery_customer_id delivery_term_id delivery_vendor_id
-                                               department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes
+                                               department_id exchangerate globalproject_id intnotes marge_percent marge_total language_id netamount notes notes_bottom
                                                ordnumber payment_id quonumber reqdate salesman_id shippingpoint shipvia taxincluded tax_point_start tax_point taxzone_id
                                                transaction_description vendor_id billing_address_id lead_time_id
                                             )),
@@ -565,7 +566,7 @@ sub new_from {
     %args = ( map({ ( $_ => $source->$_ ) } qw(
         amount billing_address_id currency_id customer_id delivery_term_id department_id
         exchangerate globalproject_id intnotes language_id netamount
-        notes payment_id  reqdate salesman_id shippingpoint shipvia taxincluded
+        notes notes_bottom payment_id  reqdate salesman_id shippingpoint shipvia taxincluded
         tax_point_start tax_point taxzone_id transaction_description vendor_id
       )),
       cp_id     => $source->{contact_id},
@@ -714,7 +715,7 @@ sub new_from_multi {
   # set this entries to undef that yield different information
   my %attributes;
   foreach my $attr (qw(ordnumber transdate reqdate tax_point_start tax_point taxincluded shippingpoint
-                       shipvia notes closed delivered reqdate quonumber
+                       shipvia notes notes_bottom closed delivered reqdate quonumber
                        cusordnumber proforma transaction_description
                        order_probability expected_billing_date)) {
     $attributes{$attr} = undef if any { ($sources->[0]->$attr//'') ne ($_->$attr//'') } @$sources;
@@ -806,7 +807,8 @@ sub email_replacement_specs {
     options => [
       {name => 'ordnumber',                  title => t8('Order Number')},
       {name => 'quonumber',                  title => t8('Quotation Number')},
-      {name => 'notes',                      title => t8('Notes')},
+      {name => 'notes',                      title => t8('Notes (top)')},
+      {name => 'notes_bottom',               title => t8('Notes (bottom)')},
       {name => 'intnotes',                   title => t8('Internal Notes')},
       {name => 'shippingpoint',              title => t8('Shipping Point')},
       {name => 'shipvia',                    title => t8('Ship via')},

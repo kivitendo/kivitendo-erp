@@ -378,6 +378,7 @@ SQL
   $form->{fulltext} = trim($form->{fulltext});
   if ($form->{fulltext}) {
     my @fulltext_fields = qw(o.notes
+                             o.notes_bottom
                              o.intnotes
                              o.shippingpoint
                              o.shipvia

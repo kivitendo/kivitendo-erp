@@ -738,10 +738,12 @@ sub _exchanged_document {
   $std_note  //= first { !defined $_->language_id }              @{ $std_notes };
 
   my $notes         = $self->notes_as_stripped_html;
+  my $notes_bottom  = $self->notes_bottom_as_stripped_html;
   my $register_note = _generate_register_note();
 
   _included_note($self, %params, note => $self->transaction_description)        if $self->transaction_description;
   _included_note($self, %params, note => $notes)                                if $notes;
+  _included_note($self, %params, note => $notes_bottom)                         if $notes_bottom;
   _included_note($self, %params, note => $std_note->translation)                if $std_note;
   _included_note($self, %params, note => $register_note, subject_code => 'REG') if $register_note;
 
