@@ -94,7 +94,6 @@
     \vspace{0.5cm}
   <%end notes%>%
 
-
   \begin{PricingTabular*}[pricetotal/colspec = K]
     % eigentliche Tabelle%
     \FakeTable{%
@@ -123,6 +122,10 @@
     \end{PricingTotal}%
   \end{PricingTabular*}
 
+  <%if notes_bottom%>%
+    <%notes_bottom%>%
+    \vspace{0.5cm}
+  <%end notes_bottom%>%
 
   \closing{\gruesse}
 
