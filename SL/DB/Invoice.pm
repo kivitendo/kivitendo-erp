@@ -75,6 +75,7 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_html('notes_bottom');
 __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_record_type');
@@ -208,7 +209,7 @@ sub new_from {
   my $terms = $source->can('payment_id') ? $source->payment_terms : undef;
   $terms = $source->customer->payment_terms if !defined $terms && $source->customer;
 
-  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber department_id
+  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes notes_bottom intnotes salesman_id cusordnumber ordnumber department_id
                                                 cp_id language_id taxzone_id tax_point globalproject_id transaction_description currency_id delivery_term_id
                                                 billing_address_id), @columns),
                transdate   => $params{transdate} // DateTime->today_local,
@@ -628,7 +629,8 @@ sub email_replacement_specs {
     options => [
       {name => 'cusordnumber',               title => t8('Customer Order Number')},
       {name => 'invnumber',                  title => t8('Invoice Number')},
-      {name => 'notes',                      title => t8('Notes')},
+      {name => 'notes',                      title => t8('Notes (top)')},
+      {name => 'notes_bottom',               title => t8('Notes (bottom)')},
       {name => 'intnotes',                   title => t8('Internal Notes')},
       {name => 'shippingpoint',              title => t8('Shipping Point')},
       {name => 'shipvia',                    title => t8('Ship via')},

@@ -2730,6 +2730,7 @@ sub get_variable_content_types {
     longdescription  => 'html',
     partnotes        => 'html',
     notes            => 'html',
+    notes_bottom     => 'html',
     orignotes        => 'html',
     notes1           => 'html',
     notes2           => 'html',
