@@ -115,7 +115,7 @@ sub display_form {
   setup_fu_display_form_action_bar() unless $::form->{POPUP_MODE};
 
   $form->header(no_layout       => $::form->{POPUP_MODE},
-                use_javascripts => [ qw(follow_up) ],
+                use_javascripts => [ qw(kivi.Validator follow_up) ],
   );
   print $form->parse_html_template('fu/add_edit');
 
@@ -252,7 +252,7 @@ sub search {
   $form->{title}    = $locale->text('Follow-Ups');
 
   setup_fu_search_action_bar();
-  $form->header();
+  $form->header(use_javascripts => [ qw(kivi.Validator) ]);
   print $form->parse_html_template('fu/search');
 
   $main::lxdebug->leave_sub();
