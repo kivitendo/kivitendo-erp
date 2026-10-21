@@ -149,6 +149,7 @@ sub do_http_fetch {
   die 'Downloaded JSON array is empty'                 if scalar(@$decoded_response) == 0;
   die 'Downloaded JSON array elements are not objects' if ref($decoded_response->[0]) ne 'HASH';
 
+  # The JSON to CSV conversion does not support multiplexed CsvImport workers.
   my @keys = sort keys %{$decoded_response->[0]};
 
   my $sfile = SL::SessionFile::Random->new(mode => ">", encoding => 'UTF-8');
@@ -221,10 +222,20 @@ From a controller or external source:
 
 =head1 FUNCTIONS
 
+=over 2
+
+=item * C<do_http_fetch> downloads JSON data via HTTP/HTTPS, converts
+this data to CSV and then imports it. This function is called when
+manually created jobs (i.e. with configuration data obtained from the
+tab »background job configuration data« from the CSV import UI) are run.
+
+=back
+
 =head1 BUGS
 
 =head1 AUTHOR
 
 Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
+Niklas Schmidt E<lt>niklas@kivitendo.deE<gt>
 
 =cut

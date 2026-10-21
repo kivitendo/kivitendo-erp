@@ -365,6 +365,7 @@
   button_open   = LxERP.t8("Hide help text")
 %]
 
+[% UNLESS SELF.worker.is_multiplexed %]
 [% BLOCK panel_4 %]
   <div>
     [% LxERP.t8('You can configure an automatic periodic fetching of JSON files via HTTP and import via a CSV import profile. To do so, create a new background job of type CsvImport with the data given below. The downloaded JSON file must have the following structure:') %]
@@ -407,6 +408,7 @@
   button_closed = LxERP.t8("Show background job configuration data")
   button_open   = LxERP.t8("Hide background job configuration data")
 %]
+[% END %]
 
 
 </div><!-- /.col -->
