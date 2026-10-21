@@ -1,0 +1,19 @@
+[%- USE HTML -%][%- USE L -%][%- USE T8 -%]
+
+[% SET style="width: 400px" %]
+
+<form action="controller.pl" method="post" id="form">
+[%- L.hidden_tag("id", SELF.partsgroup.id) %]
+
+<div id="partsgroup_tabs"class="tabwidget">
+  <ul class="ui-tabs">
+    <li><a href="#partsgroup_data">[% 'Partsgroup data' | $T8 %]</a></li>
+    <li><a href="#partsgroup_parts">[% 'Article' | $T8 %]</a></li>
+  </ul>
+  <div id="partsgroup_data" class="ui-tabs-panel">
+    [% PROCESS 'partsgroup/_partsgroup_data.html' %]
+  </div>
+  <div id="partsgroup_parts" class="ui-tabs-panel">
+    [% PROCESS 'partsgroup/_partsgroup_parts.html' %]
+  </div>
+</div>
