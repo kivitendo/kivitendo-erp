@@ -100,6 +100,22 @@ is $ref->[2]->{lastcost}, '25.00000',   "third last price update: right lastcost
 is $ref->[2]->{vendor_id}, $vendor->id, "third last price update: vendor is set";
 is $ref->[2]->{ap_id},     $id,         "third last price update: ap is set ($id)";
 
+######
+# delete invoice: price history is kept, but without the deleted ap
+($out, $err, @ret) = make_request('ir', 'edit', id => $id);
+is $ret[0], 1, "edit '$description'";
+%form = form_from_html($out);
+
+($out, $err, @ret) = make_request('ir', 'yes', %form);
+is $ret[0], 1, "deleting '$description' does not generate error";
+
+ok !SL::DB::Manager::PurchaseInvoice->find_by(id => $id), "invoice is deleted";
+is $part1->load->lastcost, '31.00000', "lastcost is kept";
+
+$ref = selectall_hashref_query($::form, $part1->db->dbh, $query);
+is scalar(grep { $_->{vendor_id} && $_->{vendor_id} == $vendor->id } @$ref), 3, "price updates by vendor are kept";
+is scalar(grep { defined $_->{ap_id} } @$ref),                                0, "price updates no longer refer to ap";
+
 #####
 
 # clear_up
