@@ -1108,7 +1108,7 @@ sub action_load_second_rows {
     my $idx  = first_index { $_ eq $item_id } @{ $::form->{orderitem_ids} };
     my $item = $self->order->items_sorted->[$idx];
 
-    $self->js_load_second_row($item, $item_id, 0);
+    $self->js_load_second_row($item, $item_id);
   }
 
   # for lastcosts change-callback
@@ -1473,17 +1473,7 @@ sub action_render_item_selection {
 }
 
 sub js_load_second_row {
-  my ($self, $item, $item_id, $do_parse) = @_;
-
-  if ($do_parse) {
-    # Parse values from form (they are formated while rendering (template)).
-    # Workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
-    # This parsing is not necessary at all, if we assure that the second row/cvars are only loaded once.
-    foreach my $var (@{ $item->cvars_by_config }) {
-      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
-    }
-    $item->parse_custom_variable_values;
-  }
+  my ($self, $item, $item_id) = @_;
 
   my $row_as_html = $self->p->render('delivery_order/tabs/_second_row', ITEM => $item, TYPE => $self->type);
 
@@ -1902,7 +1892,10 @@ sub setup_custom_shipto_from_form {
     };
 
     $custom_shipto->assign_attributes(%$shipto_attrs);
-    $custom_shipto->cvar_by_name($_)->value($shipto_cvars->{$_}) for keys %$shipto_cvars;
+
+    # The cvar values come from form. So they are unparsed and must be parsed before saving.
+    $custom_shipto->cvar_by_name($_)->unparsed_value($shipto_cvars->{$_}) for keys %$shipto_cvars;
+    $custom_shipto->parse_custom_variable_values;
   }
 }
 
@@ -1914,10 +1907,7 @@ sub get_unalterable_data {
 
   foreach my $item (@{ $self->order->items }) {
     # autovivify all cvars that are not in the form (cvars_by_config can do it).
-    # workaround to pre-parse number-cvars (parse_custom_variable_values does not parse number values).
-    foreach my $var (@{ $item->cvars_by_config }) {
-      $var->unparsed_value($::form->parse_amount(\%::myconfig, $var->{__unparsed_value})) if ($var->config->type eq 'number' && exists($var->{__unparsed_value}));
-    }
+    $item->cvars_by_config;
     $item->parse_custom_variable_values;
   }
 }

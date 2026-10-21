@@ -891,10 +891,11 @@ sub form_footer {
 
   $form->{oldinvtotal} = $form->{invtotal};
 
-  my $shipto_cvars       = SL::DB::Shipto->new->cvars_by_config;
+  my $shipto_cvars      = SL::DB::Shipto->new->cvars_by_config;
   foreach my $var (@{ $shipto_cvars }) {
     my $name = "shiptocvar_" . $var->config->name;
-    $var->value($form->{$name}) if exists $form->{$name};
+    $var->unparsed_value($form->{$name}) if exists $form->{$name};
+    $var->parse_value();
   }
 
   print $form->parse_html_template('is/form_footer', {

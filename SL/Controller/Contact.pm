@@ -225,9 +225,8 @@ sub _copy_form_to_cvars {
 
   foreach my $cvar (@{ $params{target}->cvars_by_config }) {
     my $value = $params{source}->{$cvar->config->name};
-    $value    = $::form->parse_amount(\%::myconfig, $value) if $cvar->config->type eq 'number';
-
-    $cvar->value($value);
+    $cvar->unparsed_value($value);
+    $cvar->parse_value();
   }
 }
 
