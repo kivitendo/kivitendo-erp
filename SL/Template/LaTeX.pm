@@ -433,12 +433,25 @@ sub _force_mandatory_packages {
   my %used_packages;
   my @required_packages = qw(textcomp ulem);
   push @required_packages, 'embedfile' if $self->{pdf_a};
+  my $dependencies_injected = 0;
 
   foreach my $line (@lines) {
     if ($line =~ m/\\usepackage[^\{]*{(.*?)}/) {
       $used_packages{$1} = 1;
 
-    } elsif ($line =~ m/\\begin\{document\}/) {
+    } elsif ((!$dependencies_injected && $line =~ m/\\documentclass[^\{]*{(.*?)}/) ||
+             (!$dependencies_injected && $line =~ m/\\begin\{document\}/))
+    {
+      # The RB print templates do contain \documentclass[...]{...} in an included file and not at the top of the main file. In this case, dependencies are injected directly above \begin{document}; this is the legacy code path resulting in LaTeX code ordered incompatible with LuaLaTeX.
+      # The non-legacy codepath compatible with pdflatex and lualatex injects dependencies directly after \documentclass[...]{...}.
+
+      $dependencies_injected = 1;
+
+      if ($line =~ m/\\documentclass[^\{]*{(.*?)}/) {
+        push @new_lines, $line;
+        $line = '';
+      }
+
       if ($self->{pdf_a} && $self->{pdf_a}->{xmp}) {
         my $version       = $self->{pdf_a}->{version}   // '3a';
         my $xmp_file_name = $self->{userspath} . "/pdfa.xmp";
