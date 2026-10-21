@@ -227,7 +227,6 @@ sub generate_report {
     if ($form->{lastsort} eq $form->{sort}) {
       $form->{revers} = 1 - $form->{revers};
     } else {
-      $form->{revers} = 0;
       $form->{lastsort} = $form->{sort};
     }    #fi
   }    #fi
