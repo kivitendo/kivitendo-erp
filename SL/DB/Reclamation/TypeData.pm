@@ -34,9 +34,9 @@ my %type_data = (
       delete                           => sub { $::instance_conf->get_sales_reclamation_show_delete },
     },
     properties => {
-      customervendor => "customer",
-      is_customer    => 1,
-      nr_key         => "record_number",
+      customervendor  => "customer",
+      is_customer     => 1,
+      nr_key          => "record_number",
       workflow_needed => 0,
     },
     defaults => {
@@ -69,9 +69,9 @@ my %type_data = (
       delete                           => sub { $::instance_conf->get_purchase_reclamation_show_delete },
     },
     properties => {
-      customervendor => "vendor",
-      is_customer    => 0,
-      nr_key         => "record_number",
+      customervendor  => "vendor",
+      is_customer     => 0,
+      nr_key          => "record_number",
       workflow_needed => 0,
     },
     defaults => {

@@ -55,9 +55,9 @@ my %type_data = (
       delete => sub { $::instance_conf->get_sales_order_show_delete },
     },
     properties => {
-      customervendor => "customer",
-      is_customer    => 1,
-      nr_key         => "ordnumber",
+      customervendor  => "customer",
+      is_customer     => 1,
+      nr_key          => "ordnumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -114,9 +114,9 @@ my %type_data = (
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {
-      customervendor => "vendor",
-      is_customer    => 0,
-      nr_key         => "ordnumber",
+      customervendor  => "vendor",
+      is_customer     => 0,
+      nr_key          => "ordnumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -166,9 +166,9 @@ my %type_data = (
       delete => 1,
     },
     properties => {
-      customervendor => "customer",
-      is_customer    => 1,
-      nr_key         => "quonumber",
+      customervendor  => "customer",
+      is_customer     => 1,
+      nr_key          => "quonumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -225,9 +225,9 @@ my %type_data = (
       delete => 1,
     },
     properties => {
-      customervendor => "vendor",
-      is_customer    => 0,
-      nr_key         => "quonumber",
+      customervendor  => "vendor",
+      is_customer     => 0,
+      nr_key          => "quonumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -277,9 +277,9 @@ my %type_data = (
       delete => 1,
     },
     properties => {
-      customervendor => "vendor",
-      is_customer    => 0,
-      nr_key         => "quonumber",
+      customervendor  => "vendor",
+      is_customer     => 0,
+      nr_key          => "quonumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -329,9 +329,9 @@ my %type_data = (
       delete => sub { $::instance_conf->get_sales_order_show_delete },
     },
     properties => {
-      customervendor => "customer",
-      is_customer    => 1,
-      nr_key         => "ordnumber",
+      customervendor  => "customer",
+      is_customer     => 1,
+      nr_key          => "ordnumber",
       workflow_needed => 0,
     },
     defaults => {
@@ -388,9 +388,9 @@ my %type_data = (
       delete => sub { $::instance_conf->get_purchase_order_show_delete },
     },
     properties => {
-      customervendor => "vendor",
-      is_customer    => 0,
-      nr_key         => "ordnumber",
+      customervendor  => "vendor",
+      is_customer     => 0,
+      nr_key          => "ordnumber",
       workflow_needed => 0,
     },
     defaults => {
