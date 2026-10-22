@@ -157,7 +157,7 @@ sub get_record_types_with_info {
         record_type     => $type,
         text            => $type_data->can('get3')->($type, 'text', 'type'),
         customervendor  => $type_data->can('get3')->($type, 'properties', 'customervendor'),
-        workflow_needed => $type_data->can('get3')->($type, 'properties', 'worflow_needed'),
+        workflow_needed => $type_data->can('get3')->($type, 'properties', 'workflow_needed'),
         can_workflow    => (
           any {
             $_ ne 'delete' && $type_data->can('get3')->($type, 'show_menu', $_)
