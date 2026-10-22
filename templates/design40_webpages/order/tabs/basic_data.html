@@ -485,6 +485,12 @@
       [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order" || SELF.type == "purchase_order_confirmation") -%]
       <th id="shipped_qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("shipped_qty")'>[% 'Delivered' | $T8 %]</a></th>
       [%- END -%]
+      [% IF in_out == 'in' %]
+      <th>[%- 'Transfer To Stock' | $T8 %] </th>
+      [% END %]
+      [% IF in_out == 'out' %]
+      <th>[%- 'Release From Stock' | $T8 %] </th>
+      [% END %]
       <th id="qty_header_id"><a href='#' onClick='javascript:kivi.Order.reorder_items("qty")'>        [% 'Qty'         | $T8 %]</a></th>
       <th >[% 'Price Factor' | $T8 %]</th>
       <th >[% 'Unit'         | $T8 %]</th>
@@ -508,6 +514,9 @@
       [% SET add_col = 1 %]
     [% END %]
     [% IF SELF.search_cvpartnumber %]
+      [% SET add_col = add_col + 1 %]
+    [% END %]
+    [% IF 'none' != in_out %]
       [% SET add_col = add_col + 1 %]
     [% END %]
     <tr id="subtotal_row_id">

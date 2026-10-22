@@ -11,6 +11,9 @@
 [% IF SELF.search_cvpartnumber %]
   [% SET n_col = n_col + 1 %]
 [% END %]
+[% IF 'none' != SELF.type_data.properties('transfer') %]
+  [% SET n_col = n_col + 1 %]
+[% END %]
 <tr class="tax_row">
   <td colspan="[%- n_col %]"></td>
   [%- IF SELF.show_update_button -%]
