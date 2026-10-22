@@ -585,7 +585,7 @@ sub test_default_order_two_items_19_one_optional() {
   reset_state();
 
   my $item          = new_order_item(qty => 2.5);
-  my $item_optional = new_order_item(qty => 2.5, optional => 1);
+  my $item_optional = new_order_item(qty => 2.5, optional => 'optional');
 
   my $order = new_order(
     taxincluded  => 0,
@@ -619,7 +619,7 @@ sub test_default_order_two_items_19_one_optional() {
   is($order->amount,          6.96,             "${title}: amount");
   is($order->marge_total,     1.02,             "${title}: marge_total");
   is($order->marge_percent,   17.4358974358974, "${title}: marge_percent");
-  is($order->orderitems->[1]->optional, 1,      "${title}: second order item has attribute optional");
+  is($order->orderitems->[1]->optional, 'optional', "${title}: second order item has attribute optional");
   # diag explain $order->orderitems->[1]->optional;
   # diag explain \%data;
   is_deeply(\%data, {
