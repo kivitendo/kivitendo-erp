@@ -37,7 +37,7 @@ my %type_data = (
       customervendor => "customer",
       is_customer    => 1,
       nr_key         => "record_number",
-      worflow_needed => 0,
+      workflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
@@ -72,7 +72,7 @@ my %type_data = (
       customervendor => "vendor",
       is_customer    => 0,
       nr_key         => "record_number",
-      worflow_needed => 0,
+      workflow_needed => 0,
     },
     defaults => {
       reqdate => sub { return; },
