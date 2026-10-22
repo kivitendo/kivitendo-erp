@@ -34,6 +34,8 @@ sub escape {
   my $text = shift;
 
   $text =~ s/$re/'\\' . ($control_chars{$1} || $1)/egs;
+  $text =~ s/</\\u003c/g;
+  $text =~ s/>/\\u003e/g;
 
   return $text;
 }
