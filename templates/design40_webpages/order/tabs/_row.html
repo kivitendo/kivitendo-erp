@@ -62,6 +62,12 @@
       [%- L.div_tag(LxERP.format_amount(ITEM.shipped_qty, 2, 0) _ ' ' _ HTML.escape(ITEM.unit), name="shipped_qty", class="numeric") %]
     </td>
     [%- END -%]
+    [% IF 'none' != SELF.type_data.properties('transfer') %]
+    <td>
+      <span id="stock_[% ID %]" class="data-stock-qty">[% SELF.calculate_stock_in_out(ITEM) %] [% ITEM.unit | html %]</span>
+      [% P.button_tag("kivi.StockDialog.open_stock_in_out_dialog(this, '" _ in_out _"')", "?") %]
+    </td>
+    [%- END %]
     <td>
       [% L.input_tag("order.orderitems[].qty_as_number",
                       ITEM.qty_as_number,
