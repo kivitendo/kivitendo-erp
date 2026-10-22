@@ -222,7 +222,6 @@ sub is_type {
 sub quotation {
   my $type = $_[0]->type();
   any { $type eq $_ } (
-    SALES_ORDER_INTAKE_TYPE(),
     SALES_QUOTATION_TYPE(),
     REQUEST_QUOTATION_TYPE(),
     PURCHASE_QUOTATION_INTAKE_TYPE(),
