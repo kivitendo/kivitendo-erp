@@ -8,9 +8,11 @@ use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Filtered;
 use base qw(SL::DB::Helper::Manager);
 
+use Algorithm::CheckDigits;
 use Carp;
 use SL::DBUtils;
 use SL::MoreCommon qw(listify);
+use SL::Locale::String qw(t8);
 
 sub object_class { 'SL::DB::Part' }
 
@@ -157,6 +159,34 @@ SQL
 
   $open_qty ||= 0;
   return $open_qty
+}
+
+sub generate_next_free_ean {
+  my ($class) = @_;
+
+  my $v_ean = Algorithm::CheckDigits::CheckDigits('ean');
+  my $last  = SL::DB::Default->get->part_ean_number;
+
+  unless ($last && $v_ean->is_valid($last)) {
+    die t8('The article EAN number range needs to be set to a valid EAN in the client configuration');
+  }
+
+  my $new_number;
+  my $dbh = $class->object_class->init_db->dbh;
+
+  SL::DB->client->with_transaction(sub {
+    $dbh->do('LOCK defaults IN ROW EXCLUSIVE MODE') || die $dbh->errstr;
+    my $range_table = SL::DB::Default->get->load(for_update => 1);
+    my $query       = q|SELECT ean FROM parts WHERE obsolete = 'f' AND ean = ? LIMIT 1|;
+    $new_number     = $range_table->part_ean_number;
+    $new_number     = $v_ean->complete(sprintf('%012d', 1 + substr($new_number, 0, 12)));
+    while (selectall_hashref_query($::form, $dbh, $query, $new_number)->[0]{ean}) {
+      $new_number   = $v_ean->complete(sprintf('%012d', 1 + substr($new_number, 0, 12)));
+    }
+    $range_table->update_attributes(part_ean_number => $new_number);
+  });
+
+  return $new_number;
 }
 
 sub _sort_spec {

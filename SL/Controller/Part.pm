@@ -169,6 +169,8 @@ sub action_save {
   # $self->part has been loaded, parsed and validated without errors and is ready to be saved
   $self->part->db->with_transaction(sub {
 
+    $self->part->ean(SL::DB::Manager::Part->generate_next_free_ean()) if $::form->{on_save_set_next_free_ean};
+
     $self->part->save(cascade => 1);
     $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
 
