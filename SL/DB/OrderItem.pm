@@ -21,6 +21,14 @@ use SL::DB::Helper::CustomVariables (
 use SL::Helper::ShippedQty;
 use Rose::DB::Object::Helpers qw(as_tree strip);
 
+__PACKAGE__->meta->add_relationship(
+  order_stock_entries => {
+    type         => 'one to many',
+    class        => 'SL::DB::OrderItemsStock',
+    column_map   => { id => 'order_item_id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(trans_id)]);
