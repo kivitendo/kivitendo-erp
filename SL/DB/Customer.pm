@@ -129,6 +129,8 @@ sub number { goto &customernumber }
 sub create_zugferd_invoices_for_this_customer {
   my ($self) = @_;
 
+  die 'not an accessor' if @_ > 1;
+
   no warnings 'once';
   return $::instance_conf->get_create_zugferd_invoices if $self->create_zugferd_invoices == -1;
   return $self->create_zugferd_invoices;
