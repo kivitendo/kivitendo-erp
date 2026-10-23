@@ -5,6 +5,7 @@ use strict;
 use SL::HTML::Restrict;
 use SL::Locale::String qw(t8);
 use SL::Presenter::EscapedText qw(escape);
+use SL::Template::Plugin::JavaScript qw();
 use SL::Util qw(trim);
 use Scalar::Util qw(blessed);
 
@@ -356,7 +357,7 @@ sub multi_level_select_tag {
       foreach my $option (@current_collections) {
         $js_option_string .= "'" . $option->{$level_keys{$level}{value}} . "': [";
         map { $js_option_string .= "{ value: '" . $_->{$level_keys{$level + 1}{value}}
-                                .  "', title: '" . $_->{$level_keys{$level + 1}{title}}
+                                .  "', title: '" . SL::Template::Plugin::JavaScript->escape($_->{$level_keys{$level + 1}{title}})
                                 .  "'}," } @{$option->{$level_keys{$level + 1}{object}}};
         $js_option_string .= "],";
         push @next_collections, @{$option->{$level_keys{$level + 1}{object}}};
