@@ -31,13 +31,13 @@
  [% L.hidden_tag("item_id", item_id) %]
 
  [%- IF delivered %]
-  [% PROCESS "delivery_order/stock_dialog/_stock_delivered_dialog.html" %]
+  [% PROCESS "stock_dialog/_stock_delivered_dialog.html" %]
  [%- ELSE %]
 
   [%- IF in_out == "in" %]
   <p>
   <table id="stock-info-table" class="tbl-list">
-    [%- PROCESS "delivery_order/stock_dialog/_stock_info_table.html" %]
+    [%- PROCESS "stock_dialog/_stock_info_table.html" %]
   </table>
   </p>
   [%- END %]
@@ -45,23 +45,23 @@
   <p>
    <table id="stock-in-out-table" class="tbl-list">
     [%- IF in_out == "in" %]
-     [%- PROCESS "delivery_order/stock_dialog/_stock_in_table.html" %]
+     [%- PROCESS "stock_dialog/_stock_in_table.html" %]
     [%- ELSE %]
-     [%- PROCESS "delivery_order/stock_dialog/_stock_out_table.html" %]
+     [%- PROCESS "stock_dialog/_stock_out_table.html" %]
     [%- END %]
    </table>
   </p>
 
   [%- IF in_out == "in" %]
-  [% L.button_tag('kivi.DeliveryOrder.add_stock_in_line_to_dialog()', LxERP.t8('+')) %]
+  [% L.button_tag('kivi.StockDialog.add_stock_in_line_to_dialog()', LxERP.t8('+')) %]
   [%- END %]
 
   <hr size="3" noshade>
 
   <p>
-    [% L.button_tag('kivi.DeliveryOrder.save_updated_stock(true)', LxERP.t8('Save and Close')) %]
+    [% L.button_tag('kivi.StockDialog.save_updated_stock(true)', LxERP.t8('Save and Close')) %]
     [%- IF next_button %]
-      [% L.button_tag("kivi.DeliveryOrder.next_stock_in_out_dialog($row_ui_id)", LxERP.t8('Save and Next')) %]
+      [% L.button_tag("kivi.StockDialog.next_stock_in_out_dialog($row_ui_id)", LxERP.t8('Save and Next')) %]
     [%- END %]
   </p>
 
