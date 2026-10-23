@@ -73,8 +73,8 @@ foreach my $accno (@charts) {
 
 SL::Controller::PayPostingImport::parse_and_import();
 
-# get all gl imported bookings
-my $gl_bookings = SL::DB::Manager::GLTransaction->get_all(where => [imported => 1] );
+# get all gl imported bookings in the order of the import
+my $gl_bookings = SL::DB::Manager::GLTransaction->get_all_sorted(where => [imported => 1]);
 
 # $i number of real data entries in the array (first two rows are headers)
 my $i = 2;
@@ -87,6 +87,7 @@ foreach my $booking (@{ $gl_bookings }) {
   my $accno_credit = $current_row->[1] eq 'S' ? $current_row->[7] : $current_row->[6];
   my $accno_debit  = $current_row->[1] eq 'S' ? $current_row->[6] : $current_row->[7];
   my $amount       = $::form->parse_amount({ numberformat => '1000,00' }, $current_row->[0]);
+  my @transactions = @{ SL::DB::Manager::AccTransaction->get_all_sorted(where => [ trans_id => $booking->id ]) };
 
   # gl
   is ($current_row->[13], $booking->reference, "Buchungstext correct");
@@ -98,15 +99,15 @@ foreach my $booking (@{ $gl_bookings }) {
     is ($current_row->[36], '', "No Department correctly assigned");
 
   }
-  is ($source, $booking->transactions->[0]->source, "Source 0 correctly assigned");
-  is ($source, $booking->transactions->[1]->source, "Source 1 correctly assigned");
+  is ($source, $transactions[0]->source, "Source 0 correctly assigned");
+  is ($source, $transactions[1]->source, "Source 1 correctly assigned");
 
   # acc_trans
-  cmp_ok ($amount,      '==',  $booking->transactions->[0]->amount, "Correct amount Soll");
-  cmp_ok ($amount * -1, '==',  $booking->transactions->[1]->amount, "Correct amount Haben");
+  cmp_ok ($amount,      '==',  $transactions[0]->amount, "Correct amount Soll");
+  cmp_ok ($amount * -1, '==',  $transactions[1]->amount, "Correct amount Haben");
   is (ref $booking->transdate, 'DateTime', "Booking has a Transdate");
-  is ($accno_credit, $booking->transactions->[0]->chart->accno, "Sollkonto richtig");
-  is ($accno_debit, $booking->transactions->[1]->chart->accno, "Habenkonto richtig");
+  is ($accno_credit, $transactions[0]->chart->accno, "Sollkonto richtig");
+  is ($accno_debit, $transactions[1]->chart->accno, "Habenkonto richtig");
 
   $i++;
 }
