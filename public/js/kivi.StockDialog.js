@@ -26,7 +26,7 @@ namespace('kivi.StockDialog', function(ns) {
 
     kivi.popup_dialog({
       id: "stock_in_out_dialog",
-      url: "controller.pl?action=DeliveryOrder/stock_in_out_dialog",
+      url: "controller.pl?action=StockDialog/stock_in_out_dialog",
       data: {
         id:            $("#id").val(),
         type:          $("#type").val(),
@@ -60,7 +60,7 @@ namespace('kivi.StockDialog', function(ns) {
 
     let data = [];
     data.push(
-      { name: 'action', value: 'DeliveryOrder/add_stock_in_line_to_dialog' },
+      { name: 'action', value: 'StockDialog/add_stock_in_line_to_dialog' },
       { name: 'type', value: $("#type").val()},
       { name: 'qty_sum', value: qty_sum },
       { name: 'row_count', value: row_count},
@@ -96,7 +96,7 @@ namespace('kivi.StockDialog', function(ns) {
 
     $.post("controller.pl",
       kivi.serialize({
-        action:     "DeliveryOrder/update_stock_information",
+        action:     "StockDialog/update_stock_information",
         unit:       $("#" + row).find("[name$=unit]").val(),
         stock_info: data,
         row:        row
