@@ -33,7 +33,7 @@ sub action_stock_in_out_dialog {
   $self->merge_stock_data($stock_info, \@contents, $part, $unit);
 
   my $delivered = $self->order->delivered;
-  $self->render("delivery_order/stock_dialog", { layout => 0 },
+  $self->render("stock_dialog/stock_dialog", { layout => 0 },
     WHCONTENTS  => \@contents,
     STOCK_INFO  => $stock_info,
     WAREHOUSES  => !$delivered ? SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]], with_objects=> ["bins",]) : [],
@@ -57,7 +57,7 @@ sub action_add_stock_in_line_to_dialog {
   my $row_count = $::form->{row_count};
   my $part      = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
 
-  my $row_as_html = $self->p->render('delivery_order/stock_dialog/_stock_in_new_row',
+  my $row_as_html = $self->p->render('stock_dialog/_stock_in_new_row',
     WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
     PART => $part,
     pos  => $row_count + 1,
