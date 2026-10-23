@@ -11,9 +11,9 @@
 </tr>
 
 [%- FOREACH row = STOCK_INFO %]
-[%- PROCESS delivery_order/stock_dialog/_stock_in_row.html PART=part ROW=row pos=loop.count %]
+[%- PROCESS stock_dialog/_stock_in_row.html PART=part ROW=row pos=loop.count %]
 [%- END %]
 
 [%- UNLESS STOCK_INFO.size %]
-[%- PROCESS delivery_order/stock_dialog/_stock_in_new_row.html PART=part remaining_qty=do_qty pos=0 %]
+[%- PROCESS stock_dialog/_stock_in_new_row.html PART=part remaining_qty=do_qty pos=0 %]
 [% END %]
