@@ -944,6 +944,7 @@ sub action_order_workflow {
 
   if ($from_side eq 'sales' && $to_side eq 'purchase') {
     $self->order->notes('');
+    $self->order->notes_bottom('');
     if ($::form->{use_shipto}) {
       $self->order->custom_shipto($custom_shipto) if $custom_shipto;
     } else {

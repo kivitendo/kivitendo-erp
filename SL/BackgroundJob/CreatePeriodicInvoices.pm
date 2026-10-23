@@ -249,7 +249,14 @@ sub _create_periodic_invoice {
                                 direct_debit => $config->direct_debit,
                                );
 
-    _replace_vars(object => $invoice, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'notes' ? 'html' : 'text')) for qw(notes intnotes transaction_description);
+    _replace_vars(object           => $invoice,
+                  vars             => $time_period_vars,
+                  attribute        => $_,
+                  attribute_format => 'text') for qw(intnotes transaction_description);
+    _replace_vars(object           => $invoice,
+                  vars             => $time_period_vars,
+                  attribute        => $_,
+                  attribute_format => 'html') for qw(notes notes_bottom);
 
     foreach my $item (@{ $invoice->items }) {
       _replace_vars(object => $item, vars => $time_period_vars, attribute => $_, attribute_format => ($_ eq 'longdescription' ? 'html' : 'text')) for qw(description longdescription);
@@ -442,6 +449,7 @@ sub _email_invoice {
       longdescription => 'html',
       partnotes       => 'html',
       notes           => 'html',
+      notes_bottom    => 'html',
       $::form->get_variable_content_types_for_cvars,
     },
   );

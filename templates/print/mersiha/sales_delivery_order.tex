@@ -53,6 +53,11 @@
   \opening{}
   \thispagestyle{kivitendo.letter.first}
 
+  <%if notes%>%
+    <%notes%>%
+    \medskip
+  <%end notes%>%
+
   \begin{PricingTabular*}[columns={pos, id, desc, amount}]
     % eigentliche Tabelle
     \FakeTable{
@@ -77,10 +82,10 @@
 
   \medskip
 
-  <%if notes%>%
-    <%notes%>%
+  <%if notes_bottom%>%
+    <%notes_bottom%>%
     \medskip
-  <%end notes%>%
+  <%end notes_bottom%>%
 
   <%if delivery_term%>%
     \lieferung ~<%delivery_term.description_long%>\\

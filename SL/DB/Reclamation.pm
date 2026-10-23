@@ -56,6 +56,7 @@ SL::DB::Helper::Attr::make(__PACKAGE__, daily_exchangerate => 'numeric');
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
+__PACKAGE__->attr_html('notes_bottom');
 __PACKAGE__->attr_sorted('items');
 
 __PACKAGE__->before_save('_before_save_set_record_number');
@@ -319,6 +320,7 @@ sub new_from {
       language_id
       netamount
       notes
+      notes_bottom
       payment_id
       reqdate
       salesman_id
@@ -346,6 +348,7 @@ sub new_from {
       language_id
       netamount
       notes
+      notes_bottom
       payment_id
       salesman_id
       shippingpoint
@@ -372,6 +375,7 @@ sub new_from {
       intnotes
       language_id
       notes
+      notes_bottom
       payment_id
       salesman_id
       shippingpoint
@@ -400,6 +404,7 @@ sub new_from {
       language_id
       netamount
       notes
+      notes_bottom
       payment_id
       salesman_id
       shippingpoint

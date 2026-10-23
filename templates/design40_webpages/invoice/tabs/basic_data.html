@@ -19,7 +19,8 @@
              );
       END;
       INCLUDE 'common/toggle_panel.html'
-        block_name='panel_1'
+        block_name     = 'panel_1'
+        toggle_class   = 'toggle_panel_1'
         button_closed  = LxERP.t8('Show Attachment')
         button_open    = LxERP.t8('Hide Attachment')
         ;
@@ -206,9 +207,42 @@
   <caption>[% 'Notes' | $T8 %]</caption>
   <colgroup><col class="wi-wide"></colgroup>
   <tbody>
-    <tr>
-      <td class="wi-wide">[% L.textarea_tag('record.notes', SELF.record.notes, rows=7, class="texteditor wi-wide") %]</td>
-    </tr>
+    [% IF SELF.type_data.properties('is_customer') %]
+      <tr>
+        <td class="wi-wide">
+          [% BLOCK panel_2 %]
+            [% L.textarea_tag('record.notes', SELF.record.notes, rows=7, class="texteditor wi-wide") %]
+
+          [% END %]
+          [% INCLUDE 'common/toggle_panel.html'
+            block_name     = 'panel_2'
+            toggle_class   = 'toggle_panel_2'
+            display_status = SELF.record.notes ? 'open' : 'closed'
+            button_closed  = LxERP.t8("Show top notes")
+            button_open    = LxERP.t8("Hide top notes")
+          %]
+        </td>
+      </tr>
+      <tr>
+        <td class="wi-wide">
+          [% BLOCK panel_3 %]
+            [% L.textarea_tag('record.notes_bottom', SELF.record.notes_bottom, rows=7, class="texteditor wi-wide") %]
+
+          [% END %]
+          [% INCLUDE 'common/toggle_panel.html'
+            block_name     = 'panel_3'
+            toggle_class   = 'toggle_panel_3'
+            display_status = SELF.record.notes_bottom ? 'open' : 'closed'
+            button_closed  = LxERP.t8("Show bottom notes")
+            button_open    = LxERP.t8("Hide bottom notes")
+          %]
+        </td>
+      </tr>
+    [% ELSE %]
+      <tr>
+        <td><span class="label above">[% 'Notes' | $T8 %]</span>[% L.textarea_tag('record.notes', SELF.record.notes, class="wi-wide") %]</td>
+      </tr>
+    [% END %]
     <tr>
       <td><span class="label above">[% 'Internal Notes' | $T8 %]</span>[% L.textarea_tag('record.intnotes', SELF.record.intnotes, class="wi-wide") %]</td>
     </tr>
