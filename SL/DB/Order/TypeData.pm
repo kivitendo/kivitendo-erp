@@ -79,7 +79,7 @@ my %type_data = (
     },
     features => {
       price_tax   => 1,
-      stock       => 0,
+      stock       => 1,
       subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
@@ -132,7 +132,7 @@ my %type_data = (
     },
     features => {
       price_tax   => 1,
-      stock       => 0,
+      stock       => 1,
       subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
@@ -172,7 +172,6 @@ my %type_data = (
       is_customer     => 1,
       nr_key          => "quonumber",
       workflow_needed => 0,
-      transfer        => 'none',
     },
     defaults => {
       reqdate => sub {
@@ -232,7 +231,6 @@ my %type_data = (
       is_customer     => 0,
       nr_key          => "quonumber",
       workflow_needed => 0,
-      transfer        => 'none',
     },
     defaults => {
       reqdate => sub { return; },
@@ -285,7 +283,6 @@ my %type_data = (
       is_customer     => 0,
       nr_key          => "quonumber",
       workflow_needed => 0,
-      transfer        => 'none',
     },
     defaults => {
       reqdate => sub { return; },
@@ -358,7 +355,7 @@ my %type_data = (
     },
     features => {
       price_tax   => 1,
-      stock       => 0,
+      stock       => 1,
       subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
@@ -411,7 +408,7 @@ my %type_data = (
     },
     features => {
       price_tax   => 1,
-      stock       => 0,
+      stock       => 1,
       subversions => sub { $::instance_conf->get_lock_oe_subversions },
     },
   },
