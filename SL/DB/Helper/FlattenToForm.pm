@@ -149,7 +149,7 @@ sub prepare_stock_info {
       (bestbefore                   => ($_->bestbefore && $_->bestbefore->to_kivitendo)) x !! $_->bestbefore,
       chargenumber                  => $_->chargenumber,
       unit                          => $_->unit,
-    }, $item->delivery_order_stock_entries
+    }, $item->stock_entries
   ]);
 }
 
