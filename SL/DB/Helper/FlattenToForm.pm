@@ -125,10 +125,11 @@ sub flatten_to_form {
       $form->{"deliverydate_oe_${idx}"} = $date;
       $form->{"reqdate_${idx}"}         = $date;
     }
-    if (ref($self) eq 'SL::DB::DeliveryOrder'){
-      my $in_out   = $form->{type} =~ /^sales|^supplier/ ? 'out' : 'in';
-      $form->{"stock_" . $in_out . "_" . ${idx}} = prepare_stock_info($self,$item);
+
+    if (my $in_out = $self->type_data->features('stock') && $self->type_data->properties('transfer')) {
+      $form->{"stock_" . $in_out . "_" . ${idx}} = prepare_stock_info($self, $item);
     }
+
   }
 
   _copy_custom_variables($self, $form, 'vc_cvar_', '', $cvar_validity{vc});
