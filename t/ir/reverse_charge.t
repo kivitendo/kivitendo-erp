@@ -1,4 +1,5 @@
 use Test::More;
+use Test::Exception;
 
 use strict;
 
@@ -235,6 +236,13 @@ SL::Helper::ReverseCharge->post_bookings(%params, entries => [ { tax => $tax, ta
 is(SL::DB::Manager::ApGl->get_all_count(where => [ ap_id => $ap->id ]), 2, 'posting again replaces all transactions');
 is_deeply gl_bookings($ap->id), [ [ '1574', -19 ], [ '1574', -1.9 ], [ '1774', 1.9 ], [ '1774', 19 ] ],
   'amounts of both transactions';
+
+# a failing entry keeps the previous bookings
+my $no_reverse_charge_tax = SL::DB::Manager::Tax->get_first(where => [ reverse_charge_chart_id => undef ]);
+throws_ok { SL::Helper::ReverseCharge->post_bookings(%params, entries => [ { tax => $tax, taxamount => 5 }, { tax => $no_reverse_charge_tax, taxamount => 5 } ]) }
+  qr/not a reverse charge tax/, 'posting with an invalid entry fails';
+is_deeply gl_bookings($ap->id), [ [ '1574', -19 ], [ '1574', -1.9 ], [ '1774', 1.9 ], [ '1774', 19 ] ],
+  'failed posting keeps the previous transactions';
 
 SL::Helper::ReverseCharge->post_bookings(%params, entries => [ { tax => $tax, taxamount => 0.001 } ]);
 is(SL::DB::Manager::ApGl->get_all_count(where => [ ap_id => $ap->id ]), 0, 'zero amounts are skipped');

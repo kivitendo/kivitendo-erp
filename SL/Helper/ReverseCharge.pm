@@ -4,6 +4,7 @@ use strict;
 
 use Carp;
 
+use SL::DB;
 use SL::DB::ApGl;
 use SL::DB::Chart;
 use SL::DB::GLTransaction;
@@ -15,13 +16,16 @@ sub delete_bookings {
 
   return unless $ap_id;
 
-  my @gl_ids = map { $_->gl_id } @{ SL::DB::Manager::ApGl->get_all(where => [ ap_id => $ap_id ]) };
-  return unless @gl_ids;
+  SL::DB->client->with_transaction(sub {
+    my @gl_ids = map { $_->gl_id } @{ SL::DB::Manager::ApGl->get_all(where => [ ap_id => $ap_id ]) };
+    return 1 unless @gl_ids;
 
-  # only the links to these transactions, other links to gl may have been set by hand
-  SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', from_id => $ap_id, to_table => 'gl', to_id => \@gl_ids ]);
-  SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $ap_id ]);
-  SL::DB::Manager::GLTransaction->delete_all(where => [ id    => \@gl_ids ]);
+    # only the links to these transactions, other links to gl may have been set by hand
+    SL::DB::Manager::RecordLink->   delete_all(where => [ from_table => 'ap', from_id => $ap_id, to_table => 'gl', to_id => \@gl_ids ]);
+    SL::DB::Manager::ApGl->         delete_all(where => [ ap_id => $ap_id ]);
+    SL::DB::Manager::GLTransaction->delete_all(where => [ id    => \@gl_ids ]);
+    1;
+  }) or die SL::DB->client->error;
 }
 
 sub post_bookings {
@@ -30,51 +34,55 @@ sub post_bookings {
   croak "ap_id missing"     unless $params{ap_id};
   croak "transdate missing" unless $params{transdate};
 
-  $class->delete_bookings($params{ap_id});
+  # all or nothing: a failure must not lose the previous bookings
+  SL::DB->client->with_transaction(sub {
+    $class->delete_bookings($params{ap_id});
 
-  foreach my $entry (@{ $params{entries} || [] }) {
-    my $tax       = $entry->{tax};
-    my $taxamount = $::form->round_amount($entry->{taxamount}, 2);
+    foreach my $entry (@{ $params{entries} || [] }) {
+      my $tax       = $entry->{tax};
+      my $taxamount = $::form->round_amount($entry->{taxamount}, 2);
 
-    croak "tax missing"                    unless ref $tax eq 'SL::DB::Tax';
-    croak "tax is not a reverse charge tax" unless $tax->reverse_charge_chart_id;
-    next                                    unless $taxamount;
+      croak "tax missing"                    unless ref $tax eq 'SL::DB::Tax';
+      croak "tax is not a reverse charge tax" unless $tax->reverse_charge_chart_id;
+      next                                    unless $taxamount;
 
-    my $input_tax_chart  = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
-    my $output_tax_chart = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
+      my $input_tax_chart  = SL::DB::Manager::Chart->find_by(id => $tax->chart_id);
+      my $output_tax_chart = SL::DB::Manager::Chart->find_by(id => $tax->reverse_charge_chart_id);
 
-    croak("No such Chart ID " . $tax->chart_id)                unless ref $input_tax_chart  eq 'SL::DB::Chart';
-    croak("No such Chart ID " . $tax->reverse_charge_chart_id) unless ref $output_tax_chart eq 'SL::DB::Chart';
+      croak("No such Chart ID " . $tax->chart_id)                unless ref $input_tax_chart  eq 'SL::DB::Chart';
+      croak("No such Chart ID " . $tax->reverse_charge_chart_id) unless ref $output_tax_chart eq 'SL::DB::Chart';
 
-    my $source         = "Reverse Charge for " . ($params{reference} // '');
-    my $gl_transaction = SL::DB::GLTransaction->new(
-      employee_id   => $params{employee_id},
-      transdate     => $params{transdate},
-      description   => $params{description} || $params{reference},
-      reference     => $params{reference},
-      department_id => $params{department_id} || undef,
-      imported      => 0,
-      taxincluded   => 0,
-    )->add_chart_booking(
-      chart  => $taxamount > 0 ? $input_tax_chart : $output_tax_chart,
-      debit  => abs($taxamount),
-      source => $source,
-      tax_id => 0,
-    )->add_chart_booking(
-      chart  => $taxamount > 0 ? $output_tax_chart : $input_tax_chart,
-      credit => abs($taxamount),
-      source => $source,
-      tax_id => 0,
-    )->post;
+      my $source         = "Reverse Charge for " . ($params{reference} // '');
+      my $gl_transaction = SL::DB::GLTransaction->new(
+        employee_id   => $params{employee_id},
+        transdate     => $params{transdate},
+        description   => $params{description} || $params{reference},
+        reference     => $params{reference},
+        department_id => $params{department_id} || undef,
+        imported      => 0,
+        taxincluded   => 0,
+      )->add_chart_booking(
+        chart  => $taxamount > 0 ? $input_tax_chart : $output_tax_chart,
+        debit  => abs($taxamount),
+        source => $source,
+        tax_id => 0,
+      )->add_chart_booking(
+        chart  => $taxamount > 0 ? $output_tax_chart : $input_tax_chart,
+        credit => abs($taxamount),
+        source => $source,
+        tax_id => 0,
+      )->post;
 
-    SL::DB::ApGl->new(ap_id => $params{ap_id}, gl_id => $gl_transaction->id)->save;
-    SL::DB::RecordLink->new(
-      from_table => 'ap',
-      from_id    => $params{ap_id},
-      to_table   => 'gl',
-      to_id      => $gl_transaction->id,
-    )->save;
-  }
+      SL::DB::ApGl->new(ap_id => $params{ap_id}, gl_id => $gl_transaction->id)->save;
+      SL::DB::RecordLink->new(
+        from_table => 'ap',
+        from_id    => $params{ap_id},
+        to_table   => 'gl',
+        to_id      => $gl_transaction->id,
+      )->save;
+    }
+    1;
+  }) or die SL::DB->client->error;
 }
 
 sub taxes_by_id {
@@ -140,6 +148,9 @@ chart (input tax) and credited to its C<reverse_charge_chart_id>
 
 Further parameters: C<transdate> (mandatory), C<reference> (the
 invoice number), C<description>, C<employee_id>, C<department_id>.
+
+Runs in a transaction (or the caller's transaction): if an entry fails,
+the previous bookings stay unchanged.
 
 =item C<delete_bookings $ap_id>
 
