@@ -163,8 +163,8 @@ $tax_sum = sum map { $_->{amount} } @taxes;
 is($res->{invoice_xml}->{_metadata}->{tax_total}, $tax_sum, "tax total equals sum of taxes with new buchungsgruppe and same tax");
 
 
-my $language1 = SL::DB::Language->new(description => 'English', template_code => 'En')->save;
-my $language2 = SL::DB::Language->new(description => 'German',  template_code => 'dE')->save;
+my $language1 = SL::DB::Language->new(description => 'English', iso_639_1_language_code => 'en')->save;
+my $language2 = SL::DB::Language->new(description => 'German',  iso_639_1_language_code => 'de')->save;
 
 $invoice->customer->create_zugferd_invoices(SL::ZUGFeRD::PROFILE_FACTURX_EXTENDED() * 2 + 1); #Factur-X 1.01.06/ZUGFeRD 2.2 extended
 $invoice->customer->save;
