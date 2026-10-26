@@ -1451,7 +1451,7 @@ sub add_from_purchase_order {
   my $order_id = delete $::form->{id};
   my $order    = SL::DB::Order->new(id => $order_id)->load(with => [ 'vendor', 'currency', 'payment_terms' ]);
 
-  return if $order->type ne 'purchase_order';
+  return if !($order->type eq 'purchase_order' || $order->type eq 'purchase_order_confirmation');
 
   my $today                     = DateTime->today_local;
   $::form->{title}                   = "Add";
