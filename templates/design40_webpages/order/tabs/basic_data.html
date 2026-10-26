@@ -516,7 +516,7 @@
     [% IF SELF.search_cvpartnumber %]
       [% SET add_col = add_col + 1 %]
     [% END %]
-    [% IF 'none' != in_out %]
+    [% IF in_out %]
       [% SET add_col = add_col + 1 %]
     [% END %]
     <tr id="subtotal_row_id">
