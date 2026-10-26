@@ -1784,12 +1784,12 @@ sub add_shipto {
                      shiptostreet = ?,
                      shiptozipcode = ?,
                      shiptocity = ?,
-                     shiptocountry_id = ?,
                      shiptogln = ?,
                      shiptocontact = ?,
                      shiptophone = ?,
                      shiptofax = ?,
                      shiptoemail = ?,
+                     shiptocountry_id = ?,
                      shiptocp_gender = ?
                    WHERE shipto_id = ?|;
     do_query($self, $dbh, $query, @values, $self->{shipto_id});
@@ -1801,12 +1801,12 @@ sub add_shipto {
                      shiptostreet = ? AND
                      shiptozipcode = ? AND
                      shiptocity = ? AND
-                     shiptocountry_id IS NOT DISTINCT FROM ? AND
                      shiptogln = ? AND
                      shiptocontact = ? AND
                      shiptophone = ? AND
                      shiptofax = ? AND
                      shiptoemail = ? AND
+                     shiptocountry_id IS NOT DISTINCT FROM ? AND
                      shiptocp_gender = ? AND
                      module = ? AND
                      trans_id = ?|;
@@ -1814,8 +1814,8 @@ sub add_shipto {
     if(!$insert_check){
       my $insert_query =
         qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
-                               shiptostreet, shiptozipcode, shiptocity, shiptocountry_id, shiptogln,
-                               shiptocontact, shiptophone, shiptofax, shiptoemail, shiptocp_gender, module)
+                               shiptostreet, shiptozipcode, shiptocity, shiptogln, shiptocontact,
+                               shiptophone, shiptofax, shiptoemail, shiptocountry_id, shiptocp_gender, module)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       do_query($self, $dbh, $insert_query, $id, @values, $module);
 
