@@ -1,5 +1,5 @@
 use strict;
-use Test::More tests => 255;
+use Test::More tests => 273;
 
 use strict;
 
@@ -11,7 +11,7 @@ use Support::TestSetup;
 use Test::Exception;
 use List::Util qw(sum);
 
-use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note create_ap_transaction);
+use SL::Dev::Record qw(create_invoice_item create_sales_invoice create_credit_note create_ap_transaction create_project);
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
 use SL::DB::BankTransaction;
@@ -28,6 +28,8 @@ use SL::DB::Unit;
 use SL::DB::TaxZone;
 use SL::DB::BankAccount;
 use SL::DB::PaymentTerm;
+use SL::DB::Project;
+use SL::DB::RecordLink;
 use SL::DBUtils qw(selectfirst_array_query);
 use Data::Dumper;
 
@@ -65,6 +67,10 @@ test_default_invoice_two_items_19_7_tax_with_skonto_50_50();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_multiple();
 test_default_ap_transaction_two_charts_19_7_with_skonto();
+test_skonto_project_ap_transaction_line_project();
+test_skonto_project_ap_transaction_global_project();
+test_skonto_project_ap_transaction_mixed_projects();
+test_skonto_project_sales_invoice_global_project();
 test_default_invoice_four_items_19_7_tax_with_skonto_4x_25_tax_included();
 test_default_invoice_two_items_19_7_tax_with_skonto_tax_included();
 
@@ -82,7 +88,7 @@ test_ap_currency_tax_not_included_and_payment_2();             # two exchangerat
 test_ap_currency_tax_not_included_and_payment_2_credit_note(); # two exchangerates, with fx_gain_loss
 
 test_error_codes_within_skonto();
-is(SL::DB::Manager::Invoice->get_all_count(), 23,  "number of invoices at end of tests ok");
+is(SL::DB::Manager::Invoice->get_all_count(), 24,  "number of invoices at end of tests ok");
 TODO: {
   local $TODO = "currently this test fails because the code writing the invoice is buggy, the calculation of skonto is correct";
   my ($acc_trans_sum)  = selectfirst_array_query($::form, $currency->db->dbh, 'SELECT SUM(amount) FROM acc_trans');
@@ -103,6 +109,9 @@ sub clear_up {
   SL::DB::Manager::Customer->delete_all(all => 1);
   SL::DB::Manager::Vendor->delete_all(all => 1);
   SL::DB::Manager::BankTransactionAccTrans->delete_all(all => 1);
+  SL::DB::Manager::GLTransaction->delete_all(all => 1);
+  SL::DB::Manager::RecordLink->delete_all(all => 1);
+  SL::DB::Manager::Project->delete_all(all => 1);
   SL::DB::Manager::BankTransaction->delete_all(all => 1);
   SL::DB::Manager::BankAccount->delete_all(all => 1);
   SL::DB::Manager::PaymentTerm->delete_all(all => 1);
@@ -280,6 +289,38 @@ sub new_ap_transaction {
  );
 
   return $ap_transaction;
+}
+
+sub skonto_bookings {
+  my ($invoice) = @_;
+
+  my %skonto_chart_ids = map  { ($_ => 1) }
+                         grep { $_ }
+                         map  { ($_->skonto_sales_chart_id, $_->skonto_purchase_chart_id) } @{ SL::DB::Manager::Tax->get_all };
+
+  my @invoice_lines = grep { $skonto_chart_ids{$_->chart_id} }
+    @{ SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => $invoice->id ]) };
+
+  my @gl_ids = map { $_->to_id } @{ SL::DB::Manager::RecordLink->get_all(where => [
+    from_table => $invoice->is_sales ? 'ar' : 'ap',
+    from_id    => $invoice->id,
+    to_table   => 'gl',
+  ]) };
+  my @gl_lines = @gl_ids ? @{ SL::DB::Manager::AccTransaction->get_all(where => [ trans_id => \@gl_ids ]) } : ();
+
+  return (\@invoice_lines, \@gl_lines);
+}
+
+sub pay_ap_transaction_with_skonto {
+  my ($ap_transaction) = @_;
+
+  $ap_transaction->payment_terms($ap_transaction->vendor->payment);
+  $ap_transaction->pay_invoice(chart_id     => $bank_account->chart_id,
+                               transdate    => $transdate1,
+                               bt_id        => $bt->id,
+                               amount       => $ap_transaction->amount_less_skonto,
+                               payment_type => 'with_skonto_pt',
+                              );
 }
 
 sub number_of_payments {
@@ -926,6 +967,127 @@ sub test_default_ap_transaction_two_charts_19_7_with_skonto {
   is($number_of_payments,             3,     "${title}: 1 AP_paid bookings");
   is($total,                          0,     "${title}: even balance");
 
+}
+
+sub test_skonto_project_ap_transaction_line_project {
+  my $title = 'ap transaction, both lines with the same project, with_skonto_pt';
+
+  my $project = create_project(projectnumber => 'skonto-line', description => 'Skonto line project');
+
+  $ap_transaction_counter++;
+  my $ap_transaction = create_ap_transaction(
+    vendor      => $vendor,
+    invnumber   => 'newap ' . $ap_transaction_counter,
+    taxincluded => 0,
+    transdate   => $transdate1,
+    gldate      => $transdate1,
+    taxzone_id  => $taxzone->id,
+    bookings    => [
+      { chart => SL::DB::Manager::Chart->find_by(accno => '3400'), amount => 100, project_id => $project->id },
+      { chart => SL::DB::Manager::Chart->find_by(accno => '3300'), amount => 100, project_id => $project->id },
+    ],
+  );
+
+  is($ap_transaction->skonto_project_id, $project->id, "${title}: skonto_project_id");
+
+  # skonto charts may be linked to inventory as well, their lines still don't count
+  my @skonto_charts = map { $_->skonto_purchase_chart } @{ SL::DB::Manager::Tax->get_all(where => [ '!skonto_purchase_chart_id' => undef ]) };
+  my %old_links     = map { ($_->id => $_->link) } @skonto_charts;
+  $_->update_attributes(link => 'AP_paid:IC_cogs') for @skonto_charts;
+
+  pay_ap_transaction_with_skonto($ap_transaction);
+  my ($invoice_lines, $gl_lines) = skonto_bookings($ap_transaction);
+
+  is(scalar @{ $invoice_lines },                            2, "${title}: two skonto lines");
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $invoice_lines }), 2, "${title}: skonto lines have project");
+  is(scalar @{ $gl_lines },                                 4, "${title}: two tax corrections with two lines");
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $gl_lines }),      4, "${title}: tax corrections have project");
+
+  # old skonto lines without project don't count either
+  $_->update_attributes(project_id => undef) for @{ $invoice_lines };
+  $ap_transaction->forget_related('transactions');
+  is($ap_transaction->skonto_project_id, $project->id, "${title}: skonto_project_id with old skonto lines");
+
+  $_->update_attributes(link => $old_links{$_->id}) for @skonto_charts;
+}
+
+sub test_skonto_project_ap_transaction_global_project {
+  my $title = 'ap transaction, lines without project, project of the invoice, with_skonto_pt';
+
+  my $project = create_project(projectnumber => 'skonto-global', description => 'Skonto global project');
+
+  my $ap_transaction = new_ap_transaction();
+  $ap_transaction->update_attributes(globalproject_id => $project->id);
+
+  is($ap_transaction->skonto_project_id, $project->id, "${title}: skonto_project_id");
+
+  pay_ap_transaction_with_skonto($ap_transaction);
+  my ($invoice_lines, $gl_lines) = skonto_bookings($ap_transaction);
+
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $invoice_lines }), 2, "${title}: skonto lines have project");
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $gl_lines }),      4, "${title}: tax corrections have project");
+}
+
+sub test_skonto_project_ap_transaction_mixed_projects {
+  my $title = 'ap transaction, lines with different projects, with_skonto_pt';
+
+  my $project1 = create_project(projectnumber => 'skonto-mixed-1', description => 'Skonto mixed project 1');
+  my $project2 = create_project(projectnumber => 'skonto-mixed-2', description => 'Skonto mixed project 2');
+
+  $ap_transaction_counter++;
+  my $ap_transaction = create_ap_transaction(
+    vendor           => $vendor,
+    invnumber        => 'newap ' . $ap_transaction_counter,
+    taxincluded      => 0,
+    transdate        => $transdate1,
+    gldate           => $transdate1,
+    taxzone_id       => $taxzone->id,
+    globalproject_id => $project1->id,
+    bookings         => [
+      { chart => SL::DB::Manager::Chart->find_by(accno => '3400'), amount => 100, project_id => $project1->id },
+      { chart => SL::DB::Manager::Chart->find_by(accno => '3300'), amount => 100, project_id => $project2->id },
+    ],
+  );
+
+  is($ap_transaction->skonto_project_id, undef, "${title}: no skonto_project_id");
+
+  pay_ap_transaction_with_skonto($ap_transaction);
+  my ($invoice_lines, $gl_lines) = skonto_bookings($ap_transaction);
+
+  is(scalar @{ $invoice_lines },                          2, "${title}: two skonto lines");
+  is(scalar(grep { defined $_->project_id } @{ $invoice_lines }), 0, "${title}: skonto lines without project");
+  is(scalar(grep { defined $_->project_id } @{ $gl_lines }),      0, "${title}: tax corrections without project");
+}
+
+sub test_skonto_project_sales_invoice_global_project {
+  my $title = 'sales invoice, project of the invoice, with_skonto_pt';
+
+  my $project = create_project(projectnumber => 'skonto-sales', description => 'Skonto sales project');
+
+  my $item1   = create_invoice_item(part => $parts[0], qty => 2.5);
+  my $item2   = create_invoice_item(part => $parts[1], qty => 1.2);
+  my $invoice = create_sales_invoice(
+    taxincluded      => 0,
+    transdate        => $transdate1,
+    invoiceitems     => [ $item1, $item2 ],
+    payment_id       => $payment_terms->id,
+    globalproject_id => $project->id,
+  );
+
+  is($invoice->skonto_project_id, $project->id, "${title}: skonto_project_id");
+
+  $invoice->pay_invoice(chart_id     => $bank_account->chart_id,
+                        transdate    => $transdate1,
+                        bt_id        => $bt->id,
+                        amount       => $invoice->amount_less_skonto,
+                        payment_type => 'with_skonto_pt',
+                       );
+  my ($invoice_lines, $gl_lines) = skonto_bookings($invoice);
+
+  is(scalar @{ $invoice_lines },                                                 2, "${title}: two skonto lines");
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $invoice_lines }), 2, "${title}: skonto lines have project");
+  is(scalar @{ $gl_lines },                                                      4, "${title}: two tax corrections with two lines");
+  is(scalar(grep { ($_->project_id // 0) == $project->id } @{ $gl_lines }),      4, "${title}: tax corrections have project");
 }
 
 sub test_default_ap_transaction_two_charts_19_7_tax_partial_unrounded_payment_without_skonto {
