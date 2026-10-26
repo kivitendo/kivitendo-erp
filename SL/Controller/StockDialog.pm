@@ -3,6 +3,7 @@ package SL::Controller::StockDialog;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use SL::Controller::DeliveryOrder;
 use SL::DB::Bin;
 use SL::DB::Part;
 use SL::DB::Unit;
@@ -12,6 +13,10 @@ use SL::JSON;
 use SL::YAML;
 
 use List::Util qw(sum0);
+
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(main_controller order valid_types type_data) ],
+);
 
 sub action_stock_in_out_dialog {
   my ($self) = @_;
@@ -131,6 +136,18 @@ sub merge_stock_data {
       map { $sinfo->{"stock_$_"}      = $sinfo->{$_} } qw(qty unit);
     }
   }
+}
+
+sub init_main_controller {
+  SL::Controller::DeliveryOrder->new;
+}
+
+sub init_order {
+  $_[0]->main_controller->order;
+}
+
+sub init_type_data {
+  $_[0]->main_controller->type_data;
 }
 
 1;
