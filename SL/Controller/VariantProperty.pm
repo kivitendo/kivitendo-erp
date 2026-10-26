@@ -183,7 +183,7 @@ sub create_or_update_variant_property {
 
   my @errors = $self->variant_property->validate;
   if (@errors) {
-    flash('error', @errors);
+    flash('error', $_) for @errors;
     $self->action_edit_variant_property();
     return;
   }
