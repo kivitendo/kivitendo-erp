@@ -5,6 +5,7 @@ use utf8;
 use parent qw(SL::Controller::Base);
 
 use SL::Helper::Flash qw(flash flash_later);
+use SL::Helper::Number qw(_format_number);
 use SL::HTML::Util;
 use SL::Presenter::Tag qw(select_tag hidden_tag div_tag);
 use SL::Locale::String qw(t8);
@@ -2332,6 +2333,8 @@ sub pre_render {
       && $::instance_conf->get_transport_cost_reminder_article_number_id ) {
     $self->{template_args}->{transport_cost_reminder_article} = SL::DB::Part->new(id => $::instance_conf->get_transport_cost_reminder_article_number_id)->load;
   }
+
+  $self->{template_args}{in_out}                                   = $self->type_data->properties("transfer");
   $self->{template_args}->{longdescription_dialog_size_percentage} = SL::Helper::UserPreferences::DisplayPreferences->new()->get_longdescription_dialog_size_percentage();
   $self->{template_args}->{order_item_input_position} = SL::Helper::UserPreferences::ItemInputPosition->new()->get_order_item_input_position
                                                       // $::instance_conf->get_order_item_input_position;
@@ -2340,7 +2343,7 @@ sub pre_render {
 
   $self->{template_args}->{num_phone_notes} = scalar @{ $self->order->phone_notes || [] };
 
-  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.File
+  $::request->{layout}->use_javascript("${_}.js") for qw(kivi.Validator kivi.SalesPurchase kivi.Order kivi.StockDialog kivi.File
                                                          edit_periodic_invoices_config calculate_qty follow_up show_history);
   $self->setup_edit_action_bar;
 }
@@ -2814,6 +2817,20 @@ sub save_history {
     snumbers    => $snumbers,
     addition    => $addition,
   )->save;
+}
+
+sub calculate_stock_in_out {
+  my ($self, $item, $stock_info) = @_;
+
+  return "" if !$item->part || !$item->part->unit || !$item->unit;
+
+  my $sum      = sum0 map {
+    $_->unit_obj->convert_to($_->qty, $item->unit_obj)
+  } $item->order_stock_entries;
+
+  my $content  = _format_number($sum, 2);
+
+  return $content;
 }
 
 sub init_type_data {
