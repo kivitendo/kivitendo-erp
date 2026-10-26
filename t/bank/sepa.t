@@ -1,4 +1,4 @@
-use Test::More tests => 29;
+use Test::More tests => 30;
 
 use strict;
 
@@ -10,6 +10,7 @@ use Support::TestSetup;
 use Test::Exception;
 
 use SL::SEPA;
+use SL::SEPA::XML;
 use SL::Dev::CustomerVendor qw(new_customer new_vendor);
 use SL::Dev::Part qw(new_part);
 use SL::Dev::Payment qw(create_payment_terms);
@@ -65,6 +66,7 @@ our $bank_account     =  SL::DB::BankAccount->new(
 our $VISUAL_TEST  = 0;
 
 test_sepa_combined_skonto_and_credit_note();
+test_sepa_xml_allowed_characters();
 clear_up();
 
 sub clear_up {
@@ -433,5 +435,26 @@ sub create_bt_local {
 
   return $bt;
 }
+
+sub test_sepa_xml_allowed_characters {
+  my $sepa_xml = SL::SEPA::XML->new(company    => 'Müller_Söhne & Co; KG',
+                                    message_id => 'test');
+  $sepa_xml->add_transaction({ src_iban      => 'DE46370501980026004705',
+                               src_bic       => 'COLSDE33',
+                               dst_iban      => 'DE74380601866404413013',
+                               dst_bic       => 'GENODED1BRS',
+                               company       => 'Årdberg "Kaffee" <AB>',
+                               reference     => "1583:  Rechnung Dokument_C-74393 [x] {y} a|b\\c !#\$%*=?\@^~\t",
+                               amount        => 204.97,
+                               end_to_end_id => 'KIVITENDO1' });
+
+  my $xml = $sepa_xml->to_xml;
+
+  my @texts = $xml =~ m{<(?:Nm|Ustrd)>([^<]*)</}g;
+  is_deeply(\@texts, [ 'Mueller-Soehne + Co, KG', 'Mueller-Soehne + Co, KG', "Ardberg 'Kaffee' (AB)",
+                       '1583: Rechnung Dokument-C-74393 (x) (y) a/b/c ?' ],
+            'names and remittance information use the SEPA character set only');
+}
+
 
 1;
