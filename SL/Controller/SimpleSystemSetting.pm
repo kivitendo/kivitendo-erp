@@ -130,6 +130,7 @@ my %supported_types = (
     },
     list_attributes => [
       { method => 'description',   title => t8('Description'), },
+      { method => 'iso_639_1_language_code', title => t8('ISO 639-1 / ISO 639-2 language codes'), },
       { method => 'template_code', title => t8('Template Code'), },
       { method => 'article_code',  title => t8('Article Code'), },
       {                            title => t8('Number Format'), formatter => sub { $_[0]->output_numberformat || t8('use program settings') } },
