@@ -19,6 +19,7 @@
       [% L.hidden_tag("converted_from_record_item_id[+]",       ITEM.converted_from_record_item_id) %]
       [% L.hidden_tag("order.orderitems[+].id", ITEM.id, id='item_' _ ID) %]
       [% L.hidden_tag("order.orderitems[].parts_id", ITEM.parts_id) %]
+      [% L.hidden_tag("order.orderitems[].stock_info", ITEM.stock_info, class="data-stock-info") %]
       [% L.hidden_tag("basket_item_ids[+]", ITEM.basket_item_id) %]
       [% L.hidden_tag("subtotal[]", ITEM.subtotal) %]
     </td>
