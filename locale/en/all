@@ -3737,6 +3737,7 @@ $self->{texts} = {
   'Send the last version for this record' => '',
   'Sender'                      => '',
   'Sending email for periodic invoice #1 failed: #2' => '',
+  'Sending email...'            => '',
   'Sent emails can be optionally stored in the database with or without their attachments.' => '',
   'Sent on'                     => '',
   'Sent payments can only be posted for purchase invoices and sales credit notes.' => '',

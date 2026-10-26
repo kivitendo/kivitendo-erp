@@ -158,6 +158,7 @@ namespace("kivi").setupLocale({
 "Select items for delivery order":"Positionen für Lieferschein auswählen",
 "Select template to paste":"Einzufügende Vorlage auswählen",
 "Send email":"E-Mail verschicken",
+"Sending email...":"E-Mail wird verschickt...",
 "Sep":"Sep",
 "September":"September",
 "Set all source and memo fields":"Alle Beleg-/Memo-Felder setzen",
