@@ -60,6 +60,7 @@ sub delivered_qty { goto &shipped_qty }
 
 sub record { goto &order }
 sub record_id { goto &trans_id }
+sub stock_entries { goto &order_stock_entries }
 
 1;
 

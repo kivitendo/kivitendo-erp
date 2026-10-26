@@ -66,6 +66,8 @@ sub _before_save_set_base_qty {
 
 # methods
 
+sub stock_entries { goto &delivery_order_stock_entries }
+
 sub new_from {
   my ($class, $source, %params) = @_;
 
