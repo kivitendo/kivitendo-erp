@@ -1953,6 +1953,26 @@ sub make_item {
   # saved. Adding empty custom_variables to new orderitem here solves this problem.
   $item ||= SL::DB::OrderItem->new(custom_variables => []);
 
+  # handle stock info
+  if (my $stock_info = delete $attr->{stock_info}) {
+    my %existing = map { $_->id => $_ } $item->order_stock_entries;
+    my @save;
+
+    for my $line (@{ DO->unpack_stock_information(packed => $stock_info) }) {
+      # lookup existing or make new
+      my $obj = delete $existing{$line->{order_items_stock_id}}
+             // SL::DB::OrderItemsStock->new;
+
+      # assign attributes
+      $obj->$_($line->{$_}) for qw(bin_id warehouse_id chargenumber qty unit);
+      $obj->bestbefore_as_date($line->{bestbefore})
+        if $line->{bestbefore} && $::instance_conf->get_show_bestbefore;
+      push @save, $obj if $obj->qty;
+    }
+
+    $item->order_stock_entries(@save);
+  }
+
   $item->assign_attributes(%$attr);
 
   if ($is_new) {
@@ -2263,6 +2283,7 @@ sub reinit_after_new_order {
     ) if @order_locked_positions;
   }
 
+  $self->order->prepare_stock_info($_) for $self->order->items;
   $self->get_unalterable_data();
   $self->recalc();
 }
