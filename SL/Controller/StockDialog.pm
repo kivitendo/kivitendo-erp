@@ -4,6 +4,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Controller::DeliveryOrder;
+use SL::Controller::Order;
 use SL::DB::Bin;
 use SL::DB::Part;
 use SL::DB::Unit;
@@ -12,7 +13,7 @@ use SL::Helper::Number qw(_format_number _parse_number);
 use SL::JSON;
 use SL::YAML;
 
-use List::Util qw(sum0);
+use List::Util qw(any sum0);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(main_controller order valid_types type_data) ],
@@ -139,7 +140,16 @@ sub merge_stock_data {
 }
 
 sub init_main_controller {
-  SL::Controller::DeliveryOrder->new;
+  my $type = $::form->{type};
+
+  if (any { $type eq $_} @{SL::DB::DeliveryOrder::TypeData->valid_types}) {
+    return SL::Controller::DeliveryOrder->new;
+  }
+  if (any { $type eq $_} @{SL::DB::Order::TypeData->valid_types}) {
+    return SL::Controller::Order->new;
+  }
+
+  die "Not a valid type for stock dialog";
 }
 
 sub init_order {
