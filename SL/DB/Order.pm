@@ -633,6 +633,13 @@ sub new_from {
 
     my $current_oe_item;
     if (ref($source) eq 'SL::DB::Order') {
+
+      my $type_data = SL::DB::Helper::TypeDataProxy->new($class, $destination_type);
+      my @stock_entries;
+      if (    $type_data->features('stock') && $source->type_data->features('stock')
+          && ($type_data->properties('transfer') eq $source->type_data->properties('transfer')) ) {
+        @stock_entries = map { $_->clone_and_reset } @{ $source_item->stock_entries };
+      }
       $current_oe_item = SL::DB::OrderItem->new(map({ ( $_ => $source_item->$_ ) }
                                                        qw(active_discount_source active_price_source base_qty cusordnumber
                                                           description discount lastcost longdescription
@@ -642,6 +649,7 @@ sub new_from {
                                                           optional recurring_billing_mode position
                                                        )),
                                                    custom_variables => \@custom_variables,
+                                                   stock_entries    => \@stock_entries,
       );
     } elsif (ref($source) eq 'SL::DB::Reclamation') {
       $current_oe_item = SL::DB::OrderItem->new(

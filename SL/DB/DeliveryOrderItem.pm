@@ -109,6 +109,8 @@ sub new_from {
     $item_args{custom_variables} = \@custom_variables;
     # }}} for vim folds
   } elsif (ref($source) eq 'SL::DB::OrderItem') {
+    my @stock_entries    = map { SL::DB::DeliveryOrderItemsStock->new_from($_) } @{ $source->stock_entries };
+
     map { $item_args{$_} = $source->$_ } # {{{ for vim folds
     qw(
       active_discount_source
@@ -133,6 +135,7 @@ sub new_from {
       unit
     );
     $item_args{custom_variables} = \@custom_variables;
+    $item_args{stock_entries}    = \@stock_entries;
     $item_args{ordnumber}        = ref($source->record) eq 'SL::DB::Order' ? $source->record->ordnumber : $source->ordnumber;
     # }}} for vim folds
   } elsif (ref($source) eq 'SL::DB::DeliveryOrderItem') {
