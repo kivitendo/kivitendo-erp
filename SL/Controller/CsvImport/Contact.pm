@@ -6,6 +6,7 @@ use List::MoreUtils qw(any);
 use SL::Helper::Csv;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
+use SL::Util qw(trim);
 
 use parent qw(SL::Controller::CsvImport::Base);
 
@@ -188,7 +189,11 @@ sub check_linked_customer_vendor {
 sub check_gender {
   my ($self, $entry) = @_;
 
-  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') unless ($entry->{object}->cp_gender && (any { $_ eq $self->{object}->cp_gender } qw(f m)));
+  my $gender   =  lc(trim($entry->{object}->cp_gender));
+  $gender      =~ s/^w$/f/; # EN: Female, DE: Weiblich
+  $entry->{object}->cp_gender($gender);
+
+  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') unless any { $_ eq $gender } qw(f m);
 }
 
 sub get_duplicate_check_fields {
