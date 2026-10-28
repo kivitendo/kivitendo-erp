@@ -717,8 +717,12 @@ sub _exchanged_document {
 
   if (   _is_profile($self, PROFILE_FACTURX_EXTENDED())
       && $self->language
-      && (($self->language->template_code // '') =~ m{^(de|en)}i)) {
-    $params{xml}->dataElement("ram:LanguageID", uc($1));
+      && $self->language->iso_639_1_language_code) {
+    # According to the Schematron rules for  Factur-X; 1.09; EN16931-CONFORMANT-EXTENDED profile, ram:LanguageID must be a lower-case 3-letter (ISO 639-2) code.
+    my %iso_639_2      = (de => 'deu', en => 'eng');
+    my $iso_639_2_code = $iso_639_2{$self->language->iso_639_1_language_code} or die 'unknown ISO 639-2 language code';
+
+    $params{xml}->dataElement("ram:LanguageID", $iso_639_2_code);
   }
 
   require SL::DB::GenericTranslation;

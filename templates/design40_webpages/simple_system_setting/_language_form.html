@@ -1,6 +1,7 @@
-[% USE LxERP %]
-[% USE L %]
 [% USE HTML %]
+[% USE L %]
+[% USE LxERP %]
+[% USE P %]
 
 <div class="wrapper">
   <table class="tbl-horizontal">
@@ -9,6 +10,12 @@
       <tr>
         <th> [% LxERP.t8("Language") %] </th>
         <td> [% L.input_tag("object.description", SELF.object.description, class='wi-wider', "data-validate"="required", "data-title"=LxERP.t8("Language")) %] </td>
+      </tr>
+      <tr>
+        <th> [% LxERP.t8("ISO 639-1 / ISO 639-2 language codes") %]
+             [% P.context_help_tag(LxERP.t8('The ISO 639-1 language code is embedded within PDF-A meta data. The ISO 639-2 language code is embedded in ZUGFeRD/Factur-X invoices in the extended profile.')) %]
+        </th>
+        <td> [% L.select_tag("object.iso_639_1_language_code", [['de', LxERP.t8('German: de / deu')], ['en', LxERP.t8('English: en / eng')]], default=SELF.object.iso_639_1_language_code, with_empty=1, class='wi-wider') %] </td>
       </tr>
       <tr>
         <th> [% LxERP.t8("Template Code") %] </th>

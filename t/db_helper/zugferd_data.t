@@ -10,6 +10,7 @@ use Carp;
 use List::Util qw(sum);
 use SL::DB::Chart;
 use SL::DB::Default;
+use SL::DB::Language;
 use SL::DB::TaxzoneChart;
 use SL::Helper::Number qw(_round_total);
 use SL::ZUGFeRD;
@@ -26,6 +27,7 @@ sub clear_up {
   SL::DB::Manager::Invoice->delete_all     (all => 1);
   SL::DB::Manager::Part->delete_all        (all => 1);
   SL::DB::Manager::BankAccount->delete_all (all => 1);
+  SL::DB::Manager::Language->delete_all    (all => 1);
 
   $_->delete for @$additional_objects_to_delete;
 };
@@ -159,6 +161,50 @@ is($res->{invoice_xml}->{_metadata}->{tax_total}, $t7 + $t19, "tax total is righ
 
 $tax_sum = sum map { $_->{amount} } @taxes;
 is($res->{invoice_xml}->{_metadata}->{tax_total}, $tax_sum, "tax total equals sum of taxes with new buchungsgruppe and same tax");
+
+
+my $language1 = SL::DB::Language->new(description => 'English', iso_639_1_language_code => 'en')->save;
+my $language2 = SL::DB::Language->new(description => 'German',  iso_639_1_language_code => 'de')->save;
+
+$invoice->customer->create_zugferd_invoices(SL::ZUGFeRD::PROFILE_FACTURX_EXTENDED() * 2 + 1); #Factur-X 1.01.06/ZUGFeRD 2.2 extended
+$invoice->customer->save;
+
+$invoice->language(undef);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>.*</ram:LanguageID>}, '', "ram:LanguageID is not contained");
+
+$invoice->language($language1);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>eng</ram:LanguageID>}, 1, "ram:LanguageID is eng");
+
+$invoice->language($language2);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>deu</ram:LanguageID>}, 1, "ram:LanguageID is deu");
+
+
+$invoice->language($language2);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>deu</ram:LanguageID>}, 1, "ram:LanguageID is deu");
+
+
+
+$invoice->customer->create_zugferd_invoices(SL::ZUGFeRD::PROFILE_XRECHNUNG() * 2 + 1); # XRechnung 3.0
+$invoice->customer->save;
+
+$invoice->language($language1);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>.*</ram:LanguageID>}, '', "ram:LanguageID is not contained");
+
+$invoice->language(undef);
+$invoice->save;
+$xml = $invoice->create_zugferd_data;
+is($xml =~ m{<ram:LanguageID>.*</ram:LanguageID>}, '', "ram:LanguageID is not contained");
+
 
 
 clear_up([@new_taxzonecharts, $bg_waste, $customer]);
