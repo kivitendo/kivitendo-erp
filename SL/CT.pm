@@ -500,11 +500,12 @@ sub search_contacts {
 
   my %sortspecs = (
     'cp_name'   => 'cp_name, cp_givenname',
+    'cp_gender' => 'cp_gender, cp_name, cp_givenname',
     'vcname'    => 'vcname, cp_name, cp_givenname',
     'vcnumber'  => 'vcnumber, cp_name, cp_givenname',
     );
 
-  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email cp_street cp_zipcode cp_city cp_country cp_position vcname vcnumber);
+  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email cp_street cp_zipcode cp_city cp_country cp_position cp_gender vcname vcnumber);
 
   my $order_by  = $sortcols{$::form->{sort}} ? $::form->{sort} : 'cp_name';
   $::form->{sort} = $order_by;
