@@ -115,7 +115,7 @@ sub merge_stock_data {
     for my $row (@$contents) {
       # row here is in parts units. stock is in item units
       $row->{available_qty} = _format_number(
-        $part->unit_obj->convert_to($row->{qty}, $unit)
+        $part->unit_obj->convert_to($row->{qty}, $unit), 2
       );
 
       for my $sinfo (@{ $stock_info }) {
