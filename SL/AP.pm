@@ -556,7 +556,7 @@ sub ap_transactions {
 
   my $query =
     qq|SELECT a.id, a.invnumber, a.transdate, a.duedate, a.amount, a.paid, | .
-    qq|  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes, | .
+    qq{  a.ordnumber, v.name, a.invoice, a.netamount, a.datepaid, a.notes || a.notes_bottom as notes, } .
     qq|  a.intnotes, a.globalproject_id, a.storno, a.storno_id, a.direct_debit, | .
     qq|  a.transaction_description, a.itime::DATE AS insertdate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
@@ -668,8 +668,8 @@ sub ap_transactions {
     push(@values, like($form->{transaction_description}));
   }
   if ($form->{notes}) {
-    $where .= " AND a.notes ILIKE ?";
-    push(@values, like($form->{notes}));
+    $where .= " AND (a.notes ILIKE ? or a.notes_bottom ILIKE ?)";
+    push(@values, like($form->{notes}), like($form->{notes}));
   }
   if ($form->{intnotes}) {
     $where .= " AND a.intnotes ILIKE ?";
