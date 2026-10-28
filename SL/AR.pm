@@ -517,7 +517,7 @@ sub ar_transactions {
     qq|SELECT DISTINCT a.id, a.invnumber, a.ordnumber, a.cusordnumber, a.transdate, | .
     qq|  a.donumber, a.deliverydate, | .
     qq|  a.duedate, a.netamount, a.amount, a.paid, | .
-    qq|  a.invoice, a.datepaid, a.notes, a.shipvia, | .
+    qq{  a.invoice, a.datepaid, a.notes || a.notes_bottom as notes, a.shipvia, } .
     qq|  a.shippingpoint, a.storno, a.storno_id, a.globalproject_id, | .
     qq|  a.marge_total, a.marge_percent, | .
     qq|  a.transaction_description, a.direct_debit, | .
@@ -628,7 +628,11 @@ sub ar_transactions {
     $where .= " AND a.payment_id = ?";
     push(@values, $form->{payment_id});
   }
-  foreach my $column (qw(invnumber ordnumber cusordnumber notes transaction_description shipvia shippingpoint)) {
+  if ($form->{notes}) {
+    $where .= " AND (a.notes ILIKE ? or a.notes_bottom ILIKE ?)";
+    push(@values, like($form->{notes}), like($form->{notes}));
+  }
+  foreach my $column (qw(invnumber ordnumber cusordnumber transaction_description shipvia shippingpoint)) {
     if ($form->{$column}) {
       $where .= " AND a.$column ILIKE ?";
       push(@values, like($form->{$column}));
