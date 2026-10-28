@@ -14,7 +14,7 @@
   [% END %]
   [% IF SELF.part.description %]
     <h2 class="record-title col">
-      [% SELF.part.description %] [% IF SELF.part.partnumber %]<small>([%  SELF.part.partnumber %])</small>[% END %]
+      [% SELF.part.description | html %] [% IF SELF.part.partnumber %]<small>([%  SELF.part.partnumber | html %])</small>[% END %]
     </h2>
   [% END %]
 [% END %]

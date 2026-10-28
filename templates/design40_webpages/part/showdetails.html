@@ -7,15 +7,15 @@
     <tbody>
       <tr>
         <td><b>[%  LxERP.t8('Description') %]</b></td>
-        <td>[% part.description %]</td>
+        <td>[% part.description | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Default Warehouse') %]</b></td>
-        <td>[% part.warehouse.description %]</td>
+        <td>[% part.warehouse.description | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('Default Bin') %]</b></td>
-        <td>[% part.bin.description %]</td>
+        <td>[% part.bin.description | html %]</td>
       </tr>
       <tr>
         <td><b>[%  LxERP.t8('ROP') %]</b></td><td>[% part.rop_as_number %]</td>
