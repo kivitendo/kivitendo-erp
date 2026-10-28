@@ -5,4 +5,5 @@
 ALTER TABLE oe              ADD COLUMN notes_bottom text;
 ALTER TABLE delivery_orders ADD COLUMN notes_bottom text;
 ALTER TABLE ar              ADD COLUMN notes_bottom text;
+ALTER TABLE ap              ADD COLUMN notes_bottom text;
 ALTER TABLE reclamations    ADD COLUMN notes_bottom text;

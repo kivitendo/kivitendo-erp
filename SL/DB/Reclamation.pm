@@ -430,6 +430,7 @@ sub new_from {
       language_id
       netamount
       notes
+      notes_bottom
       payment_id
       shipvia
       tax_point

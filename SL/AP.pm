@@ -729,6 +729,7 @@ sub ap_transactions {
   $form->{fulltext} = trim($form->{fulltext});
   if ($form->{fulltext}) {
     my @fulltext_fields = qw(a.notes
+                             a.notes_bottom
                              a.intnotes
                              a.shipvia
                              a.transaction_description
