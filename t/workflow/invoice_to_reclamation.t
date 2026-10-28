@@ -269,7 +269,7 @@ my @different_record_values2 = qw(
     datepaid deliverydate direct_debit duedate gldate invoice orddate ordnumber paid quodate quonumber storno storno_id type is_sepa_blocked
     billing_address_id customer_id cv_record_number delivered closed exchangerate record_type reqdate salesman_id shippingpoint shipto_id
     cp_id contact_id
-    invnumber record_number qrbill_data notes_bottom
+    invnumber record_number qrbill_data
 );
 pairwise {
   test_deeply($a->strip->as_tree, $b->strip->as_tree,
