@@ -175,7 +175,7 @@ sub convert_to_reclamation {
 sub _clone_orderitem_delivery_order_item_cvar {
   my ($cvar) = @_;
 
-  my $cloned = $_->clone_and_reset;
+  my $cloned = $cvar->clone_and_reset;
   $cloned->sub_module('invoice');
 
   return $cloned;

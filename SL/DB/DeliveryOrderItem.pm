@@ -198,7 +198,7 @@ sub new_from {
 sub _clone_cvar_for_delivery_order_item {
   my ($cvar) = @_;
 
-  my $cloned = $_->clone_and_reset;
+  my $cloned = $cvar->clone_and_reset;
   $cloned->sub_module('delivery_order_items');
 
   return $cloned;

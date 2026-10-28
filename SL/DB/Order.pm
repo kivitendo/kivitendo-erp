@@ -372,7 +372,7 @@ sub convert_to_reclamation {
 sub _clone_orderitem_cvar {
   my ($cvar) = @_;
 
-  my $cloned = $_->clone_and_reset;
+  my $cloned = $cvar->clone_and_reset;
   $cloned->sub_module('orderitems');
 
   return $cloned;
