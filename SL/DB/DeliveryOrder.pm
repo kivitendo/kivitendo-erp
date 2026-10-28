@@ -173,15 +173,6 @@ sub preceding_purchase_order_confirmations {
   return \@lrs;
 }
 
-sub _clone_orderitem_cvar {
-  my ($cvar) = @_;
-
-  my $cloned = $cvar->clone_and_reset;
-  $cloned->sub_module('delivery_order_items');
-
-  return $cloned;
-}
-
 sub convert_to_reclamation {
   my ($self, %params) = @_;
 
