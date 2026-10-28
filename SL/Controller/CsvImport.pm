@@ -420,12 +420,21 @@ sub test_and_import_deferred {
   # save tempory profile
   $self->profile($self->profile->clone_and_reset_deep)->save;
 
-  $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
+  my %job_params = (
     profile_id  => $self->profile->id,
     type        => $self->profile->type,
     test        => $params{test},
     employee_id => SL::DB::Manager::Employee->current->id,
-  )->save;
+  );
+  $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(%job_params)->save;
+
+  $self->{background_job_params} = SL::YAML::Dump({
+    %job_params,
+    profile_id    => $::form->{background_job_profile_id} || 'INSERT_PROFILE_ID_HERE',
+    test          => 0,
+    http_json_url => 'https://my-cool-crm.nodomain:443/api/v1/customers.json',
+    http_headers  => { Accept => 'application/json', Authorization => 'Basic user:pass' },
+  });
 
   if ($self->task_server->is_running) {
     $self->task_server->wake_up;
