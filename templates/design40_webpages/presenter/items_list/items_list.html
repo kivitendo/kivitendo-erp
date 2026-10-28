@@ -23,7 +23,7 @@
   </thead>
   <tbody>
     [%- FOREACH item = items %]
-    <tr [% IF !loop.first %]class="item_row_toggle_[% items.0.id %] hidden[% END %]">
+    <tr [% IF !loop.first %]class="item_row_toggle_[% items.0.id %] hidden"[% END %]>
       <td class="right">[% P.escape(item.position) %]</td>
       <td>[% P.escape(item.part.partnumber) %]</td>
       <td>[% P.escape(item.description) %]</td>
