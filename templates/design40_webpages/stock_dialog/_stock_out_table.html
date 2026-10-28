@@ -26,7 +26,7 @@
  <td>[% row.bestbefore | html %]</td>
  [% END %]
 
- <td>[% row.available_qty | html %]</td>
+ <td class="numeric">[% row.available_qty | html %]</td>
  <td>
   [% L.input_tag("qty", row.stock_qty                              ? LxERP.format_amount(row.stock_qty)
                       : (WHCONTENTS.size == 1) && (!row.stock_qty) ? LxERP.format_amount(do_qty)
