@@ -67,7 +67,7 @@ sub init_profile {
     my $prof = $p->{profile};
     if ($p->{row_ident} eq $self->_ar_column) {
       # no need to handle
-      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id notes_bottom)};
+      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id)};
     }
     if ($p->{row_ident} eq $self->_transaction_column) {
       # no need to handle
