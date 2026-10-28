@@ -77,7 +77,7 @@
       <td>
         <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)" class="wi-lightwide">
           [% FOREACH warehouse = WAREHOUSES %]
-          <option value="[% HTML.escape(warehouse.id) %]">[% warehouse.description %]</option>
+          <option value="[% HTML.escape(warehouse.id) %]">[% warehouse.description | html %]</option>
           [% END %]
         </select>
       </td>
