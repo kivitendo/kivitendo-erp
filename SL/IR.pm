@@ -1020,6 +1020,7 @@ sub delete_invoice {
     my @values = (conv_i($form->{id}));
 
     my @queries = (
+      qq|UPDATE parts_price_history SET ap_id = NULL WHERE ap_id = ?|,
       qq|DELETE FROM invoice WHERE trans_id = ?|,
       qq|DELETE FROM ap WHERE id = ?|,
     );
