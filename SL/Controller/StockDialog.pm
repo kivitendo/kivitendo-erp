@@ -132,7 +132,7 @@ sub merge_stock_data {
                 $row->{bestbefore}   ne $sinfo->{bestbefore};
 
         $row->{"stock_$_"} = $sinfo->{$_}
-          for qw(qty unit error delivery_order_items_stock_id);
+          for qw(qty unit error order_items_stock_id);
       }
     }
 

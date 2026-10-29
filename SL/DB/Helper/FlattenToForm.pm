@@ -143,7 +143,7 @@ sub prepare_stock_info {
 
   $item->{stock_info} = SL::YAML::Dump([
     map +{
-      delivery_order_items_stock_id => $_->id,
+      order_items_stock_id          => $_->id,
       qty                           => $_->qty,
       warehouse_id                  => $_->warehouse_id,
       bin_id                        => $_->bin_id,
