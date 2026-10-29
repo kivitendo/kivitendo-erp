@@ -58,16 +58,23 @@ sub action_stock_in_out_dialog {
 sub action_add_stock_in_line_to_dialog {
   my ($self) = @_;
 
-  my $do_qty       = _parse_number($::form->{do_qty});
-  my $qty_sum   = $::form->{qty_sum};
+  my $do_qty    = _parse_number($::form->{do_qty});
   my $row_count = $::form->{row_count};
   my $part      = SL::DB::Part->load_cached($::form->{parts_id}) or die "need parts_id";
+
+  my %units_by_name = map { $_->name => $_ } @{ SL::DB::Manager::Unit->get_all };
+  my $do_unit = $units_by_name{$::form->{do_unit}};
+
+  my $qty_sum = sum0 map {
+    $units_by_name{$_->{unit}}->convert_to($_->{qty}, $do_unit);
+  } @{$::form->{qties_with_units}};
 
   my $row_as_html = $self->p->render('stock_dialog/_stock_in_new_row',
     WAREHOUSES => SL::DB::Manager::Warehouse->get_all(with_objects=> ["bins",]),
     PART => $part,
     pos  => $row_count + 1,
     remaining_qty => $do_qty - $qty_sum,
+    do_unit => $do_unit->name,
   );
 
   $self->js->append('#stock-in-out-table tbody', $row_as_html)->render();

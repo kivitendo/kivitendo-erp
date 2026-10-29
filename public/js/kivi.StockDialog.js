@@ -47,28 +47,32 @@ namespace('kivi.StockDialog', function(ns) {
   };
 
   ns.add_stock_in_line_to_dialog = function() {
-    let qty_sum = 0;
-    let row_count = 0;
+    let row_count        = 0;
+    let qties_with_units = [];
     $("#stock-in-out-table tr.data-row").each((i,row) => {
       let qty = kivi.parse_amount($(row).find(".data-qty").val());
 
       row_count = row_count + 1;
       if (qty === 0) return;
       if (qty === null) return;
-      qty_sum = qty_sum + qty;
+
+      qties_with_units.push({
+        qty: qty,
+        unit: $(row).find(".data-unit").val()
+      });
     });
 
-    let data = [];
-    data.push(
-      { name: 'action', value: 'StockDialog/add_stock_in_line_to_dialog' },
-      { name: 'type', value: $("#type").val()},
-      { name: 'qty_sum', value: qty_sum },
-      { name: 'row_count', value: row_count},
-      { name: 'parts_id', value: $("#parts_id").val()},
-      { name: 'do_qty', value:  $("#do_qty").val()},
-    );
-
-    $.post("controller.pl", data, kivi.eval_json_result);
+    $.post("controller.pl",
+           kivi.serialize({
+             action:           'StockDialog/add_stock_in_line_to_dialog',
+             type:             $("#type").val(),
+             row_count:        row_count,
+             parts_id:         $("#parts_id").val(),
+             do_qty:           $("#do_qty").val(),
+             do_unit:          $("#do_unit").val(),
+             qties_with_units: qties_with_units
+           }),
+           kivi.eval_json_result);
   };
 
   ns.save_updated_stock = function(close_dialog) {
