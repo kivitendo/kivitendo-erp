@@ -31,7 +31,7 @@
   [% L.input_tag("qty", row.stock_qty                              ? LxERP.format_amount(row.stock_qty)
                       : (WHCONTENTS.size == 1) && (!row.stock_qty) ? LxERP.format_amount(do_qty)
                       : "", class="numeric data-qty", size="12") %]</td>
- <td>[% L.select_tag("unit_" _ loop.count, part.unit_obj.convertible_units, value_key="name", default=row.stock_unit, class="data-unit") %]</td>
+ <td>[% L.select_tag("unit_" _ loop.count, part.unit_obj.convertible_units, value_key="name", default=(row.stock_unit || do_unit), class="data-unit") %]</td>
 
  <td style="display:none">
   [% L.hidden_tag("warehouse_id", row.warehouse_id, class="data-warehouse-id") %]
