@@ -534,7 +534,10 @@ sub delete_transaction {
     # done gl delete for tax 94 case
 
     # begin ap delete
-    my $query = qq|DELETE FROM ap WHERE id = ?|;
+    my $query = qq|UPDATE ap SET storno = 'f', paid = paid - amount WHERE id = (SELECT storno_id FROM ap WHERE id = ?)|;
+    do_query($form, SL::DB->client->dbh, $query, $form->{id});
+
+    $query = qq|DELETE FROM ap WHERE id = ?|;
     do_query($form, SL::DB->client->dbh, $query, $form->{id});
     1;
   }) or do { die SL::DB->client->error };
