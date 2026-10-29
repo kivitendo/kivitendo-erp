@@ -28,6 +28,6 @@
  <td>[% L.input_tag("qty", LxERP.format_amount(remaining_qty) , class="numeric data-qty wi-small") %]</td>
  <td>[% L.select_tag("unit", PART.unit_obj.convertible_units, value_key="name", default=do_unit, class="data-unit wi-small") %]</td>
  <td style="display:none">
-  [% L.hidden_tag("delivery_order_items_stock_id", '', class="data-stock-id wi-small") %]
+  [% L.hidden_tag("order_items_stock_id", '', class="data-stock-id wi-small") %]
  </td>
 </tr>

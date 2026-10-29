@@ -1689,7 +1689,7 @@ sub make_item {
 
     for my $line (@{ DO->unpack_stock_information(packed => $stock_info) }) {
       # lookup existing or make new
-      my $obj = delete $existing{$line->{delivery_order_items_stock_id}}
+      my $obj = delete $existing{$line->{order_items_stock_id}}
              // SL::DB::DeliveryOrderItemsStock->new;
 
       # assign attributes

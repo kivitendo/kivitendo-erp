@@ -92,7 +92,7 @@ namespace('kivi.StockDialog', function(ns) {
         chargenumber:                  $(row).find(".data-chargenumber").val(),
         bestbefore:                    $(row).find(".data-bestbefore").val(),
         unit:                          $(row).find(".data-unit").val(),
-        delivery_order_items_stock_id: $(row).find(".data-stock-id").val(),
+        order_items_stock_id:          $(row).find(".data-stock-id").val(),
       });
     });
 
