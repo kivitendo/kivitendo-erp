@@ -26,7 +26,7 @@
  <td>[% L.date_tag('rows[]bestbefore', "", class="data-bestbefore wi-small") %]</td>
  [%- END %]
  <td>[% L.input_tag("qty", LxERP.format_amount(remaining_qty) , class="numeric data-qty wi-small") %]</td>
- <td>[% L.select_tag("unit", PART.unit_obj.convertible_units, value_key="name", default=PART.unit, class="data-unit wi-small") %]</td>
+ <td>[% L.select_tag("unit", PART.unit_obj.convertible_units, value_key="name", default=do_unit, class="data-unit wi-small") %]</td>
  <td style="display:none">
   [% L.hidden_tag("delivery_order_items_stock_id", '', class="data-stock-id wi-small") %]
  </td>
