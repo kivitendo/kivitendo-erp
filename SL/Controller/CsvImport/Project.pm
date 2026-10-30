@@ -68,7 +68,9 @@ sub check_objects {
 sub check_project_status {
   my ($self, $entry) = @_;
 
-  my $status_obj = $self->project_status_by_name->{$entry->{raw_data}{project_status}};
+  my $status_obj = $entry->{object}->{project_status_id}
+                 ? SL::DB::Manager::ProjectStatus->load_cached($entry->{object}->{project_status_id})
+                 : $self->project_status_by_name->{$entry->{raw_data}{project_status}};
   if ($status_obj) {
     $entry->{object}->project_status_id($status_obj->id);
   } else {
@@ -79,7 +81,9 @@ sub check_project_status {
 sub check_project_type {
   my ($self, $entry) = @_;
 
-  my $type_obj = $self->project_type_by_description->{$entry->{raw_data}{project_type}};
+  my $type_obj = $entry->{object}->{project_type_id}
+               ? SL::DB::Manager::ProjectType->load_cached($entry->{object}->{project_type_id})
+               : $self->project_type_by_description->{$entry->{raw_data}{project_type}};
   if ($type_obj) {
     $entry->{object}->project_type_id($type_obj->id);
   } else {
@@ -115,7 +119,7 @@ sub check_linked_customer {
 
   # register these in the object to be save in save_additions
   if ($customer_candidates[0]) {
-    $entry->{object}->{customer} = $customer_candidates[0];
+    $entry->{object}->customer_id($customer_candidates[0]->id);
   }
 }
 
