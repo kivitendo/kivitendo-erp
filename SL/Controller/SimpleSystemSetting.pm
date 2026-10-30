@@ -236,6 +236,10 @@ my %supported_types = (
       add  => t8('Add project status'),
       edit => t8('Edit project status'),
     },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
+      { method => 'description', title => t8('Description') },
+    ],
   },
 
   project_type => {
