@@ -230,12 +230,17 @@ my %supported_types = (
   },
 
   project_status => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_project_status_form")
     class  => 'ProjectStatus',
     titles => {
       list => t8('Project statuses'),
       add  => t8('Add project status'),
       edit => t8('Edit project status'),
     },
+    list_attributes => [
+      { method => 'name',        title => t8('Name') },
+      { method => 'description', title => t8('Description') },
+    ],
   },
 
   project_type => {
