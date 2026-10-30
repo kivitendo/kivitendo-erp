@@ -5,17 +5,34 @@ use strict;
 use SL::Helper::Csv;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
+use SL::DB::ProjectStatus;
+use SL::DB::ProjectType;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(table) ],
+ 'scalar --get_set_init' => [ qw(project_type_by_description project_status_by_name) ],
 );
 
 sub init_class {
   my ($self) = @_;
   $self->class('SL::DB::Project');
+}
+
+sub init_project_type_by_description {
+  my @a = @{SL::DB::Manager::ProjectType->get_all_sorted};
+  my %v = map { +( "$_->{description}" => $_ )} @a;
+
+  return \%v;
+}
+
+sub init_project_status_by_name      {
+  my @a = @{SL::DB::Manager::ProjectStatus->get_all_sorted};
+  my %v =map { +( "$_->{name}"        => $_ )} @a;
+
+  return \%v;
 }
 
 sub set_profile_defaults {
@@ -38,12 +55,36 @@ sub check_objects {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_linked_customer($entry);
+    $self->check_project_status($entry);
+    $self->check_project_type($entry);
     $self->handle_cvars($entry);
   } continue {
     $i++;
   }
 
   $self->add_cvar_raw_data_columns;
+}
+
+sub check_project_status {
+  my ($self, $entry) = @_;
+
+  my $status_obj = $self->project_status_by_name->{$entry->{raw_data}{project_status}};
+  if ($status_obj) {
+    $entry->{object}->project_status_id($status_obj->id);
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Project status not found');
+  }
+}
+
+sub check_project_type {
+  my ($self, $entry) = @_;
+
+  my $type_obj = $self->project_type_by_description->{$entry->{raw_data}{project_type}};
+  if ($type_obj) {
+    $entry->{object}->project_type_id($type_obj->id);
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Project type not found');
+  }
 }
 
 sub check_linked_customer {
@@ -97,6 +138,8 @@ sub setup_displayable_columns {
   $self->add_displayable_columns({ name => 'projectnumber',  description => $::locale->text('number') },
                                  { name => 'customernumber', description => $::locale->text('Customer Number') },
                                  { name => 'description',    description => $::locale->text('Description') },
+                                 { name => 'project_type',   description => $::locale->text('Project Type') },
+                                 { name => 'project_status', description => $::locale->text('Project Status') },
                                  { name => 'active',         description => $::locale->text('Active') },
                                 );
 }
