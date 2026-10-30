@@ -160,6 +160,7 @@ __PACKAGE__->meta->columns(
   order_warn_no_cusordnumber                  => { type => 'boolean', default => 'false' },
   order_warn_no_deliverydate                  => { type => 'boolean', default => 'true' },
   p_reclamation_record_number                 => { type => 'text', default => '0', not_null => 1 },
+  part_ean_number                             => { type => 'text' },
   parts_check_ean                             => { type => 'boolean', default => 'true', not_null => 1 },
   parts_image_css                             => { type => 'text', default => 'border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;' },
   parts_listing_image                         => { type => 'boolean', default => 'true' },

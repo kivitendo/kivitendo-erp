@@ -169,6 +169,8 @@ sub action_save {
   # $self->part has been loaded, parsed and validated without errors and is ready to be saved
   $self->part->db->with_transaction(sub {
 
+    $self->part->ean(SL::DB::Manager::Part->generate_next_free_ean()) if $::form->{on_save_set_next_free_ean} && !$::form->{part}{ean};
+
     $self->part->save(cascade => 1);
     $self->part->set_lastcost_assemblies_and_assortiments if $self->{lastcost_modified};
 
@@ -271,6 +273,7 @@ sub action_use_as_new {
   $self->part($oldpart->clone_and_reset_deep);
   $self->parse_form(use_as_new => 1);
   $self->part->partnumber(undef);
+  $self->part->ean(undef);
 
   if (!$::auth->assert('part_service_assembly_edit_prices', 'may_fail')) {
     # No right to edit prices -> remove prices for new part.
