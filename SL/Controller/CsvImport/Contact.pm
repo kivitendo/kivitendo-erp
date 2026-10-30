@@ -193,7 +193,7 @@ sub check_gender {
   $gender      =~ s/^w$/f/; # EN: Female, DE: Weiblich
   $entry->{object}->cp_gender($gender);
 
-  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') unless any { $_ eq $gender } qw(f m);
+  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') unless any { $_ eq $gender } qw(f m), '';
 }
 
 sub get_duplicate_check_fields {
