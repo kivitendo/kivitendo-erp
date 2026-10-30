@@ -37,12 +37,40 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
+    $self->check_linked_customer($entry);
     $self->handle_cvars($entry);
   } continue {
     $i++;
   }
 
   $self->add_cvar_raw_data_columns;
+}
+
+sub check_linked_customer {
+  my ($self, $entry) = @_;
+
+  my @customer_candidates = grep { defined }
+     defined $entry->{raw_data}{customer_id}    ? $self->vc_by->{id}->{ $entry->{raw_data}{customer_id} }                     : undef,
+     defined $entry->{raw_data}{customernumber} ? $self->vc_by->{number}->{customers}->{ $entry->{raw_data}{customernumber} } : undef,
+     ;
+
+  # sanity check:
+  my %seen_customers = map { +( $_->id => 1 ) } @customer_candidates;
+
+  if (scalar(keys %seen_customers) > 1) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer is ambiguous');
+  }
+
+  if ( !@customer_candidates && (
+    $entry->{raw_data}->{customer_id}    ||
+    $entry->{raw_data}->{customernumber}
+  )) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer not found');
+  }
+
+  if ($customer_candidates[0]) {
+    $entry->{object}->customer_id($customer_candidates[0]->id);
+  }
 }
 
 sub get_duplicate_check_fields {
@@ -61,9 +89,10 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'projectnumber', description => $::locale->text('number') },
-                                 { name => 'description',   description => $::locale->text('Description') },
-                                 { name => 'active',        description => $::locale->text('Active') },
+  $self->add_displayable_columns({ name => 'projectnumber',  description => $::locale->text('number') },
+                                 { name => 'customernumber', description => $::locale->text('Customer Number') },
+                                 { name => 'description',    description => $::locale->text('Description') },
+                                 { name => 'active',         description => $::locale->text('Active') },
                                 );
 }
 
