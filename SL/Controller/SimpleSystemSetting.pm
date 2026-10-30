@@ -230,6 +230,7 @@ my %supported_types = (
   },
 
   project_status => {
+    # Make locales.pl happy: $self->render("simple_system_setting/_project_status_form")
     class  => 'ProjectStatus',
     titles => {
       list => t8('Project statuses'),
