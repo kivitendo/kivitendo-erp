@@ -69,7 +69,7 @@ sub check_project_status {
   my ($self, $entry) = @_;
 
   my $status_obj = $entry->{object}->{project_status_id}
-                 ? SL::DB::Manager::ProjectStatus->load_cached($entry->{object}->{project_status_id})
+                 ? SL::DB::ProjectStatus->load_cached(1 * $entry->{object}->{project_status_id})
                  : $self->project_status_by_name->{$entry->{raw_data}{project_status}};
   if ($status_obj) {
     $entry->{object}->project_status_id($status_obj->id);
@@ -82,7 +82,7 @@ sub check_project_type {
   my ($self, $entry) = @_;
 
   my $type_obj = $entry->{object}->{project_type_id}
-               ? SL::DB::Manager::ProjectType->load_cached($entry->{object}->{project_type_id})
+               ? SL::DB::ProjectType->load_cached(1 * $entry->{object}->{project_type_id})
                : $self->project_type_by_description->{$entry->{raw_data}{project_type}};
   if ($type_obj) {
     $entry->{object}->project_type_id($type_obj->id);
