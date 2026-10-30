@@ -5354,6 +5354,7 @@ $self->{texts} = {
   'history search engine'       => '',
   'http'                        => '',
   'https'                       => '',
+  'if empty, will be set upon saving' => '',
   'imported'                    => '',
   'in the time between'         => '',
   'inactive'                    => '',

@@ -43,7 +43,7 @@
       <tr>
         <th>[% 'EAN-Code' | $T8 %]</th>
         <td>
-          [% L.checkbox_tag("on_save_set_next_free_ean", label=LxERP.t8('will be set upon saving'), disabled=SELF.part.ean) %]
+          [% L.checkbox_tag("on_save_set_next_free_ean", label=LxERP.t8('if empty, will be set upon saving'), disabled=SELF.part.ean) %]
           <br>
           [% L.input_tag("part.ean", SELF.part.ean, class='wi-wide', "data-validate"="trimmed_whitespaces") %]
           [% P.context_help_tag(LxERP.t8('Officially the GS1 GTIN, which incorporates EAN, ISBN and others.'))%]
