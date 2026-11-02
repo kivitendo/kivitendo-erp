@@ -9,16 +9,17 @@ use parent qw(SL::DB::Object);
 __PACKAGE__->meta->table('language');
 
 __PACKAGE__->meta->columns(
-  article_code        => { type => 'text' },
-  description         => { type => 'text' },
-  id                  => { type => 'integer', not_null => 1, sequence => 'id' },
-  itime               => { type => 'timestamp', default => 'now()' },
-  mtime               => { type => 'timestamp' },
-  obsolete            => { type => 'boolean', default => 'false' },
-  output_dateformat   => { type => 'text' },
-  output_longdates    => { type => 'boolean' },
-  output_numberformat => { type => 'text' },
-  template_code       => { type => 'text' },
+  article_code            => { type => 'text' },
+  description             => { type => 'text' },
+  id                      => { type => 'integer', not_null => 1, sequence => 'id' },
+  iso_639_1_language_code => { type => 'enum', check_in => [ 'de', 'en' ], db_type => 'iso_639_1_language_code_enum' },
+  itime                   => { type => 'timestamp', default => 'now()' },
+  mtime                   => { type => 'timestamp' },
+  obsolete                => { type => 'boolean', default => 'false' },
+  output_dateformat       => { type => 'text' },
+  output_longdates        => { type => 'boolean' },
+  output_numberformat     => { type => 'text' },
+  template_code           => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

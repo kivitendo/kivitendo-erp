@@ -30,12 +30,11 @@ sub create_pdf_a_print_options {
 
   require SL::DB::Language;
 
-  my $language_code = $self->can('language_id') && $self->language_id ? SL::DB::Language->load_cached($self->language_id)->template_code : undef;
-  $language_code  ||= 'de';
-  my $pdf_language  = $language_code =~ m{deutsch|german|^de$}i   ? 'de-DE'
-                    : $language_code =~ m{englisch|english|^en$}i ? 'en-US'
-                    :                                               '';
-  my $author        = do {
+  my $language_code  = $self->can('language_id') && $self->language_id ? SL::DB::Language->load_cached($self->language_id)->iso_639_1_language_code : undef;
+  $language_code   ||= 'de';
+  my %pdf_lang_codes = (de => 'de-DE', en => 'en-US');
+  my $pdf_language   = $pdf_lang_codes{$language_code} or die 'unknown PDF-A language code';
+  my $author         = do {
     no warnings 'once';
     $::instance_conf->get_company
   };
