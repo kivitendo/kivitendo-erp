@@ -1970,7 +1970,7 @@ sub make_item {
       push @save, $obj if $obj->qty;
     }
 
-    $item->order_stock_entries(@save);
+    $item->order_stock_entries(\@save);
   }
 
   $item->assign_attributes(%$attr);
