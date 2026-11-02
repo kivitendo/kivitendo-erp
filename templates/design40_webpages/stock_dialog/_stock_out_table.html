@@ -37,7 +37,7 @@
   [% L.hidden_tag("warehouse_id", row.warehouse_id, class="data-warehouse-id") %]
   [% L.hidden_tag("bin_id", row.bin_id, class="data-bin-id") %]
   [% L.hidden_tag("chargenumber", row.chargenumber, class="data-chargenumber") %]
-  [% L.hidden_tag("order_items_stock_id", row.order_items_stock_id, class="data-stock-id") %]
+  [% L.hidden_tag("order_items_stock_id", row.stock_order_items_stock_id, class="data-stock-id") %]
   [% L.hidden_tag("bestbefore", row.bestbefore, class="data-bestbefore") IF INSTANCE_CONF.get_show_bestbefore %]
  </td>
 </tr>
