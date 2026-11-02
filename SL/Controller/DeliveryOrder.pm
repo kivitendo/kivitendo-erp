@@ -1699,7 +1699,7 @@ sub make_item {
       push @save, $obj if $obj->qty;
     }
 
-    $item->delivery_order_stock_entries(@save);
+    $item->delivery_order_stock_entries(\@save);
   }
 
   $item->assign_attributes(%$attr);
