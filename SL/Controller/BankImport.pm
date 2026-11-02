@@ -16,6 +16,7 @@ use SL::DB::Manager::RecordTemplate;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::MT940;
+use SL::Camt052;
 use SL::Camt053;
 use SL::SessionFile::Random;
 
@@ -123,7 +124,7 @@ sub parse_and_analyze_transactions {
   my $currency_id = SL::DB::Default->get->currency_id;
 
   my @transactions = $params{mode} eq 'mt940'   ? SL::MT940->parse($self->file_name, charset => $self->charset)
-                   : $params{mode} eq 'camt053' ? SL::Camt053->parse_file($self->file_name)
+                   : $params{mode} eq 'camt053' ? $self->_parse_camt($self->file_name)
                    : die "unknown mode $params{mode}";
 
   $self->transactions([ sort { $a->{transdate} cmp $b->{transdate} } @transactions ]);
@@ -167,7 +168,8 @@ sub parse_and_analyze_transactions {
 
   my $templates_gl = SL::DB::Manager::RecordTemplate->get_all(
     query        => [ template_type => 'gl_transaction',
-                      chart_id      => SL::DB::BankAccount->new(id => $self->transactions->[0]->{local_bank_account_id})->load->chart_id,
+                      chart_id      => SL::DB::Manager::BankAccount->find_by_or_create(id => $self->transactions->[0]->{local_bank_account_id})->chart_id,
+
                       bank_import_template => 1,
                     ],
     with_objects => [ qw(employee record_template_items) ],
@@ -476,6 +478,20 @@ sub _check_sepa_automatic {
     abs($invoice_open_amount - $transaction->{amount}) < 0.01 &&
     abs(abs($invoice_open_amount) - abs($sei->amount)) < 0.01
   ) ? $sei : undef;
+}
+
+sub _parse_camt {
+  my ($self, $file) = @_;
+
+  if (SL::Camt053->check_file($file)) {
+    return SL::Camt053->parse_file($self->file_name);
+  }
+
+  if (SL::Camt052->check_file($file)) {
+    return SL::Camt052->parse_file($self->file_name);
+  }
+
+  die "unknown or invalid camt format.";
 }
 
 sub init_bank_accounts {
