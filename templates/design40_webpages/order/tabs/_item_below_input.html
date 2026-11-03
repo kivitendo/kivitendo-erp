@@ -32,6 +32,9 @@
     [%- IF (SELF.type == "sales_order_intake" || SELF.type == "sales_order" || SELF.type == "purchase_order" || SELF.type == "purchase_order_confirmation") -%]
     <td></td>
     [%- END -%]
+    [%- IF SELF.type_data.features('stock') %]
+    <td></td>
+    [%- END %]
     <td>
         [% L.input_tag('add_item.qty_as_number', '', placeholder="1", size = 5, class="add_item_input numeric wi-verysmall") %]
         [% L.hidden_tag('add_item.unit', SELF.created_part.unit, class="add_item_input") %]
