@@ -72,7 +72,7 @@ sub _init {
   croak "Missing parameter: creditor_id"        if !$self->{creditor_id} && $self->{collection};
   croak "Invalid parameter: version"            if !is_version_valid($self->{version});
 
-  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id creditor_id);
+  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_} // '')) } qw(company message_id creditor_id);
 }
 
 sub add_transaction {
