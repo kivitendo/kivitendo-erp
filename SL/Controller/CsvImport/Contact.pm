@@ -189,7 +189,7 @@ sub check_linked_customer_vendor {
 sub check_gender {
   my ($self, $entry) = @_;
 
-  my $gender   =  lc(trim($entry->{object}->cp_gender));
+  my $gender   =  lc(trim($entry->{object}->cp_gender // ''));
   $gender      =~ s/^w$/f/; # EN: Female, DE: Weiblich
   $entry->{object}->cp_gender($gender);
 
