@@ -19,6 +19,12 @@ use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(main_controller order valid_types type_data) ],
 );
 
+# safety
+ __PACKAGE__->run_before('check_auth',
+                         except => [ qw(update_stock_information) ]);
+ __PACKAGE__->run_before('check_auth_for_edit',
+                         except => [ qw(update_stock_information stock_in_out_dialog) ]);
+
 sub action_stock_in_out_dialog {
   my ($self) = @_;
 
@@ -96,6 +102,15 @@ sub action_update_stock_information {
     \ SL::JSON::to_json($response),
     { layout => 0, type => 'json', process => 0 }
   );
+}
+
+sub check_auth {
+  $_[0]->main_controller->check_auth;
+}
+
+sub check_auth_for_edit {
+  my ($self) = @_;
+  $_[0]->main_controller->check_auth_for_edit;
 }
 
 sub calculate_stock_in_out_from_stock_info {
