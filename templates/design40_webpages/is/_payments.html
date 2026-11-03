@@ -1,6 +1,7 @@
 [% USE LxERP %]
 [% USE T8 %]
 [% USE L %]
+[% USE HTML %]
 
 <table class="tbl-list">
   <caption>
@@ -133,7 +134,7 @@
   </tfoot>
 </table>
 <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
-<input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
+<input type="hidden" name="selectAR_paid" value="[% selectAR_paid | html %]">
 <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
 <input type="hidden" name="oldtotalpaid" value="[% totalpaid %]">
 
