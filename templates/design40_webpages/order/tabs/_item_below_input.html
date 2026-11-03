@@ -22,7 +22,7 @@
                             action={set_multi_items='kivi.Order.add_multi_items'},
                             classification_id=SELF.part_picker_classification_ids.as_list.join(','),
                             not_order_locked=SELF.type_data.no_order_locked_parts,
-                            $PARAM_KEY=PARAM_VAL) %]</td>
+                            $PARAM_KEY=PARAM_VAL) %]
     </td>
     <td>
           [% SET type_options = [[ 'part', LxERP.t8('Part') ], [ 'assembly', LxERP.t8('Assembly') ], [ 'service', LxERP.t8('Service') ], [ 'assortment', LxERP.t8('Assortment')] ] %]
