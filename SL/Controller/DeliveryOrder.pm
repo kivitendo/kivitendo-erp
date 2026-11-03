@@ -1694,8 +1694,7 @@ sub make_item {
 
       # assign attributes
       $obj->$_($line->{$_}) for qw(bin_id warehouse_id chargenumber qty unit);
-      $obj->bestbefore_as_date($line->{bestbefore})
-        if $line->{bestbefore} && $::instance_conf->get_show_bestbefore;
+      $obj->bestbefore_as_date($line->{bestbefore}) if $::instance_conf->get_show_bestbefore;
       push @save, $obj if $obj->qty;
     }
 
