@@ -85,7 +85,7 @@
                        default = ITEM.price_factor_id,
                        title_key = 'description',
                        with_empty = 1,
-                       class="recalc wi-mediumsmall") %]
+                       class="recalc wi-verysmall") %]
     </td>
     <td>
       [% L.select_tag("order.orderitems[].unit",
@@ -93,7 +93,7 @@
                       default = ITEM.unit,
                       title_key = 'name',
                       value_key = 'name',
-                      class = 'unitselect wi-mediumsmall') %]
+                      class = 'unitselect wi-verysmall') %]
     </td>
     <td>
       [% L.button_tag("kivi.Order.price_chooser_item_row(this)",
