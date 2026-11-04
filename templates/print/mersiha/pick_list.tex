@@ -62,7 +62,7 @@
 \begin{document}
 
 \begin{letter}{\strut%
-  <%if vc=="vendor"%> %
+  <%if vc=="vendor"%> % Purchase delivery orders can use the shipto fields for the shipping destination instead of the supplier's address, so ignore them
     <%name%>              \strut\\
     <%department_1%>      \ifhmode\\\fi
     <%department_2%>      \ifhmode\\\fi
