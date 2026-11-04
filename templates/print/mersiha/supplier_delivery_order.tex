@@ -77,6 +77,13 @@
   \opening{}
   \thispagestyle{kivitendo.letter.first}
 
+  <%if template_meta.formname == "purchase_delivery_order"%>
+    \einkaufslieferscheinsformel
+  <%end%>
+  <%if template_meta.formname == "rma_delivery_order"%>
+    \retourenlieferscheinsformel
+  <%end%>
+
   <%if notes%>%
     <%notes%>%
     \medskip
