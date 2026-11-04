@@ -330,6 +330,7 @@ sub new_from {
       taxzone_id
       transaction_description
     );
+    $record_args{reqdate} = SL::DB::DeliveryOrder::TypeData::get3($record_args{record_type}, "defaults", "reqdate");
     # }}} for vim folds
   }
 
