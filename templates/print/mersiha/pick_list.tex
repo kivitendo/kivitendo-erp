@@ -62,7 +62,7 @@
 \begin{document}
 
 \begin{letter}{\strut%
-  <%if vc=="vendor"%> % This is printed from a purchase delivery order
+  <%if vc=="vendor"%> %
     <%name%>              \strut\\
     <%department_1%>      \ifhmode\\\fi
     <%department_2%>      \ifhmode\\\fi
@@ -70,13 +70,25 @@
     <%street%>            \ifhmode\\\fi
     <%zipcode%> <%city%>  \ifhmode\\\fi
     <%country%>           %
-  <%else%>            % This is printed from a sales delivery order
-    <%shiptoname%>        \strut\\
-    <%shiptostreet%>      \ifhmode\\\fi
-    <%shiptozipcode%>     \ifhmode\\\fi
-    <%shiptocity%>        \ifhmode\\\fi
-    <%shiptocountry%>%
-  <%end%>%
+  <%else%> %
+    <%if shiptoname%> % ABWEICHENDE LIEFERADRESSE (Aus Stammdaten oder Beleg)
+      <%shiptoname%>          \strut\\
+      <%shiptodepartment_1%>  \ifhmode\\\fi
+      <%shiptodepartment_2%>  \ifhmode\\\fi
+      <%if shiptocontact%> <%shiptocontact%> <%else%> <%cp_title%> <%cp_givenname%> <%cp_name%> <%end if%> \ifhmode\\\fi
+      <%shiptostreet%>        \ifhmode\\\fi
+      <%shiptozipcode%> <%shiptocity%> \ifhmode\\\fi
+      <%shiptocountry%>       %
+    <%else%> % KEINE ABWEICHENDE LIEFERADRESSE
+      <%name%>                \strut\\
+      <%department_1%>        \ifhmode\\\fi
+      <%department_2%>        \ifhmode\\\fi
+      <%cp_title%> <%cp_givenname%> <%cp_name%> \ifhmode\\\fi
+      <%street%>              \ifhmode\\\fi
+      <%zipcode%> <%city%>    \ifhmode\\\fi
+      <%country%>             %
+    <%end%> %
+  <%end%> %
   }
 
   \opening{}
@@ -93,15 +105,18 @@
     \bfseries[ × ]
   }]%
     <%foreach number%>%
-      <%foreach si_number%>
+      <%if not __first__%>\\<%end%> %
+      <%if not si_number%> %
+        <%runningnumber%> & <%number%> & \textbf{<%description%>} & -- & -- & -- & <%qty%> <%unit%> & -- & \rule[-.75ex]{8mm}{0.5pt}
+      <%end%> %
+      <%foreach si_number%> %
         <%if __first__%> %
           <%runningnumber%> & <%number%> & \textbf{<%description%>} &
         <%else%> %
-          & & &
+          \\ & & &
         <%end%> %
-        <%si_warehouse%> & <%si_bin%> & <%si_chargenumber%> & <%si_qty%> <%si_unit%> & <%si_nominal_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} \\ %
+        <%si_warehouse%> & <%si_bin%> & <%si_chargenumber%> & <%si_qty%> <%si_unit%> & <%si_nominal_qty%> <%si_unit%> & \rule[-.75ex]{8mm}{0.5pt} %
       <%end%> %
-      \\
     <%end%>
   \end{SimpleTabular}
 
