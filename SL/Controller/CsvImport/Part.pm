@@ -158,6 +158,9 @@ sub check_objects {
 
   $self->makemodel_columns({});
 
+  my %csv_partnumber_count = map { +( $_->{object}->partnumber => 0 ) } @{ $self->controller->data };
+  $self->{csv_partnumber_count} = \%csv_partnumber_count;
+
   my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
@@ -300,16 +303,11 @@ sub check_existing {
     }
   }
 
-  ## checking also doubles in csv !!
-  foreach my $csventry (@{ $self->controller->data }) {
-    if ( $entry != $csventry && $object->partnumber eq $csventry->{object}->partnumber ) {
-      if ( $csventry->{doublechecked} ) {
-        push(@{$entry->{errors}}, $::locale->text('Skipping due to same partnumber in csv file'));
-        return;
-      }
-    }
+  my $count_before = $self->{csv_partnumber_count}{$entry->{object}->partnumber}++;
+  if ($count_before > 0) {
+    push(@{$entry->{errors}}, $::locale->text('Skipping due to duplicate partnumber in CSV file'));
+    return;
   }
-  $entry->{doublechecked} = 1;
 
   if ($entry->{part}) {
     if ($self->settings->{article_number_policy} eq 'update_prices' || $self->settings->{article_number_policy} eq 'update_prices_sn') {
