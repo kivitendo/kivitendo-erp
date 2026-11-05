@@ -3,6 +3,7 @@ package SL::Controller::CsvImport;
 use strict;
 
 use SL::DB;
+use SL::DB::BackgroundJobHistory;
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportReport;
@@ -112,6 +113,17 @@ sub action_result {
     } else {
       $error_msg = $::locale->text('There was an error parsing the csv file: #1', $first_error);
     }
+  }
+  my @errors_from_history = map { $_->error_col }
+    @{ SL::DB::Manager::BackgroundJobHistory->get_all(
+      sort_by  => 'run_at ASC',
+      where    => [
+        status       => SL::DB::BackgroundJobHistory::FAILURE(),
+        package_name => $self->{background_job}->package_name,
+        run_at       => { ge => $self->{background_job}->last_run_at },
+      ]) };
+  if (@errors_from_history) {
+    $error_msg = join(', ', @errors_from_history);
   }
 
   if ($data->{progress}{finished} || $error_msg) {
