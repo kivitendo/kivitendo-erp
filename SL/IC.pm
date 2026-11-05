@@ -453,6 +453,7 @@ sub all_parts {
   my $limit_clause;
   $limit_clause = " LIMIT 100"                   if $form->{top100};
   $limit_clause = " LIMIT " . $form->{limit} * 1 if $form->{limit} * 1;
+  $limit_clause .= " OFFSET " . $form->{offset} * 1 if $form->{offset} * 1;
 
   #=== joins and complicated filters ========#
 
@@ -575,6 +576,16 @@ sub all_parts {
     $order_clause
     $limit_clause
   SQL
+
+  if ($form->{count_only}) {
+    my $query = qq|SELECT COUNT(*) FROM ($query) as matching_parts|;
+    my $res   = selectall_hashref_query($form, $dbh, $query, @bind_vars);
+
+    $main::lxdebug->leave_sub();
+
+    return $res->[0]{count};
+  }
+
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 
   map { $_->{onhand} *= 1 } @{ $form->{parts} };
