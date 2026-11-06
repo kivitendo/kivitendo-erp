@@ -561,7 +561,7 @@ sub generate_datev_data {
          ct.name, ct.ustid, ct.customernumber AS vcnumber, ct.id AS customer_id, NULL AS vendor_id,
          $ar_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
-         t.rate AS taxrate, t.taxdescription,
+         t.rate AS taxrate, t.taxdescription, t.reverse_charge_chart_id,
          'ar' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ar.department_id,
@@ -590,7 +590,7 @@ sub generate_datev_data {
          ct.name, ct.ustid, ct.vendornumber AS vcnumber, NULL AS customer_id, ct.id AS vendor_id,
          $ap_accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
-         t.rate AS taxrate, t.taxdescription,
+         t.rate AS taxrate, t.taxdescription, t.reverse_charge_chart_id,
          'ap' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          ap.department_id,
@@ -619,7 +619,7 @@ sub generate_datev_data {
          gl.description AS name, NULL as ustid, '' AS vcname, NULL AS customer_id, NULL AS vendor_id,
          c.accno, c.description AS accname, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
-         t.rate AS taxrate, t.taxdescription,
+         t.rate AS taxrate, t.taxdescription, t.reverse_charge_chart_id,
          'gl' as table,
          tc.accno AS tax_accno, tc.description AS tax_accname,
          gl.department_id,
@@ -810,7 +810,8 @@ sub generate_datev_data {
         my %new_trans = ();
         map { $new_trans{$_} = $trans->[$notsplitindex]->{$_}; } keys %{ $trans->[$notsplitindex] };
 
-        my $tax_rate              = $trans->[$j]->{'taxrate'};
+        # reverse charge: the tax is not part of the amount, it is booked in a linked gl transaction
+        my $tax_rate              = $trans->[$j]->{reverse_charge_chart_id} ? 0 : $trans->[$j]->{'taxrate'};
         $new_trans{'net_amount'}  = $trans->[$j]->{'amount'} * -1;
         $new_trans{'tax_rate'}    = 1 + $tax_rate;
 

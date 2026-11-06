@@ -48,6 +48,7 @@ use SL::DB::ValidityToken;
 use SL::DB::Vendor;
 use SL::DB::Tax;
 use SL::DB::Chart;
+use SL::Helper::ReverseCharge;
 use List::MoreUtils qw(uniq);
 use List::Util qw(max sum);
 use List::UtilsBy qw(sort_by);
@@ -615,8 +616,15 @@ sub form_footer {
   # tax, total and subtotal calculations
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
+  my $reverse_charge_taxes   = SL::Helper::ReverseCharge->taxes_by_id;
 
   foreach my $item (@{ $form->{taxaccounts_array} }) {
+    if (my $reverse_charge_tax = $reverse_charge_taxes->{ $form->{"${item}_tax_id"} }) {
+      # input and output tax, not part of the total
+      $form->{"${item}_reverse_charge_rate"}  = $reverse_charge_tax->rate;
+      $form->{"${item}_reverse_charge_total"} = $form->round_amount($form->{"${item}_base"} * $reverse_charge_tax->rate, 2);
+      next;
+    }
     if ($form->{"${item}_base"}) {
       if ($form->{taxincluded}) {
         $form->{"${item}_total"} = $form->round_amount( ($form->{"${item}_base"} * $form->{"${item}_rate"}
@@ -1267,7 +1275,7 @@ sub set_taxaccounts_and_accnos {
       $::form->{"taxaccounts_$i"} = $tax_accno;
       if (!($::form->{taxaccounts} =~ /\Q$tax_accno\E/)) {
         # add tax info if missing
-        $::form->{"${tax_accno}_rate"}        = $tax->rate;
+        $::form->{"${tax_accno}_rate"}        = $tax->reverse_charge_chart_id ? 0 : $tax->rate;
         $::form->{"${tax_accno}_description"} = $tax->taxdescription;
         $::form->{"${tax_accno}_tax_id"}      = $tax->id;
         $::form->{"${tax_accno}_taxnumber"}   = $::form->{"expense_accno_$i"};

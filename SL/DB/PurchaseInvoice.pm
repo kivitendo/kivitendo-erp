@@ -282,6 +282,28 @@ sub add_ap_amount_row {
   return $acc_trans;
 }
 
+sub post_reverse_charge_bookings {
+  my ($self, $reverse_charge_by_tax_id) = @_;
+
+  require SL::DB::Tax;
+  require SL::Helper::ReverseCharge;
+
+  my @entries = map {
+    my $tax = SL::DB::Manager::Tax->find_by(id => $_) or croak "No such tax ID $_";
+    +{ tax => $tax, taxamount => $reverse_charge_by_tax_id->{$_} * $tax->rate };
+  } sort keys %{ $reverse_charge_by_tax_id || {} };
+
+  SL::Helper::ReverseCharge->post_bookings(
+    ap_id         => $self->id,
+    transdate     => $self->transdate,
+    reference     => $self->invnumber,
+    description   => $self->transaction_description || $self->invnumber,
+    employee_id   => $self->employee_id,
+    department_id => $self->department_id,
+    entries       => \@entries,
+  );
+}
+
 sub validate_acc_trans {
   my ($self, %params) = @_;
   # should be able to check unsaved invoice objects with several acc_trans lines
@@ -395,6 +417,17 @@ SL::DB::PurchaseInvoice: Rose model for purchase invoices (table "ap")
 =item C<create_ap_row>
 
 =item C<add_ap_amount_row>
+
+=item C<post_reverse_charge_bookings $reverse_charge_by_tax_id>
+
+Books input and output tax for reverse charge taxes in a separate general
+ledger transaction linked to this invoice (see
+L<SL::Helper::ReverseCharge>). C<$reverse_charge_by_tax_id> is the hash
+reference of the same name returned by
+L<SL::DB::Helper::PriceTaxCalculator/calculate_prices_and_taxes>: the net
+amounts by tax ID, positive for an invoice. Previous reverse charge
+bookings of this invoice are deleted first. Must be called after the
+invoice has been saved.
 
 =item C<validate_acc_trans>
 
