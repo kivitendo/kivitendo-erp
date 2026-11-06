@@ -119,7 +119,7 @@
       <tr>
         <th>[% 'Language' | $T8 %]</th>
         <td>
-          [% L.select_tag('reclamation.language_id', SELF.all_languages, default=SELF.reclamation.language_id, title_key='description', with_empty=1, style='wi-lightwide') %]
+          [% L.select_tag('reclamation.language_id', SELF.all_languages, default=SELF.reclamation.language_id, title_key='description', with_empty=1, class='wi-lightwide') %]
         </td>
       </tr>
 [%- END %]
