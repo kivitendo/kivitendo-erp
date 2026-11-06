@@ -181,13 +181,22 @@ namespace('kivi.Order', function(ns) {
     data = data.concat($('[name^="email_form."]').serializeArray());
     data = data.concat($('[name^="print_options."]').serializeArray());
     data.push({ name: 'action', value: 'Order/send_email' });
-    $.post("controller.pl", data, kivi.eval_json_result);
+    $.post("controller.pl", data, function(result) {
+      // errors keep the dialog open: allow sending again
+      if (!$.isPlainObject(result) || result.error)
+        ns.email_dialog_disable_send(false);
+      kivi.eval_json_result(result);
+    }).fail(function() { ns.email_dialog_disable_send(false); });
   };
 
-  ns.email_dialog_disable_send = function() {
+  ns.email_dialog_disable_send = function(disable) {
     // disable mail send event to prevent
     // impatient users to send multiple times
-    $('#send_email').prop('disabled', true);
+    // and to close and reopen the dialog while sending
+    disable = disable !== false;
+    $('#send_email_dialog').dialog('option', 'closeOnEscape', !disable)
+      .closest('.ui-dialog').find('.buttons input, .ui-dialog-titlebar-close').prop('disabled', disable);
+    $('#send_email').val(disable ? kivi.t8('Sending email...') : kivi.t8('Send email'));
   };
 
   ns.close_email_dialog = function() {
