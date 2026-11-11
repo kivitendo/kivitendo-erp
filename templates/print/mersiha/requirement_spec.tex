@@ -159,7 +159,7 @@ $( KiviLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '
 %  $( FOREACH item = top_item.children_sorted )$
 \parbox[t]{1.0cm}{\textcolor{kivitendodarkred}{$>>>$}}%
 \parbox[t]{15.0cm}{%
-  \begin{longtable}{p{2.8cm}p{11.7cm}}
+  \begin{longtable}{p{3cm}p{11.7cm}}
     Funktionsblock & $( KiviLatex.filter(item.fb_number) )$                                      \\
     Beschreibung   & $( KiviLatex.filter_html(item.description_as_restricted_html) )$             \\
     Abhängigkeiten & $( KiviLatex.filter(item.presenter.requirement_spec_item_dependency_list) )$ \\
@@ -170,7 +170,7 @@ $( KiviLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '
 \hspace*{1.15cm}\rule{15.2cm}{0.2pt}\\
 \hspace*{1.0cm}%
 \parbox[t]{15.0cm}{%
-  \begin{longtable}{p{2.8cm}p{11.7cm}}
+  \begin{longtable}{p{3cm}p{11.7cm}}
     Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$                                      \\
     Beschreibung        & $( KiviLatex.filter_html(sub_item.description_as_restricted_html) )$             \\
     Abhängigkeiten      & $( KiviLatex.filter(sub_item.presenter.requirement_spec_item_dependency_list) )$ \\
