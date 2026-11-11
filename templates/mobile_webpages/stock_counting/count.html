@@ -6,15 +6,15 @@
 <div class="section">
   <div class="container">
     <div class="z-depth-1 grey lighten-4 row" style="padding: 32px 48px 0px 48px; border: 1px solid #EEE;">
-      <div class="row">[% SELF.stock_counting_item.counting.name %]</div>
-      <div class="row">[% SELF.stock_counting_item.counting.description %]</div>
-      <div class="row">[% SELF.stock_counting_item.counting.part.displayable_name %]</div>
-      <div class="row">[% SELF.stock_counting_item.counting.partsgroup.displayable_name %]</div>
-      <div class="row">[% SELF.stock_counting_item.counting.vendor.displayable_name %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.name | html %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.description | html %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.part.displayable_name | html %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.partsgroup.displayable_name | html %]</div>
+      <div class="row">[% SELF.stock_counting_item.counting.vendor.displayable_name | html %]</div>
       <form name="count_form" id="count_form" onSubmit="kivi.StockCounting.submit_count(); return false" target="_top" class="col s12">
         [% P.hidden_tag('stock_counting_item.counting_id', SELF.stock_counting_item.counting_id) %]
         [% IF SELF.stock_counting_item.counting.bin_id %]
-          <div class="row">[% SELF.stock_counting_item.counting.bin.full_description %]</div>
+          <div class="row">[% SELF.stock_counting_item.counting.bin.full_description | html %]</div>
           [% P.hidden_tag('stock_counting_item.bin_id', SELF.stock_counting_item.counting.bin_id) %]
         [% ELSE %]
           <div class="row">
