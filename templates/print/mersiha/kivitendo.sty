@@ -72,6 +72,9 @@
 \definecolor{kivitendoyellow}{rgb}{1,1,0.4}
 \definecolor{kivitendobggray}{gray}{0.9}
 \definecolor{kivitendowhite}{gray}{1}
+\definecolor{kivitendoweborange}{rgb}{0.996,0.372,0.078}
+\definecolor{kivitendowebgreen}{rgb}{0.549,0.768,0.207}
+\definecolor{kivitendowebyellow}{rgb}{0.992,0.862,0.149}
 
 %% Kopf- und Fußzeilen
 \newcommand{\kivitendofirsthead}{}
@@ -82,12 +85,12 @@
 \newcommand{\myhead}{%
   \ifthenelse{\boolean{defaultbg}}{%
     \begin{picture}(0,0)
-      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite1.png}}
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/kivitendo_pflichtenheft_briefbogen.png}}
     \end{picture}%
   }{}%
   \ifthenelse{\boolean{secondpagelogo}}{%
     \begin{picture}(0,0)
-      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite2.png}}
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/kivitendo_pflichtenheft_briefbogen.png}}
     \end{picture}%
   }{}%
   \ifthenelse{\boolean{draftbg}}{%
@@ -97,10 +100,10 @@
   }{}%
   \ifthenelse{\boolean{reqspeclogo}}{%
     \begin{picture}(0,0)
-      \put(3,-22){\includegraphics*[width=13cm,keepaspectratio=true]{images/schachfiguren.jpg}}
-      \put(0.275,-4.1){\colorbox{kivitendoorange}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
-      \put(0.275,-8.8){\colorbox{kivitendodarkred}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
-      \put(0.275,-13.5){\colorbox{kivitendoyellow}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+      \put(3,-16.0){\includegraphics*[width=13cm,keepaspectratio=true]{images/kivitendo_logo.jpg}}
+      \put(0.275,-4.1){\colorbox{kivitendoweborange}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+      \put(0.275,-8.8){\colorbox{kivitendowebyellow}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
+      \put(0.275,-13.5){\colorbox{kivitendowebgreen}{\begin{minipage}[t][4.5cm]{2.5cm}\hspace*{2.5cm}\end{minipage}}}
     \end{picture}%
   }{}%
   \kivitendofirsthead
@@ -109,7 +112,7 @@
 \newcommand{\mysecondhead}{%
   \ifthenelse{\boolean{defaultbg} \or \boolean{secondpagelogo}}{%
     \begin{picture}(0,0)
-      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/hintergrund_seite2.png}}
+      \put(-2.025,-28.1){\includegraphics*[width=\paperwidth,keepaspectratio=true]{images/kivitendo_pflichtenheft_briefbogen.png}}
     \end{picture}%
   }{}%
   \ifthenelse{\boolean{draftbg}}{%
@@ -165,7 +168,7 @@
   \begingroup
   \leavevmode\Large\bfseries\raggedright
   \begin{picture}(0,0)
-    \put(0,0){\colorbox{kivitendoorange}{\parbox{0.7cm}{\hspace*{0.7cm}\\\vspace*{0.2cm}}}}
+    \put(0,0){\colorbox{kivitendowebgreen}{\parbox{0.7cm}{\hspace*{0.7cm}\\\vspace*{0.2cm}}}}
   \end{picture}%
   \hspace*{0.3cm}\textcolor{white}{\thesection{}.}%
   \quad%
