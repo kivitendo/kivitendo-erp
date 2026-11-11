@@ -160,20 +160,22 @@ $( KiviLatex.filter_html(top_item.description_as_restricted_html.replace('\r', '
 \parbox[t]{1.0cm}{\textcolor{kivitendodarkred}{$>>>$}}%
 \parbox[t]{15.0cm}{%
   \begin{longtable}{p{2.8cm}p{11.7cm}}
-    Funktionsblock & $( KiviLatex.filter(item.fb_number) )$                                       \\
+    Funktionsblock & $( KiviLatex.filter(item.fb_number) )$                                      \\
     Beschreibung   & $( KiviLatex.filter_html(item.description_as_restricted_html) )$             \\
-    Abhängigkeiten & $( KiviLatex.filter(item.presenter.requirement_spec_item_dependency_list) )$
-  \end{longtable}}
+    Abhängigkeiten & $( KiviLatex.filter(item.presenter.requirement_spec_item_dependency_list) )$ \\
+    Zeitschätzung  & $( KiviLatex.filter(item.time_estimation_as_duration_string) )$ h
+\end{longtable}}
 
 %    $( FOREACH sub_item = item.children_sorted )$
 \hspace*{1.15cm}\rule{15.2cm}{0.2pt}\\
 \hspace*{1.0cm}%
 \parbox[t]{15.0cm}{%
   \begin{longtable}{p{2.8cm}p{11.7cm}}
-    Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$                                       \\
+    Unterfunktionsblock & $( KiviLatex.filter(sub_item.fb_number) )$                                      \\
     Beschreibung        & $( KiviLatex.filter_html(sub_item.description_as_restricted_html) )$             \\
-    Abhängigkeiten      & $( KiviLatex.filter(sub_item.presenter.requirement_spec_item_dependency_list) )$
-  \end{longtable}}
+    Abhängigkeiten      & $( KiviLatex.filter(sub_item.presenter.requirement_spec_item_dependency_list) )$ \\
+    Zeitschätzung       & $( KiviLatex.filter(sub_item.time_estimation_as_duration_string) )$ h
+\end{longtable}}
 
 %    $( END )$
 
