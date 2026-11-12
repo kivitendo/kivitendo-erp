@@ -4379,6 +4379,8 @@ $ ./scripts/installation_check.pl',
   'The long description is missing.' => 'Der Langtext fehlt.',
   'The master templates where not found.' => 'Der Vorlagensatz wurde nicht gefunden.',
   'The maximum of uploadable filesize in Megabyte' => 'Die maximale Dateigröße in Megabytes, die hochladbar ist',
+  'The message broker is available, but it has no AMI connection to the phone system' => 'Der Message-Broker ist erreichbar, hat aber keine Verbindung zur
+Telefonanlage',
   'The name and description are not unique.' => 'Name und Beschreibung sind nicht einmalig.',
   'The name in row %d has already been used before.' => 'Der Name in Zeile %d wurde vorher bereits benutzt.',
   'The name is invalid.'        => 'Der Name ist ungültigt.',

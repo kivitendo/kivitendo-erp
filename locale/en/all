@@ -4377,6 +4377,7 @@ $self->{texts} = {
   'The long description is missing.' => '',
   'The master templates where not found.' => '',
   'The maximum of uploadable filesize in Megabyte' => '',
+  'The message broker is available, but it has no AMI connection to the phone system' => '',
   'The name and description are not unique.' => '',
   'The name in row %d has already been used before.' => '',
   'The name is invalid.'        => '',
