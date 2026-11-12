@@ -221,6 +221,7 @@ websocket '/ws' => sub {
   my @user_redacted_event_ids = map { $_->{redact_msg_id} } grep {  $_->{redact_msg_id} } @user_events;
   my $last_msg_id = scalar(@user_events) ? $user_events[-1]->{id} : undef;
   my $body = SL::JSON::to_json({
+    ami_connected      => ($ami{state} == 2 ? \1 : \0),
     events             => \@user_new_events,
     redacted_event_ids => \@user_redacted_event_ids,
     (last_msg_id       => $last_msg_id) x !! defined($last_msg_id),
@@ -306,6 +307,7 @@ sub dispatch_events_for_all_clients {
 
       my $last_msg_id = $user_events[-1]->{id};
       my $body = SL::JSON::to_json({
+        ami_connected      => ($ami{state} == 2 ? \1 : \0),
         events             => \@user_new_events,
         redacted_event_ids => \@user_redacted_event_ids,
         last_msg_id        => $last_msg_id,
