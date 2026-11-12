@@ -82,7 +82,7 @@ sub validate_zugferd_data {
   }
 
   if ($profile == PROFILE_XRECHNUNG()) {
-    if (none { ($_ // '' ne '') } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid)) {
+    if (none { (($_ // '') ne '') } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid)) {
       SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('At least one of the following fields has to be set for profile #1: \'our routing id at customer\', \'sales tax identification number\' (customer data) or \'customer order number\' (invoice).', 'XRechnung 3.0'));
     }
   }
