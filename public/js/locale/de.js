@@ -182,8 +182,7 @@ namespace("kivi").setupLocale({
 "The description is missing.":"Die Beschreibung fehlt.",
 "The input was rounded or reformatted according to the locale settings.":"Die Eingabe wurde gerundet oder gemäß der Spracheinstellung formatiert.",
 "The login name you entered was previously used. Do you want to assign documents from the former user that had the same username to the new user?":"Der eingegebene Benutzername war schon einmal vergeben. Sollen Belege des früheren Benutzers mit dem selben Benutzernamen dem neuen Benutzer zugewiesen werden?",
-"The message broker is available, but it has no AMI connection to the phone system":"Der Message-Broker ist erreichbar, hat aber keine Verbindung zur
-Telefonanlage",
+"The message broker is available, but it has no AMI connection to the phone system":"Der Message-Broker ist erreichbar, hat aber keine Verbindung zur Telefonanlage",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",
 "The option field is empty.":"Das Optionsfeld ist leer.",
