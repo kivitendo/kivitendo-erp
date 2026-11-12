@@ -903,7 +903,7 @@ sub _applicable_header_trade_agreement {
   # v3.0.2. validate_zugferd_data already checks for it.  Optional in
   # Factur-X.
   my $buyer_reference = first { ($_ // '') ne '' } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid);
-  if ($buyer_reference) {
+  if ($buyer_reference ne '') {
     $params{xml}->dataElement("ram:BuyerReference", _u8($buyer_reference));
   }
 
