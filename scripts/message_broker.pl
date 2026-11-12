@@ -132,6 +132,9 @@ post '/api/call' => sub {
     return $c->reply->exception("missing parameter");
   }
 
+  unless ($ami{stream}) {
+    return $c->reply->exception("no AMI connection");
+  }
   $ami{stream}->write(ami_build_request_str({
     Action   => 'Originate',
     Async    => 'true',      # Asterisk shall not wait for phone pickup before responding
@@ -343,6 +346,8 @@ sub ami_spawn_connect {
 
       if ($err) {
         print STDERR "AMI: $err\n";
+        $ami{state} = 0;
+        delete $ami{stream};
         return;
       }
       # timeout must be larger than timeout for Action: Pong below!
@@ -416,7 +421,11 @@ ami_spawn_connect();
 Mojo::IOLoop->recurring(600 => sub {
   if ($ami{state} == 2) {
     # prevent timeout on IO::Socket::SSL
-    $ami{stream}->write(ami_build_request_str({ Action => 'Ping' }));
+    if ($ami{stream}) {
+      $ami{stream}->write(ami_build_request_str({ Action => 'Ping' }));
+    } else {
+      say 'no $ami{stream} set in recurring ping loop';
+    }
   }
 });
 Mojo::IOLoop->recurring(30 => sub {
