@@ -23,6 +23,16 @@
       [% SET rate_ref        = item _ '_rate' %]
       [% SET total_ref       = item _ '_total' %]
       [% SET netto_ref       = item _ '_netto' %]
+      [% SET rc_rate_ref     = item _ '_reverse_charge_rate' %]
+      [% SET rc_total_ref    = item _ '_reverse_charge_total' %]
+      [% IF $rc_rate_ref %]
+      <tr>
+        <th colspan="3"></th>
+        <th>[% $description_ref | html %]&nbsp;[% $rc_rate_ref * 100 %]% ([% 'reverse charge, not part of the total' | $T8 %])</th>
+        <td class="numeric">[% LxERP.format_amount($rc_total_ref, 2) %]</td>
+      </tr>
+      [% NEXT %]
+      [% END %]
       <tr>
         <th colspan="3"></th>
         <th>[% 'Including' | $T8 %] [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
