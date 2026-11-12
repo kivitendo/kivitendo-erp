@@ -387,7 +387,7 @@ sub ami_spawn_connect {
 
       $stream->on(error => sub {
         my ($err) = @_;
-        say $err;
+        print STDERR "AMI stream error callback: $err\n";
         $ami{state} = 0;
         delete $ami{client};
         delete $ami{stream};
