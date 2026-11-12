@@ -7,10 +7,9 @@ After=postgresql.service
 Type=simple
 # Change the user to the one your web server runs as.
 User=www-data
-# Change these two to point to the kivitendo "task_server.pl" location.
+# Change these two to point to the kivitendo "message_broker.pl" location.
 WorkingDirectory=/var/www/kivitendo-erp/
-ExecStart=/var/www/kivitendo-erp/scripts/async_events_source_asterisk.pl -c kivi_client_name_or_id
-#ExecStop=/var/www/kivitendo-erp/scripts/async_events_source_asterisk.pl stop
+ExecStart=/var/www/kivitendo-erp/scripts/message_broker.pl
 Restart=always
 ProtectSystem=full
 ProtectHome=yes
