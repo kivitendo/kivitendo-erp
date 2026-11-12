@@ -7,7 +7,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(validate_zugferd_data);
 
 use Carp;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any none);
 use List::Util qw(first);
 
 use SL::Helper::ISO4217;
@@ -82,8 +82,8 @@ sub validate_zugferd_data {
   }
 
   if ($profile == PROFILE_XRECHNUNG()) {
-    if (!$self->customer->c_vendor_routing_id) {
-      SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The value \'our routing id at customer\' must be set in the customer\'s master data for profile #1.', 'XRechnung 3.0'));
+    if (none { ($_ // '' ne '') } ($self->customer->c_vendor_routing_id, $self->cusordnumber, $self->customer->ustid)) {
+      SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('At least one of the following fields has to be set for profile #1: \'our routing id at customer\', \'sales tax identification number\' (customer data) or \'customer order number\' (invoice).', 'XRechnung 3.0'));
     }
   }
 
@@ -114,10 +114,6 @@ sub validate_zugferd_data {
   my $have_buyer_electronic_address = first { $self->customer->$_ } qw(invoice_mail email gln);
   if (!$have_buyer_electronic_address) {
     SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('At least one of the following fields has to be set in the customer data: Email of the invoice recipient; Email; GLN'));
-  }
-
-  if (($profile == PROFILE_XRECHNUNG()) && (($self->customer->c_vendor_routing_id // '') eq '')) {
-    SL::X::ZUGFeRDValidation->throw(message => $prefix . t8('The routing ID has to be set in the customer data.'));
   }
 
   return %result;
