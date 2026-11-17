@@ -361,6 +361,13 @@ sub action_history {
                                   history_entries => $history_entries);
 }
 
+sub action_pick_partsgroup {
+  my ($self) = @_;
+  my $partsgroup_array = SL::DB::Manager::PartsGroup->get_hierarchy();
+  $_[0]->render('partsgroup/pick_partsgroups', { layout => 0 },
+                                  PARTSGROUPS => $partsgroup_array);
+}
+
 sub action_inventory {
   my ($self) = @_;
 
@@ -528,7 +535,7 @@ sub action_show_multi_items_dialog {
   $search_term  ||= $self->models->filtered->laundered->{all_with_customer_partnumber_substr_multi__ilike};
 
   $_[0]->render('part/_multi_items_dialog', { layout => 0 },
-                all_partsgroups => SL::DB::Manager::PartsGroup->get_all,
+                all_partsgroups => SL::DB::Manager::PartsGroup->get_hierarchy(not_obsolete => 1),
                 search_term     => $search_term
   );
 }
@@ -949,6 +956,17 @@ sub action_export_assembly_assortment_components {
     name         => $attachment_name,
   );
 
+}
+
+sub action_save_partsgroup {
+  my ($self) = @_;
+  my $part = $self->part;
+  my $partsgroup = SL::DB::Manager::PartsGroup->find_by(id => $::form->{partsgroup_id});
+  my $ppg = $partsgroup->presenter->partsgroup_breadcrumb;
+  $part->update_attributes(partsgroup => $partsgroup);
+  $ppg = $ppg->{text};
+  $self->js->run('kivi.Part.close_partsgroup_dialog')
+           ->html('#partsgroup_breadcrumb', $ppg)->render;
 }
 
 # helper functions
@@ -1446,7 +1464,7 @@ sub init_all_languages {
 
 sub init_all_partsgroups {
   my ($self) = @_;
-  SL::DB::Manager::PartsGroup->get_all_sorted(query => [ or => [ id => $self->part->partsgroup_id, obsolete => 0 ] ]);
+  SL::DB::Manager::PartsGroup->get_hierarchy(not_obsolete => 1);
 }
 
 sub init_all_buchungsgruppen {

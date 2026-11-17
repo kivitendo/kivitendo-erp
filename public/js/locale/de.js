@@ -125,6 +125,7 @@ namespace("kivi").setupLocale({
 "Ok":"Ok",
 "Overall Net.Turnover":"Gesamter Netto-Umsatz",
 "Part picker":"Artikelauswahl",
+"Partsgroups":"Warengruppen",
 "Paste":"Einfügen",
 "Paste template":"Vorlage einfügen",
 "Please enter the new name:":"Bitte geben Sie den neuen Namen ein:",

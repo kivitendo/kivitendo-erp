@@ -87,15 +87,15 @@
                 all_partsgroups,
                 id                => "partsgroups",
                 value_key         => "id",
-                title_key         => "partsgroup",
+                title_key         => "indented_name",
                 default           => SELF.config.partsgroups,
                 default_value_key => "id",
                 multiple          => 1)
           %]
-          [% L.multiselect2side(
-                "partsgroups",
-                labelsx => LxERP.t8("All partsgroups"),
-                labeldx => LxERP.t8("Partsgroups where variables are shown"))
+          [%# L.multiselect2side(
+            #    "partsgroups",
+            #    labelsx => LxERP.t8("All partsgroups"),
+            #    labeldx => LxERP.t8("Partsgroups where variables are shown"))
           %]
       </td>
     </tr>

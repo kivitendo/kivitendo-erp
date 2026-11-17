@@ -31,7 +31,7 @@
     </tr>
     <tr>
       <th>[% 'Partsgroup' | $T8 %]</th>
-      <td>[% L.select_tag('filter.item_type_matches[].partsgroup', SELF.partsgroups, title_key='partsgroup', default=FORM.filter.item_type_matches.0.partsgroup, with_empty=1, class="wi-normal") %]</td>
+      <td>[% L.select_tag('filter.item_type_matches[].partsgroup', SELF.partsgroups, title_key='indented_name', default=FORM.filter.item_type_matches.0.partsgroup, with_empty=1, class="wi-normal") %]</td>
     </tr>
     <tr>
       <th>[% 'Qty' | $T8 %]</th>

@@ -17,6 +17,7 @@ use SL::Presenter::GL;
 use SL::Presenter::Letter;
 use SL::Presenter::Order;
 use SL::Presenter::Part;
+use SL::Presenter::PartsGroup;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::RequirementSpec;
