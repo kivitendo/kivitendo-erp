@@ -981,6 +981,15 @@ sub recalc {
                                 netamount => $netamount,
                                 tax       => SL::DB::Tax->new(id => $tax_id)->load });
   }
+  # input and output tax, not part of the amount
+  foreach my $tax_id (keys %{ $pat{reverse_charge_by_tax_id} }) {
+    my $tax       = SL::DB::Tax->new(id => $tax_id)->load;
+    my $netamount = $pat{reverse_charge_by_tax_id}->{$tax_id};
+    push(@{ $self->{taxes} }, { amount         => $::form->round_amount($netamount * $tax->rate, 2),
+                                netamount      => $netamount,
+                                tax            => $tax,
+                                reverse_charge => 1 });
+  }
   pairwise { $a->{linetotal} = $b->{linetotal} } @{$self->record->items_sorted}, @{$pat{items}};
 
   # TODO: calculate see 'sub form_footer' in is/ir.pl

@@ -33,6 +33,7 @@ sub calculate_prices_and_taxes {
                price_factors_by_id => \%price_factors_by_id,
                taxes_by_chart_id   => { },
                taxes_by_tax_id     => { },
+               reverse_charge_by_tax_id => { },
                amounts             => { },
                amounts_cogs        => { },
                allocated           => { },
@@ -69,7 +70,7 @@ sub calculate_prices_and_taxes {
 
   return $self unless wantarray;
 
-  return map { ($_ => $data{$_}) } qw(taxes_by_chart_id taxes_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
+  return map { ($_ => $data{$_}) } qw(taxes_by_chart_id taxes_by_tax_id reverse_charge_by_tax_id amounts amounts_cogs allocated exchangerate assembly_items items rounding);
 }
 
 sub _get_exchangerate {
@@ -118,6 +119,11 @@ sub _calculate_item {
   my $tax_rate   = $taxkey->tax->rate;
   my $tax_amount = undef;
 
+  # reverse charge: the vendor gets the net amount only, input and output tax
+  # are booked separately (see SL::Helper::ReverseCharge)
+  my $reverse_charge = !$data->{is_sales} && $taxkey->tax->reverse_charge_chart_id;
+  $tax_rate          = 0 if $reverse_charge;
+
   if ($self->taxincluded) {
     $tax_amount = $linetotal * $tax_rate / ($tax_rate + 1);
     $sellprice  = $sellprice             / ($tax_rate + 1);
@@ -127,7 +133,10 @@ sub _calculate_item {
   }
   my $chart = $part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
   unless ($data->{allow_optional_items} && $item->optional) {
-    if ($taxkey->tax->chart_id) {
+    if ($reverse_charge) {
+      $data->{reverse_charge_by_tax_id}->{ $taxkey->tax_id } ||= 0;
+      $data->{reverse_charge_by_tax_id}->{ $taxkey->tax_id }  += $linetotal;
+    } elsif ($taxkey->tax->chart_id) {
       $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id } ||= 0;
       $data->{taxes_by_chart_id}->{ $taxkey->tax->chart_id }  += $tax_amount;
       $data->{taxes_by_tax_id}->{ $taxkey->tax_id }          ||= 0;
@@ -211,7 +220,7 @@ sub _calculate_amounts {
 
   #_dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
 
-  my $tax              = sum values %{ $data->{taxes_by_chart_id} };
+  my $tax              = sum(values %{ $data->{taxes_by_chart_id} }) // 0;
   $amount              = $netamount + $tax;
   my $grossamount      = _round($amount, 2, 1);
   $data->{rounding}    = _round($grossamount - $amount, 2);
@@ -356,6 +365,14 @@ the values the rounded calculated taxes.
 
 A hash reference with the calculated taxes. The keys are tax IDs,
 the values the calculated taxes.
+
+=item C<reverse_charge_by_tax_id>
+
+A hash reference with the net amounts of purchase records using taxes
+with a reverse charge chart. The keys are tax IDs, the values the net
+amounts. These taxes are not part of C<taxes_by_chart_id>,
+C<taxes_by_tax_id> and C<amount> because the vendor gets the net
+amount only. L<SL::Helper::ReverseCharge> books input and output tax.
 
 =item C<amounts>
 

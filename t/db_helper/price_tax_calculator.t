@@ -177,6 +177,7 @@ sub test_default_invoice_one_item_19_tax_not_included() {
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 1.11,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 1.1115,
     },
@@ -264,6 +265,7 @@ sub test_default_invoice_two_items_19_7_tax_not_included() {
       $tax->chart_id                              => 1.11,
       $tax7->chart_id                             => 0.82,
     },
+    reverse_charge_by_tax_id                      => {},
     taxes_by_tax_id                               => {
       $tax->id                                    => 1.1115,
       $tax7->id                                   => 0.8162,
@@ -373,6 +375,7 @@ sub test_default_invoice_three_items_sellprice_rounding_discount() {
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 2.9,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 2.89750,
     },
@@ -447,6 +450,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount() {
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 0.66,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 0.66310,
     },
@@ -501,6 +505,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_huge_qty
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 1843,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 1843,
     },
@@ -566,6 +571,7 @@ sub test_default_invoice_one_item_19_tax_not_included_rounding_discount_big_qty_
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 12.84,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 12.8364,
     },
@@ -640,6 +646,7 @@ sub test_default_order_two_items_19_one_optional() {
     taxes_by_chart_id                            => {
       $tax->chart_id                             => 1.11,
     },
+    reverse_charge_by_tax_id                     => {},
     taxes_by_tax_id                              => {
       $tax->id                                   => 1.1115,
     },

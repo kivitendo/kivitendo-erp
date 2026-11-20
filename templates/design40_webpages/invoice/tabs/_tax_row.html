@@ -8,10 +8,10 @@
   [%- IF SELF.show_update_button -%]
   <td></td>
   [%- END -%]
-  <th colspan="3">[% IF TAXINCLUDED %][% 'Including' | $T8 %]&nbsp;[% END %][% TAX.tax.taxdescription %] [% TAX.tax.rate_as_percent %]%</th>
+  <th colspan="3">[% IF TAXINCLUDED && !TAX.reverse_charge %][% 'Including' | $T8 %]&nbsp;[% END %][% TAX.tax.taxdescription | html %] [% TAX.tax.rate_as_percent %]%[% IF TAX.reverse_charge %] ([% 'reverse charge, not part of the total' | $T8 %])[% END %]</th>
   <td class="numeric">[% LxERP.format_amount(TAX.amount, 2, 0) %]</td>
 </tr>
-[% IF TAXINCLUDED %]
+[% IF TAXINCLUDED && !TAX.reverse_charge %]
 <tr class="tax_row">
   <td colspan="[%- n_col %]"></td>
   [%- IF SELF.show_update_button -%]
