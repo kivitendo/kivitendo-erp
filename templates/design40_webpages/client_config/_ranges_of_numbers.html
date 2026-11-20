@@ -117,6 +117,10 @@
       <th>[% LxERP.t8('Check EAN codes') %]</th>
       <td>[% L.yes_no_tag("defaults.parts_check_ean", SELF.defaults.parts_check_ean, class="wi-normal") %]</td>
     </tr>
+    <tr>
+      <th>[% LxERP.t8('EAN') %]</th>
+      <td>[% L.input_tag("defaults.part_ean_number", SELF.defaults.part_ean_number, size="13", class="wi-normal") %]</td>
+    </tr>
   </tbody>
 </table>
 
