@@ -1012,7 +1012,6 @@ sub update {
         map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
         map { $form->{"${_}_$i"} = $form->{item_list}[0]{$_} } keys %{ $form->{item_list}[0] };
 
-        $form->{payment_id}    = $form->{"part_payment_id_$i"} if $form->{"part_payment_id_$i"} ne "";
         $form->{"discount_$i"} = 0                             if $form->{"not_discountable_$i"};
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};

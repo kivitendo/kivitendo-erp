@@ -2697,7 +2697,7 @@ sub retrieve_item {
 
          p.unit, p.part_type, p.onhand,
          p.notes AS partnotes, p.notes AS longdescription,
-         p.not_discountable, p.formel, p.payment_id AS part_payment_id,
+         p.not_discountable, p.formel,
          p.price_factor_id, p.weight,
 
          pfac.factor AS price_factor,
@@ -2773,10 +2773,6 @@ sub retrieve_item {
          $ref->{"${type}_valid"})
           = selectrow_query($form, $dbh, $query, $ref->{"${type}_new_chart"});
       }
-    }
-
-    if ($form->{payment_id} eq "") {
-      $form->{payment_id} = $form->{part_payment_id};
     }
 
     # get tax rates and description
