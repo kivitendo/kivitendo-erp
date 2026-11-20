@@ -235,15 +235,15 @@ sub select_tag {
     } @{ $collection };
   }
 
+  my $width_style;
+  if ($with_filter && (($attributes{style} // '') =~ m{width: *(\d+) *px}i)) {
+    $width_style       = "width: ${1}px;";
+    $attributes{style} =~ s{width: *\d+ *px(?: *;)?}{width: 100%;};
+  }
+
   my $select_html = html_tag('select', $code, %attributes, name => $name);
 
   if ($with_filter) {
-    my $input_style;
-
-    if (($attributes{style} // '') =~ m{width: *(\d+) *px}i) {
-      $input_style = "width: " . ($1 - 22) . "px";
-    }
-
     my $input_html = html_tag(
       'input', undef,
       autocomplete     => 'off',
@@ -251,9 +251,14 @@ sub select_tag {
       id               => $attributes{id} . '_filter',
       'data-select-id' => $attributes{id},
       (placeholder     => $fil_placeholder) x !!$fil_placeholder,
-      (style           => $input_style)     x !!$input_style,
+      (style           => "width: 100%;")   x !!$width_style,
     );
-    $select_html = html_tag('div', $input_html . $select_html, class => "filtered_select");
+
+    $select_html = html_tag(
+      'div', $input_html . $select_html,
+      class  => "filtered_select",
+      (style => $width_style) x !!$width_style,
+    );
   }
 
   return $select_html;
