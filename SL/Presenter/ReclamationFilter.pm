@@ -2,6 +2,7 @@ package SL::Presenter::ReclamationFilter;
 
 use strict;
 
+use SL::DB::ReclamationReason;
 use SL::Presenter::EscapedText qw(escape is_escaped);
 use SL::Presenter::Tag qw(html_tag input_tag select_tag date_tag checkbox_tag);
 use SL::Locale::String qw(t8);
@@ -18,16 +19,13 @@ sub filter {
 
   $filter ||= undef; #filter should not be '' (empty string);
 
+  my @reasons = map {[$_->id, $_->name]}
+    grep { $reclamation_type eq 'sales_reclamation' ? !!$_->valid_for_sales : !!$_->valid_for_purchase }
+    @{SL::DB::Manager::ReclamationReason->get_all_sorted};
+
+
   my $pos = 1;
   my %default_filter_elements = ( # {{{
-    'reason_names' => {
-      'position' => $pos++,
-      'text' => t8("Reclamation Reason"),
-      'input_type' => 'input_tag',
-      'input_name' => 'filter.reclamation_items.reason.name:substr::ilike',
-      'input_default' => $filter->{reclamation_items}->{reason}->{'name:substr::ilike'},
-      'active' => 1,
-    },
     'id' => {
       'position' => $pos++,
       'text' => t8("Reclamation ID"),
@@ -45,6 +43,23 @@ sub filter {
       'input_default' =>$filter->{'record_number:substr::ilike'},
       'report_id' => 'record_number',
       'active' => 1,
+    },
+    'reason_names' => {
+      'position' => $pos++,
+      'text' => t8("Reclamation Reason"),
+      'input_type' => 'input_tag',
+      'input_name' => 'filter.reclamation_items.reason.name:substr::ilike',
+      'input_default' => $filter->{reclamation_items}->{reason}->{'name:substr::ilike'},
+      'active' => 1,
+    },
+    'reason_id' => {
+      'position'         => $pos++,
+      'text'             => t8("Reclamation Reason"),
+      'input_type'       => 'select_tag',
+      'input_name'       => 'filter.reclamation_items.reason_id',
+      'input_default'    => $filter->{reclamation_items}->{reason_id},
+      'input_collection' => \@reasons,
+      'active'           => 1,
     },
     'employee' => {
       'position' => $pos++,
@@ -386,7 +401,9 @@ sub _create_input_element {
 
   if($element_param->{input_type} eq 'input_tag') {
 
-    $element_input = input_tag($element_param->{input_name}, $element_param->{input_default});
+    $element_input = input_tag($element_param->{input_name},
+                               $element_param->{input_default},
+                               class => "wi-normal");
 
   } elsif ($element_param->{input_type} eq 'yes_no_tag') {
 
@@ -414,6 +431,13 @@ sub _create_input_element {
         html_tag('tr', $before_input)
       )
     ;
+
+  } elsif ($element_param->{input_type} eq 'select_tag') {
+    $element_input = select_tag($element_param->{input_name},
+                                $element_param->{input_collection},
+                                default    => $element_param->{input_default},
+                                with_empty => 1,
+                                class      => "wi-normal");
   }
 
   my $element_input_td =  html_tag('td',
@@ -582,6 +606,13 @@ C<input_name> is used to set the names of these fields, which should match the
 filter syntax. For the first field ":date::ge" and for the second ":date::le" is
 added to the end of C<input_name>.
 
+=item * select_tag
+
+Creates a select input field. The default value of this field is set to the
+C<input_default> entry of the filter element. C<input_name> is used to set the
+name of the field, which should match the filter syntax. C<input_collection>
+is used a the collection for the C<select_tag>.
+
 =back
 
 =item * report_id
@@ -594,7 +625,7 @@ C<$::form-E<gt>{'active_in_report'}-E<gt>{report_id}>.
 
 If falsish the element is ignored.
 
-=item * input_name, input_default, input_default_ge, input_default_le
+=item * input_name, input_default, input_default_ge, input_default_le, input_collection
 
 Look at I<input_tag> to see how they are used.
 
