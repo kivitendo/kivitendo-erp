@@ -17,9 +17,11 @@ sub filter {
   my ($filter, $reclamation_type, %params) = @_;
 
   $filter ||= undef; #filter should not be '' (empty string);
+
+  my $pos = 1;
   my %default_filter_elements = ( # {{{
     'reason_names' => {
-      'position' => 1,
+      'position' => $pos++,
       'text' => t8("Reclamation Reason"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.reclamation_items.reason.name:substr::ilike',
@@ -27,7 +29,7 @@ sub filter {
       'active' => 1,
     },
     'id' => {
-      'position' => 2,
+      'position' => $pos++,
       'text' => t8("Reclamation ID"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.id:number',
@@ -36,7 +38,7 @@ sub filter {
       'active' => 0,
     },
     'record_number' => {
-      'position' => 3,
+      'position' => $pos++,
       'text' => t8("Reclamation Number"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.record_number:substr::ilike',
@@ -45,7 +47,7 @@ sub filter {
       'active' => 1,
     },
     'employee' => {
-      'position' => 4,
+      'position' => $pos++,
       'text' => t8("Employee Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.employee.name:substr::ilike',
@@ -54,7 +56,7 @@ sub filter {
       'active' => 1,
     },
     'salesman' => {
-      'position' => 5,
+      'position' => $pos++,
       'text' => t8("Salesman Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.salesman.name:substr::ilike',
@@ -62,9 +64,9 @@ sub filter {
       'report_id' => 'salesman',
       'active' => 1,
     },
-    # 6,7 for Customer/Vendor
+    # same pos for Customer/Vendor
     'customer' => {
-      'position' => 6,
+      'position' => $pos,
       'text' => t8("Customer Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.customer.name:substr::ilike',
@@ -73,7 +75,7 @@ sub filter {
       'active' => ($reclamation_type eq 'sales_reclamation' ? 1 : 0),
     },
     'vendor' => {
-      'position' => 6,
+      'position' => $pos++,
       'text' => t8("Vendor Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.vendor.name:substr::ilike',
@@ -82,7 +84,7 @@ sub filter {
       'active' => ($reclamation_type eq 'purchase_reclamation' ? 1 : 0),
     },
     'customer_number' => {
-      'position' => 7,
+      'position' => $pos,
       'text' => t8("Customer Number"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.customer.customernumber:substr::ilike',
@@ -90,7 +92,7 @@ sub filter {
       'active' => ($reclamation_type eq 'sales_reclamation' ? 1 : 0),
     },
     'vendor_number' => {
-      'position' => 7,
+      'position' => $pos++,
       'text' => t8("Vendor Number"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.vendor.vendornumber:substr::ilike',
@@ -98,7 +100,7 @@ sub filter {
       'active' => ($reclamation_type eq 'purchase_reclamation' ? 1 : 0),
     },
     'contact_name' => {
-      'position' => 8,
+      'position' => $pos++,
       'text' => t8("Contact Name"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.contact.cp_name:substr::ilike',
@@ -107,7 +109,7 @@ sub filter {
       'active' => 1,
     },
     'language_code' => {
-      'position' => 9,
+      'position' => $pos++,
       'text' => t8("Language Code"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.language.article_code:substr::ilike',
@@ -116,7 +118,7 @@ sub filter {
       'active' => 1,
     },
     'department_description' => {
-      'position' => 10,
+      'position' => $pos++,
       'text' => t8("Department Description"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.department.description:substr::ilike',
@@ -125,7 +127,7 @@ sub filter {
       'active' => 1,
     },
     'globalproject_projectnumber' => {
-      'position' => 11,
+      'position' => $pos++,
       'text' => t8("Project Number"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.globalproject.projectnumber:substr::ilike',
@@ -134,7 +136,7 @@ sub filter {
       'active' => 1,
     },
     'globalproject_description' => {
-      'position' => 12,
+      'position' => $pos++,
       'text' => t8("Project Description"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.globalproject.description:substr::ilike',
@@ -142,7 +144,7 @@ sub filter {
       'active' => 1,
     },
     'cv_record_number' => {
-      'position' => 13,
+      'position' => $pos++,
       'text' => ($reclamation_type eq 'sales_reclamation'
                   ? t8("Customer Record Number")
                   : t8("Vendor Record Number")
@@ -154,7 +156,7 @@ sub filter {
       'active' => 1,
     },
     'transaction_description' => {
-      'position' => 14,
+      'position' => $pos++,
       'text' => t8("Transaction description"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.transaction_description:substr::ilike',
@@ -163,7 +165,7 @@ sub filter {
       'active' => 1,
     },
     'notes' => {
-      'position' => 15,
+      'position' => $pos++,
       'text' => t8("Notes"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.notes:substr::ilike',
@@ -172,7 +174,7 @@ sub filter {
       'active' => 1,
     },
     'intnotes' => {
-      'position' => 16,
+      'position' => $pos++,
       'text' => t8("Internal Notes"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.intnotes:substr::ilike',
@@ -181,7 +183,7 @@ sub filter {
       'active' => 1,
     },
     'shippingpoint' => {
-      'position' => 17,
+      'position' => $pos++,
       'text' => t8("Shipping Point"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.shippingpoint:substr::ilike',
@@ -190,7 +192,7 @@ sub filter {
       'active' => 1,
     },
     'shipvia' => {
-      'position' => 18,
+      'position' => $pos++,
       'text' => t8("Ship via"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.shipvia:substr::ilike',
@@ -199,7 +201,7 @@ sub filter {
       'active' => 1,
     },
     'amount' => {
-      'position' => 19,
+      'position' => $pos++,
       'text' => t8("Total"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.amount:number',
@@ -208,7 +210,7 @@ sub filter {
       'active' => 1,
     },
     'netamount' => {
-      'position' => 20,
+      'position' => $pos++,
       'text' => t8("Subtotal"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.netamount:number',
@@ -217,7 +219,7 @@ sub filter {
       'active' => 1,
     },
     'delivery_term_description' => {
-      'position' => 21,
+      'position' => $pos++,
       'text' => t8("Delivery Terms"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.delivery_term.description:substr::ilike',
@@ -226,7 +228,7 @@ sub filter {
       'active' => 1,
     },
     'payment_description' => {
-      'position' => 22,
+      'position' => $pos++,
       'text' => t8("Payment Terms"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.payment.description:substr::ilike',
@@ -235,7 +237,7 @@ sub filter {
       'active' => 1,
     },
     'currency_name' => {
-      'position' => 23,
+      'position' => $pos++,
       'text' => t8("Currency"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.currency.name:substr::ilike',
@@ -244,7 +246,7 @@ sub filter {
       'active' => 1,
     },
     'exchangerate' => {
-      'position' => 24,
+      'position' => $pos++,
       'text' => t8("Exchangerate"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.exchangerate:number',
@@ -253,7 +255,7 @@ sub filter {
       'active' => 1,
     },
     'taxincluded' => {
-      'position' => 25,
+      'position' => $pos++,
       'text' => t8("Tax Included"),
       'input_type' => 'yes_no_tag',
       'input_name' => 'filter.taxincluded',
@@ -262,7 +264,7 @@ sub filter {
       'active' => 1,
     },
     'taxzone_description' => {
-      'position' => 26,
+      'position' => $pos++,
       'text' => t8("Tax zone"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.taxzone.description:substr::ilike',
@@ -271,7 +273,7 @@ sub filter {
       'active' => 1,
     },
     'tax_point' => {
-      'position' => 27,
+      'position' => $pos++,
       'text' => t8("Tax point"),
       'input_type' => 'date_tag',
       'input_name' => 'tax_point',
@@ -281,7 +283,7 @@ sub filter {
       'active' => 1,
     },
     'reqdate' => {
-      'position' => 28,
+      'position' => $pos++,
       'text' => t8("Deadline"),
       'input_type' => 'date_tag',
       'input_name' => 'reqdate',
@@ -291,7 +293,7 @@ sub filter {
       'active' => 1,
     },
     'transdate' => {
-      'position' => 29,
+      'position' => $pos++,
       'text' => t8("Booking Date"),
       'input_type' => 'date_tag',
       'input_name' => 'transdate',
@@ -301,7 +303,7 @@ sub filter {
       'active' => 1,
     },
     'itime' => {
-      'position' => 30,
+      'position' => $pos++,
       'text' => t8("Creation Time"),
       'input_type' => 'date_tag',
       'input_name' => 'itime',
@@ -311,7 +313,7 @@ sub filter {
       'active' => 1,
     },
     'mtime' => {
-      'position' => 31,
+      'position' => $pos++,
       'text' => t8("Last modification Time"),
       'input_type' => 'date_tag',
       'input_name' => 'mtime',
@@ -321,7 +323,7 @@ sub filter {
       'active' => 1,
     },
     'delivered' => {
-      'position' => 32,
+      'position' => $pos++,
       'text' => t8("Delivered"),
       'input_type' => 'yes_no_tag',
       'input_name' => 'filter.delivered',
@@ -330,7 +332,7 @@ sub filter {
       'active' => 1,
     },
     'closed' => {
-      'position' => 33,
+      'position' => $pos++,
       'text' => t8("Closed"),
       'input_type' => 'yes_no_tag',
       'input_name' => 'filter.closed',
