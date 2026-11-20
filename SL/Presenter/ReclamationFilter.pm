@@ -62,6 +62,22 @@ sub filter {
       'report_id'        => 'reasons',
       'active'           => 1,
     },
+    'part_number' => {
+      'position'      => $pos++,
+      'text'          => t8("Part Number"),
+      'input_type'    => 'input_tag',
+      'input_name'    => 'filter.reclamation_items.part.partnumber:substr::ilike',
+      'input_default' => $filter->{reclamation_items}{part}{'partnumber:substr::ilike'},
+      'active'        => 1,
+    },
+    'part_description' => {
+      'position'      => $pos++,
+      'text'          => t8("Part Description"),
+      'input_type'    => 'input_tag',
+      'input_name'    => 'filter.reclamation_items.part.description:substr::ilike',
+      'input_default' => $filter->{reclamation_items}{part}{'description:substr::ilike'},
+      'active'        => 1,
+    },
     'employee' => {
       'position' => $pos++,
       'text' => t8("Employee Name"),
