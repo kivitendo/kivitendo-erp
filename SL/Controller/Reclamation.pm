@@ -1192,7 +1192,7 @@ sub init_models {
       department              => t8('Department'),
       globalproject           => t8('Project Number'),
       cv_record_number        => ($self->type_data->properties('is_customer') ? t8('Customer Record Number') : t8('Vendor Record Number')),
-      transaction_description => t8('Description'),
+      transaction_description => t8('Transaction description'),
       notes                   => t8('Notes'),
       intnotes                => t8('Internal Notes'),
       shippingpoint           => t8('Shipping Point'),

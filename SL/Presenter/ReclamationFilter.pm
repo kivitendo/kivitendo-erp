@@ -155,7 +155,7 @@ sub filter {
     },
     'transaction_description' => {
       'position' => 14,
-      'text' => t8("Description"),
+      'text' => t8("Transaction description"),
       'input_type' => 'input_tag',
       'input_name' => 'filter.transaction_description:substr::ilike',
       'input_default' =>$filter->{'transaction_description:substr::ilike'},
