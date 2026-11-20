@@ -152,7 +152,7 @@
 <div id="email_form_print_options"></div>
 
 <div class="buttons">
-  [% L.button_tag(email_form.js_send_function, LxERP.t8("Send email")) %]
+  [% L.button_tag(email_form.js_send_function, LxERP.t8("Send email"), id="send_email") %]
   [% L.button_tag("\$('#send_email_dialog').dialog('close');", LxERP.t8("Abort"), class="button neutral") %]
 </div>
 
