@@ -323,6 +323,22 @@ sub action_save_as_new {
   $self->action_save();
 }
 
+# close a already saved order (subversion potentially already sent via email and thus locked)
+sub action_close_order {
+  my ($self) = @_;
+
+  $self->order->update_attributes(
+    closed => 1
+  );
+
+  $self->js
+    ->flash("info", t8("The record has been closed."))
+    ->run('kivi.ActionBar.setDisabled', '#close_order',
+          t8('This record has already been closed.'))
+    ->val('#order_closed', 1)
+    ->render
+}
+
 # print the order
 #
 # This is called if "print" is pressed in the print dialog.
@@ -2439,6 +2455,15 @@ sub setup_edit_action_bar {
           disabled => !$may_edit_create  ? t8('You do not have the permissions to access this function.')
                     : !$is_final_version ? t8('This sub-version is not yet finalized')
                     :                      undef,
+        ],
+        action => [
+          t8('Mark as closed'),
+          id       => 'close_order',
+          call     => [ 'kivi.Order.close_order' ],
+          disabled => !$may_edit_create    ? t8('You do not have the permissions to access this function.')
+                    : !$self->order->id    ? t8('This object has not been saved yet.')
+                    : $self->order->closed ? t8('This record has already been closed.')
+                    :                        undef,
         ],
         action => [
           t8('Save as new'),
