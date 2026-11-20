@@ -67,12 +67,6 @@
         <td>[% L.select_tag('part.buchungsgruppen_id', SELF.all_buchungsgruppen, default=SELF.part.buchungsgruppen_id, title_key='description', value_key='id', with_empty=0, class='wi-wide') %]</td>
       </tr>
       [% END %]
-      [% IF SELF.all_payment_terms.size %]
-      <tr>
-        <th>[% 'Payment Terms' | $T8 %]</th>
-        <td>[% L.select_tag('part.payment_id', SELF.all_payment_terms, default=SELF.part.payment_id, title_key='description', value_key='id', with_empty=1, class='wi-wide') %]</td>
-      </tr>
-      [% END %]
       <tr>
         <th> <label for="order_locked">[% 'Do not order anymore' | $T8 %]</label> </th>
         <td>[% L.checkbox_tag('part.order_locked', checked = SELF.part.order_locked, for_submit=1) %]</td>

@@ -42,7 +42,7 @@ use Rose::Object::MakeMethods::Generic (
                                   orphaned
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
-                                  all_buchungsgruppen all_payment_terms all_warehouses
+                                  all_buchungsgruppen all_warehouses
                                   parts_classification_filter
                                   all_languages all_units all_price_factors
                                   all_businesses) ],
@@ -1487,11 +1487,6 @@ sub init_all_units {
   } else {
     return SL::DB::Manager::Unit->get_all(where => [ unit => $self->part->unit ]);
   }
-}
-
-sub init_all_payment_terms {
-  my ($self) = @_;
-  SL::DB::Manager::PaymentTerm->get_all_sorted(query => [ or => [ id => $self->part->payment_id, obsolete => 0 ] ]);
 }
 
 sub init_all_price_factors {

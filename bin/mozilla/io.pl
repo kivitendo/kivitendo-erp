@@ -790,10 +790,6 @@ sub item_selected {
 
     $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
-    if ($form->{"part_payment_id_$i"} ne "") {
-      $form->{payment_id} = $form->{"part_payment_id_$i"};
-    }
-
     my ($dec)         = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
     $dec              = length $dec;
     my $decimalplaces = ($dec > 2) ? $dec : 2;
