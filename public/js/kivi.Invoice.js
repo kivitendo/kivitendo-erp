@@ -273,6 +273,20 @@ namespace('kivi.Invoice', function(ns) {
     }
   };
 
+  ns.update_duedate = function(event) {
+    var data = {
+      action:     'set_duedate',
+      type:        $('#type').val(),
+      transdate:   $('#record_transdate').val(),
+      duedate:     $('#record_duedate').val(),
+      payment_id:  $('#record_payment_id').val(),
+      customer_id: $('#record_customer_id').val(),
+      vendor_id:   $('#record_vendor_id').val(),
+      action:      'Invoice/set_duedate',
+    };
+    $.post('controller.pl', data, kivi.eval_json_result);
+  }
+
   ns.recalc_amounts_and_taxes = function() {
     if (!kivi.validate_form('#invoice_form')) return;
 
@@ -487,7 +501,7 @@ namespace('kivi.Invoice', function(ns) {
     // var elt = $('.row_entry [data-position="' + wanted_pos + '"]');
     $('.row_entry').each(function(idx, elt) {
       if ($(elt).data("position") == wanted_pos) {
-        insert_before_item_id = $(elt).find('[name="item_ids[+]"]').val();
+        insert_before_item_id = $(elt).find('[name="items[+]"]').val();
         return false;
       }
     });
@@ -570,7 +584,7 @@ namespace('kivi.Invoice', function(ns) {
   ns.price_chooser_item_row = function(clicked) {
     if (!ns.check_cv()) return;
     var row         = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="items[+]"]');
 
     var data = $('#invoice_form').serializeArray();
     data.push({ name: 'action',  value: 'Invoice/price_popup' },
@@ -659,7 +673,7 @@ namespace('kivi.Invoice', function(ns) {
 
   ns.update_row_from_master_data = function(clicked) {
     var row = $(clicked).parents("tbody").first();
-    var item_id_dom = $(row).find('[name="item_ids[+]"]');
+    var item_id_dom = $(row).find('[name="items[+]"]');
 
     var data = $('#invoice_form').serializeArray();
     data.push({ name: 'action', value: 'Invoice/update_row_from_master_data' });
@@ -670,7 +684,7 @@ namespace('kivi.Invoice', function(ns) {
 
   ns.update_all_rows_from_master_data = function() {
     var item_ids = $.map($('.row_entry'), function(elt) {
-      var item_id = $(elt).find('[name="item_ids[+]"]').val();
+      var item_id = $(elt).find('[name="items[+]"]').val();
       return { name: 'item_ids[]', value: item_id };
     });
 
@@ -755,12 +769,16 @@ namespace('kivi.Invoice', function(ns) {
 $(function() {
   if ($('#record_customer_id').length) {
     $('#record_customer_id').change(kivi.Invoice.reload_cv_dependent_selections);
+    $('#record_customer_id').change(kivi.Invoice.update_duedate);
   } else {
     $('#record_vendor_id').change(kivi.Invoice.reload_cv_dependent_selections);
+    $('#record_vendor_id').change(kivi.Invoice.update_duedate);
   }
 
   $('#record_currency_id').change(kivi.Invoice.update_exchangerate);
-  $('#record_transdate_as_date').change(kivi.Invoice.update_exchangerate);
+  $('#record_transdate').change(kivi.Invoice.update_exchangerate);
+  $('#record_transdate').change(kivi.Invoice.update_duedate);
+  $('#record_payment_id').change(kivi.Invoice.update_duedate);
   $('#record_exchangerate_as_null_number').change(kivi.Invoice.exchangerate_changed);
 
   $('#add_item_parts_id').on('set_item:PartPicker', function() {
