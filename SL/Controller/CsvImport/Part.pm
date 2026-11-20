@@ -170,7 +170,6 @@ sub check_objects {
     $self->check_part_type($entry);
     $self->check_unit($entry);
     $self->check_price_factor($entry);
-    $self->check_payment($entry);
     $self->check_partsgroup($entry);
     $self->check_warehouse_and_bin($entry);
     $self->handle_pricegroups($entry);
@@ -187,7 +186,7 @@ sub check_objects {
 
   $self->add_columns(qw(part_type classification_id)) if $self->settings->{part_type} eq 'mixed';
   $self->add_columns(qw(buchungsgruppen_id unit));
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup warehouse bin));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor partsgroup warehouse bin));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
   $self->add_cvar_raw_data_columns;
   map { $self->add_raw_data_columns("pricegroup_${_}") if exists $self->controller->data->[0]->{raw_data}->{"pricegroup_$_"} } (1..scalar(@{ $self->all_pricegroups }));
@@ -329,7 +328,6 @@ sub check_existing {
                                                                            drawing ve gv
                                                                            unit
                                                                            has_sernumber not_discountable obsolete
-                                                                           payment_id
                                                                            sellprice listprice lastcost);
 
       if (defined $raw->{"sellprice"} || defined $raw->{"listprice"} || defined $raw->{"lastcost"}) {
@@ -557,7 +555,7 @@ sub check_partsgroup {
 
     $object->partsgroup_id($pg->id);
   }
-  # register payment_id for method copying later
+  # register partsgroup_id for method copying later
   $self->clone_methods->{partsgroup_id} = 1;
 
   return 1;
@@ -732,8 +730,6 @@ sub setup_displayable_columns {
                                  { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')                             },
                                  { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')                                    },
                                  { name => 'part_classification',description => $::locale->text('Article classification')  . ' [3]'                     },
-                                 { name => 'payment_id',         description => $::locale->text('Payment terms (database ID)')                          },
-                                 { name => 'payment',            description => $::locale->text('Payment terms (name)')                                 },
                                  { name => 'price_factor_id',    description => $::locale->text('Price factor (database ID)')                           },
                                  { name => 'price_factor',       description => $::locale->text('Price factor (name)')                                  },
                                  { name => 'rop',                description => $::locale->text('ROP')                                                  },

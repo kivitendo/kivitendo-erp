@@ -37,7 +37,6 @@ __PACKAGE__->meta->columns(
   part_type          => { type => 'enum', check_in => [ 'part', 'service', 'assembly', 'assortment' ], db_type => 'part_type_enum', not_null => 1 },
   partnumber         => { type => 'text', not_null => 1 },
   partsgroup_id      => { type => 'integer' },
-  payment_id         => { type => 'integer' },
   price_factor_id    => { type => 'integer' },
   priceupdate        => { type => 'date', default => 'now' },
   rop                => { type => 'float', precision => 4, scale => 4 },
@@ -76,11 +75,6 @@ __PACKAGE__->meta->foreign_keys(
   partsgroup => {
     class       => 'SL::DB::PartsGroup',
     key_columns => { partsgroup_id => 'id' },
-  },
-
-  payment => {
-    class       => 'SL::DB::PaymentTerm',
-    key_columns => { payment_id => 'id' },
   },
 
   price_factor => {
