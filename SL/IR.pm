@@ -1020,6 +1020,7 @@ sub delete_invoice {
     my @values = (conv_i($form->{id}));
 
     my @queries = (
+      qq|UPDATE ap SET storno = 'f', paid = paid - amount WHERE id = (SELECT storno_id FROM ap WHERE id = ?)|,
       qq|DELETE FROM invoice WHERE trans_id = ?|,
       qq|DELETE FROM ap WHERE id = ?|,
     );
