@@ -13,6 +13,10 @@ Wichtige Hinweise:
   geschrieben wird, entstehen dadurch keine Duplikate beim Rückimport der ab
   Version 3.9.1 erzeugten SEPA-Anweisungen.
 
+- Das Feld »Zahlungsbedingungen« in den Artikel-Stammdaten wurde entfernt.
+  Die Verknüpfung mit den in den Artikel-Stammdaten gespeicherte Zahlungsbedingungen
+  geht beim Update verloren.
+
 Upgrade auf v4.1.0
 
 Es sind keine neuen Perl-Abhängigkeiten hinzugekommen.
