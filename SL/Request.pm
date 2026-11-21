@@ -299,9 +299,11 @@ sub read_cgi_input {
   _input_to_hash($data_to_decode, $ENV{QUERY_STRING}, 1) if $ENV{QUERY_STRING};
   _input_to_hash($data_to_decode, $ARGV[0],           1) if @ARGV && $ARGV[0];
 
-  if ($ENV{CONTENT_LENGTH}) {
+  if ($::REQ_BODY || $ENV{CONTENT_LENGTH}) {
     my $content;
+    if ($::REQ_BODY) { $content = $::REQ_BODY; } else {
     read STDIN, $content, $ENV{CONTENT_LENGTH};
+    }
 
     if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
       $self->post_data({});
