@@ -270,6 +270,11 @@
         <td class="long-desc">[% LxERP.t8('If enabled purchase and sales records cannot be saved if no transaction description has been entered.') %]</td>
       </tr>
       <tr>
+        <th>[% LxERP.t8('Require a transaction description in sales quotations') %]</th>
+        <td>[% L.yes_no_tag('defaults.require_transaction_description_sales_quotation', SELF.defaults.require_transaction_description_sales_quotation) %]</td>
+        <td class="long-desc">[% LxERP.t8('If enabled, overwrites the previous setting for sales quotations only.') %]</td>
+      </tr>
+      <tr>
         <th>[% LxERP.t8("Only list customer's projects in sales records") %]</th>
         <td>[% L.yes_no_tag("defaults.customer_projects_only_in_sales", SELF.defaults.customer_projects_only_in_sales) %]</td>
         <td class="long-desc">[% LxERP.t8("If enabled only those projects that are assigned to the currently selected customer are offered for selection in sales records.") %]</td>
