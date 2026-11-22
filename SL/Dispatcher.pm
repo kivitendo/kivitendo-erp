@@ -583,13 +583,13 @@ sub _cache_file_modification_times {
   require POSIX;
 
   my $wanted = sub {
-    return unless $File::Find::name =~ m/\.(?:pm|f?pl|html|conf|conf\.default)$/;
+    return unless $File::Find::name =~ m/\.(?:pm|pl|html|conf|conf\.default)$/;
     $fcgi_file_cache{ $File::Find::name } = (stat $File::Find::name)[9];
   };
 
   my $cwd = POSIX::getcwd();
   File::Find::find($wanted, map { "${cwd}/${_}" } qw(config bin SL templates/design40_webpages));
-  map { my $name = "${cwd}/${_}"; $fcgi_file_cache{$name} = (stat $name)[9] } qw(admin.pl dispatcher.fpl);
+  map { my $name = "${cwd}/${_}"; $fcgi_file_cache{$name} = (stat $name)[9] } qw(cgi/dispatcher.pl fcgi/dispatcher.fcgi);
 }
 
 sub _watch_for_changed_files {
