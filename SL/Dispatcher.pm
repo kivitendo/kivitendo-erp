@@ -370,8 +370,8 @@ sub handle_request {
 
   if ($self->_interface_is_fcgi) {
     # fcgi? send send reponse on its way before cleanup.
-    $self->{request}->Flush;
-    $self->{request}->Finish;
+    #$self->{request}->Flush;
+    #$self->{request}->Finish;
   }
 
   $::lxdebug->end_request(routing_type => $routing_type, script_name => $script_name, action => $action);
