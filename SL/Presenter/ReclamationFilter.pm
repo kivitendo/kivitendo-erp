@@ -59,6 +59,7 @@ sub filter {
       'input_name'       => 'filter.reclamation_items.reason_id',
       'input_default'    => $filter->{reclamation_items}->{reason_id},
       'input_collection' => \@reasons,
+      'report_id'        => 'reasons',
       'active'           => 1,
     },
     'employee' => {

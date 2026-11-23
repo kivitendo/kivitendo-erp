@@ -1213,6 +1213,7 @@ sub init_models {
       mtime                   => t8('Last modification Time'),
       delivered               => t8('Delivered'),
       closed                  => t8('Closed'),
+      reasons                 => t8("Reclamation Reasons"),
     },
     query => [
       SL::DB::Manager::Reclamation->type_filter($self->type),
@@ -1225,6 +1226,7 @@ sub init_models {
         'customer',      'vendor',   'employee',   'salesman',
         'contact',       'language', 'department', 'globalproject',
         'delivery_term', 'payment',  'currency',   'taxzone',
+        'reclamation_items', 'reclamation_items.reason',
       ],
     );
 }
@@ -1734,6 +1736,7 @@ sub prepare_report {
     department
     globalproject
     cv_record_number
+    reasons
     transaction_description
     notes
     intnotes
@@ -1890,6 +1893,14 @@ sub prepare_report {
     },
     closed => {
       sub      => sub { $_[0]->closed ? t8('Yes') : t8('No') },
+    },
+    reasons => {
+      sub      => sub { join(', ', map {$_->reason->name} @{$_[0]->items_sorted}) },
+      # When reclamtions are filtered by an item attribute (reasons/partnumbers),
+      # only items matching the filter are in the reason objects. So only these
+      # reasons are shown. If all reaseons should be displayed, the reason objects
+      # has to be newly loaded, but that might be a performance issue. E.g.:
+      # sub      => sub { my $obj = SL::DB::Reclamation->new(id => $_[0]->id)->load(with => ['reclamation_items', 'reclamation_items.reason']); join(', ', map {$_->reason->name} @{$obj->items_sorted}) },
     },
   );
   if ($self->type_data->properties('is_customer')) {
