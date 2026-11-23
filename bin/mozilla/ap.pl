@@ -1789,7 +1789,6 @@ sub setup_search_profile_manager {
     ],
     defaults => {
       map({ ($_ => 1) } qw(open l_transdate l_invnumber l_amount l_paid l_name)),
-      l_transaction_description => $::instance_conf->get_require_transaction_description_ps,
     },
   );
 }
