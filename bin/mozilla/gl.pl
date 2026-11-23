@@ -1320,7 +1320,8 @@ sub post_transaction {
   $form->isblank("reference",               $locale->text('Reference missing!'));
   $form->isblank("transdate",               $locale->text('Transaction Date missing!'));
   $form->isblank("description",             $locale->text('Description missing!'));
-  $form->isblank("transaction_description", $locale->text('A transaction description is required.')) if $::instance_conf->get_require_transaction_description_ps;
+  $form->isblank("transaction_description", $locale->text('A transaction description is required.')) if !grep { 'gl_transaction' eq $_ }
+         @{$::instance_conf->get_allowed_documents_with_no_transaction_description() || []};
 
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);

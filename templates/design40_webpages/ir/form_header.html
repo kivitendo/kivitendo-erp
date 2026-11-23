@@ -181,7 +181,7 @@
     [% END %]
     <tr>
       <th>[% 'Transaction description' | $T8 %]</th>
-      <td class="wi-wide">[% L.input_tag("transaction_description", transaction_description, "data-validate"=INSTANCE_CONF.get_require_transaction_description_ps ? 'required' : '') %]</td>
+      <td class="wi-wide">[% L.input_tag("transaction_description", transaction_description, "data-validate"=INSTANCE_CONF.get_allowed_documents_with_no_transaction_description.grep('^purchase_invoice$').size ? '' : 'required') %]</td>
     </tr>
   </tbody>
   </table>
