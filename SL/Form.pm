@@ -1124,15 +1124,22 @@ sub get_formname_translation {
   local $::locale = Locale->new($self->{recipient_locale});
 
   my %formname_translations = (
+    ar_transaction              => $main::locale->text('AR Transaction'),
+    ar_transaction_storno       => $main::locale->text('Storno AR Transaction'),
     bin_list                    => $main::locale->text('Bin List'),
     credit_note                 => $main::locale->text('Credit Note'),
+    credit_note_storno          => $main::locale->text('Storno Credit Note'),
     invoice                     => $main::locale->text('Invoice'),
     invoice_copy                => $main::locale->text('Invoice Copy'),
     invoice_for_advance_payment => $main::locale->text('Invoice for Advance Payment'),
+    invoice_for_advance_payment_storno => $main::locale->text('Storno Invoice for Advance Payment'),
+    invoice_storno              => $main::locale->text('Storno Invoice'),
     final_invoice               => $main::locale->text('Final Invoice'),
     pick_list                   => $main::locale->text('Pick List'),
     proforma                    => $main::locale->text('Proforma Invoice'),
     payment_in_advance          => $main::locale->text('Payment in Advance'),
+    purchase_credit_note        => $main::locale->text('Purchase Credit Note'),
+    purchase_invoice            => $main::locale->text('Purchase Invoice'),
     purchase_order              => $main::locale->text('Purchase Order'),
     purchase_order_confirmation => $main::locale->text('Purchase Order Confirmation'),
     request_quotation           => $main::locale->text('RFQ'),
