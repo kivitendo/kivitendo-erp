@@ -1214,6 +1214,7 @@ sub init_models {
       delivered               => t8('Delivered'),
       closed                  => t8('Closed'),
       reasons                 => t8("Reclamation Reasons"),
+      partnumbers             => t8("Part numbers"),
     },
     query => [
       SL::DB::Manager::Reclamation->type_filter($self->type),
@@ -1226,7 +1227,7 @@ sub init_models {
         'customer',      'vendor',   'employee',   'salesman',
         'contact',       'language', 'department', 'globalproject',
         'delivery_term', 'payment',  'currency',   'taxzone',
-        'reclamation_items', 'reclamation_items.reason',
+        'reclamation_items', 'reclamation_items.reason', 'reclamation_items.part',
       ],
     );
 }
@@ -1737,6 +1738,7 @@ sub prepare_report {
     globalproject
     cv_record_number
     reasons
+    partnumbers
     transaction_description
     notes
     intnotes
@@ -1901,6 +1903,10 @@ sub prepare_report {
       # reasons are shown. If all reaseons should be displayed, the reason objects
       # has to be newly loaded, but that might be a performance issue. E.g.:
       # sub      => sub { my $obj = SL::DB::Reclamation->new(id => $_[0]->id)->load(with => ['reclamation_items', 'reclamation_items.reason']); join(', ', map {$_->reason->name} @{$obj->items_sorted}) },
+    },
+    partnumbers => {
+      sub      => sub { join(', ', map {$_->part->partnumber} @{$_[0]->items_sorted}) },
+      # sub      => sub { my $obj = SL::DB::Reclamation->new(id => $_[0]->id)->load(with => ['reclamation_items', 'reclamation_items.part']); join(', ', map {$_->part->partnumber} @{$obj->items_sorted}) },
     },
   );
   if ($self->type_data->properties('is_customer')) {
