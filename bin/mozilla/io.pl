@@ -686,7 +686,6 @@ sub select_item {
 sub item_selected {
 
   # this function is used for adding parts to records (mode = IR/IS)
-  # and to assemblies (mode = IC)
 
   $main::lxdebug->enter_sub();
 
@@ -698,7 +697,7 @@ sub item_selected {
   $::auth->restore_form_from_session($form->{select_item_previous_form} || croak('Missing previous form ID'), form => $form);
 
   my $mode     = delete($form->{select_item_mode}) || croak 'Missing item selection mode';
-  my $row_key  = $mode eq 'IC' ? 'assembly_rows' : 'rowcount';
+  my $row_key  = 'rowcount';
   my $curr_row = $form->{ $row_key };
 
   my $row = $curr_row;
@@ -721,17 +720,10 @@ sub item_selected {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(sellprice weight);
 
-  if ( $mode eq 'IC' ) {
-    # assembly mode:
-    # the qty variables of the existing assembly items are all still formatted, so we parse them here
-    # including the qty of the just added part
-    $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for (1 .. $row - 1);
-  } else {
-    if ($myconfig{item_multiselect}) {
-      # other modes and multiselection:
-      # parse all newly entered qtys
-      $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for ($curr_row .. $row - 1);
-    }
+  if ($myconfig{item_multiselect}) {
+    # other modes and multiselection:
+    # parse all newly entered qtys
+    $form->{"qty_$_"} = $form->parse_amount(\%myconfig, $form->{"qty_$_"}) for ($curr_row .. $row - 1);
   }
 
   for my $i ($curr_row .. $row - 1) {
@@ -745,8 +737,6 @@ sub item_selected {
       IS->retrieve_item(\%myconfig, \%$form);
     } elsif ($mode eq 'IR') {
       IR->retrieve_item(\%myconfig, \%$form);
-    } elsif ($mode eq 'IC') {
-      IC->assembly_item(\%myconfig, \%$form);
     } else {
       croak "Invalid item selection mode '${mode}'";
     }
@@ -755,9 +745,7 @@ sub item_selected {
 
     # if there was a price entered, override it
     my $sellprice;
-    unless ( $mode eq 'IC' ) {
       $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
-    };
 
     my @new_fields =
         qw(id partnumber description sellprice listprice inventory_accno
