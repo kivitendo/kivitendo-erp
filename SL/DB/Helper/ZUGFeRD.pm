@@ -133,10 +133,6 @@ sub _buyer_contact_information {
 
   $params{xml}->dataElement("ram:PersonName", _u8(join(" ", $contact->cp_givenname, $contact->cp_name)));
 
-  if ($contact->cp_abteilung) {
-    $params{xml}->dataElement("ram:DepartmentName", _u8($contact->cp_abteilung));
-  }
-
   my $phone_number = first {$_} (
     $contact->cp_phone1,
     $contact->cp_phone2,
