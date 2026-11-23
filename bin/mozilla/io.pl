@@ -776,7 +776,8 @@ sub item_selected {
 
       if ($best_price) {
         $::form->{"sellprice_$i"}           = $best_price->price;
-        $::form->{"active_price_source_$i"} = $best_price->source;
+        $::form->{"active_price_source_$i"} = $::instance_conf->get_prices_always_free ? ""
+                                                                                       : $best_price->source;
       }
 
       my $best_discount = $price_source->best_discount;
