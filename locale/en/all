@@ -2964,6 +2964,7 @@ $self->{texts} = {
   'Part is ambiguous'           => '',
   'Part marked as "Shop part"'  => '',
   'Part not found'              => '',
+  'Part numbers'                => '',
   'Part picker'                 => '',
   'Part picker search dialog (magnifying glass): "all as list" defaults to on' => '',
   'Part successful counted'     => '',

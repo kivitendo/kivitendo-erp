@@ -68,6 +68,7 @@ sub filter {
       'input_type'    => 'input_tag',
       'input_name'    => 'filter.reclamation_items.part.partnumber:substr::ilike',
       'input_default' => $filter->{reclamation_items}{part}{'partnumber:substr::ilike'},
+      'report_id'     => 'partnumbers',
       'active'        => 1,
     },
     'part_description' => {
