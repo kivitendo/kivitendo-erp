@@ -257,7 +257,9 @@ sub init_available_documents_with_no_transaction_description {
   my @docs = ( @{SL::DB::Order::TypeData::valid_types()},
                @{SL::DB::DeliveryOrder::TypeData::valid_types()},
                @{SL::DB::Reclamation::TypeData::valid_types()},
-               qw(invoice purchase_invoice ar_transaction ap_transaction gl_transaction) );
+               (grep { $_ !~ m/_storno$/ } @{SL::DB::Invoice::TypeData::valid_types()}),
+               (grep { $_ !~ m/_storno$/ } @{SL::DB::PurchaseInvoice::TypeData::valid_types()}),
+               qw(gl_transaction) );
 
   my @available_docs = map { {name => $_, description => $::form->get_formname_translation($_)} } @docs;
 

@@ -247,6 +247,10 @@ sub save {
 
   # Test for no transaction description
   if (! $record->transaction_description
+
+      # Storno record types are filled automatically, so skip the check for them
+      && ($record->record_type !~ m/_storno$/)
+
       && !grep { $record->record_type eq $_ }
          @{$::instance_conf->get_allowed_documents_with_no_transaction_description() || []}) {
     die t8('The action you\'ve chosen has not been executed because the transaction description is empty.');
