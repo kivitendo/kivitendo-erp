@@ -34,7 +34,7 @@ sub bank_transfer_add {
     $form->error($locale->text('You have not added bank accounts yet.'));
   }
 
-  my $invoices = SL::SEPA->retrieve_open_invoices(vc => $vc);
+  my $invoices = SL::SEPA->retrieve_open_invoices(vc => $vc, filter => $form->{filter});
 
   if (!scalar @{ $invoices }) {
     $form->show_generic_information($locale->text('Either there are no open invoices, or you have already initiated bank transfers ' .
@@ -79,6 +79,16 @@ sub bank_transfer_add {
     my $prefix_vc_number             = $translations{ $invoice->{language_id} } || $translations{default} || $vc_no;
     $prefix_vc_number               .= ' ' unless $prefix_vc_number =~ m/ $/;
     $invoice->{reference_prefix_vc}  = ' '  . $prefix_vc_number unless $prefix_vc_number =~ m/^ /;
+  }
+
+  # set filter summary text
+  $form->{summary_text} = '';
+  if ($form->{filter} && any { $_ ne '' } values %{$form->{filter}}) {
+    my @texts;
+    push @texts, t8('Due Date') . ' ' . t8('From Date') . ': ' . $form->{filter}{duedate_from} if $form->{filter}{duedate_from};
+    push @texts, t8('Due Date') . ' ' . t8('To Date')   . ': ' . $form->{filter}{duedate_to}   if $form->{filter}{duedate_to};
+    push @texts, t8('Hide credit notes')                                                      if $form->{filter}{hide_credit_notes};
+    $form->{summary_text} = join '; ', @texts;
   }
 
   setup_sepa_add_transfer_action_bar();
@@ -782,9 +792,13 @@ sub setup_sepa_add_transfer_action_bar {
   for my $bar ($::request->layout->get('actionbar')) {
     $bar->add(
       action => [
+        t8('Filter'),
+        submit    => [ '#filter_form', { action => "bank_transfer_add" } ],
+        accesskey => 'enter',
+      ],
+      action => [
         t8('Step 2'),
         submit    => [ '#form', { action => "bank_transfer_create" } ],
-        accesskey => 'enter',
         checks    => [ [ 'kivi.check_if_entries_selected', '[name="ids[]"]' ] ],
       ],
     );

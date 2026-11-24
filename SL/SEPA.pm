@@ -32,14 +32,29 @@ sub retrieve_open_invoices {
   my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
   my $vc_vc_id = $params{vc} eq 'customer' ? 'c_vendor_id' : 'v_customer_id';
 
+  my $hide_credit_notes = !!$params{filter}{hide_credit_notes};
+  my $duedate_from      = $params{filter}{duedate_from};
+  my $duedate_to        = $params{filter}{duedate_to};
+
   my $mandate  = $params{vc} eq 'customer' ? " AND COALESCE(vc.mandator_id, '') <> '' AND vc.mandate_date_of_signature IS NOT NULL " : '';
   my $is_sepa_blocked = $params{vc} eq 'customer' ? 'FALSE' : "${arap}.is_sepa_blocked";
   my $only_approved   = $params{payment_approval} ? ' AND ap.id IN (SELECT ap_id from payment_approvals) ' : '';
   # has to be ON and don't edit payments manually (UNDO SEPA Export if needed at all)
   my $p_credit_notes  = $params{vc} eq 'vendor' && $::instance_conf->get_sepa_subtract_credit_notes
                                                 && SL::DB::Default->get->payments_changeable == 0
+                                                && !$hide_credit_notes
                         ? " OR (${arap}.amount < 0 AND ${arap}.amount <> ${arap}.paid) " : undef;
 
+  my $duedate_where = '';
+  my @values        = ();
+  if ($duedate_from) {
+    $duedate_where .= " AND ${arap}.duedate::date >= ? ";
+    push @values, conv_date($duedate_from);
+  }
+  if ($duedate_to) {
+    $duedate_where .= " AND ${arap}.duedate::date <= ? ";
+    push @values, conv_date($duedate_to);
+  }
 
   # open_amount is not the current open amount according to bookkeeping, but
   # the open amount minus the SEPA transfer amounts that haven't been closed yet
@@ -77,11 +92,12 @@ sub retrieve_open_invoices {
                 $p_credit_notes
              )
        $only_approved
+       $duedate_where
        ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
     #  $main::lxdebug->message(LXDebug->DEBUG2(),"sepa add query:".$query);
 
-  my $results = selectall_hashref_query($form, $dbh, $query);
+  my $results = selectall_hashref_query($form, $dbh, $query, @values);
 
   # add some more data to $results:
   # create drop-down data for payment types and suggest amount to be paid according
