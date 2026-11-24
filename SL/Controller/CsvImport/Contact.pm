@@ -120,6 +120,7 @@ sub check_linked_customer_vendor {
      defined $entry->{raw_data}{customer}       ? $self->vc_by->{name}->{customers}->{ $entry->{raw_data}{customer} }         : undef,
      defined $entry->{raw_data}{customernumber} ? $self->vc_by->{number}->{customers}->{ $entry->{raw_data}{customernumber} } : undef,
      defined $entry->{raw_data}{customer_gln}   ? $self->vc_by->{gln}->{customers}->{ $entry->{raw_data}{customer_gln} }      : undef,
+     defined $entry->{raw_data}{customer_or_vendor_number} ? $self->vc_by->{number}->{customers}->{ $entry->{raw_data}{customer_or_vendor_number} } : undef,
      ;
 
   # sanity check:
@@ -130,6 +131,7 @@ sub check_linked_customer_vendor {
     (defined $entry->{raw_data}{customer}       && $self->vc_counts_by->{name}->{customers}->{ $entry->{raw_data}{customer} } > 1) ||
     (defined $entry->{raw_data}{customernumber} && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}{customernumber} } > 1) ||
     (defined $entry->{raw_data}{customer_gln}   && $self->vc_counts_by->{gln}->{customers}->{ $entry->{raw_data}{customer_gln} } > 1) ||
+    (defined $entry->{raw_data}{customer_or_vendor_number} && $self->vc_counts_by->{number}->{customers}->{ $entry->{raw_data}{customer_or_vendor_number} } > 1) ||
     grep { $_ > 1 } values %seen_customers
   ) {
     push @{ $entry->{errors} }, $::locale->text('Error: Customer is ambiguous');
@@ -148,7 +150,9 @@ sub check_linked_customer_vendor {
      defined $entry->{raw_data}{vendor_id}    ? $self->vc_by->{id}->{ $entry->{raw_data}{vendor_id} }                   : undef,
      defined $entry->{raw_data}{vendor}       ? $self->vc_by->{name}->{vendors}->{ $entry->{raw_data}{vendor} }         : undef,
      defined $entry->{raw_data}{vendornumber} ? $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}{vendornumber} } : undef,
-     defined $entry->{raw_data}{vendor_gln}   ? $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}{vendor_gln} }      : undef;
+     defined $entry->{raw_data}{vendor_gln}   ? $self->vc_by->{gln}->{vendors}->{ $entry->{raw_data}{vendor_gln} }      : undef,
+     defined $entry->{raw_data}{customer_or_vendor_number} ? $self->vc_by->{number}->{vendors}->{ $entry->{raw_data}{customer_or_vendor_number} } : undef,
+     ;
 
   # sanity check:
   my %seen_vendors;
@@ -158,6 +162,7 @@ sub check_linked_customer_vendor {
     (defined $entry->{raw_data}{vendor}       && $self->vc_counts_by->{name}->{vendors}->{ $entry->{raw_data}->{vendor} } > 1) ||
     (defined $entry->{raw_data}{vendornumber} && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{vendornumber} } > 1) ||
     (defined $entry->{raw_data}{vendor_gln}   && $self->vc_counts_by->{gln}->{vendors}->{ $entry->{raw_data}->{vendor_gln} } > 1) ||
+    (defined $entry->{raw_data}{customer_or_vendor_number} && $self->vc_counts_by->{number}->{vendors}->{ $entry->{raw_data}->{customer_or_vendor_number} } > 1) ||
     grep { $_ > 1 } values %seen_vendors
   ) {
     push @{ $entry->{errors} }, $::locale->text('Error: vendor is ambiguous');
@@ -170,6 +175,10 @@ sub check_linked_customer_vendor {
     $entry->{raw_data}->{vendor_gln}
   )) {
     push @{ $entry->{errors} }, $::locale->text('Error: vendor not found');
+  }
+
+  if ( !@customer_candidates && !@vendor_candidates && $entry->{raw_data}{customer_or_vendor_number} ) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer or vendor not found');
   }
 
   # register these in the object to be save in save_additions
@@ -266,6 +275,7 @@ sub setup_displayable_columns {
                                  { name => 'customer_id',    description => $::locale->text('Customer (ID)')                 },
                                  { name => 'customer',       description => $::locale->text('Customer (name)')               },
                                  { name => 'customernumber', description => $::locale->text('Customer Number')               },
+                                 { name => 'customer_or_vendor_number', description => $::locale->text('Customer or Vendor Number') },
                                  { name => 'customer_gln',   description => $::locale->text('Customer GLN')                  },
                                  { name => 'vendor_id',      description => $::locale->text('Vendor (ID)')                   },
                                  { name => 'vendor',         description => $::locale->text('Vendor (name)')                 },
