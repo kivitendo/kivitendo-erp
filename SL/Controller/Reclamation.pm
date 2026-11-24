@@ -1213,8 +1213,6 @@ sub init_models {
       mtime                   => t8('Last modification Time'),
       delivered               => t8('Delivered'),
       closed                  => t8('Closed'),
-      reasons                 => t8("Reclamation Reasons"),
-      partnumbers             => t8("Part numbers"),
     },
     query => [
       SL::DB::Manager::Reclamation->type_filter($self->type),
@@ -1903,10 +1901,12 @@ sub prepare_report {
       # reasons are shown. If all reaseons should be displayed, the reason objects
       # has to be newly loaded, but that might be a performance issue. E.g.:
       # sub      => sub { my $obj = SL::DB::Reclamation->new(id => $_[0]->id)->load(with => ['reclamation_items', 'reclamation_items.reason']); join(', ', map {$_->reason->name} @{$obj->items_sorted}) },
+      text     => t8("Reclamation Reasons"),
     },
     partnumbers => {
       sub      => sub { join(', ', map {$_->part->partnumber} @{$_[0]->items_sorted}) },
       # sub      => sub { my $obj = SL::DB::Reclamation->new(id => $_[0]->id)->load(with => ['reclamation_items', 'reclamation_items.part']); join(', ', map {$_->part->partnumber} @{$obj->items_sorted}) },
+      text     => t8("Part numbers"),
     },
   );
   if ($self->type_data->properties('is_customer')) {
@@ -1965,8 +1965,8 @@ sub prepare_report {
 
   #my @cvar_column_form_names = ('_include_cvars_from_form', map { "include_cvars_" . $_->name } @{ $self->includeable_cvar_configs });
 
-  # make all sortable
-  my @sortable = keys %column_defs;
+  # make all sortable, except reasons and partnumbers
+  my @sortable = grep { my $key = $_; none { $_ eq $key } qw(reasons partnumbers) } keys %column_defs;
 
   my $filter_html = SL::Presenter::ReclamationFilter::filter(
     $::form->{filter}, $self->type, active_in_report => $::form->{active_in_report}
