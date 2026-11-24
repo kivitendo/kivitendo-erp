@@ -911,6 +911,26 @@ namespace('kivi.Part', function(ns) {
     $.post("controller.pl", data, kivi.eval_json_result);
   };
 
+  ns.pick_partsgroup = function() {
+    var id = $("#part_id").val();
+    kivi.popup_dialog({
+      url:    'controller.pl?action=Part/pick_partsgroup&part.id=' + id,
+      dialog: { title: kivi.t8('Partsgroups') },
+      id: 'assign_partsgroup',
+    });
+  };
+
+  ns.save_partsgroup = function() {
+    var data = $('#pg_picker').serializeArray();
+    data.push({ name: 'action', value: 'Part/save_partsgroup' });
+    $.post("controller.pl",data, kivi.eval_json_result);
+  };
+
+  ns.close_partsgroup_dialog = function() {
+    $('#assign_partsgroup').dialog("close");
+  };
+
+
   $(function(){
     $('#ic').on('focusout', '.reformat_number', function(event) {
       ns.reformat_number(event);

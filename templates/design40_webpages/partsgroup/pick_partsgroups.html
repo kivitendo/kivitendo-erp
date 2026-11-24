@@ -1,0 +1,36 @@
+[% USE HTML %]
+[% USE T8 %]
+[% USE L %]
+[% USE P %]
+[% USE LxERP %]
+
+[%  LxERP.t8("Part") %]: [% HTML.escape(SELF.part.displayable_name) %]<br>
+
+<form action="controller.pl" method="post" id="pg_picker">
+[% L.hidden_tag('part.id'          , SELF.part.id) %]
+  [% BLOCK recurse %]
+    <ul>
+    [% FOREACH partsgroup = partsgroups_array %]
+      <li>
+        [% checked = '' %]
+        [%  IF SELF.part.partsgroup_id == partsgroup.id %]
+          [%  checked = 'checked' %]
+        [%  END %]
+        [% L.radio_button_tag('partsgroup_id',value=partsgroup.id, checked=checked) %][% HTML.escape(partsgroup.partsgroup _ '--' _ partsgroup.id) %]
+      </li>
+      [%  IF partsgroup.children.size %]
+        [% INCLUDE recurse partsgroups_array=partsgroup.children %]
+      [% END %]
+    [% END %]
+    </ul>
+  [% END %]
+  <div>
+    <h2>[% LxERP.t8("Partsgroup") %]</h2>
+    [% FOREACH root = PARTSGROUPS %]
+      [% IF root.level == 0 %]
+        [% INCLUDE recurse partsgroups_array=root %]
+      [% END %]
+    [% END %]
+  </div>
+    [% L.button_tag("kivi.Part.save_partsgroup()", LxERP.t8("Save"))  %]</td>
+</form>

@@ -35,7 +35,7 @@
           <tr>
             <th>[% 'Partsgroup' | $T8 %]</th>
             <td class="wi-wide">
-              [% P.select_tag('object.partsgroup_id', SELF.all_partsgroups, default=SELF.object.partsgroup_id, title_key='partsgroup', with_empty=1, class='wi-wide' ) %]
+              [% P.select_tag('object.partsgroup_id', SELF.all_partsgroups, default=SELF.object.partsgroup_id, title_key='indented_name', with_empty=1, class='wi-wide' ) %]
             </td>
           </tr>
           <tr>

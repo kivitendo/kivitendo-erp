@@ -74,7 +74,7 @@ sub show_form {
     split m/:/, ($self->config->flags || '')
   });
 
-  $params{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all();
+  $params{all_partsgroups} = SL::DB::Manager::PartsGroup->get_hierarchy(obsolete => 1);
 
   $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
   $self->setup_form_action_bar;

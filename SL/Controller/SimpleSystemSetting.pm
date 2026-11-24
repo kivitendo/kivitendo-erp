@@ -172,20 +172,6 @@ my %supported_types = (
     ],
   },
 
-  parts_group => {
-    # Make locales.pl happy: $self->render("simple_system_setting/_parts_group_form")
-    class  => 'PartsGroup',
-    titles => {
-      list => t8('Partsgroups'),
-      add  => t8('Add partsgroup'),
-      edit => t8('Edit partsgroup'),
-    },
-    list_attributes => [
-      { method => 'partsgroup', title => t8('Description') },
-      { method => 'obsolete',   title => t8('Obsolete'), formatter => sub { $_[0]->obsolete ? t8('yes') : t8('no') } },
-    ],
-  },
-
   price_factor => {
     # Make locales.pl happy: $self->render("simple_system_setting/_price_factor_form")
     class  => 'PriceFactor',
@@ -555,7 +541,7 @@ sub setup_stock_counting {
   $self->{current_employee_id} = SL::DB::Manager::Employee->current->id;
 
   my %pg_additional_condition = ($::form->{id} && $self->object->partsgroup_id) ? (id => $self->object->partsgroup_id) : ();
-  $self->{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all_sorted(where => [or => [obsolete => undef, obsolete => 0, %pg_additional_condition]]);
+  $self->{all_partsgroups} = SL::DB::Manager::PartsGroup->get_hierarchy(obsolete => 0);
 }
 
 #
