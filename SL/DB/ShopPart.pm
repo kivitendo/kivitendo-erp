@@ -26,8 +26,8 @@ sub get_tax_and_price {
     $part = SL::DB::Manager::Part->find_by( id => $self->part_id );
     $price = $part->$price_src_id;
   }else{
-    $part = SL::DB::Manager::Part->find_by( id => $self->part_id );
-    $price =  $part->prices->[0]->price;
+    $part = SL::DB::Manager::Part->get_all( where => [id => $self->part_id, 'prices.'.pricegroup_id => $price_src_id], with_objects => ['prices'],limit => 1)->[0];
+    $price = $part->prices->[0]->price;
   }
 
   my $taxrate;
