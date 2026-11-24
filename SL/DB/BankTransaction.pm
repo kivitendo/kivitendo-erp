@@ -8,6 +8,7 @@ use strict;
 use SL::DB::MetaSetup::BankTransaction;
 use SL::DB::Manager::BankTransaction;
 use SL::DB::Helper::LinkedRecords;
+use SL::Locale::String qw(t8);
 use Carp;
 
 require SL::DB::Invoice;

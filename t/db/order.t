@@ -148,11 +148,15 @@ $order2 = SL::Dev::Record::create_sales_order(
   ]
 );
 
+my $old_locale = $::locale;
+$::locale = Locale->new('en');
+
 my $err_msg;
 eval { $order = SL::DB::Order->new_from_multi([$order1, $order2]); 1 } or do {$err_msg = $@};
 
-ok $err_msg =~ "^Cannot create order from source records of different customers", 'new from multi: fail on different customers';
+ok $err_msg =~ "^Cannot create new record from source records of different customers", 'new from multi: fail on different customers';
 
+$::locale = $old_locale;
 
 ####
 clear_up();

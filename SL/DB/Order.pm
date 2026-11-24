@@ -695,13 +695,13 @@ sub new_from_multi {
 
   my $is_purchase = any { !$_->is_sales } @$sources;
 
-  croak("Unsupported object type in sources")                               if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
+  croak("Unsupported object type in sources")                                     if any { ref($_) !~ m{SL::DB::Order} }                   @$sources;
   if ($is_purchase) {
-    croak("Cannot create order for purchase records")                       if any {  $_->is_sales }                                 @$sources;
-    croak("Cannot create order from source records of different vendors")   if any { $_->vendor_id != $sources->[0]->vendor_id }     @$sources;
+    croak("Cannot create new record from mixed sales and purchase records")       if any {  $_->is_sales }                                 @$sources;
+    die t8("Cannot create new record from source records of different vendors")   if any { $_->vendor_id != $sources->[0]->vendor_id }     @$sources;
   } else {
-    croak("Cannot create order for purchase records")                       if any { !$_->is_sales }                                 @$sources;
-    croak("Cannot create order from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
+    croak("Cannot create new record from mixed sales and purchase records")       if any { !$_->is_sales }                                 @$sources;
+    die t8("Cannot create new record from source records of different customers") if any { $_->customer_id != $sources->[0]->customer_id } @$sources;
   }
 
   # bb: todo: check shipto: is it enough to check the ids or do we have to compare the entries?
