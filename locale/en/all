@@ -2036,6 +2036,7 @@ $self->{texts} = {
   'Hide chart details'          => '',
   'Hide chart list'             => '',
   'Hide charts'                 => '',
+  'Hide credit notes'           => '',
   'Hide details'                => '',
   'Hide help text'              => '',
   'Hide mappings (csv_import)'  => '',

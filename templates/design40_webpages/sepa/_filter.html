@@ -1,0 +1,40 @@
+[% USE T8 %]
+[% USE L %]
+[% USE LxERP %]
+[% USE HTML %]
+
+<form action="sepa.pl" method="post" id="filter_form">
+ <div class="wrapper">
+  [%- L.hidden_tag('vc', vc) %]
+
+  [%- BLOCK filter_toggle_panel %]
+  <table id="filter_table" class="tbl-horizontal">
+   <colgroup><col class="wi-normmal"><col class="wi-normal"></colgroup>
+   <tbody>
+    <tr>
+     <th>[% 'Due Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+     <td class="wi-date">[% L.date_tag('filter.duedate_from', filter.duedate_from) %]</td>
+    </tr>
+    <tr>
+     <th>[% 'Due Date' | $T8 %] [% 'To Date' | $T8 %]</th>
+     <td class="wi-date">[% L.date_tag('filter.duedate_to', filter.duedate_to) %]</td>
+    </tr>
+    [%- IF vc == 'vendor' %]
+    <tr>
+     <th>[% 'Hide credit notes' | $T8 %]</th>
+     <td>[% L.checkbox_tag('filter.hide_credit_notes', checked=filter.hide_credit_notes, value='y') %]</td>
+    </tr>
+    [%- END %]
+   </tbody>
+  </table>
+
+  <div class="buttons">
+   [% L.button_tag('$("#filter_form").resetForm()', LxERP.t8('Reset'), class='neutral') %]
+  </div>
+
+  [%- END # /BLOCK filter_toggle_panel %]
+
+  [%- INCLUDE 'common/toggle_panel.html' %]
+
+ </div><!-- /.wrapper -->
+</form>
