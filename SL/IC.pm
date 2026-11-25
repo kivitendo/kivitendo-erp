@@ -807,7 +807,7 @@ SQL
 
   my $query_tax = <<SQL;
     SELECT c.accno, t.taxdescription AS description, t.id as tax_id, t.rate,
-           c.accno as taxnumber
+           c.accno as taxnumber, t.reverse_charge_chart_id
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
     WHERE t.id IN
@@ -838,6 +838,9 @@ SQL
     $tax_ref = $sth_tax->fetchrow_hashref or next;
 
     $form->{"expense_accno_tax_id_$index"} = $tax_ref->{tax_id}; # only for purchase_invoice
+
+    # reverse charge: the vendor gets the net amount only
+    $tax_ref->{rate} = 0 if $tax_ref->{reverse_charge_chart_id} && $form->{vc} ne 'customer';
 
     $form->{"taxaccounts_$index"} = $tax_ref->{"accno"};
     $form->{"taxaccounts"} .= "$tax_ref->{accno} "if $form->{"taxaccounts"} !~ /$tax_ref->{accno}/;
