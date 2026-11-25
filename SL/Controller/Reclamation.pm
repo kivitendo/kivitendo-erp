@@ -1941,7 +1941,7 @@ sub prepare_report {
   }
   $self->models->add_additional_url_params(
     active_in_report => $::form->{active_in_report});
-  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} }
+  map { $column_defs{$_}->{visible} = $::form->{active_in_report}->{"$_"} // 0 }
     keys %column_defs;
 
   ## add cvars TODO: Add own cvars
