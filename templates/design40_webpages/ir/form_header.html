@@ -272,12 +272,12 @@
       [% IF is_type_credit_note %]
       <tr>
         <th>[% 'Credit Note Number' | $T8 %]</th>
-        <td><input type="text" class="wi-mediumsmall" name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
+        <td><input type="text" class="number-for-title wi-mediumsmall" name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
       </tr>
       [% ELSE %]
       <tr>
         <th>[% 'Invoice Number' | $T8 %]</th>
-        <td>[% L.input_tag('invnumber', invnumber, class='wi-mediumsmall') %]</td>
+        <td>[% L.input_tag('invnumber', invnumber, class='number-for-title wi-mediumsmall') %]</td>
       </tr>
       [% END %]
       <tr>
@@ -338,14 +338,15 @@
 
 <script type="text/javascript" src="js/show_form_details.js"></script>
 <script type="text/javascript" src="js/show_history.js"></script>
-<script type="text/javascript"><!--
+<script type="text/javascript">
   $('document').ready(function(){
-  [% IF creditwarning != '' %]
-    alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
-  [% END %]
+    [% IF creditwarning != '' %]
+      alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
+    [% END %]
     kivi.File.doc_tab_init('ir_tabs', 'ui-tabs-docs', $('#id').val(), 'purchase_invoice');
-     });
-//--></script>
+    kivi.SalesPurchase.setup_number_in_title(".number-for-title");
+  });
+</script>
 
 <input type="hidden" name="webdav" value="[% webdav | html %]">
 
