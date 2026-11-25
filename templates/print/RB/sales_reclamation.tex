@@ -44,7 +44,7 @@ $( KiviLatex.required_packages_for_html )$
   
   $( KiviLatex.filter(reclamation.customervendor.zipcode) )$ $( KiviLatex.filter(reclamation.customervendor.city) )$
 
-  $( KiviLatex.filter(reclamation.customervendor.country) )$
+  $( KiviLatex.filter(reclamation.customervendor.country.description_localized(template_meta.language.template_code)) )$
 \end{minipage}
 \hfill
 \begin{minipage}[t]{6cm}
