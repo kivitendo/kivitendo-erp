@@ -1813,7 +1813,7 @@ sub prepare_report {
       sub      => sub { $_[0]->transaction_description },
     },
     notes => {
-      sub      => sub { $_[0]->notes },
+      sub      => sub { $_[0]->notes_as_stripped_html },
     },
     intnotes => {
       sub      => sub { $_[0]->intnotes },
