@@ -38,6 +38,12 @@ Kleinere neue Features und Detailverbesserungen:
   Dazu muss in der Mandantenkonfiguration unter Nummernkreise eine gültige
   letzte EAN hinterglegt sein.
 
+- »Belege, die ohne Vorgangsbezeichnung gespeichert werden dürfen«
+  in der Mandantenkonfiguration ersetzt die bisherige Einstelloption
+  »Vorgangsbezeichnung in Einkaufs- und Verkaufsbelegen erzwingen«.
+  Damit besteht die Möglichkeit, die Vorgangsbezeichnung nun individuell
+  für einzelne Belegtypen einzufordern, statt nur global für alle Belegtypen.
+
 Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
 
