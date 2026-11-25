@@ -31,6 +31,9 @@ Kleinere neue Features und Detailverbesserungen:
   Angebots-Belegtypen zur Verfügung und kann mit einstellbaren
   Übersetzungstexten gedruckt werden.
 
+- EANs können beim Anlegen eine Artikels automatisch vergeben werden.
+  Dazu muss in der Mandantenkonfiguration unter Nummernkreise eine gültige
+  letzte EAN hinterglegt sein.
 
 Bugfixes von Github-Issues (https://github.com/kivitendo/kivitendo-erp/issues/):
 
