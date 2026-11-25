@@ -101,7 +101,7 @@
       <th>[% 'Reference' | $T8 %]
           [% P.context_help_tag(LxERP.t8('If loaded from a template you can use date variables to avoid boring date alteration every month. All variables which are available for recurring invoices are supported. Example 1: Insurance <%current_month_long%> <%current_year%> => Insurance February 2026. Example 2: Rent <%reference_date FORMAT=%m/%Y %> => Rent 02/2026. Hint: reference_date is either the current date or if the source of the template is a bank transaction the valuta date from the bank transaction. Just try it!')) %]
       </th>
-      <td>[% L.input_tag('reference', reference, class='wi-wide', readonly=readonly) %]</td>
+      <td>[% L.input_tag('reference', reference, class='number-for-title wi-wide', readonly=readonly) %]</td>
     </tr>
     <tr>
       <th>[% 'Transdate' | $T8 %]</th>
