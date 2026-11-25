@@ -35,9 +35,6 @@
         <span class="numeric[%- IF ITEM.part.onhand < ITEM.part.rop -%] plus0[%- END -%]">
           [%- ITEM.part.onhand_as_number -%]&nbsp;[%- ITEM.part.unit -%]
         </span>
-      <b>[% 'Optional' | $T8 %]</b>&nbsp;
-        [%- L.yes_no_tag("record.items[].optional", ITEM.optional
-                          class="recalc") %]&nbsp;
     </td>
   </tr>
   <tr>
