@@ -1226,7 +1226,7 @@ sub form_header {
 
   my ($init) = @_;
 
-  $::request->layout->add_javascripts("autocomplete_chart.js", "autocomplete_project.js", "kivi.File.js", "kivi.SalesPurchase.js", "kivi.GL.js", "kivi.RecordTemplate.js", "kivi.Validator.js", "show_history.js");
+  $::request->layout->add_javascripts(map { $_ . '.js' } qw(autocomplete_chart autocomplete_project kivi.File kivi.SalesPurchase kivi.GL kivi.RecordTemplate kivi.Validator show_history));
 
   $::form->get_lists(
     "charts"    => { "key" => "ALL_CHARTS", "transdate" => $::form->{transdate} },
