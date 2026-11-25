@@ -1181,7 +1181,6 @@ sub init_models {
         by  => 'record_number',
         dir => 0,
       },
-      id                      => t8('ID'),
       record_number           => t8('Reclamation Number'),
       employee                => t8('Employee'),
       salesman                => t8('Salesman'),
@@ -1724,7 +1723,6 @@ sub prepare_report {
 
   # TODO: shipto_id is not linked to custom_shipto
   my @columns_order = qw(
-    id
     record_number
     employee
     salesman
@@ -1776,10 +1774,6 @@ sub prepare_report {
   );
 
   my %column_defs = (
-    id => {
-      obj_link => sub {$self->url_for(action => 'edit', id => $_[0]->id, type => $self->type, callback => $callback)},
-      sub      => sub { $_[0]->id },
-    },
     record_number => {
       obj_link => sub {$self->url_for(action => 'edit', id => $_[0]->id, type => $self->type, callback => $callback)},
       sub      => sub { $_[0]->record_number },
