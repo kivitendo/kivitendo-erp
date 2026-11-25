@@ -393,7 +393,38 @@ sub generate_report {
 
     flash('warning', $::locale->text('Name does not make sense without any bsooqr options'));
   }
+
+  $form->{report_generator_output_format} ||= 'HTML';
+  my $allrows        = !!($form->{report_generator_output_format} ne 'HTML') ;
+
+  # get maxcount
+  if (!$allrows && !$form->{maxrows}) {
+    $form->{count_only} = 1;
+    $form->{maxrows}    = IC->all_parts(\%myconfig, \%$form);
+    $form->{count_only} = 0;
+  }
+
+  # manual paginating
+  my $pages          = {};
+  my $page           = $::form->{page} || 1;
+  $pages->{per_page} = $::form->{per_page} || 100;
+  my $first_nr       = ($page - 1) * $pages->{per_page};
+  my $last_nr        = $first_nr + $pages->{per_page};
+
+  # no optimisation if qty op
+  if ( !$allrows && $form->{maxrows}) {
+    $form->{limit}  = $pages->{per_page};
+    $form->{offset} = ($page - 1) * $pages->{per_page};
+    $first_nr       = 0;
+    $last_nr        = $pages->{per_page};
+  }
+
   IC->all_parts(\%myconfig, \%$form);
+
+  # get maxcount if not already got
+  if (!$form->{maxrows}) {
+    $form->{maxrows} = scalar @{ $form->{parts} };
+  }
 
   my @columns = qw(
     partnumber type_and_classific description notes intnotes partsgroup warehouse bin
@@ -470,6 +501,15 @@ sub generate_report {
                        'title'                 => $form->{title},
                        'attachment_basename'   => 'article_list' . strftime('_%Y%m%d', localtime time),
   );
+  unless ($allrows) {
+    $pages->{max}    = SL::DB::Helper::Paginated::ceil($form->{maxrows}, $pages->{per_page}) || 1;
+    $pages->{page}   = $page < 1 ? 1: $page > $pages->{max} ? $pages->{max}: $page;
+    $pages->{common} = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{page}, $pages->{max}) } ];
+
+    $report->set_options('raw_bottom_info_text' => $form->parse_html_template('common/paginate', { 'pages' => $pages , 'base_url' => $callback.'&sort='.$form->{sort}.'&revers='.$form->{revers}}) .
+                                                   $form->parse_html_template('ic/generate_report_bottom' , { PART_CLASSIFICATIONS => SL::DB::Manager::PartClassification->get_all_sorted }),
+    );
+  }
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
