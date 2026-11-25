@@ -793,7 +793,7 @@ namespace("kivi", function(ns) {
     let $ctrl = $(selector);
 
     if (type == 'bool') {
-      $ctrl.prop('checked', value == 1 ? 'checked' : '');
+      $ctrl.prop('checked', value ? 'checked' : '');
 
     } else if ((type == 'customer') || (type == 'vendor')) {
       $ctrl.data('customer_vendor_picker').set_item({ id: value, name: value_as_text });
