@@ -1419,7 +1419,7 @@ sub make_reclamation {
 
   my @items;
   my $pos = 1;
-  foreach my $form_attr (@{$form_reclamation_items}) {
+  foreach my $form_attr (@{$form_reclamation_items || []}) {
     my $item = make_item($reclamation, $form_attr);
     $item->position($pos);
     push @items, $item;
