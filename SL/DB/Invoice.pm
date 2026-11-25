@@ -77,6 +77,8 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
+SL::DB::Helper::Attr::make(__PACKAGE__, daily_exchangerate => 'numeric');
+
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->attr_html('notes');
