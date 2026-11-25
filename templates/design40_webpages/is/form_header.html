@@ -355,9 +355,9 @@
         <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")', class='wi-date') %]</td>
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
-            [% L.input_tag("invnumber", invnumber, size="11", class="wi-small") %]
+            [% L.input_tag("invnumber", invnumber, size="11", class="number-for-title wi-small") %]
           [%- ELSIF id %]
-            [% L.hidden_tag("invnumber", invnumber) %]
+            [% L.hidden_tag("invnumber", invnumber, class="number-for-title") %]
             [% HTML.escape(invnumber) %]
           [%- ELSE %]
             [% LxERP.t8("will be set upon posting") %]
@@ -377,9 +377,9 @@
         <td>[% L.date_tag('invdate', invdate, onchange='kivi.SalesPurchase.set_duedate_on_reference_date_change("invdate")', class='wi-date') %]</td>
         <td>
           [%- IF INSTANCE_CONF.get_sales_purchase_record_numbers_changeable %]
-            [% L.input_tag("invnumber", invnumber, size="11", class="wi-small") %]
+            [% L.input_tag("invnumber", invnumber, size="11", class="number-for-title wi-small") %]
           [%- ELSIF id %]
-            [% L.hidden_tag("invnumber", invnumber) %]
+            [% L.hidden_tag("invnumber", invnumber, class="number-for-title") %]
             [% HTML.escape(invnumber) %]
           [%- ELSE %]
             [% LxERP.t8("will be set upon posting") %]
