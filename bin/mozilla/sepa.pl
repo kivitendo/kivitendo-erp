@@ -38,7 +38,8 @@ sub bank_transfer_add {
 
   if (!scalar @{ $invoices }) {
     $form->show_generic_information($locale->text('Either there are no open invoices, or you have already initiated bank transfers ' .
-                                                  'with the open amounts for those that are still open.'));
+                                                  'with the open amounts for those that are still open. ' .
+                                                  'Or no invoices does match your filter settings.'));
     $main::lxdebug->leave_sub();
     return;
   }
