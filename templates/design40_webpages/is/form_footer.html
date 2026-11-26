@@ -125,7 +125,10 @@
 
 </form>
 <script type='text/javascript'>
-  $(kivi.SalesPurchase.init_on_submit_checks);
+  $(function() {
+    kivi.SalesPurchase.init_on_submit_checks();
+    kivi.SalesPurchase.setup_number_in_title(".number-for-title");
+  });
 </script>
 
 <div id="shipto_dialog" class="hidden"></div>
