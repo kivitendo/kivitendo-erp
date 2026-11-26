@@ -250,7 +250,7 @@ namespace('kivi.DeliveryOrder', function(ns) {
       dataType: 'json',
       success: function(data){
         if (data.error) {
-          return kivi.Flash.display_flash('error', data.error);
+          return kivi.Flash.display_flash('error', kivi.html_escape(data.error));
         }
         if (!data.is_standard) {
           $('#currency_name').text(data.currency_name);
