@@ -1033,6 +1033,7 @@ $self->{texts} = {
   'Credit Tax (lit)'            => '',
   'Credit Tax Account'          => '',
   'Credit note (one letter abbreviation)' => '',
+  'Credit notes are excluded by the client configuration. To include credit notes, apply the following settings in the client configuration: <i>Payments cannot be edited manually</i> (in the tab <i>Posting Configuration</i>) and <i>SEPA Subtract Vendor Credit Note</i> (in the tab <i>SEPA</i>).' => '',
   'Credit notes cannot be converted into other credit notes.' => '',
   'Cumulated or averaged values' => '',
   'Curr'                        => '',

@@ -1033,6 +1033,7 @@ $self->{texts} = {
   'Credit Tax (lit)'            => 'Habensteuer',
   'Credit Tax Account'          => 'Umsatzsteuerkonto',
   'Credit note (one letter abbreviation)' => 'G',
+  'Credit notes are excluded by the client configuration. To include credit notes, apply the following settings in the client configuration: <i>Payments cannot be edited manually</i> (in the tab <i>Posting Configuration</i>) and <i>SEPA Subtract Vendor Credit Note</i> (in the tab <i>SEPA</i>).' => 'Gutschriften sind durch die Mandantenkonfiguration ausgeblendet. Um Gutschriften einzuschließen, aktivieren Sie folgende Einstellungen in der Mandantenkonfiguration: <i>Zahlungsausgänge sind niemals änderbar</i> (im Tab <i>Buchungskonfiguration</i>) und <i>Gutschriften beim SEPA-Lauf verrechnen</i> (im Tab <i>SEPA</i>).',
   'Credit notes cannot be converted into other credit notes.' => 'Gutschriften können nicht in andere Gutschriften umgewandelt werden.',
   'Cumulated or averaged values' => 'Kumulierte oder gemittelte Werte',
   'Curr'                        => 'Währung',
