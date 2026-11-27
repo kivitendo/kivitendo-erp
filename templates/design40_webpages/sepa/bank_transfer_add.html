@@ -36,6 +36,17 @@
 </div><!-- /.wrapper -->
 
 <div class="wrapper">
+ [% IF !(INSTANCE_CONF.get_sepa_subtract_credit_notes && INSTANCE_CONF.get_payments_changeable == 0) %]
+   [% INCLUDE 'generic/information.html'
+     label_information = LxERP.t8('Credit notes are excluded by the client configuration. To include credit notes, apply the following settings in the client configuration: <i>Payments cannot be edited manually</i> (in the tab <i>Posting Configuration</i>) and <i>SEPA Subtract Vendor Credit Note</i> (in the tab <i>SEPA</i>).')
+   %]
+ [% END %]
+
+ [% IF INVOICES.as_list.size == 0 %]
+   [% INCLUDE 'generic/information.html'
+     label_information = LxERP.t8('Either there are no open invoices, or you have already initiated bank transfers with the open amounts for those that are still open. Or no invoices does match your filter settings.')
+   %]
+ [% ELSE %]
  <table class="tbl-list">
   <thead>
     <tr>
@@ -155,6 +166,7 @@
     [% END %]
   </tbody>
  </table>
+ [% END %]
 </div><!-- /.wrapper -->
 
 [% IF show_vc_bank_info_footnote || show_is_sepa_blocked_footnote || show_is_not_approved_footnote %]

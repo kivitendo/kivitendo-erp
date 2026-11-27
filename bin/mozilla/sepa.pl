@@ -36,14 +36,6 @@ sub bank_transfer_add {
 
   my $invoices = SL::SEPA->retrieve_open_invoices(vc => $vc, filter => $form->{filter});
 
-  if (!scalar @{ $invoices }) {
-    $form->show_generic_information($locale->text('Either there are no open invoices, or you have already initiated bank transfers ' .
-                                                  'with the open amounts for those that are still open. ' .
-                                                  'Or no invoices does match your filter settings.'));
-    $main::lxdebug->leave_sub();
-    return;
-  }
-
   # Only include those per default that require manual action from our
   # side. For sales invoices these are the ones for which direct debit
   # has been selected. For purchase invoices it's the other way
