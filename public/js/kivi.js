@@ -810,6 +810,10 @@ namespace("kivi", function(ns) {
     }
   };
 
+  ns.html_escape = function(text) {
+    return $('<span>').text(text).html();
+  };
+
 });
 
 kivi = namespace('kivi');

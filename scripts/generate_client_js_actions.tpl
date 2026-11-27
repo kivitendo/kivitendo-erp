@@ -11,7 +11,7 @@ ns.eval_json_result = function(data) {
     return;
 
   if (data.error && ns.Flash)
-    return ns.Flash.display_flash('error', data.error);
+    return ns.Flash.display_flash('error', kivi.html_escape(data.error));
 
   if ((data.js || '') !== '')
     // jshint -W061
